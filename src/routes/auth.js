@@ -1,10 +1,13 @@
 const express = require("express");
 const db = require("../database/db");
 const { generateAccessToken } = require("../auth/generateToken");
+const checkSuperadmin = require("../middleware/checkSuperadmin");
+const checkUser = require("../middleware/checkUser");
+const { hashPassword, comparePassword } = require("../auth/hash");
 
 const router = express.Router();
 
-router.post("/register", (req, res) => {
+router.post("/register", checkSuperadmin, async (req, res) => {
   const { name, surname, email, password, role } = req.body;
 
   if (!name || !surname || !email || !password || !role) {
@@ -18,9 +21,11 @@ router.post("/register", (req, res) => {
     return res.status(400).json({ message: "Il ruolo non valido" });
   }
 
+  const passwordHash = await hashPassword(password);
+
   db.execute(
     "INSERT INTO user (nome, cognome, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
-    [name, surname, email, password, role],
+    [name, surname, email, passwordHash, role],
   )
     .then(() => {
       res.status(201).json({ message: "Utente registrato con successo" });
@@ -32,7 +37,7 @@ router.post("/register", (req, res) => {
     });
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -49,7 +54,7 @@ router.post("/login", (req, res) => {
 
       const user = rows[0];
 
-      if (user.password_hash !== password) {
+      if (!comparePassword(password, user.password_hash)) {
         return res.status(401).json({ message: "Password non valida" });
       }
 
@@ -75,7 +80,7 @@ router.post("/login", (req, res) => {
     });
 });
 
-router.post("/logout", (req, res) => {
+router.post("/logout", checkUser, (req, res) => {
   return res.status(200).json({ message: "Logout effettuato con successo" });
 });
 
