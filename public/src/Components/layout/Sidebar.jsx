@@ -5,7 +5,8 @@ import {
   Folder, 
   Users, 
   LogOut, 
-  Menu 
+  Menu,
+  CheckCircle
 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
@@ -22,14 +23,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-  useSidebar // Hook magico per controllare lo stato
+ 
 } from "@/components/ui/sidebar"
 
 const menuItems = [
   { text: "Dashboard", path: "/dashboard", roles: ["tester", "admin", "superadmin"], icon: Home },
   { text: "Sessions", path: "/admin/sessions", roles: ["tester", "admin", "superadmin"], icon: Repeat },
   { text: "Projects", path: "/admin/projects", roles: ["admin", "superadmin"], icon: Folder },
-  { text: "Users", path: "/admin/users", roles: ["superadmin"], icon: Users }
+  { text: "Users", path: "/admin/users", roles: ["superadmin"], icon: Users },
+  {text: 'Team', path: '/admin/team', roles: ['admin'], icon: Users},
+  {text: 'Checklist', path: '/admin/checklist', roles: ['admin'], icon: CheckCircle}
+
+
+
 ]
 
 export default function AppSidebar() {

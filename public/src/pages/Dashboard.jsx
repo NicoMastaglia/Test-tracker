@@ -8,10 +8,12 @@ import { Card, Typography, Button } from "@mui/material"
 import TesterView from "@/Components/TesterView";
 import Sidebar from "@/Components/layout/Sidebar";
 import {Box} from "@mui/material";
-import AdminDashboard from "../Components/Admin";
-import TesterDashboard from "../Components/TesterDashboard";
+import AdminDashboard from "@/dashboard/Admin";
+import SuperAdminDashboard from "@/dashboard/SuperAdmin";
+import TesterDashboard from "@/dashboard/Tester";
 import AppLayout from "@/Components/layout/AppLayout";
 import Header from "@/Components/layout/Header";
+
 const DashBoard = () =>{
 
     const { user, logout } = useAuth();
@@ -20,7 +22,7 @@ const DashBoard = () =>{
     const dashBoardRules = {
       'tester' :  <TesterDashboard/>,
       'admin' : <AdminDashboard/>,
-      'superadmin' : <AdminDashboard/>
+      'superadmin' : <SuperAdminDashboard/>
     }
 
 

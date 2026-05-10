@@ -22,7 +22,15 @@ export const users = [{
   email: "luca.verdi@example.com",
   role: "tester",
   password: "password789"
-}];
+},
+{
+  id: 4,
+  name: "Giulia Neri",
+  email: "giulia.neri@ex.com",
+  role: "admin",
+  password: "password321"
+}
+];
 
 export const projects = [
   {
