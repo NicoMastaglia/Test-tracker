@@ -28,11 +28,16 @@ import {
 
 const menuItems = [
   { text: "Dashboard", path: "/dashboard", roles: ["tester", "admin", "superadmin"], icon: Home },
-  { text: "Sessions", path: "/admin/sessions", roles: ["tester", "admin", "superadmin"], icon: Repeat },
+  { text: "Sessions", path: "/admin/sessions", roles: ["admin", "superadmin"], icon: Repeat },
   { text: "Projects", path: "/admin/projects", roles: ["admin", "superadmin"], icon: Folder },
   { text: "Users", path: "/admin/users", roles: ["superadmin"], icon: Users },
   {text: 'Team', path: '/admin/team', roles: ['admin'], icon: Users},
-  {text: 'Checklist', path: '/admin/checklist', roles: ['admin'], icon: CheckCircle}
+  {text: 'Checklist', path: '/admin/checklist', roles: ['admin'], icon: CheckCircle
+   
+  },
+  {
+    text: 'My Sessions', path: '/sessions-test', roles: ['tester'], icon: CheckCircle
+  }
 
 
 

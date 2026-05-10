@@ -4,7 +4,7 @@ import CheckListItem from "../Components/features/sessions/CheckListItem";
 import TextField from "@mui/material/TextField";
 import Button from '@mui/material/Button';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from "@mui/material";
-
+import { projects} from "@/fake_data/data";
 // const sessions = [
 //   {
 //     id: 1,
@@ -34,7 +34,7 @@ import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper}
 
 
 const SessionTest = () =>{
-const [lista,setLista] = useState(sessions)
+const [lista,setLista] = useState(projects)
 const [search,setSearch] = useState('')
 const [modal,setModal] = useState(false)
 const [selectedTask,setSelectedTask] = useState(null)
