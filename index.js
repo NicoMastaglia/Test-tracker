@@ -1,7 +1,12 @@
 const express = require("express");
 const app = express();
 
-
+const cors = require("cors");
+const corsOptions = {
+  origin: "http://localhost:5173",
+  optionsSuccessStatus: 200,
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
 require("dotenv").config();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +19,7 @@ const authRoutes = require("./src/routes/auth");
 const userRoutes = require("./src/routes/users");
 
 app.use(express.json());
+app.use(cors(corsOptions));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/api/auth", authRoutes);
