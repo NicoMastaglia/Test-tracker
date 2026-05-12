@@ -7,9 +7,9 @@ import { useNavigate } from "react-router-dom";
 export function LoginForm({login,email,password,setEmail,setPassword}) {
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async  (event) => {
     event.preventDefault();
-    const isLoggedIn = login(email, password);
+    const isLoggedIn =  await login(email, password);
 
     if (isLoggedIn === true) {
       navigate("/dashboard");

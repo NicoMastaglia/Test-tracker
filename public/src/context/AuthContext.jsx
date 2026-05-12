@@ -1,6 +1,6 @@
 import {createContext, useState,useContext} from "react";
 import { users } from "../fake_data/data";
-
+import { loginUser } from "@/services/api";
 // 1. Creo il contesto
 const AuthContext = createContext();
 
@@ -13,27 +13,38 @@ export const AuthProvider =({children})=>{
 // const isTester = () => user?.role === 'tester';
 
     const [user,setUser] = useState(()=>{
-
-        const current_user = localStorage.getItem("user_test");
-
-        return current_user ? JSON.parse(current_user) : null;
-
+        const storedUser = localStorage.getItem("user_test");
+        return storedUser ? JSON.parse(storedUser) : null;
     });
 
 
-    const login =(email,password) =>{
+    const login =async (email,password) =>{
 
-        const foundUser = users.find(u=>u.email === email && u.password === password);
+        const response = await  loginUser(email,password);
 
-        if(foundUser){
-            setUser(foundUser);
-            localStorage.setItem("user_test",JSON.stringify(foundUser));
-            console.log("Login effettuato con successo:", foundUser);
-            return true;
+        if(response.error){
+            return {'error': 'Credenziali non valide'};
         }
+
+        setUser(response.user);
+        console.log(response)
       
-        console.error("Credenziali non valide");
-        return {'error': 'Credenziali non valide'};
+        localStorage.setItem("user_test",JSON.stringify(response.user));
+        console.log("Login effettuato con successo:", response);
+
+        return true;
+
+        // const foundUser = users.find(u=>u.email === email && u.password === password);
+
+        // if(foundUser){
+        //     setUser(foundUser);
+        //     localStorage.setItem("user_test",JSON.stringify(foundUser));
+        //     console.log("Login effettuato con successo:", foundUser);
+        //     return true;
+        // }
+      
+        // console.error("Credenziali non valide");
+        // return {'error': 'Credenziali non valide'};
 
     }
 

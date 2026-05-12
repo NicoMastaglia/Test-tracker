@@ -21,13 +21,15 @@ const DashBoard = () =>{
 
     const dashBoardRules = {
       'tester' :  <TesterDashboard/>,
+      
       'admin' : <AdminDashboard/>,
       'superadmin' : <SuperAdminDashboard/>
     }
-
+  
+    console.log("User role in Dashboard:", user.role);
 
     // const navigate = useNavigate();
-
+ 
     return (
       <>
 
