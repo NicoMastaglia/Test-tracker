@@ -21,6 +21,7 @@ const DashBoard = () =>{
 
     const dashBoardRules = {
       'tester' :  <TesterDashboard/>,
+      'user':  <TesterDashboard/>,
       
       'admin' : <AdminDashboard/>,
       'superadmin' : <SuperAdminDashboard/>

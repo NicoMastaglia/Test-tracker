@@ -26,10 +26,10 @@ const ProjectActions = () => {
   const { addProject } = useProjectContext();
 
   const handleAddProject = () => {
-    // Qui puoi aggiungere la logica di validazione prima di addProject
+  
     addProject(projectUpdate);
-    setModalOpen(false); // Chiude il dialog dopo l'invio
-    setProjectUpdate({ name: '', description: '', users: [] }); // Reset form
+    setModalOpen(false);
+    setProjectUpdate({ name: '', description: '', users: [] }); 
   };
 
   return (

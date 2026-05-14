@@ -20,8 +20,19 @@ export const loginUser = async (email, password) => {
   }
 };
 
-export const logout = () => {
-  localStorage.removeItem("user_test");
+export const logout =  async (token) => {
+  try {
+    await axios.post(`${API_URL}/api/auth/logout`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  
+  } catch (error) {
+    console.error("Logout failed:", error.response?.data || error.message);
+    throw error;
+  }
+  
 };
 
 

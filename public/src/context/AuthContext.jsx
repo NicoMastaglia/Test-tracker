@@ -1,6 +1,6 @@
 import {createContext, useState,useContext} from "react";
 import { users } from "../fake_data/data";
-import { loginUser } from "@/services/api";
+import { loginUser,logout } from "@/services/api";
 // 1. Creo il contesto
 const AuthContext = createContext();
 
@@ -30,6 +30,7 @@ export const AuthProvider =({children})=>{
         console.log(response)
       
         localStorage.setItem("user_test",JSON.stringify(response.user));
+        localStorage.setItem("token_test",response.token);
         console.log("Login effettuato con successo:", response);
 
         return true;
@@ -49,9 +50,15 @@ export const AuthProvider =({children})=>{
     }
 
 
-    const logout = () =>{
-        localStorage.removeItem("user_test");
-        setUser(null);
+    const logout = async (token) => {
+        try {
+            await logout(token);
+            setUser(null);
+            localStorage.removeItem("user_test");
+            localStorage.removeItem("token_test");
+        } catch (error) {
+            console.error("Logout failed:", error.response?.data || error.message);
+        }
     }
 
 

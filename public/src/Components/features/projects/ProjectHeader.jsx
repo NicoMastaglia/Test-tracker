@@ -17,8 +17,7 @@ const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search,
 
   const handleAdd = () => {
     addProject();
-    // Non resettiamo qui perché di solito addProject gestisce la chiusura, 
-    // ma se serve puoi forzarla con setModalOpen(false)
+  
   };
 
   return (
@@ -44,7 +43,7 @@ const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search,
         Add Project
       </Button>
 
-      {/* shadcn Dialog (sostituisce Modal MUI) */}
+     
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>

@@ -14,8 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { UserCog } from "lucide-react"; // Icona per gestione utente
 import ModalForUsers from './ModalForUsers';
 
-const ManageUsers = () => {
-  const { user: currentUser } = useAuth(); // Rinominato per non confonderlo con i dati in tabella
+const ManageUsers = ({data}) => { 
+
   const [selectedUser, setSelectedUser] = useState(null);
 
   // Funzione per colorare i badge in base al ruolo
@@ -45,7 +45,7 @@ const ManageUsers = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((userItem) => (
+          {data.map((userItem) => (
             <TableRow key={userItem.id} className="group hover:bg-slate-50/50 transition-colors">
               <TableCell className="font-mono text-xs text-slate-500">
                 #{userItem.id}
