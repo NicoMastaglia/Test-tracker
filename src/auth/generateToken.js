@@ -14,7 +14,7 @@ function generateAccessToken(user) {
 
   // 2. Opzioni del token
   const options = {
-    expiresIn: "1h", // Il token scadrà tra un'ora
+    expiresIn: "6h",
   };
 
   // 3. Firma del token
