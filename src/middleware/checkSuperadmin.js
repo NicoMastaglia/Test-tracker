@@ -15,7 +15,7 @@ const checkSuperadmin = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.role === "superadmin") {
-      req.user = decoded;
+      req.user = { ...decoded, id: decoded.id };
       next();
     } else {
       return res.status(403).json({ message: "Accesso negato" });
