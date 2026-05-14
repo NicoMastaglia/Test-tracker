@@ -46,38 +46,45 @@ router.post("/login", async (req, res) => {
       .json({ message: "Email e password sono obbligatori" });
   }
 
-  db.execute("SELECT * FROM user WHERE email = ?", [email])
-    .then(([rows]) => {
-      if (rows.length === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
-      }
+  try {
+    const [rows] = await db.execute("SELECT * FROM user WHERE email = ?", [
+      email,
+    ]);
 
-      const user = rows[0];
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Utente non trovato" });
+    }
 
-      if (!comparePassword(password, user.password_hash)) {
-        return res.status(401).json({ message: "Password non valida" });
-      }
+    const user = rows[0];
 
-      const userWithoutPassword = {
-        id: user.id,
-        name: user.nome,
-        surname: user.cognome,
-        email: user.email,
-        role: user.role,
-      };
+    const isMatch = await comparePassword(password, user.password_hash);
 
-      const token = generateAccessToken(userWithoutPassword);
-      res.status(200).json({
-        message: "Login utente",
-        user: userWithoutPassword,
-        token: token,
-      });
-    })
-    .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Password non valida" });
+    }
+
+    const userWithoutPassword = {
+      id: user.id,
+      name: user.nome,
+      surname: user.cognome,
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = generateAccessToken(userWithoutPassword);
+
+    res.status(200).json({
+      message: "Login effettuato con successo",
+      user: userWithoutPassword,
+      token: token,
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Errore del server",
+      specific: err.message,
+    });
+  }
 });
 
 router.post("/logout", checkUser, (req, res) => {
