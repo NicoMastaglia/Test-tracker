@@ -19,7 +19,7 @@ const checkUser = (req, res, next) => {
       decoded.role === "admin" ||
       decoded.role === "superadmin"
     ) {
-      req.user = decoded;
+      req.user = { ...decoded, id: decoded.id };
       next();
     } else {
       return res.status(403).json({ message: "Accesso negato" });

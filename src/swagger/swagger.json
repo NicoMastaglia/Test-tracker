@@ -258,7 +258,7 @@
       "get": {
         "tags": ["Users"],
         "summary": "Elenco utenti",
-        "description": "Restituisce la lista utenti. La route è documentata come protetta da token JWT.",
+        "description": "Restituisce la lista utenti. Per accedere è necessario inviare il token JWT nell'header Authorization come Bearer token.",
         "security": [
           {
             "bearerAuth": []
@@ -274,6 +274,337 @@
                 },
                 "example": {
                   "message": "Lista utenti"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Profilo utente autenticato",
+        "description": "Restituisce i dati dell'utente autenticato tramite token JWT inviato nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profilo utente restituito correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "nome": {
+                      "type": "string",
+                      "example": "Mario"
+                    },
+                    "cognome": {
+                      "type": "string",
+                      "example": "Rossi"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "example": "mario.rossi@example.com"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "user"
+                    }
+                  },
+                  "required": ["id", "nome", "cognome", "email", "role"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingToken": {
+                    "value": {
+                      "message": "Token mancante o formato non valido"
+                    }
+                  },
+                  "invalidToken": {
+                    "value": {
+                      "message": "Token non valido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utente non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Utente non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Aggiorna profilo utente autenticato",
+        "description": "Aggiorna i dati dell'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "Mario"
+                  },
+                  "cognome": {
+                    "type": "string",
+                    "example": "Rossi"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "mario.rossi@example.com"
+                  }
+                },
+                "required": ["nome", "cognome", "email"]
+              },
+              "example": {
+                "nome": "Mario",
+                "cognome": "Rossi",
+                "email": "mario.rossi@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profilo aggiornato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Profilo aggiornato con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dati di input non validi o incompleti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Tutti i campi sono obbligatori"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingToken": {
+                    "value": {
+                      "message": "Token mancante o formato non valido"
+                    }
+                  },
+                  "invalidToken": {
+                    "value": {
+                      "message": "Token non valido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utente non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Utente non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/password": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Aggiorna password utente autenticato",
+        "description": "Aggiorna la password dell'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Oldpassword": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "PasswordVecchia123!"
+                  },
+                  "Newpassword": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "PasswordNuova123!"
+                  }
+                },
+                "required": ["Oldpassword", "Newpassword"]
+              },
+              "example": {
+                "Oldpassword": "PasswordVecchia123!",
+                "Newpassword": "PasswordNuova123!"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password aggiornata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Password aggiornata con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Password attuale errata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Password errata"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingToken": {
+                    "value": {
+                      "message": "Token mancante o formato non valido"
+                    }
+                  },
+                  "invalidToken": {
+                    "value": {
+                      "message": "Token non valido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utente non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Utente non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
                 }
               }
             }
