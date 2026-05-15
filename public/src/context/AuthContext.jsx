@@ -1,6 +1,7 @@
 import {createContext, useState,useContext} from "react";
 import { users } from "../fake_data/data";
 import { loginUser,logout } from "@/services/api";
+import { toast } from "sonner";
 // 1. Creo il contesto
 const AuthContext = createContext();
 
@@ -13,48 +14,70 @@ export const AuthProvider =({children})=>{
 // const isTester = () => user?.role === 'tester';
 
     const [user,setUser] = useState(()=>{
-        const storedUser = localStorage.getItem("user_test");
+        const storedUser = localStorage.getItem("current_user")
+        console.log(storedUser)
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
 
     const login =async (email,password) =>{
 
-        const response = await  loginUser(email,password);
 
-        if(response.error){
-            return {'error': 'Credenziali non valide'};
+        try{
+            const response = await loginUser(email,password);
+            localStorage.setItem("current_user",JSON.stringify(response.user));
+            localStorage.setItem("token_test",response.token);
+            setUser(response.user);
+            console.log("Login effettuato con successo:", response);
+            toast.success("Login effettuato con successo!");
+
+               return true;
         }
+        catch(error){
+           const status = error.response ? error.response.status : null;
+    const msgFromServer = error.response?.data?.message;
 
-        setUser(response.user);
-        console.log(response)
-      
-        localStorage.setItem("user_test",JSON.stringify(response.user));
-        localStorage.setItem("token_test",response.token);
-        console.log("Login effettuato con successo:", response);
+    let alertMessage = "Si è verificato un errore imprevisto.";
 
-        return true;
-
-        // const foundUser = users.find(u=>u.email === email && u.password === password);
-
-        // if(foundUser){
-        //     setUser(foundUser);
-        //     localStorage.setItem("user_test",JSON.stringify(foundUser));
-        //     console.log("Login effettuato con successo:", foundUser);
-        //     return true;
-        // }
-      
-        // console.error("Credenziali non valide");
-        // return {'error': 'Credenziali non valide'};
-
+    switch (status) {
+      case 400:
+        alertMessage = "Email e password sono obbligatori.";
+        
+        break;
+      case 401:
+        alertMessage = "Password non valida. Riprova."
+        
+        
+        break;
+      case 404:
+        alertMessage = "Utente non trovato. Controlla l'email.";
+        
+        break;
+      case 500:
+        alertMessage = "Errore del server. Riprova più tardi.";
+        console.log(2)
+        
+        break;
+      default:
+        // Se il server non risponde o c'è un errore di rete
+        alertMessage = msgFromServer || "Impossibile connettersi al server.";
+        
     }
 
+    console.error(`Login failed [${status}]:`, error.response?.data || error.message);
+    toast.error(alertMessage);
+    return false;
+
+        
+
+    }
+    }
 
     const logout = async (token) => {
         try {
             await logout(token);
             setUser(null);
-            localStorage.removeItem("user_test");
+            localStorage.removeItem("current_user");
             localStorage.removeItem("token_test");
         } catch (error) {
             console.error("Logout failed:", error.response?.data || error.message);

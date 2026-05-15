@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route,Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import DashBoard from "../pages/Dashboard";
 
@@ -19,6 +19,8 @@ export default function AppRouter() {
 
   {/* PUBLIC */}
   <Route path="/login" element={<Login />} />
+
+    <Route path="/" element={<Navigate to="/login" replace />} />
 
   {/* DASHBOARD */}
   <Route path="/dashboard" element={

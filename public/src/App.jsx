@@ -2,6 +2,7 @@ import AppRouter from './Router/AppRouter.jsx'
 import './App.css'
 import {users,projects,sessions} from './fake_data/data.js'
 import {useState,useEffect} from "react";
+import { Toaster } from 'sonner';
 function App() {
 
 
@@ -18,6 +19,8 @@ function App() {
   return (
     <>
       <AppRouter />
+      <Toaster richColors position='top-center' />
+      
     </>
   )
 } 
