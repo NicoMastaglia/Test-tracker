@@ -24,11 +24,11 @@ const CheckListTable = ({
       <Table>
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="w-[80px] font-semibold">ID</TableHead>
-            <TableHead className="font-semibold text-slate-700">Description</TableHead>
-            <TableHead className="font-semibold text-slate-700">Status</TableHead>
-            <TableHead className="font-semibold text-slate-700">Note</TableHead>
-            <TableHead className="text-right font-semibold text-slate-700">Actions</TableHead>
+            <TableHead className="w-[80px] font-semibold text-center">ID</TableHead>
+            <TableHead className="font-semibold text-slate-700 text-center">Description</TableHead>
+            <TableHead className="font-semibold text-slate-700 text-center">Status</TableHead>
+            <TableHead className="font-semibold text-slate-700 text-center">Note</TableHead>
+            <TableHead className="text-right font-semibold text-slate-700 text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

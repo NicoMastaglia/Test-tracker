@@ -4,8 +4,13 @@ import ManageUsers from "@/Components/features/users/ManageUsers";
 import UserHeader from "@/Components/features/users/UserHeader";
 import React,{useState,useEffect,useMemo} from "react";
 import {users} from "../fake_data/data";
+import { register } from "@/services/api";
+import { toast } from "sonner";
+
 
 const Users = () => {
+
+    const [token,setToken] = useState(localStorage.getItem("token_test"));
   
     const [newUserData,setNewUserData] = useState({
 
@@ -18,10 +23,16 @@ const Users = () => {
     const [modal,setModal] = useState(false);
     const [search,setSearch] = useState('');
 
-    const addUser = () =>{
-        console.log('nuvo utente', newUserData)
-
-
+    const addUser = async () =>{
+        const {name,surname,email,role,password} = newUserData; 
+        try {
+            await register(name,surname,email,password,role,token)
+            toast.success("Utente creato con successo!")
+            setModal(false)
+        } catch (error) {
+            console.error("Errore durante la creazione dell'utente:", error.response?.data || error.message)
+            toast.error("Errore durante la creazione dell'utente")
+        }
     }
 
 

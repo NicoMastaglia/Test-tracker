@@ -21,7 +21,7 @@ const CheckListItem = ({
   if (modal && selectedTask && selectedTask.id === item.id) {
     return (
       <TableRow key={item.id} className="bg-slate-50/50">
-        <TableCell colSpan={5} className="p-6">
+        <TableCell colSpan={5} className="p-6 text-center">
           <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900">
@@ -74,8 +74,8 @@ const CheckListItem = ({
 
   // --- STATO VISUALIZZAZIONE ---
   return (
-    <TableRow key={item.id} className="group hover:bg-slate-50/50 transition-colors">
-      <TableCell className="font-mono text-xs text-slate-500">#{item.id}</TableCell>
+    <TableRow key={item.id} className="group hover:bg-slate-50/50 transition-colors ">
+      <TableCell className="font-mono text-xs text-slate-500" text-center>#{item.id}</TableCell>
       
       <TableCell className="font-medium text-slate-700">
         {item.description}
@@ -102,7 +102,7 @@ const CheckListItem = ({
       </TableCell>
 
       <TableCell>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           {/* CHECKBOX PASS (Emerald) */}
           <Checkbox
             checked={item.is_tested && item.outcome === "pass"}

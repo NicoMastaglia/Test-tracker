@@ -102,17 +102,23 @@ useEffect(() => {
 
   return (
      
-
-    <Box sx={{ p: 4, backgroundColor: '#f5f5f5', minHeight: '100vh'}}>
-        <Typography variant="h4" sx={{ color: '#333', fontWeight: 'bold', mb: 1 }}>
-          Dettagli Sessione {id}
-        </Typography>
-        <Typography variant="body1" sx={{ color: '#666', mb: 2 }}>
-          Visualizza e gestisci i test associati alla sessione.
-        </Typography>
-        <Typography variant="body1" sx={{ color: '#666', mb: 2 }}>
-          Qui puoi monitorare lo stato dei test, modificare descrizioni e note, e visualizzare i risultati.
-        </Typography>
+        <div className="flex flex-col gap-4 m-6">
+    
+        <div className="mb-6">
+  <h4 className="scroll-m-20 text-xl font-bold tracking-tight text-[#333] mb-1">
+    Dettagli Sessione {id}
+  </h4>
+  
+  <p className="text-base text-[#666] leading-7">
+    Visualizza e gestisci i test associati alla sessione.
+  </p>
+  
+  <p className="text-base text-[#666] leading-7 mt-2">
+    Qui puoi monitorare lo stato dei test, modificare descrizioni e note, e visualizzare i risultati.
+  </p>
+</div>
+        
+        
 
         <CheckListTable 
         lista={lista}
@@ -126,11 +132,9 @@ useEffect(() => {
 
 />
 
-</Box>
 
 
-  
-
+      </div>
   )
 
 }
