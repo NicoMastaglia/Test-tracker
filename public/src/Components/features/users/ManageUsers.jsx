@@ -33,11 +33,11 @@ const ManageUsers = ({data}) => {
   };
 
   return (
-    <div className="mx-auto my-8 max-w-[1200px] rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <div className="mx-auto my-8 max-w-300 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       <Table>
         <TableHeader className="bg-slate-50/50">
           <TableRow>
-            <TableHead className="w-[100px] font-semibold text-slate-900">ID Utente</TableHead>
+            <TableHead className="w-25 font-semibold text-slate-900">ID Utente</TableHead>
             <TableHead className="font-semibold text-slate-900">Nome</TableHead>
             <TableHead className="font-semibold text-slate-900">Email</TableHead>
             <TableHead className="font-semibold text-slate-900">Ruolo</TableHead>

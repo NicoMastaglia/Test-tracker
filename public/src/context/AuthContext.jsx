@@ -73,20 +73,22 @@ export const AuthProvider =({children})=>{
     }
     }
 
-    const logout = async (token) => {
+    const logoutUser = async (token) => {
         try {
             await logout(token);
             setUser(null);
             localStorage.removeItem("current_user");
             localStorage.removeItem("token_test");
+            toast.success("Logout effettuato con successo!");
         } catch (error) {
             console.error("Logout failed:", error.response?.data || error.message);
+            toast.error("Si è verificato un errore durante il logout. Riprova.");
         }
     }
 
 
     return (
-        <AuthContext.Provider value={{user,login,logout}}>
+        <AuthContext.Provider value={{user,login,logoutUser}}>
             {children}
         </AuthContext.Provider>
     )

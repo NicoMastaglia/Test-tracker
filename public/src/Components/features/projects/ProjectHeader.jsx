@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ActionBar from '@/utilis/ActionBar';
 
 const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search, setSearch, addProject }) => {
 
@@ -21,31 +22,19 @@ const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search,
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between w-full gap-4 p-4 bg-white border-b border-slate-100">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
       
-      {/* Search Input Group */}
-      <div className="relative w-full md:w-[300px]">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input
-          placeholder="Cerca progetto..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 h-10 focus-visible:ring-emerald-500"
-        />
-      </div>
-
-      {/* Add Project Button */}
-      <Button
-        onClick={() => setModalOpen(true)}
-        className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-6 h-10 transition-all active:scale-95"
-      >
-        <Plus className="mr-2 h-4 w-4" />
-        Add Project
-      </Button>
-
+      <ActionBar
+        search={search}
+        setSearch={setSearch}
+        placeholder="Cerca progetto..."
+        buttonText="Add Project"
+        onButtonClick={() => setModalOpen(true)}
+        buttonVariant="emerald"
+      />
      
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-slate-900">Nuovo Progetto</DialogTitle>
             <DialogDescription>

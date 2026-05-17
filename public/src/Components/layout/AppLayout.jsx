@@ -11,7 +11,7 @@ const AppLayout = ({ children, page }) => {
     // Il Provider avvolge tutto il layout per gestire lo stato della sidebar
     <TooltipProvider delayDuration={0}>
     <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-slate-100">
         
         
         <AppSidebar user={user} />

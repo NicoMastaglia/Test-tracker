@@ -1,6 +1,5 @@
 import React from "react";
-
-import { Separator } from "@/components/ui/separator"; // Opzionale, per un look pulito
+import { Separator } from "@/components/ui/separator"; 
 
 const Header = ({ user, page }) => {
   const headerConfig = {
@@ -22,29 +21,30 @@ const Header = ({ user, page }) => {
     },
   };
 
-  // Fallback se la pagina non esiste nella config
   const currentConfig = headerConfig[page] || headerConfig["dashboard"];
 
   return (
-    <header className="flex flex-col w-full bg-white border-b border-slate-200">
-      {/* Barra superiore con il Trigger */}
-      <div className="flex items-center h-14 px-4 gap-4">
-        {/* <SidebarTrigger className="-ml-1" /> */}
-        <Separator orientation="vertical" className="mr-2 h-4" />
-        <div className="flex-1">
-           {/* Breadcrumb o testo piccolo opzionale */}
-           <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+    <header className="flex flex-col w-full bg-white border-b border-slate-100">
+    
+      <div className="flex items-center h-12 px-6 gap-2">
+   
+        <Separator orientation="vertical" className="h-4 bg-slate-200" />
+        <div className="flex-1 pl-2">
+          
+           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
              {page}
            </span>
         </div>
       </div>
 
-      {/* Sezione Titolo (quella che avevi nel Box grigio) */}
-      <div className="px-6 py-8 md:px-10 bg-slate-50/50">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+    
+      <div className="px-6 py-6 md:px-8 bg-slate-50/40">
+       
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
           {currentConfig.title(user)}
         </h1>
-        <p className="mt-2 text-lg text-slate-600">
+       
+        <p className="mt-1 text-xs md:text-sm text-slate-400 font-medium tracking-wide">
           {currentConfig.subtitle(user)}
         </p>
       </div>

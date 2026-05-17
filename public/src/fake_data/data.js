@@ -68,7 +68,7 @@ export const sessions = [
     id: 1,
     project_id: 1,
     user_id: 1,
-    status: "passed"
+    status: "completed"
   },
   {
     id: 2,
@@ -80,7 +80,7 @@ export const sessions = [
     id: 3,
     project_id: 2,
     user_id: 1,
-    status: "in_progress"
+    status: "not_started"
   },
   {
     id: 4,

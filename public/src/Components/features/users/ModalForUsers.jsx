@@ -25,15 +25,15 @@ const ModalForUsers = ({ user, setModal }) => {
   const [role, setRole] = useState(user.role);
 
   const handleSave = () => {
-    // Logica per salvare: es. updateUserInfo({ id: user.id, name, email, role })
+  
     console.log("Salvataggio:", { name, email, role });
     setModal(null); // Chiude la modale nel parent
   };
 
   return (
-    // onOpenChange gestisce la chiusura automatica (clic fuori o tasto ESC)
+  
     <Dialog open={true} onOpenChange={() => setModal(null)}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-112.5">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <User className="h-6 w-6 text-emerald-600" />
@@ -45,7 +45,7 @@ const ModalForUsers = ({ user, setModal }) => {
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
-          {/* Nome */}
+  
           <div className="grid gap-2">
             <Label htmlFor="name" className="text-slate-700">Nome Completo</Label>
             <div className="relative">
@@ -59,7 +59,7 @@ const ModalForUsers = ({ user, setModal }) => {
             </div>
           </div>
 
-          {/* Email */}
+
           <div className="grid gap-2">
             <Label htmlFor="email" className="text-slate-700">Indirizzo Email</Label>
             <div className="relative">
@@ -74,7 +74,7 @@ const ModalForUsers = ({ user, setModal }) => {
             </div>
           </div>
 
-          {/* Ruolo (Select di Shadcn invece di Autocomplete) */}
+   
           <div className="grid gap-2">
             <Label className="text-slate-700">Ruolo Piattaforma</Label>
             <Select value={role} onValueChange={setRole}>
@@ -94,11 +94,11 @@ const ModalForUsers = ({ user, setModal }) => {
         </div>
 
         <DialogFooter className="flex flex-row justify-between sm:justify-between items-center mt-4">
-          {/* Opzione Elimina (opzionale) */}
+    
           <Button 
             variant="ghost" 
             className="text-red-500 hover:text-red-700 hover:bg-red-50"
-            onClick={() => { /* Logica elimina */ }}
+            onClick={() => { /* Logica elimina da inserire */ }}
           >
             Elimina Utente
           </Button>

@@ -1,27 +1,43 @@
 import React from "react";
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge"; // Assicurati di averlo installato
-import { Eye } from "lucide-react"; // Per un tocco pro al link
+import { Badge } from "@/components/ui/badge"; 
+import { Eye } from "lucide-react"; 
 
 const SessionDetail = ({ sessions, user }) => {
   
-  // 1. Filtriamo le sessioni in base al ruolo a monte del JSX
-  const displayedSessions = user.role === 'superadmin' 
+  
+  const displayedSessions = user?.role === 'superadmin' 
     ? sessions 
-    : sessions.filter(s => s.user_id === user.id);
+    : sessions.filter(s => s?.user_id === user?.id);
 
-  // 2. Funzione per decidere lo stile del Badge (senza scrivere CSS inline)
+  // 2. Badge stilizzati in linea con il design system (morbidi e senza contrasti acidi)
   const getStatusBadge = (status) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">Completed</Badge>;
+        return (
+          <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border border-emerald-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
+            Completed
+          </Badge>
+        );
       case "in_progress":
-        return <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none">In Progress</Badge>;
+        return (
+          <Badge className="bg-amber-50 text-amber-700 hover:bg-amber-50 border border-amber-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
+            In Progress
+          </Badge>
+        );
       case "not_started":
-        return <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100 border-none">Not Started</Badge>;
+        return (
+          <Badge className="bg-rose-50 text-rose-700 hover:bg-rose-50 border border-rose-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
+            Not Started
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return (
+          <Badge variant="outline" className="text-slate-500 border-slate-200 text-[11px]">
+            {status || "Unknown"}
+          </Badge>
+        );
     }
   };
 
@@ -29,34 +45,44 @@ const SessionDetail = ({ sessions, user }) => {
     <TableBody>
       {displayedSessions.length > 0 ? (
         displayedSessions.map((session) => (
-          <TableRow key={session.id} className="group transition-colors hover:bg-slate-50/50">
-            <TableCell className="font-mono text-xs text-slate-500">
+          <TableRow 
+            key={session.id} 
+            className="group transition-colors hover:bg-slate-50/60 border-b border-slate-100"
+          >
+            {/* ID Sessione in formato compatto */}
+            <TableCell className="font-mono text-[11px] font-semibold text-slate-400 w-20">
               #{session.id}
             </TableCell>
             
-            <TableCell className="font-medium text-slate-700">
-              Progetto {session.project_id}
+            {/* Nome del Progetto o Fallback */}
+            <TableCell className="font-semibold text-xs text-slate-700">
+              {session.project_name || `Progetto ${session.project_id}`}
             </TableCell>
             
+            {/* Badge dello Stato */}
             <TableCell>
               {getStatusBadge(session.status)}
             </TableCell>
             
+            {/* Pulsante d'Azione pulito ed elegante a destra */}
             <TableCell className="text-right">
               <Link
                 to={`/sessions/${session.id}`}
-                className="inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wider text-blue-600 transition-colors hover:text-blue-800"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-transparent hover:bg-slate-100 hover:text-slate-900 px-2.5 py-1.5 rounded-lg transition-all"
               >
-                <Eye className="h-4 w-4" />
-                View
+                <Eye className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                <span>Vedi dettagli</span>
               </Link>
             </TableCell>
           </TableRow>
         ))
       ) : (
+        /* Stato vuoto coerente con la dashboard */
         <TableRow>
-          <TableCell colSpan={4} className="h-24 text-center text-slate-500 italic">
-            No sessions assigned.
+          <TableCell colSpan={4} className="h-32 text-center text-xs font-medium text-slate-400 bg-white">
+            <span className="inline-block bg-slate-50 border border-slate-100/80 rounded-full px-4 py-2 italic">
+              Nessuna sessione di test assegnata o trovata.
+            </span>
           </TableCell>
         </TableRow>
       )}
