@@ -1,14 +1,11 @@
 import axios from 'axios'; 
-
+import { baseUrl } from '../baseUrl';
 const API_URL = 'http://localhost:3000';
 // da aggiungere token nel header dove necessario 
 // es login e register non ne hanno bisogno
 
 
-export const getUsers = async () => {
-  const response = await axios.get(`${API_URL}/api/users`);
-  return response.data;
-};
+
 
 export const loginUser = async (email, password) => {
   try {
