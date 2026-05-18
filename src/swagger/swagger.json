@@ -23,14 +23,16 @@
     {
       "name": "Users",
       "description": "Gestione e consultazione utenti"
+    },
+    {
+      "name": "Projects",
+      "description": "Gestione e consultazione progetti"
     }
   ],
   "paths": {
     "/": {
       "get": {
-        "tags": [
-          "Main"
-        ],
+        "tags": ["Main"],
         "summary": "Messaggio di benvenuto",
         "description": "Endpoint pubblico principale dell'applicazione.",
         "security": [],
@@ -53,9 +55,7 @@
     },
     "/api/auth/register": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Registra un nuovo utente",
         "description": "Crea un nuovo utente con nome, cognome, email, password e ruolo. Questa route è documentata come protetta da token JWT.",
         "security": [
@@ -135,9 +135,7 @@
     },
     "/api/auth/login": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Autentica un utente",
         "description": "Verifica email e password e restituisce un token JWT insieme ai dati utente. Questa route è pubblica e non richiede token in ingresso.",
         "security": [],
@@ -235,9 +233,7 @@
     },
     "/api/auth/logout": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "summary": "Effettua il logout",
         "description": "Logout documentato come operazione protetta da token JWT.",
         "security": [
@@ -264,9 +260,7 @@
     },
     "/api/users": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Elenco utenti",
         "description": "Restituisce la lista utenti. Per accedere è necessario inviare il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -293,9 +287,7 @@
     },
     "/api/users/me": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Profilo utente autenticato",
         "description": "Restituisce i dati dell'utente autenticato tramite token JWT inviato nell'header Authorization come Bearer token.",
         "security": [
@@ -333,13 +325,7 @@
                       "example": "user"
                     }
                   },
-                  "required": [
-                    "id",
-                    "nome",
-                    "cognome",
-                    "email",
-                    "role"
-                  ]
+                  "required": ["id", "nome", "cognome", "email", "role"]
                 }
               }
             }
@@ -396,9 +382,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Aggiorna profilo utente autenticato",
         "description": "Aggiorna i dati dell'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -427,11 +411,7 @@
                     "example": "mario.rossi@example.com"
                   }
                 },
-                "required": [
-                  "nome",
-                  "cognome",
-                  "email"
-                ]
+                "required": ["nome", "cognome", "email"]
               },
               "example": {
                 "nome": "Mario",
@@ -522,9 +502,7 @@
     },
     "/api/users/me/password": {
       "patch": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Aggiorna password utente autenticato",
         "description": "Aggiorna la password dell'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -550,10 +528,7 @@
                     "example": "PasswordNuova123!"
                   }
                 },
-                "required": [
-                  "Oldpassword",
-                  "Newpassword"
-                ]
+                "required": ["Oldpassword", "Newpassword"]
               },
               "example": {
                 "Oldpassword": "PasswordVecchia123!",
@@ -643,9 +618,7 @@
     },
     "/api/users/{id}": {
       "get": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Ottieni dati utente per ID",
         "description": "Restituisce i dati di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -735,9 +708,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Aggiorna dati utente per ID",
         "description": "Aggiorna i dati di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -778,11 +749,7 @@
                     "example": "mario.rossi@example.com"
                   }
                 },
-                "required": [
-                  "name",
-                  "surname",
-                  "email"
-                ]
+                "required": ["name", "surname", "email"]
               },
               "example": {
                 "name": "Mario",
@@ -871,9 +838,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Elimina un utente per ID",
         "description": "Elimina un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -960,9 +925,7 @@
       },
       "/api/users/{id}/role": {
         "patch": {
-          "tags": [
-            "Users"
-          ],
+          "tags": ["Users"],
           "summary": "Aggiorna ruolo utente per ID",
           "description": "Aggiorna il ruolo di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
           "security": [
@@ -991,17 +954,11 @@
                   "properties": {
                     "role": {
                       "type": "string",
-                      "enum": [
-                        "user",
-                        "admin",
-                        "superadmin"
-                      ],
+                      "enum": ["user", "admin", "superadmin"],
                       "example": "admin"
                     }
                   },
-                  "required": [
-                    "role"
-                  ]
+                  "required": ["role"]
                 },
                 "example": {
                   "role": "admin"
@@ -1091,9 +1048,7 @@
     },
     "/api/users/{id}/role": {
       "patch": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Aggiorna ruolo utente per ID",
         "description": "Aggiorna il ruolo di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1122,17 +1077,11 @@
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "user",
-                      "admin",
-                      "superadmin"
-                    ],
+                    "enum": ["user", "admin", "superadmin"],
                     "example": "admin"
                   }
                 },
-                "required": [
-                  "role"
-                ]
+                "required": ["role"]
               },
               "example": {
                 "role": "admin"
@@ -1221,9 +1170,7 @@
     },
     "/api/users/{id}/password": {
       "patch": {
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "summary": "Aggiorna password utente per ID",
         "description": "Aggiorna la password di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1256,9 +1203,7 @@
                     "example": "PasswordNuova123!"
                   }
                 },
-                "required": [
-                  "Newpassword"
-                ]
+                "required": ["Newpassword"]
               },
               "example": {
                 "Newpassword": "PasswordNuova123!"
@@ -1348,6 +1293,113 @@
           }
         }
       }
+    },
+    "/api/projects/": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "Elenco progetti",
+        "description": "Restituisce la lista dei progetti. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista progetti disponibile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectsListResponse"
+                },
+                "example": {
+                  "message": "Lista progetti"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o non valido"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Projects"],
+        "summary": "Crea un nuovo progetto",
+        "description": "Crea un nuovo progetto. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreateRequest"
+              },
+              "example": {
+                "name": "Progetto Alpha",
+                "description": "Descrizione del progetto Alpha"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Progetto creato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                },
+                "example": {
+                  "id": 1,
+                  "name": "Progetto Alpha",
+                  "description": "Descrizione del progetto Alpha"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dati di input non validi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Dati di input non validi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o non valido"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1368,9 +1420,7 @@
             "example": "Benvenuto!"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
       },
       "SuccessMessage": {
         "type": "object",
@@ -1379,9 +1429,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
       },
       "ErrorMessage": {
         "type": "object",
@@ -1390,9 +1438,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
       },
       "ErrorWithDetail": {
         "type": "object",
@@ -1404,9 +1450,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
       },
       "RegisterRequest": {
         "type": "object",
@@ -1431,21 +1475,11 @@
           },
           "role": {
             "type": "string",
-            "enum": [
-              "user",
-              "admin",
-              "superadmin"
-            ],
+            "enum": ["user", "admin", "superadmin"],
             "example": "user"
           }
         },
-        "required": [
-          "name",
-          "surname",
-          "email",
-          "password",
-          "role"
-        ]
+        "required": ["name", "surname", "email", "password", "role"]
       },
       "LoginRequest": {
         "type": "object",
@@ -1461,10 +1495,7 @@
             "example": "Password123!"
           }
         },
-        "required": [
-          "email",
-          "password"
-        ]
+        "required": ["email", "password"]
       },
       "User": {
         "type": "object",
@@ -1491,13 +1522,7 @@
             "example": "user"
           }
         },
-        "required": [
-          "id",
-          "name",
-          "surname",
-          "email",
-          "role"
-        ]
+        "required": ["id", "name", "surname", "email", "role"]
       },
       "LoginResponse": {
         "type": "object",
@@ -1515,11 +1540,7 @@
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           }
         },
-        "required": [
-          "message",
-          "user",
-          "token"
-        ]
+        "required": ["message", "user", "token"]
       },
       "UsersListResponse": {
         "type": "object",
@@ -1529,9 +1550,49 @@
             "example": "Lista utenti"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
+      },
+      "ProjectsListResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Lista progetti"
+          }
+        },
+        "required": ["message"]
+      },
+      "ProjectCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Progetto Alpha"
+          },
+          "description": {
+            "type": "string",
+            "example": "Descrizione del progetto Alpha"
+          }
+        },
+        "required": ["name"]
+      },
+      "ProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Progetto Alpha"
+          },
+          "description": {
+            "type": "string",
+            "example": "Descrizione del progetto Alpha"
+          }
+        },
+        "required": ["id", "name"]
       }
     }
   }

@@ -22,6 +22,7 @@ function loadSwaggerDocument() {
 const mainRoutes = require("./src/routes/main");
 const authRoutes = require("./src/routes/auth");
 const userRoutes = require("./src/routes/users");
+const projectRoutes = require("./src/routes/projects");
 
 app.use(express.json());
 app.use(cors(corsOptions));
@@ -42,6 +43,7 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/projects", projectRoutes);
 app.use("/", mainRoutes);
 
 app.listen(PORT, () => {
