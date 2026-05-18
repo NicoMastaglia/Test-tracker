@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const fs = require("fs");
+const path = require("path");
 
 require("dotenv").config();
 const PORT = process.env.PORT || 3000;
@@ -12,7 +14,10 @@ const corsOptions = {
 };
 
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./src/swagger/swagger");
+const swaggerPath = path.join(__dirname, "src", "swagger", "swagger.json");
+function loadSwaggerDocument() {
+  return JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
+}
 
 const mainRoutes = require("./src/routes/main");
 const authRoutes = require("./src/routes/auth");
@@ -21,7 +26,20 @@ const userRoutes = require("./src/routes/users");
 app.use(express.json());
 app.use(cors(corsOptions));
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.get("/swagger.json", (req, res) => {
+  res.json(loadSwaggerDocument());
+});
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(undefined, {
+    swaggerOptions: {
+      url: "/swagger.json",
+    },
+  }),
+);
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/", mainRoutes);
