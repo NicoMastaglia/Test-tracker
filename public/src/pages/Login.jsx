@@ -29,7 +29,7 @@ function LoginPage() {
 
    } else {
 
-      toast.error(result.error)
+      toast.error(result.message || "Login fallito")
    }
 }
 
