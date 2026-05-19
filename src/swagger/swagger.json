@@ -1615,6 +1615,83 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": ["Projects"],
+        "summary": "Elimina progetto per ID",
+        "description": "Elimina un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Progetto eliminato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Progetto eliminato con successo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o non valido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Progetto non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/projects/{id}/status": {
@@ -1741,6 +1818,233 @@
                 "example": {
                   "message": "Internal server error",
                   "specific": "Detailed error message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}/assign": {
+      "post": {
+        "tags": ["Projects"],
+        "summary": "Assegna un utente al progetto",
+        "description": "Assegna uno o più utenti a un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "tester"
+                  }
+                },
+                "required": ["userId"]
+              },
+              "example": {
+                "userId": 2,
+                "role": "tester"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Utente assegnato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Utente assegnato con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dati di input non validi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Dati di input non validi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o non valido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto o utente non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Risorsa non trovata"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Projects"],
+        "summary": "Rimuove l'assegnazione di un utente da un progetto",
+        "description": "Rimuove l'assegnazione di un utente da un progetto specifico tramite ID del progetto. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "integer",
+                    "example": 2
+                  }
+                },
+                "required": ["userId"]
+              },
+              "example": {
+                "userId": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Assegnazione rimossa con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Assegnazione rimossa con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dati di input non validi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Dati di input non validi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o non valido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto o utente non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Risorsa non trovata"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
                 }
               }
             }

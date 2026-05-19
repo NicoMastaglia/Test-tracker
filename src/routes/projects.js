@@ -4,6 +4,7 @@ const checkSuperadmin = require("../middleware/checkSuperadmin");
 const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
+const { route } = require("express/lib/application");
 
 router.get("/", checkUser, (req, res) => {
   if (req.user.role === "superadmin") {
@@ -190,6 +191,74 @@ router.patch("/:id/status", checkAdmin, (req, res) => {
       return res
         .status(200)
         .json({ message: "Project status updated successfully" });
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .json({ error: "Internal server error", specific: err.message });
+    });
+});
+
+router.post("/:id/assign", checkAdmin, (req, res) => {
+  const projectId = req.params.id;
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  db.execute(
+    "INSERT INTO project_assignment (project_id, user_id) VALUES (?, ?)",
+    [projectId, userId],
+  )
+    .then(([result]) => {
+      return res
+        .status(200)
+        .json({ message: "User assigned to project successfully" });
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .json({ error: "Internal server error", specific: err.message });
+    });
+});
+
+router.delete("/:id/assign", checkAdmin, (req, res) => {
+  const projectId = req.params.id;
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  db.execute(
+    "DELETE FROM project_assignment WHERE project_id = ? AND user_id = ?",
+    [projectId, userId],
+  )
+    .then(([result]) => {
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Assignment not found" });
+      }
+      return res
+        .status(200)
+        .json({ message: "User unassigned from project successfully" });
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .json({ error: "Internal server error", specific: err.message });
+    });
+});
+
+router.delete("/:id", checkSuperadmin, (req, res) => {
+  const projectId = req.params.id;
+
+  db.execute("DELETE FROM project WHERE id = ?", [projectId])
+    .then(([result]) => {
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      return res.status(200).json({ message: "Project deleted successfully" });
     })
     .catch((err) => {
       return res
