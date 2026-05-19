@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../../context/Auth.js/AuthContext"
-
+import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
@@ -71,8 +71,26 @@ export default function AppSidebar() {
   const RoleIcon = roleConfig.icon
 
   const handleLogout = () => {
-    const token = localStorage.getItem("token_test");
-    logoutUser(token);
+
+    const token = localStorage.getItem("auth_token");
+
+    if(!token){
+      toast.error("Token di autenticazione mancante. Impossibile effettuare il logout.");
+      return;
+    }
+
+    const confirmLogout = window.confirm("Sei sicuro di voler uscire?");
+
+    if(confirmLogout){
+      logoutUser(token);
+      toast.success("Logout effettuato con successo!");
+      navigate("/login");
+    }
+    
+   
+
+
+   
   }
 
   return (
