@@ -1,40 +1,63 @@
-import {useReducer,useEffect} from 'react';
 
 
 
-const initialState = {
+
+export const initialState = {
     projects:  [],
     loading : false,
     error : null,
     selectedProject : null
 }
 
-
-
 export const projectReducer = (state,action) =>{
-
     switch(action.type){
-        case "ADD_PROJECT":
-            const newProjects = [...state.projects,action.payload];
-            
-            return { ...state, projects: newProjects };
+        case 'SET_SELECTED_PROJECT':
+            return {
+                ...state,
+                selectedProject: action.payload,
+                loading:false
+            }
+        case 'CLEAR_SELECTED_PROJECT': 
+            return {
+                ...state,
+                selectedProject: null
 
-        case "UPDATE_PROJECT" : 
-            const updatedProjects = state.projects.map(p=> p.id === action.payload.id ? action.payload : p);
-           
-            return { ...state, projects: updatedProjects };
+            }
+        case 'SET_LOADING': 
+            return {
+                ...state,
+                loading: true,
+                error: null
 
-        case "DELETE_PROJECT" : 
-            const filteredProjects = state.projects.filter(p=> p.id !== action.payload);
-         
-            return { ...state, projects: filteredProjects };
+            }
+        
+        case 'SET_ERROR': 
 
+            return {
+                ...state,
+                error: action.payload,
+                loading : false 
+            }
+        case 'SET_PROJECTS':
+            return {
+                ...state,
+                projects: action.payload,
+                loading: false
+            }
+        case 'ADD_PROJECT' : 
+            return {
+                ...state,
+                projects: [...state.projects, action.payload],
+                loading: false 
+            }
+        
         default: 
-            return state;
-
+            return state 
     }
-
 }
+
+
+
 
 // export const useProject = () =>{
 
