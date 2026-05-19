@@ -1400,6 +1400,353 @@
           }
         }
       }
+    },
+    "/api/projects/{id}": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "Ottieni dettagli progetto per ID",
+        "description": "Restituisce i dettagli di un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dettagli progetto restituiti correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                },
+                "example": {
+                  "id": 1,
+                  "name": "Progetto Alpha",
+                  "description": "Descrizione del progetto Alpha",
+                  "status": "active",
+                  "created_by": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingToken": {
+                    "value": {
+                      "message": "Token mancante o formato non valido"
+                    }
+                  },
+                  "invalidToken": {
+                    "value": {
+                      "message": "Token non valido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Progetto non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Projects"],
+        "summary": "Aggiorna progetto per ID",
+        "description": "Aggiorna i dati di un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Progetto Alpha Aggiornato"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Descrizione aggiornata del progetto Alpha"
+                  }
+                },
+                "required": ["name", "description"]
+              },
+              "example": {
+                "name": "Progetto Alpha Aggiornato",
+                "description": "Descrizione aggiornata del progetto Alpha"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Progetto aggiornato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Progetto aggiornato con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dati di input non validi o incompleti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Tutti i campi sono obbligatori"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingToken": {
+                    "value": {
+                      "message": "Token mancante o formato non valido"
+                    }
+                  },
+                  "invalidToken": {
+                    "value": {
+                      "message": "Token non valido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Progetto non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{id}/status": {
+      "patch": {
+        "tags": ["Projects"],
+        "summary": "Aggiorna stato progetto per ID",
+        "description": "Aggiorna lo stato di un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["Attivo", "Completato", "In pausa"],
+                    "example": "Attivo"
+                  }
+                },
+                "required": ["status"]
+              },
+              "example": {
+                "status": "Attivo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stato progetto aggiornato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Project status updated successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stato progetto mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingStatus": {
+                    "value": {
+                      "message": "Project status is required"
+                    }
+                  },
+                  "invalidStatus": {
+                    "value": {
+                      "message": "Invalid project status"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingToken": {
+                    "value": {
+                      "message": "Token mancante o formato non valido"
+                    }
+                  },
+                  "invalidToken": {
+                    "value": {
+                      "message": "Token non valido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Project not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Internal server error",
+                  "specific": "Detailed error message"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

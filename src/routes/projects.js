@@ -80,4 +80,122 @@ router.post("/", checkAdmin, (req, res) => {
     });
 });
 
+router.get("/:id", checkUser, (req, res) => {
+  const projectId = req.params.id;
+
+  if (req.user.role === "superadmin") {
+    return db
+      .execute(
+        "SELECT id, name, description, status, created_by FROM project WHERE id = ?;",
+        [projectId],
+      )
+      .then(([results]) => {
+        if (results.length === 0) {
+          return res.status(404).json({ error: "Project not found" });
+        }
+        return res.status(200).json(results[0]);
+      })
+      .catch((err) => {
+        return res
+          .status(500)
+          .json({ error: "Internal server error", specific: err.message });
+      });
+  } else if (req.user.role === "admin") {
+    return db
+      .execute(
+        "SELECT id, name, description, status, created_by FROM project WHERE id = ? AND created_by = ?;",
+        [projectId, req.user.id],
+      )
+      .then(([results]) => {
+        if (results.length === 0) {
+          return res.status(404).json({ error: "Project not found" });
+        }
+        return res.status(200).json(results[0]);
+      })
+      .catch((err) => {
+        return res
+          .status(500)
+          .json({ error: "Internal server error", specific: err.message });
+      });
+  } else if (req.user.role === "user") {
+    return db
+      .execute(
+        "SELECT p.id, p.name, p.description, p.status, p.created_by FROM project p JOIN project_assignment pa ON p.id = pa.project_id WHERE p.id = ? AND pa.user_id = ?;",
+        [projectId, req.user.id],
+      )
+      .then(([results]) => {
+        if (results.length === 0) {
+          return res.status(404).json({ error: "Project not found" });
+        }
+        return res.status(200).json(results[0]);
+      })
+      .catch((err) => {
+        return res
+          .status(500)
+          .json({ error: "Internal server error", specific: err.message });
+      });
+  }
+
+  return res.status(403).json({ error: "Forbidden" });
+});
+
+router.put("/:id", checkAdmin, (req, res) => {
+  const projectId = req.params.id;
+  const { name, description } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: "Project name is required" });
+  }
+  if (!description) {
+    return res.status(400).json({ error: "Project description is required" });
+  }
+
+  db.execute(
+    "UPDATE project SET name = ?, description = ? WHERE id = ? AND created_by = ?",
+    [name, description, projectId, req.user.id],
+  )
+    .then(([result]) => {
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      return res.status(200).json({ message: "Project updated successfully" });
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .json({ error: "Internal server error", specific: err.message });
+    });
+});
+
+router.patch("/:id/status", checkAdmin, (req, res) => {
+  const projectId = req.params.id;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ error: "Project status is required" });
+  }
+  if (status !== "Attivo" && status !== "Completato" && status !== "In pausa") {
+    return res.status(400).json({ error: "Invalid project status" });
+  }
+
+  db.execute("UPDATE project SET status = ? WHERE id = ? AND created_by = ?", [
+    status,
+    projectId,
+    req.user.id,
+  ])
+    .then(([result]) => {
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      return res
+        .status(200)
+        .json({ message: "Project status updated successfully" });
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .json({ error: "Internal server error", specific: err.message });
+    });
+});
+
 module.exports = router;
