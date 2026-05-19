@@ -4,7 +4,7 @@ import { createContext,
 
 
 import { initialState,userReducer } from "./useUser";
-import { getToken } from "@/services/baseUrl";
+import { getToken } from "@/services/config";
 import { getUsers,updateUserById,deleteUserById,getUserById,updateUserRoleById } from "@/services/User/user";
 const UserContext = createContext(); 
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import SessionsTests from './SessionsTests'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/Auth.js/AuthContext'
 import { Box, Typography, Card, Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'

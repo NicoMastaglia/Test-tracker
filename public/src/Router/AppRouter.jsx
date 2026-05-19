@@ -8,7 +8,7 @@ import AdminSessions from "../pages/Sessions";
 import Sessions from "../pages/Sessions";
 // import ManageUsers from "../pages/ManageUsers";
 import Users from "../pages/Users";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/Auth.js/AuthContext";
 
 import AdminProjects from "../pages/AdminProjects";
 export default function AppRouter() {

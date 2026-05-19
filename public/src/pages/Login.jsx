@@ -1,13 +1,37 @@
 import { LoginForm } from "@/Components/Login-Form"
-import { useAuth } from "../context/AuthContext";
+
+import { useAuth } from "@/context/Auth.js/AuthContext";
 import { useState } from "react";
-import Typography from "@mui/material/Typography";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+
 
 function LoginPage() {
 
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
+
+
+ const handleSubmit = async (e) => {
+
+   e.preventDefault()
+
+   const result = await login(email,password)
+
+   if(result.success){
+
+      toast.success("Login effettuato")
+
+      navigate("/dashboard")
+
+   } else {
+
+      toast.error(result.error)
+   }
+}
 
   return (
 
@@ -31,7 +55,7 @@ function LoginPage() {
     {/* Form Card */}
     <div className="bg-white p-8 shadow-2xl shadow-slate-200 rounded-2xl border border-slate-100">
       <LoginForm 
-        login={login} 
+         handleSubmit={handleSubmit} 
         email={email} 
         password={password} 
         setEmail={setEmail} 

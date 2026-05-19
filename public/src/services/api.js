@@ -1,5 +1,5 @@
 import axios from 'axios'; 
-import { baseUrl } from '../baseUrl';
+ 
 const API_URL = 'http://localhost:3000';
 // da aggiungere token nel header dove necessario 
 // es login e register non ne hanno bisogno

@@ -1,8 +1,8 @@
 
-import { initialState,projectReducer } from "./useProject";
+import { initialState,projectReducer } from "../Project/useProject";
 import { useContext,createContext,useReducer } from "react";
 
-import { getToken } from "@/services/config.";
+import { getToken } from "@/services/config";
 import { getProjects,createProject } from "@/services/Project/project";
 
 const ProjectContext = createContext(); 

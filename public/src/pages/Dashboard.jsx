@@ -3,7 +3,7 @@ import { currentUser,sessions } from "../fake_data/data";
 import { Table, TableContainer, Paper, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/Auth.js/AuthContext";
 import { Card, Typography, Button } from "@mui/material"
 import TesterView from "@/Components/TesterView";
 import Sidebar from "@/Components/layout/Sidebar";

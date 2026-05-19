@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/Auth.js/AuthContext';
 import { Table, TableContainer, Paper, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 
 

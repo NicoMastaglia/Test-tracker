@@ -1,7 +1,7 @@
 import { SidebarProvider, SidebarInset} from "@/components/ui/sidebar"; // Importa i componenti Shadcn
 import AppSidebar from "./Sidebar"; // La tua nuova Sidebar (quella che abbiamo scritto prima)
 import Header from "./Header";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/Auth.js/AuthContext";
 import { TooltipProvider } from "../ui/tooltip";
 import { Toaster } from "sonner";
 const AppLayout = ({ children, page }) => {

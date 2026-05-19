@@ -4,18 +4,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useNavigate } from "react-router-dom";
 
-export function LoginForm({login,email,password,setEmail,setPassword}) {
-  const navigate = useNavigate();
+export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
 
-  const handleSubmit = async  (event) => {
-    event.preventDefault();
-    const isLoggedIn =  await login(email, password);
 
-    if (isLoggedIn === true) {
-      navigate("/dashboard");
-      
-    }
-  };
 
 
   return  (

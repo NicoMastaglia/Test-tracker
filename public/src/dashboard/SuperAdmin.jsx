@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Folder, Users, PlayCircle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/Auth.js/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 // 1. SOTTO-COMPONENTE RIUTILIZZABILE 

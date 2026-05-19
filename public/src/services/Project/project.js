@@ -1,4 +1,4 @@
-import { baseUrl,authConfig } from "../config.";
+import { baseUrl,authConfig } from "../config";
 
 
 export const getProjects = async (token) =>{
