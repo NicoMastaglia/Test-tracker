@@ -27,6 +27,10 @@
     {
       "name": "Projects",
       "description": "Gestione e consultazione progetti"
+    },
+    {
+      "name": "Checklists",
+      "description": "Creazione e gestione dei template checklist"
     }
   ],
   "paths": {
@@ -251,6 +255,395 @@
                 },
                 "example": {
                   "message": "Logout effettuato con successo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/checklists": {
+      "post": {
+        "tags": ["Checklists"],
+        "summary": "Crea una nuova checklist",
+        "description": "Crea un template checklist associato a un progetto. Richiede il token JWT nell'header Authorization come Bearer token. Gli admin possono creare checklist solo per i progetti che hanno creato, mentre i superadmin possono usare qualsiasi progetto esistente.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Smoke test checklist"
+                  },
+                  "project_id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                },
+                "required": ["title", "project_id"]
+              },
+              "example": {
+                "title": "Smoke test checklist",
+                "project_id": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Checklist creata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "checklistId": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["message", "checklistId"]
+                },
+                "example": {
+                  "message": "Checklist creata con successo",
+                  "checklistId": 12
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Titolo o progetto mancante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingTitle": {
+                    "value": {
+                      "error": "Titolo obbligatorio"
+                    }
+                  },
+                  "missingProject": {
+                    "value": {
+                      "error": "Progetto di riferimento obbligatorio"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato o progetto non trovato per admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato o progetto non trovato"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto non trovato per superadmin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Progetto non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/checklists/{id}": {
+      "put": {
+        "tags": ["Checklists"],
+        "summary": "Aggiorna una checklist esistente",
+        "description": "Aggiorna il titolo di una checklist specifica. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della checklist",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Smoke test checklist aggiornata"
+                  }
+                },
+                "required": ["title"]
+              },
+              "example": {
+                "title": "Smoke test checklist aggiornata"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checklist aggiornata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Checklist aggiornata con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Titolo mancante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Titolo obbligatorio"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato o checklist non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato o checklist non trovata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Checklist non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Checklist non trovata"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Checklists"],
+        "summary": "Elimina una checklist esistente",
+        "description": "Elimina una checklist specifica. Richiede il token JWT nell'header Authorization come Bearer token. Gli admin possono eliminare solo le checklist dei progetti che hanno creato.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della checklist",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checklist eliminata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Checklist eliminata con successo"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato o checklist non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato o checklist non trovata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Checklist non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Checklist non trovata"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/checklists/{projectId}": {
+      "get": {
+        "tags": ["Checklists"],
+        "summary": "Ottieni checklist per progetto",
+        "description": "Restituisce le checklist (con i relativi item) associate al progetto indicato. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checklist del progetto restituite correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "title": "Smoke test checklist",
+                    "project_id": 1,
+                    "template_id": 1,
+                    "item": "Login funzionante"
+                  }
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "specific": "Internal error"
                 }
               }
             }
