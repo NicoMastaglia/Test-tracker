@@ -1,16 +1,16 @@
 import AppLayout from "@/Components/layout/AppLayout";
-import { Box, Typography } from "@mui/material";
+
 import ManageUsers from "@/Components/features/users/ManageUsers";
 import UserHeader from "@/Components/features/users/UserHeader";
 import React,{useState,useEffect,useMemo} from "react";
-import {users} from "../fake_data/data";
 import { register } from "@/services/api";
 import { toast } from "sonner";
-
+import { useUsersContext } from "@/context/User/UserContext";
 
 const Users = () => {
 
-    const [token,setToken] = useState(localStorage.getItem("token_test"));
+    const [token,setToken] = useState(localStorage.getItem("auth_token"));
+    const {users,fetchUsers } = useUsersContext()
   
     const [newUserData,setNewUserData] = useState({
 
@@ -22,6 +22,11 @@ const Users = () => {
     })
     const [modal,setModal] = useState(false);
     const [search,setSearch] = useState('');
+
+
+    useEffect(()=>{
+        fetchUsers()
+    },[])
 
     const addUser = async () =>{
         const {name,surname,email,role,password} = newUserData; 
@@ -63,7 +68,7 @@ const Users = () => {
             <UserHeader  
              modal={modal} setModal={setModal} search={search} setSearch={setSearch} newUserData={newUserData} setNewUserData={setNewUserData} addUser={addUser} />
             <ManageUsers 
-         data={filterUsers}  />
+         data={users}  />
 
 
         </AppLayout>
