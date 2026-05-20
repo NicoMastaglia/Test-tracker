@@ -23,11 +23,13 @@ const ProjectTable = ({ data }) => {
 
   return (
     <div className="mx-auto my-6 max-w-[1200px] rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <Table>
-        <TableHeader>
-          {/* Sostituiamo il verde fluo con un'intestazione elegante */}
-          <TableRow className="bg-slate-900 hover:bg-slate-900">
-            <TableHead className="text-white font-bold w-[100px]">Project #</TableHead>
+
+      {data && data.length >0 ? (
+        <Table>
+          <TableHeader>
+            {/* Sostituiamo il verde fluo con un'intestazione elegante */}
+            <TableRow className="bg-slate-900 hover:bg-slate-900">
+              <TableHead className="text-white font-bold w-[100px]">Project #</TableHead>
             <TableHead className="text-white font-bold">Name</TableHead>
             <TableHead className="text-white font-bold">Status</TableHead>
             <TableHead className="text-white font-bold">Description</TableHead>
@@ -77,7 +79,12 @@ const ProjectTable = ({ data }) => {
             );
           })}
         </TableBody>
-      </Table>
+      </Table>) : (
+        <div className="text-center py-8 shadow-sm">
+          <p className='text-red-500 py-2 px-4 '>Non ci sono Progetti attivi...</p>
+        </div>
+      )
+    }
     </div>
   );
 };

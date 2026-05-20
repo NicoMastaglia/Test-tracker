@@ -7,15 +7,18 @@ import React,{useState,useEffect,useMemo} from 'react'
 import { useProjectContext } from "@/context/Project/ProjectContext";
 // import { projects } from "@/fake_data/data";
 const AdminProjects = () => {
-    const {projects,addProject} = useProjectContext();
+    const {projects,addProject,fetchProjects} = useProjectContext();
     const [search,setSearch] = useState('')
     const [modalOpen,setModalOpen] = useState(false)
     const [formData,setFormData] = useState({
         name: '',
         description: ''
     });
-    
 
+    
+    useEffect(()=>{
+        fetchProjects()
+    },[projects])
 
     const handleAddProject = () =>{
         const newProject = {

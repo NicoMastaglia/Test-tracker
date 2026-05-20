@@ -8,6 +8,7 @@ export const authConfig = (token) =>({
 })
 
 export const getToken = () =>{
-    const token = localStorage.getItem('token_test') ? JSON.parse(localStorage.getItem('token_test')) : null;
-    return token 
+    // Auth token is stored as a plain string under 'auth_token'
+    const token = localStorage.getItem('auth_token') || null;
+    return token;
 }
