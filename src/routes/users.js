@@ -7,15 +7,34 @@ const { hashPassword, comparePassword } = require("../auth/hash");
 const db = require("../database/db");
 
 router.get("/", checkSuperadmin, async (req, res) => {
-  db.execute("SELECT id, nome, cognome, email, role FROM user")
-    .then(([rows]) => {
-      res.status(200).json(rows);
-    })
-    .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
-    });
+  if (req.user.role !== "superadmin" && req.user.role !== "admin") {
+    return res.status(403).json({ message: "Accesso negato" });
+  }
+
+  if (req.user.role === "admin") {
+    return db
+      .execute(
+        "SELECT id, nome, cognome, email, role FROM user WHERE role = 'user'",
+      )
+      .then(([rows]) => {
+        res.status(200).json(rows);
+      })
+      .catch((err) => {
+        res
+          .status(500)
+          .json({ message: "Errore del server", specific: err.message });
+      });
+  } else {
+    db.execute("SELECT id, nome, cognome, email, role FROM user")
+      .then(([rows]) => {
+        res.status(200).json(rows);
+      })
+      .catch((err) => {
+        res
+          .status(500)
+          .json({ message: "Errore del server", specific: err.message });
+      });
+  }
 });
 
 router.get("/me", checkUser, async (req, res) => {
