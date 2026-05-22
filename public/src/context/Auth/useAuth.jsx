@@ -1,7 +1,6 @@
 
 
 
-
 export const initialState = {
    user: JSON.parse(localStorage.getItem("current_user")) || null,
    token: localStorage.getItem("auth_token") || null,
@@ -51,6 +50,14 @@ export const authReducer = (state, action) => {
             isAuthenticated:false,
             loading:false,
             error:null
+         };
+
+      case 'SYNC_CURRENT_USER':
+         return {
+            ...state,
+            user: action.payload,
+            loading: false,
+            error: null
          };
 
          case 'LOGOUT_FAILURE':

@@ -17,6 +17,15 @@ const CheckListItem = ({
   setModal,
   setSelectedTask,
 }) => {
+  const normalizedOutcome = (item.outcome ?? "")
+    .toString()
+    .trim()
+    .toLowerCase();
+
+  const isPending = !item.is_tested || normalizedOutcome === "" || normalizedOutcome === "pending";
+  const isPassed = item.is_tested && normalizedOutcome === "pass";
+  const isFailed = item.is_tested && normalizedOutcome === "fail";
+
   // --- STATO EDITING (Inline) ---
   if (modal && selectedTask && selectedTask.id === item.id) {
     return (
@@ -82,22 +91,26 @@ const CheckListItem = ({
       </TableCell>
 
       <TableCell>
-        {!item.is_tested ? (
+        {isPending ? (
           <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
             Pending
           </Badge>
-        ) : item.outcome === "pass" ? (
+        ) : isPassed ? (
           <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">
             Passed
           </Badge>
-        ) : (
+        ) : isFailed ? (
           <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-100 border-none">
             Failed
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-700">
+            Unknown
           </Badge>
         )}
       </TableCell>
 
-      <TableCell className="max-w-[200px] truncate text-slate-500 italic">
+      <TableCell className="max-w-50 truncate text-slate-500 italic">
         {item.note || "---"}
       </TableCell>
 
@@ -105,7 +118,7 @@ const CheckListItem = ({
         <div className="flex items-center justify-center gap-2">
           {/* CHECKBOX PASS (Emerald) */}
           <Checkbox
-            checked={item.is_tested && item.outcome === "pass"}
+            checked={isPassed}
             onCheckedChange={(checked) =>
               changeStatus(item.id, checked ? "pass" : "pending")
             }
@@ -117,7 +130,7 @@ const CheckListItem = ({
             variant="ghost"
             size="icon"
             onClick={() => changeStatus(item.id, "fail")}
-            className={item.outcome === "fail" ? "text-red-600 bg-red-50" : "text-slate-400 hover:text-red-600 hover:bg-red-50"}
+            className={isFailed ? "text-red-600 bg-red-50" : "text-slate-400 hover:text-red-600 hover:bg-red-50"}
           >
             <X className="h-4 w-4" />
           </Button>

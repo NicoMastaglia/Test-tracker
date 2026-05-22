@@ -1,7 +1,6 @@
 import  {Box, Typography} from "@mui/material";
 import Sidebar from "@/Components/layout/Sidebar";
 import AdminDashboard from "../Admin";
-import TesterDashboard from "../TesterDashboard";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -17,9 +16,9 @@ const headerConfig = {
     title: (user) => `Benvenuto, ${user.name}!`,
     subtitle: (user) => `Ruolo: ${user.role} `
   },
-  projects: {
+    projects: {
     title: () => 'Gestione Progetti',
-    subtitle: () => 'Crea, modifica e assegna progetti ai tester.'
+    subtitle: () => 'Crea, modifica e assegna progetti ai user.'
   },
     sessions: {
     title: () => 'Gestione Sessioni',

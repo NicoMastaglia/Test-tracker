@@ -3,7 +3,9 @@ import { initialState,projectReducer } from "../Project/useProject";
 import { useContext,createContext,useReducer } from "react";
 
 import { getToken } from "@/services/config";
-import { getProjects,createProject } from "@/services/Project/project";
+import { getProjects,createProject,
+    getProjectById,updateProject as updateProjectApi,deleteProject as deleteProjectApi,updateProjectStatus as updateProjectStatusApi,assignUserToProject as assignUserToProjectApi,unAssingUserAssignment as unAssingUserAssignmentApi
+ } from "@/services/Project/project";
 
 const ProjectContext = createContext(); 
 
@@ -39,6 +41,86 @@ export const ProjectProvider = ({ children }) => {
 
     }
 
+    const fetchProjectDetails = async (projectId) => {
+        dispatch({type:'SET_LOADING'})
+        try{
+            const token = getToken()
+            const projectDetails = await getProjectById(token, projectId)
+            dispatch({type:'SET_SELECTED_PROJECT', payload: projectDetails})
+        } catch (error) {
+            dispatch({type:'SET_ERROR', payload: error.message})
+        }
+    }
+
+    const updateProject = async (projectId, projectData) => {
+        dispatch({type:'SET_LOADING'})
+        try {
+            const token = getToken()
+            const updatedProject = await updateProjectApi(token, projectId, projectData)
+            dispatch({type:'UPDATE_PROJECT', payload: updatedProject})
+            return updatedProject
+        } catch (error) {
+            dispatch({type:'SET_ERROR', payload: error.message})
+            throw error
+        }
+    }
+
+    const deleteProject = async (projectId) => {
+        dispatch({type:'SET_LOADING'})
+        try {
+            const token = getToken()
+            await deleteProjectApi(token, projectId)
+            dispatch({type:'DELETE_PROJECT', payload: projectId})
+        } catch (error) {
+            dispatch({type:'SET_ERROR', payload: error.message})
+            throw error
+        }
+    }
+
+    const updateProjectStatus = async (projectId, status) => {
+        dispatch({type:'SET_LOADING'})
+        try {
+            const token = getToken()
+            const updatedProject = await updateProjectStatusApi(token, projectId, status)
+            dispatch({type:'UPDATE_PROJECT', payload: updatedProject})
+            return updatedProject
+        } catch (error) {
+            dispatch({type:'SET_ERROR', payload: error.message})
+            throw error
+        }
+    }
+
+    const assignUserToProject = async (projectId, userId) => {
+        dispatch({type:'SET_LOADING'})
+        try {
+            const token = getToken()
+            const updatedProject = await assignUserToProjectApi(token, projectId, userId)
+            dispatch({type:'UPDATE_PROJECT', payload: updatedProject})
+            return updatedProject
+        } catch (error) {
+            dispatch({type:'SET_ERROR', payload: error.message})
+            throw error
+        }
+    }
+
+    const unAssingUserAssignment = async (projectId, userId) => {
+        dispatch({type:'SET_LOADING'})
+        try {
+            const token = getToken()
+            const updatedProject = await unAssingUserAssignmentApi(token, projectId, userId)
+            dispatch({type:'UPDATE_PROJECT', payload: updatedProject})
+            return updatedProject
+        } catch (error) {
+            dispatch({type:'SET_ERROR', payload: error.message})
+            throw error
+        }
+    }
+
+    const clearSelectedProject = () => {
+     dispatch({
+      type:'CLEAR_SELECTED_PROJECT'
+    })
+       }
 
     return (
         <ProjectContext.Provider value={{
@@ -48,7 +130,14 @@ export const ProjectProvider = ({ children }) => {
          selectedProject: state.selectedProject,
          fetchProjects:fetchProjects,
             addProject:addProject,
-         
+            fetchProjectDetails:fetchProjectDetails,
+            updateProject:updateProject,
+            deleteProject:deleteProject,
+            updateProjectStatus:updateProjectStatus,
+            assignUserToProject:assignUserToProject,
+            unAssingUserAssignment:unAssingUserAssignment,
+            clearSelectedProject:clearSelectedProject
+
 
 
 

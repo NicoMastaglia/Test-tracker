@@ -10,7 +10,7 @@ import { useUsersContext } from "@/context/User/UserContext";
 const Users = () => {
 
     const [token,setToken] = useState(localStorage.getItem("auth_token"));
-    const {users,fetchUsers } = useUsersContext()
+    const {users,fetchUsers} = useUsersContext()
   
     const [newUserData,setNewUserData] = useState({
 
@@ -26,12 +26,14 @@ const Users = () => {
 
     useEffect(()=>{
         fetchUsers()
+        console.log(typeof editUser)
     },[])
 
     const addUser = async () =>{
         const {name,surname,email,role,password} = newUserData; 
         try {
             await register(name,surname,email,password,role,token)
+            await fetchUsers()
             toast.success("Utente creato con successo!")
             setModal(false)
         } catch (error) {
@@ -41,34 +43,34 @@ const Users = () => {
     }
 
 
-    
+    const filterUsers = useMemo(() => {
+        const normalizedSearch = search.trim().toLowerCase();
 
-   const filterUsers = useMemo(() =>{
-    if (!search) return users;
-    
-    return users.filter((user) =>
-     user.name.toLowerCase().includes(search.toLowerCase()) ||
-    //   user.surname.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase()) ||
-      user.role.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, users]);
+        if (!normalizedSearch) return users;
+
+        return users.filter((user) => {
+            const name = (user.nome ?? user.name ?? "").toLowerCase();
+            const surname = (user.cognome ?? user.surname ?? "").toLowerCase();
+            const email = (user.email ?? "").toLowerCase();
+            const role = (user.role ?? "").toLowerCase();
+
+            return (
+                name.includes(normalizedSearch) ||
+                surname.includes(normalizedSearch) ||
+                email.includes(normalizedSearch) ||
+                role.includes(normalizedSearch)
+            );
+        });
+    }, [search, users]);
   
-   
-
-
-
-
-
-
-
-
     return (
         <AppLayout page="users">
             <UserHeader  
-             modal={modal} setModal={setModal} search={search} setSearch={setSearch} newUserData={newUserData} setNewUserData={setNewUserData} addUser={addUser} />
+             modal={modal} setModal={setModal} search={search} setSearch={setSearch} newUserData={newUserData} setNewUserData={setNewUserData}
+              addUser={addUser} />
             <ManageUsers 
-         data={users}  />
+                            data={filterUsers}
+                        />
 
 
         </AppLayout>

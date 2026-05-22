@@ -25,7 +25,7 @@ const NewUser = ({setModal,
 
     return(
           <Dialog open={modal} onOpenChange={setModal}>
-                    <DialogContent className="sm:max-w-[450px]">
+                    <DialogContent className="sm:max-w-112.5">
                     <DialogHeader>
 
                     <DialogTitle className="text-2xl font-bold flex items-center gap-2">
@@ -76,9 +76,9 @@ const NewUser = ({setModal,
                                     </div>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="superadmin">Superadmin</SelectItem>
+                                    <SelectItem value="user">User</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
-                                    <SelectItem value="tester">Tester</SelectItem>
+                                    <SelectItem value="superadmin">Superadmin</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

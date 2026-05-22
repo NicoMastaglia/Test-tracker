@@ -1,9 +1,8 @@
 import { SidebarProvider, SidebarInset} from "@/components/ui/sidebar"; // Importa i componenti Shadcn
 import AppSidebar from "./Sidebar"; // La tua nuova Sidebar (quella che abbiamo scritto prima)
 import Header from "./Header";
-import { useAuth } from "@/context/Auth.js/AuthContext";
+import { useAuth } from "@/context/Auth/AuthContext";
 import { TooltipProvider } from "../ui/tooltip";
-import { Toaster } from "sonner";
 const AppLayout = ({ children, page }) => {
   const { user } = useAuth();
 
@@ -18,7 +17,6 @@ const AppLayout = ({ children, page }) => {
 
        
         <SidebarInset className="flex flex-col flex-1 bg-slate-50">
-        <Toaster richColors  position="bottom-right" />
           {/*  Header */}
           <Header user={user} page={page} />
 

@@ -12,7 +12,7 @@ export const AuthProvider =({children})=>{
 // const canManageUsers = () => user?.role === 'superadmin';
 // const canCreateProjects = () => user?.role === 'superadmin' || user?.role === 'admin';
 // const canEditChecklist = () => user?.role === 'admin';
-// const isTester = () => user?.role === 'tester';
+// const isUser = () => user?.role === 'user';
 
     // const [user,setUser] = useState(()=>{
     //     const storedUser = localStorage.getItem("current_user")
@@ -107,6 +107,11 @@ export const AuthProvider =({children})=>{
         }
     }
 
+    const syncCurrentUser = (updatedUser) => {
+      localStorage.setItem("current_user", JSON.stringify(updatedUser));
+      dispatch({type:'SYNC_CURRENT_USER', payload: updatedUser});
+    }
+
 
     return (
         <AuthContext.Provider value={{
@@ -117,7 +122,8 @@ export const AuthProvider =({children})=>{
             error: state.error,
 
             login,
-            logoutUser
+            logoutUser,
+            syncCurrentUser
         }}>
             {children}
         </AuthContext.Provider>
@@ -126,5 +132,4 @@ export const AuthProvider =({children})=>{
     
 
 export const useAuth = () => useContext(AuthContext);
-
 

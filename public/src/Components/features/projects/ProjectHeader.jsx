@@ -12,13 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import ActionBar from '@/utilis/ActionBar';
+import ActionBar from '@/utils/ActionBar';
 
-const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search, setSearch, addProject }) => {
+const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search, setSearch, addProject, canCreateProject = true }) => {
 
   const handleAdd = () => {
     addProject();
-  
   };
 
   return (
@@ -28,11 +27,12 @@ const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search,
         search={search}
         setSearch={setSearch}
         placeholder="Cerca progetto..."
-        buttonText="Add Project"
-        onButtonClick={() => setModalOpen(true)}
+        buttonText={canCreateProject ? "Add Project" : null}
+        onButtonClick={canCreateProject ? () => setModalOpen(true) : undefined}
         buttonVariant="emerald"
       />
      
+      {canCreateProject && (
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
@@ -43,7 +43,6 @@ const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search,
           </DialogHeader>
 
           <div className="grid gap-6 py-4">
-            {/* Project Name Field */}
             <div className="grid gap-2">
               <Label htmlFor="name" className="text-slate-700">Project Name</Label>
               <Input 
@@ -55,7 +54,6 @@ const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search,
               />
             </div>
             
-            {/* Description Field */}
             <div className="grid gap-2">
               <Label htmlFor="description" className="text-slate-700">Description</Label>
               <Textarea 
@@ -86,6 +84,7 @@ const ProjectHeader = ({ modalOpen, setModalOpen, formData, setFormData, search,
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      )}
     </div>
   );
 };

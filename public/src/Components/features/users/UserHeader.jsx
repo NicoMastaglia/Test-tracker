@@ -3,7 +3,7 @@ import { Search,Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import NewUser from "./NewUser";
-import ActionBar from "@/utilis/ActionBar";
+import ActionBar from "@/utils/ActionBar";
 
 const UserHeader = ({modal,setModal,search,setSearch,
    newUserData,setNewUserData,addUser

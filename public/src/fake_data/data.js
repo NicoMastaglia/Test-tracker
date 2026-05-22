@@ -1,13 +1,13 @@
 export const currentUser = {
   id: 1,
-  role: "tester"
+  role: "user"
 };
 
 export const users = [{
   id: 1,
   name: "Francesco Rossi",
   email: "francesco.rossi@example.com",
-  role: "tester",
+  role: "user",
   password: "password123"
 }, {
   id: 3,
@@ -20,7 +20,7 @@ export const users = [{
   id: 2,
   name: "Luca Verdi",
   email: "luca.verdi@example.com",
-  role: "tester",
+  role: "user",
   password: "password789"
 },
 {
