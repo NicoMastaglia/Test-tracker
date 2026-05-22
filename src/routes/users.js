@@ -6,7 +6,7 @@ const checkUser = require("../middleware/checkUser");
 const { hashPassword, comparePassword } = require("../auth/hash");
 const db = require("../database/db");
 
-router.get("/", checkSuperadmin, async (req, res) => {
+router.get("/", checkAdmin, async (req, res) => {
   if (req.user.role == "admin") {
     return db
       .execute(
