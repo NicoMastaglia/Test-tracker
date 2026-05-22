@@ -1,4 +1,4 @@
-import * as React from "react"
+import React,{useState}from "react"
 import { 
   Home, 
   Repeat, 
@@ -6,13 +6,14 @@ import {
   Users, 
   LogOut, 
   CheckCircle,
-  Terminal,      // Icona per l'ambiente Tester
+  Terminal,      // Icona per l'ambiente User
   ShieldAlert,   // Icona per l'ambiente Superadmin
   Briefcase      // Icona per l'ambiente Admin standard
 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useAuth } from "../../context/Auth.js/AuthContext"
+import { useAuth } from "../../context/Auth/AuthContext"
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +27,15 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AlertTriangle } from "lucide-react";
 
 // Configurazione dinamica dei titoli in base al ruolo utente
 const ROLE_CONSOLE_CONFIG = {
@@ -39,27 +49,40 @@ const ROLE_CONSOLE_CONFIG = {
     subtitle: "Gestione Progetti & Team",
     icon: Briefcase,
   },
-  tester: {
+  user: {
     title: "Testing Env",
     subtitle: "Analisi & Debug",
     icon: Terminal,
   }
 }
 
-const menuItems = [
-  { text: "Dashboard", path: "/dashboard", roles: ["tester", "admin", "superadmin"], icon: Home },
-  { text: "Sessions", path: "/admin/sessions", roles: ["admin", "superadmin"], icon: Repeat },
-  { text: "Projects", path: "/admin/projects", roles: ["admin", "superadmin"], icon: Folder },
-  { text: "Users", path: "/admin/users", roles: ["superadmin"], icon: Users },
-  { text: "Team", path: "/admin/team", roles: ["admin"], icon: Users },
-  { text: "Checklist", path: "/admin/checklist", roles: ["admin"], icon: CheckCircle },
-  { text: "My Sessions", path: "/sessions-test", roles: ["tester"], icon: CheckCircle }
-]
+const menuItemsByRole = {
+  user: [
+    { text: "Dashboard", path: "/dashboard", icon: Home },
+    { text: "My Sessions", path: "/sessions-test", icon: CheckCircle },
+    { text: "My Projects", path: "/user/projects", icon: Folder },
+  ],
+  admin: [
+    { text: "Dashboard", path: "/dashboard", icon: Home },
+    { text: "Sessions", path: "/admin/sessions", icon: Repeat },
+    { text: "Projects", path: "/admin/projects", icon: Folder },
+    { text: "Team", path: "/admin/team", icon: Users },
+    { text: "Checklist", path: "/admin/checklist", icon: CheckCircle },
+  ],
+  superadmin: [
+    { text: "Dashboard", path: "/dashboard", icon: Home },
+    { text: "Projects", path: "/admin/projects", icon: Folder },
+    { text: "Users", path: "/admin/users", icon: Users },
+    { text: "Audit Log", path: "/admin/audit-log", icon: ShieldAlert },
+  ],
+}
 
 export default function AppSidebar() {
   const { logoutUser, user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const menuItems = menuItemsByRole[user?.role] || [];
 
   // Recupera la configurazione del ruolo (con fallback di sicurezza)
   const roleConfig = ROLE_CONSOLE_CONFIG[user?.role] || {
@@ -71,6 +94,7 @@ export default function AppSidebar() {
   const RoleIcon = roleConfig.icon
 
   const handleLogout = () => {
+    setDeleteConfirmOpen(true);
 
     const token = localStorage.getItem("auth_token");
 
@@ -79,13 +103,13 @@ export default function AppSidebar() {
       return;
     }
 
-    const confirmLogout = window.confirm("Sei sicuro di voler uscire?");
+    
 
-    if(confirmLogout){
+
       logoutUser(token);
       toast.success("Logout effettuato con successo!");
       navigate("/login");
-    }
+    
     
    
 
@@ -94,16 +118,17 @@ export default function AppSidebar() {
   }
 
   return (
-    <Sidebar 
-      collapsible="icon" 
-      variant="sidebar" 
+    <>
+    <Sidebar
+      collapsible="icon"
+      variant="sidebar"
       className="border-r border-slate-200 bg-white text-slate-600"
-    > 
-      
+    >
+
       {/* HEADER: RUOLO DINAMICO */}
       <SidebarHeader className="flex flex-col gap-2 p-4 border-b border-slate-100 justify-center group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:items-center">
-        
-       
+
+
         <div className="flex items-center justify-between w-full bg-slate-50 border border-slate-200/60 rounded-xl p-2.5 group-data-[collapsible=icon]:hidden">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="h-7 w-7 bg-white text-slate-700 rounded-md flex items-center justify-center border border-slate-200 shadow-sm shrink-0">
@@ -114,7 +139,7 @@ export default function AppSidebar() {
               <span className="text-[10px] text-slate-400 font-medium mt-1 truncate">{roleConfig.subtitle}</span>
             </div>
           </div>
-          <SidebarTrigger className="text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 rounded-md h-7 w-7 ml-1 shrink-0" /> 
+          <SidebarTrigger className="text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 rounded-md h-7 w-7 ml-1 shrink-0" />
         </div>
 
         <div className="hidden group-data-[collapsible=icon]:block">
@@ -130,35 +155,32 @@ export default function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
-              {menuItems
-                .filter((item) => item.roles.includes(user?.role))
-                .map((item) => {
+              {menuItems.map((item) => {
                   const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
-                  
-                  return (
-                    <SidebarMenuItem key={item.text}>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive}
-                        tooltip={item.text}
-                        className={`w-full transition-all duration-150 rounded-lg py-2 h-9 font-medium text-xs
-                          ${isActive 
-                            ? "bg-slate-100 text-slate-900 font-semibold" 
-                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                          }`}
+
+                return (
+                  <SidebarMenuItem key={item.text}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.text}
+                      className={`w-full transition-all duration-150 rounded-lg py-2 h-9 font-medium text-xs
+                        ${isActive
+                          ? "bg-slate-100 text-slate-900 font-semibold"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                    >
+                      <button
+                        onClick={() => navigate(item.path)}
+                        className="flex items-center w-full gap-3 px-2.5"
                       >
-                        <button 
-                          onClick={() => navigate(item.path)}
-                          className="flex items-center w-full gap-3 px-2.5"
-                        >
-                         
-                          <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? "text-slate-900" : "text-slate-400"}`} />
-                          <span className="truncate group-data-[collapsible=icon]:hidden">{item.text}</span>
-                        </button>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
+
+                        <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? "text-slate-900" : "text-slate-400"}`} />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.text}</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -168,8 +190,8 @@ export default function AppSidebar() {
       <SidebarFooter className="p-2 border-t border-slate-100 bg-white">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton 
-              onClick={handleLogout} 
+            <SidebarMenuButton
+              onClick={()=>setDeleteConfirmOpen(true)}
               tooltip="Disconnetti"
               className="w-full text-slate-500 hover:bg-rose-50 hover:text-rose-600 font-medium py-2 h-9 rounded-lg transition-colors group"
             >
@@ -181,6 +203,31 @@ export default function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-105">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Conferma  disconnessione
+            </DialogTitle>
+            <DialogDescription>
+              Sei sicuro di voler uscire? Tutti i progressi non salvati potrebbero andare persi.
+            </DialogDescription>
+          </DialogHeader>
+          
+
+          <DialogFooter>
+            <Button variant="outline" onClick={()=>setDeleteConfirmOpen(false)}>Annulla</Button>
+            <Button variant="destructive" onClick={handleLogout}>Effettua Disconessione</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
+   
+      
+      </>
+      
   )
 }

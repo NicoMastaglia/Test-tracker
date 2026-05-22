@@ -3,14 +3,14 @@ import { currentUser,sessions } from "../fake_data/data";
 import { Table, TableContainer, Paper, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/Auth.js/AuthContext";
+import { useAuth } from "../context/Auth/AuthContext";
 import { Card, Typography, Button } from "@mui/material"
-import TesterView from "@/Components/TesterView";
+import UserView from "@/Components/UserView";
 import Sidebar from "@/Components/layout/Sidebar";
 import {Box} from "@mui/material";
 import AdminDashboard from "@/dashboard/Admin";
 import SuperAdminDashboard from "@/dashboard/SuperAdmin";
-import TesterDashboard from "@/dashboard/Tester";
+import UserDashboard from "@/dashboard/User";
 import AppLayout from "@/Components/layout/AppLayout";
 import Header from "@/Components/layout/Header";
 
@@ -20,9 +20,7 @@ const DashBoard = () =>{
     const navigate = useNavigate();
 
     const dashBoardRules = {
-      'tester' :  <TesterDashboard/>,
-      'user':  <TesterDashboard/>,
-      
+      'user':  <UserDashboard/>,
       'admin' : <AdminDashboard/>,
       'superadmin' : <SuperAdminDashboard/>
     }

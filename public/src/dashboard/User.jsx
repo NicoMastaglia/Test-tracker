@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Bug, ArrowRight } from "lucide-react"; // Icone per dare contesto
 
-const TesterDashboard = () => {
+const UserDashboard = () => {
   const navigate = useNavigate();
 
   return (
@@ -63,4 +63,4 @@ const TesterDashboard = () => {
   );
 };
 
-export default TesterDashboard;
+export default UserDashboard;

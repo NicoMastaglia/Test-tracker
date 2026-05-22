@@ -8,7 +8,7 @@ import AdminSessions from "../pages/Sessions";
 import Sessions from "../pages/Sessions";
 // import ManageUsers from "../pages/ManageUsers";
 import Users from "../pages/Users";
-import { useAuth } from "../context/Auth.js/AuthContext";
+import { useAuth } from "../context/Auth/AuthContext";
 
 import AdminProjects from "../pages/AdminProjects";
 export default function AppRouter() {
@@ -24,14 +24,14 @@ export default function AppRouter() {
 
   {/* DASHBOARD */}
   <Route path="/dashboard" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin', 'tester', 'user']}>
+    <ProctedRoute allowedRoles={['superadmin', 'admin', 'user']}>
       <DashBoard />
     </ProctedRoute>
   } />
 
-  {/* TESTER + ADMIN */}
+  {/* USER + ADMIN */}
   <Route path="/sessions/:id" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin', 'tester','user']}>
+    <ProctedRoute allowedRoles={['superadmin', 'admin', 'user']}>
       <SessionsTests />
     </ProctedRoute>
   } />
@@ -78,13 +78,13 @@ export default function AppRouter() {
   } />
 
   <Route path="/admin/projects/:id" element={
-    <ProctedRoute allowedRoles={['superadmin','admin']}>
+    <ProctedRoute allowedRoles={['admin']}>
       <AdminProjects />
     </ProctedRoute>
   } />
 
   <Route path="/sessions-test" element={
-    <ProctedRoute allowedRoles={['tester','user']}>
+    <ProctedRoute allowedRoles={['user']}>
       <Sessions/>
     </ProctedRoute>
   } />

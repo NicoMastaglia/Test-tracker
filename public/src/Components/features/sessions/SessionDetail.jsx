@@ -13,20 +13,31 @@ const SessionDetail = ({ sessions, user }) => {
 
   // 2. Badge stilizzati in linea con il design system (morbidi e senza contrasti acidi)
   const getStatusBadge = (status) => {
-    switch (status) {
+    const normalizedStatus = (status ?? "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+
+    switch (normalizedStatus) {
       case "completed":
+      case "completato":
         return (
           <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border border-emerald-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
             Completed
           </Badge>
         );
       case "in_progress":
+      case "in_corso":
+      case "ongoing":
         return (
           <Badge className="bg-amber-50 text-amber-700 hover:bg-amber-50 border border-amber-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
             In Progress
           </Badge>
         );
       case "not_started":
+      case "non_iniziato":
+      case "da_iniziare":
         return (
           <Badge className="bg-rose-50 text-rose-700 hover:bg-rose-50 border border-rose-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
             Not Started

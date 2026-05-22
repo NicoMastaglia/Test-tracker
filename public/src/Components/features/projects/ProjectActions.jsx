@@ -26,7 +26,6 @@ const ProjectActions = () => {
   const { addProject } = useProjectContext();
 
   const handleAddProject = () => {
-  
     addProject(projectUpdate);
     setModalOpen(false);
     setProjectUpdate({ name: '', description: '', users: [] }); 
@@ -35,7 +34,6 @@ const ProjectActions = () => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
       
-      {/* Search Bar con Icona */}
       <div className="relative w-full sm:max-w-sm">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
         <Input
@@ -46,7 +44,6 @@ const ProjectActions = () => {
         />
       </div>
 
-      {/* Dialog per Aggiungere Progetto */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogTrigger asChild>
           <Button className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto">
@@ -63,7 +60,6 @@ const ProjectActions = () => {
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {/* Nome Progetto */}
             <div className="grid gap-2">
               <Label htmlFor="name">Nome Progetto</Label>
               <Input
@@ -74,7 +70,6 @@ const ProjectActions = () => {
               />
             </div>
 
-            {/* Descrizione */}
             <div className="grid gap-2">
               <Label htmlFor="description">Descrizione</Label>
               <Input

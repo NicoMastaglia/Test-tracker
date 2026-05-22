@@ -9,7 +9,7 @@ const Header = ({ user, page }) => {
     },
     projects: {
       title: () => "Gestione Progetti",
-      subtitle: () => "Crea, modifica e assegna progetti ai tester.",
+      subtitle: () => "Crea, modifica e assegna progetti ai user.",
     },
     sessions: {
       title: () => "Gestione Sessioni",
