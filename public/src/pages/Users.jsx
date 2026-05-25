@@ -1,16 +1,17 @@
 import AppLayout from "@/Components/layout/AppLayout";
 
 import ManageUsers from "@/Components/features/users/ManageUsers";
-import UserHeader from "@/Components/features/users/UserHeader";
+import NewUser from "@/Components/features/users/NewUser";
+import ActionBar from "@/utils/ActionBar";
 import React,{useState,useEffect,useMemo} from "react";
 import { register } from "@/services/api";
 import { toast } from "sonner";
-import { useUsersContext } from "@/context/User/UserContext";
+import { useUserContext } from "@/context/User/UserContext";
 
 const Users = () => {
 
     const [token,setToken] = useState(localStorage.getItem("auth_token"));
-    const {users,fetchUsers} = useUsersContext()
+    const {users,fetchUsers} = useUserContext()
   
     const [newUserData,setNewUserData] = useState({
 
@@ -65,12 +66,29 @@ const Users = () => {
   
     return (
         <AppLayout page="users">
-            <UserHeader  
-             modal={modal} setModal={setModal} search={search} setSearch={setSearch} newUserData={newUserData} setNewUserData={setNewUserData}
-              addUser={addUser} />
-            <ManageUsers 
-                            data={filterUsers}
+            <div className="space-y-6">
+                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <ActionBar
+                        search={search}
+                        setSearch={setSearch}
+                        placeholder="Cerca utente..."
+                        buttonText="Add User"
+                        onButtonClick={() => setModal(true)}
+                        buttonVariant="emerald"
+                    />
+                    <div className="pt-4">
+                        <NewUser
+                            setNewUserData={setNewUserData}
+                            newUserData={newUserData}
+                            setModal={setModal}
+                            modal={modal}
+                            addUser={addUser}
                         />
+                    </div>
+                </div>
+
+                <ManageUsers data={filterUsers} />
+            </div>
 
 
         </AppLayout>

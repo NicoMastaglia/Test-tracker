@@ -5,12 +5,12 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-  } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+    } from "@/Components/ui/dialog";
+import { Label } from "@/Components/ui/label";
 import { Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Button } from "@/Components/ui/button";
 import { ShieldCheck } from "lucide-react";
 import React from "react";
 

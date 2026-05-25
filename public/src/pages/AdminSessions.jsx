@@ -1,20 +1,21 @@
 import React from 'react'
-import SessionsTests from './SessionsTests'
-import { useAuth } from '../context/Auth/AuthContext'
+
+import { useAuthContext } from '../context/Auth/AuthContext'
 import { Box, Typography, Card, Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import Sidebar from './Sidebar'
-import AppLayout from './AppLayout'
+
+
 
 const AdminSessions = () => {
 
-    const { user } = useAuth();
+    const { user } = useAuthContext();
     const navigate = useNavigate()
 
 
     return (
-       <h1>ddd</h1>
-
+       
+<div className="
+"> admin sessions</div>
    
     )
 

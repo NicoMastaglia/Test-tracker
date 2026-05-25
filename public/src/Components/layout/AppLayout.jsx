@@ -1,10 +1,10 @@
-import { SidebarProvider, SidebarInset} from "@/components/ui/sidebar"; // Importa i componenti Shadcn
+import { SidebarProvider, SidebarInset} from "@/Components/ui/sidebar"; // Importa i componenti Shadcn
 import AppSidebar from "./Sidebar"; // La tua nuova Sidebar (quella che abbiamo scritto prima)
 import Header from "./Header";
-import { useAuth } from "@/context/Auth/AuthContext";
+import { useAuthContext } from "@/context/Auth/AuthContext";
 import { TooltipProvider } from "../ui/tooltip";
 const AppLayout = ({ children, page }) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
 
   return (
     // Il Provider avvolge tutto il layout per gestire lo stato della sidebar

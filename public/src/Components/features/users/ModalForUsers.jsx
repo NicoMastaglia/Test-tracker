@@ -6,23 +6,23 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+} from "@/Components/ui/dialog";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Button } from "@/Components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/Components/ui/select";
 import { User, Mail, ShieldCheck, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { useUsersContext } from "@/context/User/UserContext";
+import { useUserContext } from "@/context/User/UserContext";
 
 const ModalForUsers = () => {
-  const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUsersContext();
+  const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
   const [name, setName] = useState(selectedUser?.nome ?? "");
   const [surname, setSurname] = useState(selectedUser?.cognome ?? "");
   const [email, setEmail] = useState(selectedUser?.email ?? "");

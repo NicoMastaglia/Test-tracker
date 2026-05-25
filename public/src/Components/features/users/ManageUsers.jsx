@@ -6,15 +6,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+} from "@/Components/ui/table";
+import { Button } from "@/Components/ui/button";
+import { Badge } from "@/Components/ui/badge";
 import { UserCog } from "lucide-react"; // Icona per gestione utente
 import ModalForUsers from './ModalForUsers';
-import { useUsersContext } from "@/context/User/UserContext";
+import { useUserContext } from "@/context/User/UserContext";
 
 const ManageUsers = ({ data }) => {
-  const { selectedUser, fetchUserById, clearSelectedUser } = useUsersContext();
+  const { selectedUser, fetchUserById, clearSelectedUser } = useUserContext();
 
 
 
@@ -34,57 +34,65 @@ const ManageUsers = ({ data }) => {
   };
 
   return (
-    <div className="mx-auto my-8 max-w-300 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <Table>
-        <TableHeader className="bg-slate-50/50">
-          <TableRow className="text-center">
-            <TableHead className="w-25 font-semibold text-slate-900 text-center">ID Utente</TableHead>
-            <TableHead className="font-semibold text-slate-900 text-center">Nome</TableHead>
-            <TableHead className="font-semibold text-slate-900v text-center">Cognome</TableHead>
-            <TableHead className="font-semibold text-slate-900 text-center">Email</TableHead>
-            <TableHead className="font-semibold text-slate-900 texr-center">Ruolo</TableHead>
-            <TableHead className=" font-semibold text-slate-900 text-center">Azioni</TableHead>
+        <TableHeader className="bg-slate-900">
+          <TableRow className="bg-slate-900 hover:bg-slate-900 text-center">
+            <TableHead className="w-25 font-bold text-white text-center">ID Utente</TableHead>
+            <TableHead className="font-bold text-white text-center">Nome</TableHead>
+            <TableHead className="font-bold text-white text-center">Cognome</TableHead>
+            <TableHead className="font-bold text-white text-center">Email</TableHead>
+            <TableHead className="font-bold text-white text-center">Ruolo</TableHead>
+            <TableHead className="font-bold text-white text-center">Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((userItem) => (
-            <TableRow key={userItem.id} className="group hover:bg-slate-50/50 transition-colors">
-              <TableCell className="font-mono text-xs text-slate-500">
-                #{userItem.id}
-              </TableCell>
-              
-              <TableCell className="font-medium text-slate-700">
-                {userItem.nome}
-              </TableCell>
+          {data.length > 0 ? (
+            data.map((userItem) => (
+              <TableRow key={userItem.id} className="group hover:bg-slate-50/50 transition-colors">
+                <TableCell className="font-mono text-xs text-slate-500">
+                  #{userItem.id}
+                </TableCell>
+                
+                <TableCell className="font-medium text-slate-700">
+                  {userItem.nome}
+                </TableCell>
 
-              <TableCell className="font-medium text-slate-700">
-                {userItem.cognome}
-              </TableCell>
+                <TableCell className="font-medium text-slate-700">
+                  {userItem.cognome}
+                </TableCell>
 
 
-              
-              
-              <TableCell className="text-slate-600">
-                {userItem.email}
-              </TableCell>
-              
-              <TableCell>
-                {getRoleBadge(userItem.role)}
-              </TableCell>
-              
-              <TableCell className="text-center">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => fetchUserById(userItem.id)}
-                  className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-bold"
-                >
-                  <UserCog className="mr-2 h-4 w-4" />
-                  Modifica
-                </Button>
+                
+                
+                <TableCell className="text-slate-600">
+                  {userItem.email}
+                </TableCell>
+                
+                <TableCell>
+                  {getRoleBadge(userItem.role)}
+                </TableCell>
+                
+                <TableCell className="text-center">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => fetchUserById(userItem.id)}
+                    className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-bold"
+                  >
+                    <UserCog className="mr-2 h-4 w-4" />
+                    Modifica
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center text-slate-500">
+                Nessun utente trovato.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
 

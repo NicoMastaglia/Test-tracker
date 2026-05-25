@@ -6,11 +6,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress"; // Componente Shadcn
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/Components/ui/table";
+import { Progress } from "@/Components/ui/progress"; // Componente Shadcn
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -18,25 +18,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/Components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/Components/ui/select";
 import { toast } from "sonner";
 import { Pencil, Trash2, UserPlus, Flag, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/context/Project/ProjectContext";
-import { useAuth } from "@/context/Auth/AuthContext";
+import { useAuthContext } from "@/context/Auth/AuthContext";
 import { sessions } from "../../../fake_data/data";
+import ProjectRow from "./ProjectRow";
+import AssignDialog from "./AssignDialog";
 
 const PROJECT_STATUS_OPTIONS = ["Attivo", "Completato", "In pausa"];
 
 const ProjectTable = ({ data, users = [] }) => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const navigate = useNavigate();
   const {
     fetchProjects,
@@ -45,6 +47,8 @@ const ProjectTable = ({ data, users = [] }) => {
     updateProjectStatus,
     assignUserToProject,
     unAssingUserAssignment,
+    fetchProjectDetails,
+    selectedProject,
   } = useProjectContext();
 
   const [editingProject, setEditingProject] = useState(null);
@@ -85,6 +89,8 @@ const ProjectTable = ({ data, users = [] }) => {
 
     return <span className="capitalize px-2 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">{status || "Unknown"}</span>;
   };
+
+
 
   const openEditDialog = (project) => {
     if (!isAdmin) return;
@@ -159,8 +165,13 @@ const ProjectTable = ({ data, users = [] }) => {
     }
   };
 
-  const openAssignDialog = (project) => {
+  const openAssignDialog = async (project) => {
     if (!isAdmin) return;
+    try {
+      await fetchProjectDetails(project.id);
+    } catch (err) {
+      // ignore - we'll still open the dialog but assigned users may be stale
+    }
     setAssignProject(project);
     setSelectedUserId("");
   };
@@ -182,7 +193,8 @@ const ProjectTable = ({ data, users = [] }) => {
       toast.success("Utente assegnato al progetto");
       setAssignProject(null);
     } catch (error) {
-      toast.error("Errore durante assegnazione utente");
+      const message = error.response?.data?.specific || error.response?.data?.error || error.response?.data?.message || "Errore durante assegnazione utente";
+      toast.error(message);
     }
   };
 
@@ -203,149 +215,71 @@ const ProjectTable = ({ data, users = [] }) => {
       toast.success("Utente rimosso dal progetto");
       setAssignProject(null);
     } catch (error) {
-      toast.error("Errore durante rimozione utente");
+      const message = error.response?.data?.specific || error.response?.data?.error || error.response?.data?.message || "Errore durante rimozione utente";
+      toast.error(message);
     }
   };
 
   const handleProjectRowClick = (projectId) => {
-    if (!isAdmin) return;
+    if (!(isAdmin || isSuperadmin)) return;
     navigate(`/admin/projects/${projectId}`);
   };
 
+  const assignedUsers = (selectedProject && Number(selectedProject.id) === Number(assignProject?.id))
+    ? selectedProject.assigned_users || []
+    : (assignProject?.assigned_users || []);
+
   const availableUsers = users.filter(u => {
-    const isAssigned = assignProject?.assigned_users?.some(au => au.id === u.id);
+    const isAssigned = assignedUsers.some(au => (au.id ?? au.user_id) === u.id);
     return !isAssigned;
   });
 
  
 
   return (
-    <div className="mx-auto my-6 max-w-300 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-
-      {data && data.length >0 ? (
+    <>
+      <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-slate-900">
             <TableRow className="bg-slate-900 hover:bg-slate-900">
               <TableHead className="text-white font-bold w-25 text-center">Project #</TableHead>
-            <TableHead className="text-white font-bold text-center">Name</TableHead>
-            <TableHead className="text-white font-bold text-center">Status</TableHead>
-            {/* <TableHead className="text-white font-bold">Description</TableHead> */}
-             <TableHead className="text-white font-bold w-50 text-center">Created By</TableHead>
-            <TableHead className="text-white font-bold w-50 text-center">Assigned Tester</TableHead>
-               <TableHead className="text-white font-bold w-50 text-center">Sessions</TableHead>
-            <TableHead className="text-white font-bold w-50 text-center">Progress</TableHead>
-            <TableHead className="text-white font-bold w-50 text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((project) => {
-            const progressValue = calculateProgress(project.id);
-            
-            return (
-              <TableRow
-                key={project.id}
-                className={`group transition-colors hover:bg-slate-50 ${isAdmin ? "cursor-pointer" : ""}`}
-                onClick={() => handleProjectRowClick(project.id)}
-              >
-                <TableCell className="font-mono text-slate-500">
-                  #{project.id}
-                </TableCell>
-                
-                <TableCell className="font-semibold text-slate-900">
-                  {project.name}
-                </TableCell>
-
-                  <TableCell>
-                  {getProjectStatusBadge(project.status)}
-                </TableCell>
-                 <TableCell className="font-semibold text-slate-900">
-                  {users.find(u => u.id === project.created_by)?.nome.concat(" ", users.find(u => u.id === project.created_by)?.cognome) || "Unknown"}
-                </TableCell>
-                <TableCell className="font-semibold text-slate-900">
-                  QUI I TESTER ASSEGNATI
-                </TableCell>
-                <TableCell className="font-semibold text-slate-900">
-                 SESSIONI ATTIVEE
-                </TableCell>
-                 
-            
-                <TableCell>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between text-xs font-medium text-slate-500">
-                      <span>Avanzamento</span>
-                      <span>{progressValue}%</span>
-                    </div>
-                    <Progress 
-                      value={progressValue} 
-                      className="h-2 bg-slate-100" 
-                    //   indicatorClassName="bg-emerald-500" 
-                    />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center gap-2">
-                    {isAdmin && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-slate-500 hover:text-blue-600"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            openEditDialog(project);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-slate-500 hover:text-amber-600"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            openStatusDialog(project);
-                          }}
-                        >
-                          <Flag className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-slate-500 hover:text-emerald-600"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            openAssignDialog(project);
-                          }}
-                        >
-                          <UserPlus className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                    {isSuperadmin && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-slate-500 hover:text-red-600"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setDeleteProjectTarget(project);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+              <TableHead className="text-white font-bold text-center">Name</TableHead>
+              <TableHead className="text-white font-bold text-center">Status</TableHead>
+              <TableHead className="text-white font-bold w-50 text-center">Created By</TableHead>
+              <TableHead className="text-white font-bold w-50 text-center">Assigned Tester</TableHead>
+              <TableHead className="text-white font-bold w-50 text-center">Sessions</TableHead>
+              <TableHead className="text-white font-bold w-50 text-center">Progress</TableHead>
+              <TableHead className="text-white font-bold w-50 text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data && data.length > 0 ? (
+              data.map((project) => (
+                <ProjectRow
+                  key={project.id}
+                  project={project}
+                  isAdmin={isAdmin}
+                  isSuperadmin={isSuperadmin}
+                  users={users}
+                  calculateProgress={calculateProgress}
+                  getProjectStatusBadge={getProjectStatusBadge}
+                  handleProjectRowClick={handleProjectRowClick}
+                  openEditDialog={openEditDialog}
+                  openStatusDialog={openStatusDialog}
+                  openAssignDialog={openAssignDialog}
+                  setDeleteProjectTarget={setDeleteProjectTarget}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center text-slate-500">
+                  Non ci sono Progetti attivi...
                 </TableCell>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>) : (
-        <div className="text-center py-8 shadow-sm">
-          <p className='text-red-500 py-2 px-4 '>Non ci sono Progetti attivi...</p>
-        </div>
-      )
-    }
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <Dialog open={!!editingProject} onOpenChange={() => setEditingProject(null)}>
         <DialogContent className="sm:max-w-120">
@@ -405,36 +339,15 @@ const ProjectTable = ({ data, users = [] }) => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!assignProject} onOpenChange={() => setAssignProject(null)}>
-        <DialogContent className="sm:max-w-110">
-          <DialogHeader>
-            <DialogTitle>Gestisci assegnazione utente</DialogTitle>
-            <DialogDescription>Seleziona utente da assegnare o rimuovere dal progetto.</DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-2">
-            <Label>Utente</Label>
-            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleziona utente" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableUsers.map((user) => (
-                  <SelectItem key={user.id} value={String(user.id)}>
-                    {(user.nome ?? user.name ?? "")} {(user.cognome ?? user.surname ?? "")} - {user.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAssignProject(null)}>Annulla</Button>
-            <Button variant="secondary" onClick={handleUnassignUser} disabled={!selectedUserId}>Rimuovi</Button>
-            <Button onClick={handleAssignUser} disabled={!selectedUserId}>Assegna</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AssignDialog
+        assignProject={assignProject}
+        onClose={() => setAssignProject(null)}
+        availableUsers={availableUsers}
+        selectedUserId={selectedUserId}
+        setSelectedUserId={setSelectedUserId}
+        handleAssignUser={handleAssignUser}
+        handleUnassignUser={handleUnassignUser}
+      />
 
       <Dialog open={!!deleteProjectTarget} onOpenChange={() => setDeleteProjectTarget(null)}>
         <DialogContent className="sm:max-w-105">
@@ -454,7 +367,7 @@ const ProjectTable = ({ data, users = [] }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

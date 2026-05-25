@@ -1,18 +1,17 @@
-
-import { initialState,projectReducer } from "../Project/useProject";
-import { useContext,createContext,useReducer } from "react";
+import { createContext, useContext, useReducer } from "react";
+import { initialState, projectReducer } from "./ProjectReducer";
 
 import { getToken } from "@/services/config";
 import { getProjects,createProject,
     getProjectById,updateProject as updateProjectApi,deleteProject as deleteProjectApi,updateProjectStatus as updateProjectStatusApi,assignUserToProject as assignUserToProjectApi,unAssingUserAssignment as unAssingUserAssignmentApi
  } from "@/services/Project/project";
 
-const ProjectContext = createContext(); 
+const ProjectContext = createContext();
 
 
 export const ProjectProvider = ({ children }) => {
 
-    const [state,dispatch] = useReducer(projectReducer,initialState)
+    const [state, dispatch] = useReducer(projectReducer, initialState)
 
 
     const fetchProjects  = async () =>{
@@ -94,9 +93,25 @@ export const ProjectProvider = ({ children }) => {
         dispatch({type:'SET_LOADING'})
         try {
             const token = getToken()
-            const updatedProject = await assignUserToProjectApi(token, projectId, userId)
-            dispatch({type:'UPDATE_PROJECT', payload: updatedProject})
-            return updatedProject
+            await assignUserToProjectApi(token, projectId, userId)
+            // Optimistically update selectedProject assigned_users with a minimal user object
+            const assignedUser = { id: userId };
+
+            await fetchProjects()
+
+            if (state.selectedProject && Number(state.selectedProject.id) === Number(projectId)) {
+                const currentAssigned = state.selectedProject.assigned_users || [];
+                const already = currentAssigned.some(au => (au.id ?? au.user_id) === Number(userId));
+                if (!already) {
+                    const updatedSelected = {
+                        ...state.selectedProject,
+                        assigned_users: [...currentAssigned, assignedUser]
+                    }
+                    dispatch({ type: 'UPDATE_PROJECT', payload: updatedSelected })
+                }
+            }
+
+            return { projectId, userId }
         } catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})
             throw error
@@ -107,9 +122,20 @@ export const ProjectProvider = ({ children }) => {
         dispatch({type:'SET_LOADING'})
         try {
             const token = getToken()
-            const updatedProject = await unAssingUserAssignmentApi(token, projectId, userId)
-            dispatch({type:'UPDATE_PROJECT', payload: updatedProject})
-            return updatedProject
+            await unAssingUserAssignmentApi(token, projectId, userId)
+            await fetchProjects()
+
+            if (state.selectedProject && Number(state.selectedProject.id) === Number(projectId)) {
+                const currentAssigned = state.selectedProject.assigned_users || [];
+                const updatedAssigned = currentAssigned.filter(au => (au.id ?? au.user_id) !== Number(userId));
+                const updatedSelected = {
+                    ...state.selectedProject,
+                    assigned_users: updatedAssigned
+                }
+                dispatch({ type: 'UPDATE_PROJECT', payload: updatedSelected })
+            }
+
+            return { projectId, userId }
         } catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})
             throw error
@@ -147,4 +173,4 @@ export const ProjectProvider = ({ children }) => {
     );
 }
 
-export const  useProjectContext = () =>useContext(ProjectContext)
+export const useProjectContext = () => useContext(ProjectContext)

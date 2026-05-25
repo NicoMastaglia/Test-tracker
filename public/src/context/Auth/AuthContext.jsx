@@ -1,12 +1,9 @@
-import {createContext, useState,useContext,useReducer} from "react";
-import { users } from "../../fake_data/data";
-import { loginUser,logout } from "@/services/api";
-import { toast } from "sonner";
-import { initialState,authReducer} from "./useAuth";
-// 1. Creo il contesto
+import { createContext, useContext, useReducer } from "react";
+import { loginUser, logout } from "@/services/api";
+import { initialState, authReducer } from "./AuthReducer";
 const AuthContext = createContext();
 
-export const AuthProvider =({children})=>{
+export const AuthProvider = ({ children }) => {
 
     // Dentro AuthProvider
 // const canManageUsers = () => user?.role === 'superadmin';
@@ -107,6 +104,9 @@ export const AuthProvider =({children})=>{
         }
     }
 
+
+
+    // Sincronizza l'utente aggiornato con lo stato globale e il localStorage
     const syncCurrentUser = (updatedUser) => {
       localStorage.setItem("current_user", JSON.stringify(updatedUser));
       dispatch({type:'SYNC_CURRENT_USER', payload: updatedUser});
@@ -131,5 +131,5 @@ export const AuthProvider =({children})=>{
 }
     
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuthContext = () => useContext(AuthContext);
 

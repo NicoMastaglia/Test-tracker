@@ -1,7 +1,6 @@
 
 
 
-
 export const initialState = {
     projects:  [],
     loading : false,
@@ -80,8 +79,3 @@ export const projectReducer = (state,action) =>{
             return state 
     }
 }
-
-
-
-
- 

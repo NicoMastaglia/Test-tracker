@@ -1,6 +1,6 @@
 import { LoginForm } from "@/Components/LoginForm"
 
-import { useAuth } from "@/context/Auth/AuthContext";
+import { useAuthContext } from "@/context/Auth/AuthContext";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
 
-  const { login } = useAuth();
+  const { login } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 

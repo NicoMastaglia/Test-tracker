@@ -1,101 +1,118 @@
-import { BrowserRouter, Routes, Route,Navigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
 import Login from "../pages/Login";
 import DashBoard from "../pages/Dashboard";
-
-import ProctedRoute from "./ProtectedRoute";
-import SessionsTests from "../pages/SessionsTests";
-import AdminSessions from "../pages/Sessions";
+// import SessionsTests from "../pages/SessionsTests";
+// import AdminSessions from "../pages/AdminSessions";
 import Sessions from "../pages/Sessions";
-// import ManageUsers from "../pages/ManageUsers";
 import Users from "../pages/Users";
-import { useAuth } from "../context/Auth/AuthContext";
-
 import AdminProjects from "../pages/AdminProjects";
+import UserProject from "../pages/UserProject";
+import CheckList from "@/pages/CheckList";
+import ProjectDetail from "@/Components/features/projects/ProjectDetail";
+
 export default function AppRouter() {
-
   return (
-  <BrowserRouter>
+    <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-  {/* PUBLIC */}
-  <Route path="/login" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
+              <DashBoard />
+            </ProtectedRoute>
+          }
+        />
 
-    <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* <Route
+          path="/sessions/:id"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
+              <SessionsTests />
+            </ProtectedRoute>
+          }
+        />
 
-  {/* DASHBOARD */}
-  <Route path="/dashboard" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin', 'user']}>
-      <DashBoard />
-    </ProctedRoute>
-  } />
+        <Route
+          path="/sessions-test"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <Sessions />
+            </ProtectedRoute>
+          }
+        /> */}
 
-  {/* USER + ADMIN */}
-  <Route path="/sessions/:id" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin', 'user']}>
-      <SessionsTests />
-    </ProctedRoute>
-  } />
+        <Route
+          path="/user/projects"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <UserProject />
+            </ProtectedRoute>
+          }
+        />
 
-  {/* ADMIN AREA */}
-  {/* <Route path="/admin" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin']}>
-      <AdminDashboard />
-    </ProctedRoute>
-  } /> */}
+        <Route
+          path="/user/checklists"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <CheckList />
+            </ProtectedRoute>
+          }
+        />
 
-  <Route path="/admin/sessions" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin']}>
-      <AdminSessions />
-    </ProctedRoute>
-  } />
+        {/* <Route
+          path="/admin/sessions"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+              <AdminSessions />
+            </ProtectedRoute>
+          }
+        /> */}
 
+        <Route
+          path="/admin/projects"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+              <AdminProjects />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route
+          path="/admin/projects/:id"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+              <ProjectDetail />
+            </ProtectedRoute>
+          }
+        />
 
-
-
-  {/* <Route path="/admin/projects" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin']}>
-      <Projects />
-    </ProctedRoute>
-  } /> */}
-{/* 
-  <Route path="/admin/templates" element={
-    <ProctedRoute allowedRoles={['superadmin', 'admin']}>
-      <Templates />
-    </ProctedRoute>
-  } /> */}
-
-  <Route path="/admin/users" element={
-    <ProctedRoute allowedRoles={['superadmin']}>
-      <Users />
-    </ProctedRoute>
-  } />
-
-  <Route path="/admin/projects" element={
-    <ProctedRoute allowedRoles={['superadmin','admin']}>
-      <AdminProjects />
-    </ProctedRoute>
-  } />
-
-  <Route path="/admin/projects/:id" element={
-    <ProctedRoute allowedRoles={['admin']}>
-      <AdminProjects />
-    </ProctedRoute>
-  } />
-
-  <Route path="/sessions-test" element={
-    <ProctedRoute allowedRoles={['user']}>
-      <Sessions/>
-    </ProctedRoute>
-  } />
+        <Route
+          path="/admin/projects/:id/checklist"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <CheckList />
+            </ProtectedRoute>
+          }
+        />
 
 
-  
+        <Route path="/user/checkList" element={<Navigate to="/user/checklists" replace />} />
 
-  {/* FALLBACK */}
-  <Route path="*" element={<h1>404 Not Found</h1>} />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin"]}>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
 
-</Routes>
+        <Route path="*" element={<h1>404 Not Found</h1>} />
+      </Routes>
     </BrowserRouter>
   );
 }

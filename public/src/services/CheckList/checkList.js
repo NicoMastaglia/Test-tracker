@@ -1,5 +1,5 @@
 import axios from "axios";
-import { baseUrl, authConfig } from "../../config";
+import { baseUrl, authConfig } from "../config";
 
 export const createCheckList = async (token, checklistData) => {
 	const res = await axios.post(
@@ -10,15 +10,17 @@ export const createCheckList = async (token, checklistData) => {
 	return res.data;
 };
 
-export const updateCheckList = async (token, checklistId, checklistData) => {
+export const updateCheckList = async (token,checkListId, checklistData) => {
 	const res = await axios.put(
-		`${baseUrl}/api/checklists/${checklistId}`,
+		`${baseUrl}/api/checklists/${checkListId}`,
 		checklistData,
 		authConfig(token),
 	);
 	return res.data;
 };
 
+
+// elimina checklist 
 export const deleteCheckList = async (token, checklistId) => {
 	const res = await axios.delete(
 		`${baseUrl}/api/checklists/${checklistId}`,

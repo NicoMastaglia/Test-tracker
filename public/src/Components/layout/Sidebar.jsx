@@ -11,9 +11,9 @@ import {
   Briefcase      // Icona per l'ambiente Admin standard
 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useAuth } from "../../context/Auth/AuthContext"
+import { useAuthContext } from "../../context/Auth/AuthContext"
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +26,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/Components/ui/sidebar"
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/Components/ui/dialog";
 import { AlertTriangle } from "lucide-react";
 
 // Configurazione dinamica dei titoli in base al ruolo utente
@@ -61,13 +61,14 @@ const menuItemsByRole = {
     { text: "Dashboard", path: "/dashboard", icon: Home },
     { text: "My Sessions", path: "/sessions-test", icon: CheckCircle },
     { text: "My Projects", path: "/user/projects", icon: Folder },
+    { text: "Checklist", path: "/user/checklists", icon: CheckCircle },
   ],
   admin: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
     { text: "Sessions", path: "/admin/sessions", icon: Repeat },
     { text: "Projects", path: "/admin/projects", icon: Folder },
     { text: "Team", path: "/admin/team", icon: Users },
-    { text: "Checklist", path: "/admin/checklist", icon: CheckCircle },
+    { text: "Checklist", path: "/admin/checklists", icon: CheckCircle },
   ],
   superadmin: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
@@ -78,7 +79,7 @@ const menuItemsByRole = {
 }
 
 export default function AppSidebar() {
-  const { logoutUser, user } = useAuth()
+  const { logoutUser, user } = useAuthContext()
   const location = useLocation()
   const navigate = useNavigate()
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);

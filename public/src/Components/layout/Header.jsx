@@ -1,5 +1,5 @@
 import React from "react";
-import { Separator } from "@/components/ui/separator"; 
+import { Separator } from "@/Components/ui/separator"; 
 
 const Header = ({ user, page }) => {
   const headerConfig = {
@@ -11,6 +11,10 @@ const Header = ({ user, page }) => {
       title: () => "Gestione Progetti",
       subtitle: () => "Crea, modifica e assegna progetti ai user.",
     },
+    "user-projects": {
+      title: (user) => `I miei progetti${user?.name ? `, ${user.name}` : ""}`,
+      subtitle: () => "Visualizza i progetti che ti sono stati assegnati.",
+    },
     sessions: {
       title: () => "Gestione Sessioni",
       subtitle: () => "Visualizza e gestisci le sessioni di test.",
@@ -19,9 +23,17 @@ const Header = ({ user, page }) => {
       title: () => "Gestione Utenti",
       subtitle: () => "Visualizza e gestisci gli utenti della piattaforma.",
     },
+    checklists: {
+      title: (user) => (user?.role === "user" ? "La mia Checklist" : "Gestione Checklist"),
+      subtitle: (user) =>
+        user?.role === "user"
+          ? "Visualizza e gestisci i task della tua checklist."
+          : "Crea, modifica e assegna task alla checklist.",
+    },
   };
 
   const currentConfig = headerConfig[page] || headerConfig["dashboard"];
+  const pageLabel = page === "checklists" ? "Checklist" : page;
 
   return (
     <header className="flex flex-col w-full bg-white border-b border-slate-100">
@@ -32,7 +44,7 @@ const Header = ({ user, page }) => {
         <div className="flex-1 pl-2">
           
            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-             {page}
+             {pageLabel}
            </span>
         </div>
       </div>

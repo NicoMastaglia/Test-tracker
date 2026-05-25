@@ -1,19 +1,17 @@
-import { createContext,
-    useContext,useReducer
- } from "react";
+import { createContext, useContext, useReducer } from "react";
 
 
-import { initialState,userReducer } from "./useUser";
+import { initialState, userReducer } from "./UserReducer";
 import { getToken } from "@/services/config";
 import { getUsers,updateUserById,deleteUserById,getUserById,updateUserRoleById } from "@/services/User/user";
-import { useAuth } from "@/context/Auth/AuthContext";
-const UserContext = createContext(); 
+import { useAuthContext } from "@/context/Auth/AuthContext";
+const UserContext = createContext();
 
 
-export const UserProvider = ({children}) =>{
+export const UserProvider = ({ children }) => {
 
-  const [state,dispatch] = useReducer(userReducer,initialState)
-  const { user: currentAuthUser, syncCurrentUser } = useAuth();
+  const [state, dispatch] = useReducer(userReducer, initialState)
+  const { user: currentAuthUser, syncCurrentUser } = useAuthContext();
 
     
   const fetchUsers = async () =>{
@@ -28,6 +26,7 @@ export const UserProvider = ({children}) =>{
         dispatch({type:'SET_USERS',payload:data})
     }
     catch(error){
+      console.error("Errore durante il fetch degli utenti:", error);
         dispatch({type:'SET_ERROR',payload:error.message})
     }
 
@@ -67,7 +66,9 @@ export const UserProvider = ({children}) =>{
         nome: userData.name ?? userData.nome ?? currentUser.name ?? currentUser.nome ?? "",
         cognome: userData.surname ?? userData.cognome ?? currentUser.surname ?? currentUser.cognome ?? "",
       }
+      
 
+      // se modifico utente loggato, aggiorno anche localStorage e stato globale per riflettere i cambiamenti
       dispatch({type:'UPDATE_USER',payload:updatedUser})
         if (currentAuthUser?.id === user_id) {
           syncCurrentUser(updatedUser)
@@ -166,4 +167,4 @@ export const UserProvider = ({children}) =>{
   )
 }
 
-export const useUsersContext  =() =>useContext(UserContext)
+export const useUserContext = () => useContext(UserContext)

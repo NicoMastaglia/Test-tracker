@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Folder, Users, PlayCircle, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "../context/Auth/AuthContext";
+import { Button } from "@/Components/ui/button";
+import { useAuthContext } from "../context/Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useUsersContext } from "@/context/User/UserContext";
+import { useUserContext } from "@/context/User/UserContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 const KpiCard = ({ title, value, subtext, icon: Icon, subtextColor = "text-slate-400" }) => {
   return (
@@ -24,7 +24,7 @@ const KpiCard = ({ title, value, subtext, icon: Icon, subtextColor = "text-slate
 };
 
 const SuperAdminDashboard = () => {
-  const {fetchUsers,users} = useUsersContext();
+  const {fetchUsers,users} = useUserContext();
   const {fetchProjects,projects} = useProjectContext();
 
   useEffect(() => {

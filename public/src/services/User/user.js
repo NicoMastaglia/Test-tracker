@@ -1,5 +1,6 @@
 import axios from 'axios'; 
 import { baseUrl,authConfig } from '../config';
+
 export const getUsers = async (token) => {
   const response = await axios.get(`${baseUrl}/api/users`, authConfig(token));
   return response.data;

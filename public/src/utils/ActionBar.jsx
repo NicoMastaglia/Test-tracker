@@ -1,7 +1,7 @@
 import React from "react";
 import { Search, Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
 
 const ActionBar = ({
   search,
