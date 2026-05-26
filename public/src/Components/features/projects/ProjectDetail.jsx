@@ -67,11 +67,6 @@ const ProjectDetail = () => {
                         <ArrowLeft className="h-4 w-4" />
                         Torna ai progetti
                     </Button>
-
-                    <Button onClick={handleManageChecklist} className="gap-2">
-                        <CheckSquare2 className="h-4 w-4" />
-                        Manage Checklist
-                    </Button>
                 </div>
 
                 {loading && !selectedProject ? (
@@ -162,11 +157,11 @@ const ProjectDetail = () => {
                             </div>
 
                             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Prossimo passaggio</p>
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Checklist progetto</p>
                                 <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
-                                    <p className="text-sm font-medium text-slate-900">Manage Checklist</p>
+                                    <p className="text-sm font-medium text-slate-900">Apri la checklist del progetto</p>
                                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                                        Da qui vai alla gestione delle checklist del progetto selezionato.
+                                        Questa sezione apre la pagina dedicata alle checklist del progetto selezionato, dove vengono caricati i task associati.
                                     </p>
                                     <Button className="mt-4 w-full gap-2" onClick={handleManageChecklist}>
                                         <CheckSquare2 className="h-4 w-4" />

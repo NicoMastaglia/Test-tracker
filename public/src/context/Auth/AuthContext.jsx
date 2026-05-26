@@ -5,17 +5,6 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 
-    // Dentro AuthProvider
-// const canManageUsers = () => user?.role === 'superadmin';
-// const canCreateProjects = () => user?.role === 'superadmin' || user?.role === 'admin';
-// const canEditChecklist = () => user?.role === 'admin';
-// const isUser = () => user?.role === 'user';
-
-    // const [user,setUser] = useState(()=>{
-    //     const storedUser = localStorage.getItem("current_user")
-    //     console.log(storedUser)
-    //     return storedUser ? JSON.parse(storedUser) : null;
-    // });
 
     const [state,dispatch] = useReducer(authReducer,initialState)
 
