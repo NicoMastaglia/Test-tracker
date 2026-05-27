@@ -1,22 +1,23 @@
 import AppLayout from "@/Components/layout/AppLayout";
 import ProjectTable from "@/Components/features/projects/ProjectTable";
 import ActionBar from "@/utils/ActionBar";
-import NewProject from "@/Components/features/projects/NewProject";
+import ModalForm from "@/utils/ModalForm";
+import { projectFields } from "@/utils/fields/projectFields";
 import React,{useState,useEffect,useMemo} from 'react'
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-import { Button } from "@/Components/ui/button";
 const AdminProjects = () => {
     const {projects,addProject,fetchProjects} = useProjectContext();
     const { users, fetchUsers } = useUserContext();
     const { user } = useAuthContext();
     const [search,setSearch] = useState('')
     const [modalOpen,setModalOpen] = useState(false)
-    const [formData,setFormData] = useState({
+    const emptyProjectData = {
         name: '',
         description: ''
-    });
+    };
+    const [formData,setFormData] = useState(emptyProjectData);
 
     
     useEffect(()=>{
@@ -33,10 +34,7 @@ const AdminProjects = () => {
         }
         await addProject(newProject);
         await fetchProjects();
-        setFormData({
-            name: '',
-            description: ''
-        })
+        setFormData(emptyProjectData)
         setModalOpen(false)
     }
 
@@ -66,12 +64,18 @@ const AdminProjects = () => {
                         buttonVariant="emerald"
                     />
                     <div className="pt-4">
-                        <NewProject
+                        <ModalForm
                             modalOpen={modalOpen}
                             setModalOpen={setModalOpen}
-                            handleAddProject={handleAddProject}
+                            onClose={() => setFormData(emptyProjectData)}
+                            title="Nuovo Progetto"
+                            infos="Inserisci le informazioni di base per il nuovo progetto."
+                            fields={projectFields}
                             formData={formData}
                             setFormData={setFormData}
+                            onSubmit={handleAddProject}
+                            submitLabel="Crea Progetto"
+                            cancelLabel="Annulla"
                         />
                     </div>
                 </div>

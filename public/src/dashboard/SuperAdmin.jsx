@@ -1,31 +1,33 @@
 import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
-import { Folder, Users, PlayCircle, CheckCircle } from "lucide-react";
+import { Folder, Users, PlayCircle, CheckCircle, ArrowUpRight, ArrowRight, ShieldAlert } from "lucide-react";
 import { Button } from "@/Components/ui/button";
-import { useAuthContext } from "../context/Auth/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { useUserContext } from "@/context/User/UserContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
-const KpiCard = ({ title, value, subtext, icon: Icon, subtextColor = "text-slate-400" }) => {
+const KpiCard = ({ title, value, subtext, icon: Icon, iconClass }) => {
   return (
-    <Card className="border-slate-100 shadow-sm bg-white">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          {title}
-        </CardTitle>
-        <Icon className="h-4 w-4 text-slate-400 shrink-0" />
-      </CardHeader>
-      <CardContent className="pt-1">
-        <div className="text-2xl font-bold tracking-tight text-slate-900">{value}</div>
-        <p className={`text-xs font-medium mt-1 ${subtextColor}`}>{subtext}</p>
+    <Card className="border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="flex items-start gap-4 pt-6">
+        <div className={`flex h-14 w-14 shrink-0 items-start justify-center rounded-2xl pt-3 ${iconClass}`}>
+          <Icon className="h-6 w-6" />
+        </div>
+
+        <div className="min-w-0 flex flex-col items-start text-left gap-3">
+          <p className="text-[30px] leading-none text-slate-900">{value}</p>
+          <p className="text-sm text-slate-500">{title}</p>
+          <p className="mt-1 flex items-center gap-1 text-xs text-emerald-600">
+            <ArrowUpRight className="h-3.5 w-3.5" />
+            {subtext}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
 };
 
 const SuperAdminDashboard = () => {
-  const {fetchUsers,users} = useUserContext();
-  const {fetchProjects,projects} = useProjectContext();
+  const { fetchUsers, users } = useUserContext();
+  const { fetchProjects, projects } = useProjectContext();
 
   useEffect(() => {
     fetchUsers();
@@ -35,32 +37,59 @@ const SuperAdminDashboard = () => {
   const kpiItems = [
     {
       title: "Progetti Attivi",
-      value: projects.filter(p => p.stato !=='completed').length.toString(),
+      value: projects.filter(p => p.stato !== 'completed').length.toString(),
       icon: Folder,
-      subtextColor: "text-slate-400",
+      subtext: "progetti non completati",
+      iconClass: "bg-emerald-100 text-emerald-700",
     },
     {
       title: "Sessioni in Corso",
       value: "0",
       icon: PlayCircle,
-      subtextColor: "text-amber-500", 
+      subtext: "sessioni attive adesso",
+      iconClass: "bg-blue-100 text-blue-700",
     },
     {
       title: "Sessioni finite",
       value: "0",
       icon: CheckCircle,
-      subtextColor: "text-emerald-500",
+      subtext: "sessioni concluse oggi",
+      iconClass: "bg-amber-100 text-amber-700",
     },
     {
       title: "Utenti Totali",
-      value:  users.length.toString(),
+      value: users.length.toString(),
       icon: Users,
-      subtextColor: "text-slate-400",
+      subtext: "utenti registrati nel sistema",
+      iconClass: "bg-violet-100 text-violet-700",
+    },
+  ];
+
+  const quickActions = [
+    {
+      title: "Visualizza report",
+      description: "Controlla i report amministrativi e le statistiche principali",
+      icon: Folder,
+      iconClass: "bg-emerald-100 text-emerald-700",
+    },
+    {
+      title: "Gestisci ruoli admin",
+      description: "Assegna ruoli e permessi agli amministratori",
+      icon: Users,
+      iconClass: "bg-blue-100 text-blue-700",
+    },
+    {
+      title: "Visualizza audit sicurezza",
+      description: "Apri il log di sicurezza e le attività rilevanti",
+      icon: ShieldAlert,
+      iconClass: "bg-amber-100 text-amber-700",
     },
   ];
 
   return (
     <div className="p-6 space-y-6 bg-slate-50/30 min-h-screen">
+      {/*  */}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpiItems.map((kpi, idx) => (
           <KpiCard
@@ -69,48 +98,58 @@ const SuperAdminDashboard = () => {
             value={kpi.value}
             subtext={kpi.subtext}
             icon={kpi.icon}
-            subtextColor={kpi.subtextColor}
+            iconClass={kpi.iconClass}
           />
         ))}
       </div>
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-4 border-slate-100 shadow-sm bg-white flex flex-col">
+        <Card className="col-span-4 border-slate-200/80 bg-white shadow-sm flex flex-col">
           <CardHeader className="border-b border-slate-50 pb-4">
-            <CardTitle className="text-base font-bold text-slate-900">
+            <CardTitle className="flex items-center gap-2 text-slate-800">
+              <ShieldAlert className="h-4 w-4 text-slate-700" />
               Attività Recente: Audit LOG
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex items-center justify-center py-10">
-            <p className="text-xs font-medium text-slate-400 italic bg-slate-50 px-4 py-2 rounded-full border border-slate-100/60">
+            <p className="text-xs italic text-slate-400 bg-slate-50 px-4 py-2 rounded-full border border-slate-100/60">
               Nessun log o attività registrata nello storico
             </p>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 border-slate-100 shadow-sm bg-white">
-          <CardHeader className="border-b border-slate-50 pb-4">
-            <CardTitle className="text-base font-bold text-slate-900">Accessi Rapidi</CardTitle>
+        <Card className="col-span-3 border-slate-200/80 bg-white shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-slate-800">
+              <ShieldAlert className="h-4 w-4 text-slate-700" />
+              Azioni rapide
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2 pt-4">
-            <Button
-              variant="outline"
-              className="justify-start text-xs font-semibold text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 h-9 px-3 rounded-lg transition-colors"
-            >
-              Visualizza report
-            </Button>
-            <Button
-              variant="outline"
-              className="justify-start text-xs font-semibold text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 h-9 px-3 rounded-lg transition-colors"
-            >
-              Gestisci ruoli admin
-            </Button>
-            <Button
-              variant="outline"
-              className="justify-start text-xs font-semibold text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 h-9 px-3 rounded-lg transition-colors"
-            >
-              Visualizza audit sicurezza
-            </Button>
+          <CardContent className="grid gap-3">
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <button
+                  key={action.title}
+                  type="button"
+                  className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${action.iconClass}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-sm text-slate-900">{action.title}</p>
+                      <p className="mt-1 text-sm text-slate-500">{action.description}</p>
+                    </div>
+                  </div>
+
+                  <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-700" />
+                </button>
+              );
+            })}
           </CardContent>
         </Card>
       </div>

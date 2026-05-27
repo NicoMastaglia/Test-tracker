@@ -69,28 +69,7 @@ const ProjectTable = ({ data, users = [] }) => {
     return Math.round((completedSessions / sessionByProject.length) * 100);
   };
 
-  const getProjectStatusBadge = (status) => {
-    const normalizedStatus = (status ?? "")
-      .toString()
-      .trim()
-      .toLowerCase();
-
-    if (normalizedStatus === "attivo" || normalizedStatus === "active") {
-      return <span className="capitalize px-2 py-1 rounded-md bg-emerald-100 text-emerald-700 text-xs font-medium">{status}</span>;
-    }
-
-    if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-      return <span className="capitalize px-2 py-1 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">{status}</span>;
-    }
-
-    if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold") {
-      return <span className="capitalize px-2 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-medium">{status}</span>;
-    }
-
-    return <span className="capitalize px-2 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">{status || "Unknown"}</span>;
-  };
-
-
+  const getSessionCount = (project_id) => sessions.filter((sessionItem) => sessionItem.project_id === project_id).length;
 
   const openEditDialog = (project) => {
     if (!isAdmin) return;
@@ -242,14 +221,14 @@ const ProjectTable = ({ data, users = [] }) => {
         <Table>
           <TableHeader className="bg-slate-900">
             <TableRow className="bg-slate-900 hover:bg-slate-900">
-              <TableHead className="text-white font-bold w-25 text-center">Project #</TableHead>
-              <TableHead className="text-white font-bold text-center">Name</TableHead>
-              <TableHead className="text-white font-bold text-center">Status</TableHead>
-              <TableHead className="text-white font-bold w-50 text-center">Created By</TableHead>
-              <TableHead className="text-white font-bold w-50 text-center">Assigned Tester</TableHead>
-              <TableHead className="text-white font-bold w-50 text-center">Sessions</TableHead>
-              <TableHead className="text-white font-bold w-50 text-center">Progress</TableHead>
-              <TableHead className="text-white font-bold w-50 text-center">Actions</TableHead>
+              <TableHead className="text-white font-semibold w-25 text-center">ID</TableHead>
+              <TableHead className="text-white font-semibold text-center">Progetto</TableHead>
+              <TableHead className="text-white font-semibold text-center">Stato</TableHead>
+              <TableHead className="text-white font-semibold w-50 text-center">Creato da</TableHead>
+              <TableHead className="text-white font-semibold w-50 text-center">Tester assegnati</TableHead>
+              <TableHead className="text-white font-semibold w-50 text-center">Sessioni</TableHead>
+              <TableHead className="text-white font-semibold w-50 text-center">Progress</TableHead>
+              <TableHead className="text-white font-semibold w-50 text-center">Azioni</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -262,7 +241,7 @@ const ProjectTable = ({ data, users = [] }) => {
                   isSuperadmin={isSuperadmin}
                   users={users}
                   calculateProgress={calculateProgress}
-                  getProjectStatusBadge={getProjectStatusBadge}
+                  sessionCount={getSessionCount(project.id)}
                   handleProjectRowClick={handleProjectRowClick}
                   openEditDialog={openEditDialog}
                   openStatusDialog={openStatusDialog}

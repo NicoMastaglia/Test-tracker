@@ -1,23 +1,26 @@
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
-import { Button } from "@/Components/ui/button";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
-import { CheckCircle, Folder, PlayCircle, ListTodo, ArrowRight } from "lucide-react";
+import { CheckCircle, Folder, PlayCircle, ArrowUpRight, FolderOpen, Clock3, CheckSquare, ChevronRight, Gauge } from "lucide-react";
 
-const KpiCard = ({ title, value, subtext, icon: Icon, subtextColor = "text-slate-400" }) => {
+const KpiCard = ({ title, value, subtext, icon: Icon, iconClass, subtextColor = "text-slate-400" }) => {
   return (
-    <Card className="border-slate-100 bg-white shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          {title}
-        </CardTitle>
-        <Icon className="h-4 w-4 shrink-0 text-slate-400" />
-      </CardHeader>
-      <CardContent className="pt-1">
-        <div className="text-2xl font-bold tracking-tight text-slate-900">{value}</div>
-        <p className={`mt-1 text-xs font-medium ${subtextColor}`}>{subtext}</p>
+    <Card className="border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="flex items-start gap-4 pt-6">
+        <div className={`flex h-14 w-14 shrink-0 items-start justify-center rounded-2xl pt-3 ${iconClass}`}>
+          <Icon className="h-6 w-6" />
+        </div>
+
+        <div className="min-w-0 flex flex-col items-start text-left gap-3">
+          <p className="text-sm text-slate-500">{title}</p>
+          <p className="text-[30px] leading-none text-slate-900">{value}</p>
+          <p className={`mt-1 flex items-center gap-1 text-xs ${subtextColor}`}>
+            <ArrowUpRight className="h-3.5 w-3.5" />
+            {subtext}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
@@ -49,6 +52,7 @@ const UserDashboard = () => {
       title: "Progetti Assegnati",
       value: assignedProjects.length.toString(),
       icon: Folder,
+      iconClass: "bg-emerald-100 text-emerald-700",
       subtext: "Progetti attivi nel tuo workspace.",
       subtextColor: "text-slate-400",
     },
@@ -56,6 +60,7 @@ const UserDashboard = () => {
       title: "Sessioni",
       value: "0",
       icon: PlayCircle,
+      iconClass: "bg-blue-100 text-blue-700",
       subtext: "Placeholder: rotta non ancora disponibile.",
       subtextColor: "text-amber-500",
     },
@@ -63,21 +68,47 @@ const UserDashboard = () => {
       title: "Checklist",
       value: "0",
       icon: CheckCircle,
+      iconClass: "bg-amber-100 text-amber-700",
       subtext: "Placeholder: rotta non ancora disponibile.",
       subtextColor: "text-amber-500",
     },
+  ];
+
+  const quickActions = [
     {
-      title: "Priorità",
-      value: "Bassa",
-      icon: ListTodo,
-      subtext: "Accesso limitato alle funzioni di test.",
-      subtextColor: "text-slate-400",
+      title: "Vai ai miei progetti",
+      description: "Visualizza i progetti assegnati nel tuo workspace",
+      icon: FolderOpen,
+      onClick: () => navigate("/user/projects"),
+      iconClass: "bg-emerald-100 text-emerald-700",
+      disabled: false,
+    },
+    {
+      title: "Sessioni in arrivo",
+      description: "Funzionalità disponibile a breve",
+      icon: Clock3,
+      onClick: null,
+      iconClass: "bg-blue-100 text-blue-700",
+      disabled: true,
+    },
+    {
+      title: "Checklist in arrivo",
+      description: "Funzionalità disponibile a breve",
+      icon: CheckSquare,
+      onClick: null,
+      iconClass: "bg-amber-100 text-amber-700",
+      disabled: true,
     },
   ];
 
   return (
     <div className="min-h-screen space-y-6 bg-slate-50/30 p-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <h1 className="text-3xl text-slate-900">Dashboard</h1>
+        <p className="mt-1 text-sm text-slate-500">Panoramica generale della piattaforma di testing</p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kpiItems.map((kpi) => (
           <KpiCard
             key={kpi.title}
@@ -85,89 +116,46 @@ const UserDashboard = () => {
             value={kpi.value}
             subtext={kpi.subtext}
             icon={kpi.icon}
+            iconClass={kpi.iconClass}
             subtextColor={kpi.subtextColor}
           />
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-4 flex flex-col border-slate-100 bg-white shadow-sm">
-          <CardHeader className="border-b border-slate-50 pb-4">
-            <CardTitle className="text-base font-bold text-slate-900">
-              Progetti recenti assegnati
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-1 items-center justify-center py-10">
-            {assignedProjects.length > 0 ? (
-              <div className="w-full space-y-3">
-                {assignedProjects.slice(0, 3).map((project) => (
-                  <div key={project.id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">{project.name}</p>
-                      <p className="text-xs text-slate-500">{project.status ?? "Stato non disponibile"}</p>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => navigate("/user/projects")}>
-                      Vedi tutti
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="rounded-full border border-slate-100 bg-slate-50 px-4 py-2 text-xs font-medium italic text-slate-400">
-                Nessun progetto assegnato disponibile.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-3 border-slate-100 bg-white shadow-sm">
-          <CardHeader className="border-b border-slate-50 pb-4">
-            <CardTitle className="text-base font-bold text-slate-900">Accessi Rapidi</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2 pt-4">
-            <Button
-              variant="outline"
-              className="h-9 justify-start rounded-lg border-slate-200 px-3 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
-              onClick={() => navigate("/user/projects")}
-            >
-              <ArrowRight className="mr-2 h-4 w-4" />
-              Vai ai miei progetti
-            </Button>
-            <Button
-              variant="outline"
-              disabled
-              className="h-9 justify-start rounded-lg border-slate-200 px-3 text-xs font-semibold text-slate-400"
-            >
-              <PlayCircle className="mr-2 h-4 w-4" />
-              Sessioni in arrivo
-            </Button>
-            <Button
-              variant="outline"
-              disabled
-              className="h-9 justify-start rounded-lg border-slate-200 px-3 text-xs font-semibold text-slate-400"
-            >
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Checklist in arrivo
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="border-slate-100 bg-white shadow-sm">
-        <CardHeader className="border-b border-slate-50 pb-4">
-          <CardTitle className="text-base font-bold text-slate-900">Stato accesso</CardTitle>
+      <Card className="border-slate-200/80 bg-white shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-slate-800">
+            <Gauge className="h-4 w-4 text-slate-700" />
+            Azioni rapide
+          </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Utente
-            </span>
-            <span>{user?.name ?? "Utente corrente"}</span>
-            <span className="text-slate-300">•</span>
-            <span>Ruolo: {user?.role ?? "user"}</span>
-            <span className="text-slate-300">•</span>
-            <span>Funzioni amministrative non disponibili</span>
-          </div>
+        <CardContent className="grid gap-3 md:grid-cols-3">
+          {quickActions.map((action) => {
+            const Icon = action.icon;
+
+            return (
+              <button
+                key={action.title}
+                type="button"
+                disabled={action.disabled}
+                onClick={action.onClick ?? undefined}
+                className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${action.iconClass}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="text-sm text-slate-900">{action.title}</p>
+                    <p className="mt-1 text-sm text-slate-500">{action.description}</p>
+                  </div>
+                </div>
+
+                <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-700" />
+              </button>
+            );
+          })}
         </CardContent>
       </Card>
     </div>

@@ -8,20 +8,24 @@ import { register } from "@/services/api";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import {filterSearch} from "@/utils/filterSearch";
+import ModalForm from "@/utils/ModalForm";
+import { userFields } from "@/utils/fields/userFields";
+
 
 const Users = () => {
 
-    const [token,setToken] = useState(localStorage.getItem("auth_token"));
-    const {users,fetchUsers} = useUserContext()
-  
-    const [newUserData,setNewUserData] = useState({
-
+    const emptyNewUserData = {
         name: '',
         surname: '',
         email: '',
         role: '',
         password: ''
-    })
+    }
+
+    const [token,setToken] = useState(localStorage.getItem("auth_token"));
+    const {users,fetchUsers} = useUserContext()
+  
+    const [newUserData,setNewUserData] = useState(emptyNewUserData)
     const [modal,setModal] = useState(false);
     const [search,setSearch] = useState('');
 
@@ -37,6 +41,7 @@ const Users = () => {
             await register(name,surname,email,password,role,token)
             await fetchUsers()
             toast.success("Utente creato con successo!")
+            setNewUserData(emptyNewUserData)
             setModal(false)
         } catch (error) {
             console.error("Errore durante la creazione dell'utente:", error.response?.data || error.message)
@@ -65,13 +70,29 @@ const Users = () => {
                         buttonVariant="emerald"
                     />
                     <div className="pt-4">
-                        <NewUser
+                        {/* <NewUser
                             setNewUserData={setNewUserData}
                             newUserData={newUserData}
                             setModal={setModal}
                             modal={modal}
                             addUser={addUser}
+                        /> */}
+                        <ModalForm 
+                    modalOpen={modal}
+                    setModalOpen={setModal}
+                    onClose={() => setNewUserData(emptyNewUserData)}
+                    title="Aggiungi Nuovo Utente"
+                    infos="Compila i campi per creare un nuovo utente."
+                    fields={userFields}
+                    formData={newUserData}
+                    setFormData={setNewUserData}
+                    onSubmit={addUser}
+                    submitLabel="Crea"
+                    cancelLabel="Annulla"
+                    submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+
                         />
+
                     </div>
                 </div>
 

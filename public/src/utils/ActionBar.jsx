@@ -10,6 +10,7 @@ const ActionBar = ({
   buttonText,
   onButtonClick,
   buttonVariant = "primary", 
+  buttonDisabled = false,
   children,                  
 }) => {
   return (
@@ -39,11 +40,13 @@ const ActionBar = ({
       {buttonText && (
         <Button
           onClick={onButtonClick}
+          disabled={buttonDisabled}
           className={`h-10 px-6 font-medium transition-all active:scale-95 shrink-0
             ${buttonVariant === "emerald" 
               ? "bg-emerald-600 hover:bg-emerald-700 text-white" 
               : "bg-slate-900 hover:bg-slate-800 text-white"
-            }`}
+            }
+            ${buttonDisabled ? "opacity-50 cursor-not-allowed hover:bg-inherit active:scale-100" : ""}`}
         >
           <Plus className="mr-2 h-4 w-4" />
           {buttonText}

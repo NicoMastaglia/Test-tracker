@@ -1,82 +1,71 @@
 import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/Components/ui/table";
+import { TableCell, TableRow } from "@/Components/ui/table";
+import StandardTable from "@/utils/StandardTable";
 import { Badge } from "@/Components/ui/badge";
+import {
+  formatTableDate,
+  getCreatorName,
+  getFullName,
+  getInitials,
+  getStatusBadgeClass,
+} from "@/utils/tableHelpers";
 
-const getStatusBadgeClass = (status) => {
-  const normalizedStatus = (status ?? "").toString().trim().toLowerCase();
-
-  if (normalizedStatus === "attivo" || normalizedStatus === "active") {
-    return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none";
-  }
-
-  if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-    return "bg-blue-100 text-blue-700 hover:bg-blue-100 border-none";
-  }
-
-  if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold") {
-    return "bg-amber-100 text-amber-700 hover:bg-amber-100 border-none";
-  }
-
-  return "bg-slate-100 text-slate-700 hover:bg-slate-100 border-none";
-};
-
-const getCreatorName = (project, users) => {
-  const creator = users.find((user) => Number(user.id) === Number(project.created_by));
-
-  if (!creator) {
-    return `User ${project.created_by ?? "-"}`;
-  }
-
-  const fullName = [creator.nome ?? creator.name ?? "", creator.cognome ?? creator.surname ?? ""]
-    .filter(Boolean)
-    .join(" ");
-
-  return fullName || creator.email || `User ${creator.id}`;
-};
 
 const UserProjectsTable = ({ data = [], users = [] }) => {
+  const headers = [
+    { key: "id", label: "ID", className: "w-24 text-center" },
+    { key: "project", label: "Progetto", className: "text-center" },
+    { key: "status", label: "Stato", className: "text-center" },
+    { key: "creator", label: "Creato da", className: "text-center" },
+    { key: "desc", label: "Descrizione", className: "text-center" },
+  ];
+
   return (
-    <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <Table>
-        <TableHeader className="bg-slate-900">
-          <TableRow className="bg-slate-900 hover:bg-slate-900">
-            <TableHead className="w-25 text-center font-bold text-white">Project #</TableHead>
-            <TableHead className="text-center font-bold text-white">Name</TableHead>
-            <TableHead className="text-center font-bold text-white">Status</TableHead>
-            <TableHead className="text-center font-bold text-white">Created By</TableHead>
-            <TableHead className="text-center font-bold text-white">Description</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.length > 0 ? (
-            data.map((project) => (
-              <TableRow key={project.id} className="transition-colors hover:bg-slate-50/70">
-                <TableCell className="font-mono text-xs text-slate-500">#{project.id}</TableCell>
-                <TableCell className="font-medium text-slate-800">{project.name}</TableCell>
-                <TableCell className="text-center">
-                  <Badge className={getStatusBadgeClass(project.status)}>{project.status ?? "Unknown"}</Badge>
-                </TableCell>
-                <TableCell className="text-slate-600">{getCreatorName(project, users)}</TableCell>
-                <TableCell className="max-w-140 truncate text-slate-600">{project.description || "Nessuna descrizione disponibile."}</TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-slate-500">
-                Nessun progetto assegnato trovato.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+    <StandardTable
+      headers={headers}
+      data={data}
+      emptyMessage={"Nessun progetto assegnato trovato."}
+      renderRow={(project) => (
+        <TableRow key={project.id} className="group transition-colors hover:bg-slate-50">
+          <TableCell className="font-mono text-xs text-slate-500">#{project.id}</TableCell>
+
+          <TableCell className="text-slate-900">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
+                {getInitials(project)}
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-slate-900">{project.name}</p>
+                <p className="truncate text-xs text-slate-500">Creato il {formatTableDate(project.created_at ?? project.createdAt)}</p>
+              </div>
+            </div>
+          </TableCell>
+
+          <TableCell className="text-center">
+            <Badge className={`border-none px-3 py-1 text-xs ${getStatusBadgeClass(project.status)}`}>
+              <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+              {project.status ?? "Unknown"}
+            </Badge>
+          </TableCell>
+
+          <TableCell className="text-slate-900">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
+                {getInitials(users.find((userItem) => Number(userItem.id) === Number(project.created_by)) || { name: "U" })}
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-slate-900">{getCreatorName(project, users)}</p>
+                <p className="truncate text-xs text-slate-500">Creatore progetto</p>
+              </div>
+            </div>
+          </TableCell>
+
+          <TableCell className="max-w-140 text-slate-600">
+            <p className="line-clamp-2">{project.description || "Nessuna descrizione disponibile."}</p>
+          </TableCell>
+        </TableRow>
+      )}
+    />
   );
 };
 

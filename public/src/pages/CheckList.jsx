@@ -1,31 +1,60 @@
-import { useState,useEffect,useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
+import { useState,useEffect, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import AppLayout from "@/Components/layout/AppLayout";
 import { useCheckListContext } from "@/context/CheckList/CheckListContext";
 import ActionBar from "@/utils/ActionBar";
 import {useAuthContext} from "@/context/Auth/AuthContext";
+import ChecklistInfoCard from "@/Components/features/checkList/ChecklistInfoCard";
+import ModalForm from "@/utils/ModalForm";
+import { checkListFields } from "@/utils/fields/checkListFields";
+import { useProjectContext } from "@/context/Project/ProjectContext";
 import { toast } from "sonner";
-import AdminCheckListTable from "@/Components/features/checkList/AdminCheckListTable";
 const CheckList = () => {
 
     const [search,setSearch] = useState("");
     const [modal,setModal] = useState(false);
-    // const navigate = useNavigate();
-    // const [searchParams] = useSearchParams();
+    const [formData,setFormData] = useState({
+        title: "",
+    });
 
     const {id} = useParams();
 
-    const {fetchCheckListsByProject,checklistItems} = useCheckListContext();
+    const {fetchCheckListsByProject,checklistItems,addCheckList} = useCheckListContext();
+    const {selectedProject, fetchProjectDetails, clearSelectedProject} = useProjectContext();
     const {user} = useAuthContext();
+
+    const activeChecklist = useMemo(() => checklistItems?.[0] ?? null, [checklistItems]);
+    const hasChecklist = Boolean(activeChecklist);
     
     
+    const handleAddCheckList = async () => {
+        if (!id) return;
+
+        await addCheckList({
+            title: formData.title,
+            project_id: Number(id),
+        });
+
+        await fetchCheckListsByProject(id);
+        setFormData({ title: "" });
+        setModal(false);
+    };
+
+    const handleAddTask = () => {
+        if (!hasChecklist) return;
+
+        toast.info("La rotta per la creazione task non è ancora disponibile.");
+    };
     
 
     useEffect(() => {
         if(id){
             fetchCheckListsByProject(id)
+            fetchProjectDetails(id)
         }
+        return () => {
+            clearSelectedProject();
+        };
     }, [id])
     
 
@@ -37,22 +66,34 @@ const CheckList = () => {
                         search={search}
                         setSearch={setSearch}
                         placeholder="Cerca checklist..."
-                        buttonText={user?.role === 'admin' ? 'Add CheckList Template' : null}
-                        onButtonClick={() => setModal(true)}
+                        buttonText={user?.role === 'admin' ? 'Add Task' : null}
+                        onButtonClick={handleAddTask}
+                        buttonDisabled={!hasChecklist}
                         buttonVariant="emerald"
                     />
                   
                 <div className="pt-4">
-
-                    {
-                           
-                        /*
-                        new template checkList*/
-                    }
+                    <ModalForm
+                        modalOpen={modal}
+                        setModalOpen={setModal}
+                        onClose={() => setFormData({ title: "" })}
+                        title="Nuova Checklist"
+                        infos="Crea un template checklist associato al progetto corrente."
+                        fields={checkListFields}
+                        formData={formData}
+                        setFormData={setFormData}
+                        onSubmit={handleAddCheckList}
+                        submitLabel="Crea Checklist"
+                        cancelLabel="Annulla"
+                    />
                 </div>
                 </div>
 
-                 <AdminCheckListTable checklistItems={checklistItems}/>
+                      <ChecklistInfoCard
+                          checklistItems={checklistItems}
+                          project={selectedProject}
+                          onCreateChecklist={() => setModal(true)}
+                      />
 
 
                 </div>

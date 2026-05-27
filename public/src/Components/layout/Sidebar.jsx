@@ -46,7 +46,7 @@ const ROLE_CONSOLE_CONFIG = {
   },
   admin: {
     title: "Workspace Admin",
-    subtitle: "Gestione Progetti & Team",
+    subtitle: "QA Testing Platform",
     icon: Briefcase,
   },
   user: {
@@ -123,39 +123,39 @@ export default function AppSidebar() {
     <Sidebar
       collapsible="icon"
       variant="sidebar"
-      className="border-r border-slate-200 bg-white text-slate-600"
+      className="text-[#F5F7FA] **:data-[slot=sidebar-inner]:bg-linear-to-b **:data-[slot=sidebar-inner]:from-[#07142B] **:data-[slot=sidebar-inner]:to-[#0B1F45] **:data-[slot=sidebar-inner]:text-[#F5F7FA]"
     >
 
       {/* HEADER: RUOLO DINAMICO */}
-      <SidebarHeader className="flex flex-col gap-2 p-4 border-b border-slate-100 justify-center group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:items-center">
+      <SidebarHeader className="flex flex-col gap-2 p-4 justify-center group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:items-center">
 
 
-        <div className="flex items-center justify-between w-full bg-slate-50 border border-slate-200/60 rounded-xl p-2.5 group-data-[collapsible=icon]:hidden">
+        <div className="flex items-center justify-between w-full bg-[#0B1F45]/80 rounded-xl p-3 group-data-[collapsible=icon]:hidden">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="h-7 w-7 bg-white text-slate-700 rounded-md flex items-center justify-center border border-slate-200 shadow-sm shrink-0">
-              <RoleIcon className="h-3.5 w-3.5" />
+            <div className="h-8 w-8 bg-[#07142B] text-[#14D8A6] rounded-md flex items-center justify-center shadow-sm shrink-0">
+              <RoleIcon className="h-4 w-4" />
             </div>
             <div className="flex flex-col truncate">
-              <span className="font-bold text-[11px] text-slate-900 leading-none tracking-wide">{roleConfig.title}</span>
-              <span className="text-[10px] text-slate-400 font-medium mt-1 truncate">{roleConfig.subtitle}</span>
+              <span className="text-[12px] text-[#F5F7FA] leading-none tracking-wide">{roleConfig.title}</span>
+              <span className="text-[11px] text-[#F5F7FA] mt-1 truncate">{roleConfig.subtitle}</span>
             </div>
           </div>
-          <SidebarTrigger className="text-slate-400 hover:bg-slate-200/60 hover:text-slate-700 rounded-md h-7 w-7 ml-1 shrink-0" />
+          <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md h-7 w-7 ml-1 shrink-0" />
         </div>
 
         <div className="hidden group-data-[collapsible=icon]:block">
-          <SidebarTrigger className="text-slate-400 hover:bg-slate-100 hover:text-slate-700 rounded-md" />
+          <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md" />
         </div>
       </SidebarHeader>
 
       {/* CONTENUTO PRINCIPALE */}
-      <SidebarContent className="gap-0 pt-3 bg-white">
+      <SidebarContent className="gap-0 pt-3 bg-transparent">
         <SidebarGroup className="px-2">
-          <SidebarGroupLabel className="text-[9px] font-bold uppercase tracking-widest text-slate-400 px-2 mb-2 group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel className="text-[11px] uppercase tracking-wide text-[#F5F7FA] px-2 mb-3 group-data-[collapsible=icon]:hidden">
             Menu Amministrazione
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-1.5">
               {menuItems.map((item) => {
                   const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
 
@@ -165,18 +165,18 @@ export default function AppSidebar() {
                       asChild
                       isActive={isActive}
                       tooltip={item.text}
-                      className={`w-full transition-all duration-150 rounded-lg py-2 h-9 font-medium text-xs
+                      className={`w-full transition-all duration-150 rounded-xl py-2.5 h-10 text-sm data-[active=true]:text-[#F5F7FA]! data-[active=true]:font-normal
                         ${isActive
-                          ? "bg-slate-100 text-slate-900 font-semibold"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                          ? "bg-linear-to-r from-[#0E3B52] via-[#0F6A67] to-[#10B981]/45 text-[#F5F7FA] shadow-[0_0_14px_rgba(20,216,166,0.26)]"
+                            : "text-[#F5F7FA] hover:bg-[#0B1F45] hover:text-[#F5F7FA]"}`}
                     >
                       <button
                         onClick={() => navigate(item.path)}
                         className="flex items-center w-full gap-3 px-2.5"
                       >
 
-                        <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? "text-slate-900" : "text-slate-400"}`} />
-                        <span className="truncate group-data-[collapsible=icon]:hidden">{item.text}</span>
+                        <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? "text-[#14D8A6]" : "text-[#94A3B8]"}`} />
+                        <span className="truncate text-sm group-data-[collapsible=icon]:hidden">{item.text}</span>
                       </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -188,16 +188,16 @@ export default function AppSidebar() {
       </SidebarContent>
 
       {/* FOOTER: DISCONNESSIONE UTENTE */}
-      <SidebarFooter className="p-2 border-t border-slate-100 bg-white">
+      <SidebarFooter className="p-2 bg-transparent">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={()=>setDeleteConfirmOpen(true)}
               tooltip="Disconnetti"
-              className="w-full text-slate-500 hover:bg-rose-50 hover:text-rose-600 font-medium py-2 h-9 rounded-lg transition-colors group"
+              className="w-full text-[#F5F7FA] hover:bg-rose-500/15 hover:text-rose-300 py-2 h-9 rounded-lg transition-colors"
             >
               <div className="flex items-center w-full gap-3 px-2.5">
-                <LogOut className="w-4 h-4 text-slate-400 group-hover:text-rose-500 shrink-0" />
+                <LogOut className="w-4 h-4 text-[#94A3B8] shrink-0" />
                 <span className="group-data-[collapsible=icon]:hidden">Disconnetti</span>
               </div>
             </SidebarMenuButton>

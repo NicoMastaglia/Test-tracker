@@ -12,63 +12,58 @@ import { Badge } from "@/Components/ui/badge";
 import { UserCog } from "lucide-react"; // Icona per gestione utente
 import ModalForUsers from './ModalForUsers';
 import { useUserContext } from "@/context/User/UserContext";
+import { getFullName, getInitials, getRoleInfo } from "@/utils/tableHelpers";
 
 const ManageUsers = ({ data }) => {
   const { selectedUser, fetchUserById, clearSelectedUser } = useUserContext();
 
-
-
-  // Funzione per colorare i badge in base al ruolo
   const getRoleBadge = (role) => {
-    const styles = {
-      user: "bg-slate-100 text-slate-700 hover:bg-slate-100 border-none",
-      superadmin: "bg-red-100 text-red-700 hover:bg-red-100 border-none",
-      admin: "bg-blue-100 text-blue-700 hover:bg-blue-100 border-none",
-      
-    };
+    const roleInfo = getRoleInfo(role);
+
     return (
-      <Badge className={styles[role.toLowerCase()] || "bg-slate-100 text-slate-700"}>
-        {role}
+      <Badge className={`border-none px-3 py-1 text-xs ${roleInfo.className}`}>
+        <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+        {roleInfo.label}
       </Badge>
     );
   };
 
   return (
-    <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <Table>
         <TableHeader className="bg-slate-900">
           <TableRow className="bg-slate-900 hover:bg-slate-900 text-center">
-            <TableHead className="w-25 font-bold text-white text-center">ID Utente</TableHead>
-            <TableHead className="font-bold text-white text-center">Nome</TableHead>
-            <TableHead className="font-bold text-white text-center">Cognome</TableHead>
-            <TableHead className="font-bold text-white text-center">Email</TableHead>
-            <TableHead className="font-bold text-white text-center">Ruolo</TableHead>
-            <TableHead className="font-bold text-white text-center">Azioni</TableHead>
+            <TableHead className="w-24 font-semibold text-white text-center">ID</TableHead>
+            <TableHead className="font-semibold text-white text-center">Utente</TableHead>
+            <TableHead className="font-semibold text-white text-center">Email</TableHead>
+            <TableHead className="font-semibold text-white text-center">Ruolo</TableHead>
+            <TableHead className="w-24 font-semibold text-white text-center">Azioni</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.length > 0 ? (
             data.map((userItem) => (
-              <TableRow key={userItem.id} className="group hover:bg-slate-50/50 transition-colors">
+              <TableRow key={userItem.id} className="group transition-colors hover:bg-slate-50">
                 <TableCell className="font-mono text-xs text-slate-500">
                   #{userItem.id}
                 </TableCell>
                 
-                <TableCell className="font-medium text-slate-700">
-                  {userItem.nome}
+                <TableCell className="text-slate-900">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
+                      {getInitials(userItem)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-900">{getFullName(userItem)}</p>
+                      <p className="truncate text-xs text-slate-500">ID utente #{userItem.id}</p>
+                    </div>
+                  </div>
                 </TableCell>
-
-                <TableCell className="font-medium text-slate-700">
-                  {userItem.cognome}
-                </TableCell>
-
-
-                
                 
                 <TableCell className="text-slate-600">
                   {userItem.email}
                 </TableCell>
-                
+
                 <TableCell>
                   {getRoleBadge(userItem.role)}
                 </TableCell>
@@ -78,7 +73,7 @@ const ManageUsers = ({ data }) => {
                     variant="ghost" 
                     size="sm"
                     onClick={() => fetchUserById(userItem.id)}
-                    className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-bold"
+                    className="h-9 rounded-lg px-3 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     <UserCog className="mr-2 h-4 w-4" />
                     Modifica
@@ -88,7 +83,7 @@ const ManageUsers = ({ data }) => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center text-slate-500">
+              <TableCell colSpan={5} className="h-24 text-center text-slate-500">
                 Nessun utente trovato.
               </TableCell>
             </TableRow>
