@@ -223,6 +223,23 @@ router.post("/:id/assign", checkAdmin, (req, res) => {
     });
 });
 
+router.get("/:id/assign", checkAdmin, (req, res) => {
+  const projectId = req.params.id;
+
+  db.execute(
+    "SELECT u.id, u.nome, u.email FROM user u JOIN project_assignment pa ON u.id = pa.user_id WHERE pa.project_id = ?",
+    [projectId],
+  )
+    .then(([results]) => {
+      return res.status(200).json(results);
+    })
+    .catch((err) => {
+      return res
+        .status(500)
+        .json({ error: "Internal server error", specific: err.message });
+    });
+});
+
 router.delete("/:id/assign", checkAdmin, (req, res) => {
   const projectId = req.params.id;
   const { userId } = req.body;

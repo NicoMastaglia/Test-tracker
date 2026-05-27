@@ -2219,6 +2219,104 @@
       }
     },
     "/api/projects/{id}/assign": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "Elenca gli utenti assegnati a un progetto",
+        "description": "Restituisce gli utenti assegnati a un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Utenti assegnati restituiti correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "example": 2
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Mario Rossi"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "mario.rossi@example.com"
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": 2,
+                    "name": "Mario Rossi",
+                    "email": "mario.rossi@example.com"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Accesso negato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": ["Projects"],
         "summary": "Assegna un utente al progetto",
