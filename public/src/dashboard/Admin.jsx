@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
 import { Users, Folder, PlayCircle, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -31,7 +31,7 @@ const AdminDashboard = () => {
                  </CardHeader>
                  <CardContent>
                    <div className="text-2xl font-bold">n sessioni in corso </div>
-                   <p className="text-xs text-muted-foreground">numero tester attivi atm</p>
+                   <p className="text-xs text-muted-foreground">numero user attivi atm</p>
                  </CardContent>
                </Card>
        
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
                    <Users className="h-4 w-4 text-muted-foreground" />
                  </CardHeader>
                  <CardContent>
-                   <div className="text-2xl font-bold">8 tester assegnati</div>
+                   <div className="text-2xl font-bold">8 user assegnati</div>
                    <p className="text-xs text-muted-foreground">non vede tutti quelli del sistema</p>
                  </CardContent>
                </Card>
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
                    </CardHeader>
                    <CardContent className="flex flex-col gap-2">
                       <Button variant="outline" className="justify-start">Crea nuovo progetto</Button>
-                      <Button variant="outline" className="justify-start">Assegna tester</Button>
+                      <Button variant="outline" className="justify-start">Assegna user</Button>
                        <Button variant="outline" className="justify-start">Gestisci checklist</Button>
                         <Button variant="outline" className="justify-start">Nuova sessione test</Button>
 

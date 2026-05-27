@@ -1,24 +1,10 @@
-import {createContext, useState,useContext,useReducer} from "react";
-import { users } from "../../fake_data/data";
-import { loginUser,logout } from "@/services/api";
-import { toast } from "sonner";
-import { initialState,authReducer} from "./useAuth";
-// 1. Creo il contesto
+import { createContext, useContext, useReducer } from "react";
+import { loginUser, logout } from "@/services/api";
+import { initialState, authReducer } from "./AuthReducer";
 const AuthContext = createContext();
 
-export const AuthProvider =({children})=>{
+export const AuthProvider = ({ children }) => {
 
-    // Dentro AuthProvider
-// const canManageUsers = () => user?.role === 'superadmin';
-// const canCreateProjects = () => user?.role === 'superadmin' || user?.role === 'admin';
-// const canEditChecklist = () => user?.role === 'admin';
-// const isTester = () => user?.role === 'tester';
-
-    // const [user,setUser] = useState(()=>{
-    //     const storedUser = localStorage.getItem("current_user")
-    //     console.log(storedUser)
-    //     return storedUser ? JSON.parse(storedUser) : null;
-    // });
 
     const [state,dispatch] = useReducer(authReducer,initialState)
 
@@ -108,6 +94,14 @@ export const AuthProvider =({children})=>{
     }
 
 
+
+    // Sincronizza l'utente aggiornato con lo stato globale e il localStorage
+    const syncCurrentUser = (updatedUser) => {
+      localStorage.setItem("current_user", JSON.stringify(updatedUser));
+      dispatch({type:'SYNC_CURRENT_USER', payload: updatedUser});
+    }
+
+
     return (
         <AuthContext.Provider value={{
             user: state.user,
@@ -117,7 +111,8 @@ export const AuthProvider =({children})=>{
             error: state.error,
 
             login,
-            logoutUser
+            logoutUser,
+            syncCurrentUser
         }}>
             {children}
         </AuthContext.Provider>
@@ -125,6 +120,5 @@ export const AuthProvider =({children})=>{
 }
     
 
-export const useAuth = () => useContext(AuthContext);
-
+export const useAuthContext = () => useContext(AuthContext);
 

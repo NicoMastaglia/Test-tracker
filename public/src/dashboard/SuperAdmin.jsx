@@ -1,11 +1,11 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Folder, Users, PlayCircle, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "../context/Auth.js/AuthContext";
+import { Button } from "@/Components/ui/button";
+import { useAuthContext } from "../context/Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
-
-// 1. SOTTO-COMPONENTE RIUTILIZZABILE 
+import { useUserContext } from "@/context/User/UserContext";
+import { useProjectContext } from "@/context/Project/ProjectContext";
 const KpiCard = ({ title, value, subtext, icon: Icon, subtextColor = "text-slate-400" }) => {
   return (
     <Card className="border-slate-100 shadow-sm bg-white">
@@ -24,36 +24,36 @@ const KpiCard = ({ title, value, subtext, icon: Icon, subtextColor = "text-slate
 };
 
 const SuperAdminDashboard = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const {fetchUsers,users} = useUserContext();
+  const {fetchProjects,projects} = useProjectContext();
 
-  // Configurazione compatta dei dati per la griglia KPI
+  useEffect(() => {
+    fetchUsers();
+    fetchProjects();
+  },[]);
+
   const kpiItems = [
     {
       title: "Progetti Attivi",
-      value: "0",
-      subtext: "Nessun incremento questo mese",
+      value: projects.filter(p => p.stato !=='completed').length.toString(),
       icon: Folder,
       subtextColor: "text-slate-400",
     },
     {
       title: "Sessioni in Corso",
       value: "0",
-      subtext: "Nessun tester attivo al momento",
       icon: PlayCircle,
       subtextColor: "text-amber-500", 
     },
     {
       title: "Sessioni finite",
       value: "0",
-      subtext: "Stabile rispetto a ieri",
       icon: CheckCircle,
       subtextColor: "text-emerald-500",
     },
     {
       title: "Utenti Totali",
-      value: "0",
-      subtext: "Nessun nuovo utente questa settimana",
+      value:  users.length.toString(),
       icon: Users,
       subtextColor: "text-slate-400",
     },
@@ -61,8 +61,6 @@ const SuperAdminDashboard = () => {
 
   return (
     <div className="p-6 space-y-6 bg-slate-50/30 min-h-screen">
-      
-      {/* GRIGLIA KPI CARD (Generata dinamicamente con il .map) */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpiItems.map((kpi, idx) => (
           <KpiCard
@@ -76,7 +74,6 @@ const SuperAdminDashboard = () => {
         ))}
       </div>
 
-      {/* SEZIONE INFERIORE: AUDIT LOG & ACCESSI RAPIDI */}
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7">
         <Card className="col-span-4 border-slate-100 shadow-sm bg-white flex flex-col">
           <CardHeader className="border-b border-slate-50 pb-4">
@@ -85,7 +82,7 @@ const SuperAdminDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex items-center justify-center py-10">
-            <p className="text-xs font-medium text-slate-400 italic bg-slate-50 px-4 py-2 rounded-full border border border-slate-100/60">
+            <p className="text-xs font-medium text-slate-400 italic bg-slate-50 px-4 py-2 rounded-full border border-slate-100/60">
               Nessun log o attività registrata nello storico
             </p>
           </CardContent>
@@ -100,19 +97,19 @@ const SuperAdminDashboard = () => {
               variant="outline"
               className="justify-start text-xs font-semibold text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 h-9 px-3 rounded-lg transition-colors"
             >
-              Crea nuovo report
+              Visualizza report
             </Button>
             <Button
               variant="outline"
               className="justify-start text-xs font-semibold text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 h-9 px-3 rounded-lg transition-colors"
             >
-              Gestisci permessi admin
+              Gestisci ruoli admin
             </Button>
             <Button
               variant="outline"
-              className="justify-start text-xs font-semibold text-rose-600 border-rose-100 bg-rose-50/30 hover:bg-rose-50 hover:text-rose-700 h-9 px-3 rounded-lg transition-colors"
+              className="justify-start text-xs font-semibold text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 h-9 px-3 rounded-lg transition-colors"
             >
-              Manutenzione sistema
+              Visualizza audit sicurezza
             </Button>
           </CardContent>
         </Card>

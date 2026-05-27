@@ -5,12 +5,12 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-  } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+    } from "@/Components/ui/dialog";
+import { Label } from "@/Components/ui/label";
 import { Plus } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Button } from "@/Components/ui/button";
 import { ShieldCheck } from "lucide-react";
 import React from "react";
 
@@ -25,7 +25,7 @@ const NewUser = ({setModal,
 
     return(
           <Dialog open={modal} onOpenChange={setModal}>
-                    <DialogContent className="sm:max-w-[450px]">
+                    <DialogContent className="sm:max-w-112.5">
                     <DialogHeader>
 
                     <DialogTitle className="text-2xl font-bold flex items-center gap-2">
@@ -76,9 +76,9 @@ const NewUser = ({setModal,
                                     </div>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="superadmin">Superadmin</SelectItem>
+                                    <SelectItem value="user">User</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
-                                    <SelectItem value="tester">Tester</SelectItem>
+                                    <SelectItem value="superadmin">Superadmin</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

@@ -1,17 +1,17 @@
-import { createContext,
-    useContext,useReducer
- } from "react";
+import { createContext, useContext, useReducer } from "react";
 
 
-import { initialState,userReducer } from "./useUser";
+import { initialState, userReducer } from "./UserReducer";
 import { getToken } from "@/services/config";
 import { getUsers,updateUserById,deleteUserById,getUserById,updateUserRoleById } from "@/services/User/user";
-const UserContext = createContext(); 
+import { useAuthContext } from "@/context/Auth/AuthContext";
+const UserContext = createContext();
 
 
-export const UserProvider = ({children}) =>{
+export const UserProvider = ({ children }) => {
 
-  const [state,dispatch] = useReducer(userReducer,initialState)
+  const [state, dispatch] = useReducer(userReducer, initialState)
+  const { user: currentAuthUser, syncCurrentUser } = useAuthContext();
 
     
   const fetchUsers = async () =>{
@@ -26,6 +26,7 @@ export const UserProvider = ({children}) =>{
         dispatch({type:'SET_USERS',payload:data})
     }
     catch(error){
+      console.error("Errore durante il fetch degli utenti:", error);
         dispatch({type:'SET_ERROR',payload:error.message})
     }
 
@@ -53,10 +54,30 @@ export const UserProvider = ({children}) =>{
     dispatch({type:'SET_LOADING'})
     try {
         const token = getToken()
-        const data = await updateUserById(token,user_id,userData)
-        dispatch({type:'UPDATE_USER',payload:data})
+      await updateUserById(token,user_id,userData)
+
+      const currentUser = state.users.find((user) => user.id === user_id) || state.selectedUser || {}
+      const updatedUser = {
+        ...currentUser,
+        id: user_id,
+        name: userData.name ?? userData.nome ?? currentUser.name ?? currentUser.nome ?? "",
+        surname: userData.surname ?? userData.cognome ?? currentUser.surname ?? currentUser.cognome ?? "",
+        email: userData.email ?? currentUser.email ?? "",
+        nome: userData.name ?? userData.nome ?? currentUser.name ?? currentUser.nome ?? "",
+        cognome: userData.surname ?? userData.cognome ?? currentUser.surname ?? currentUser.cognome ?? "",
+      }
+      
+
+      // se modifico utente loggato, aggiorno anche localStorage e stato globale per riflettere i cambiamenti
+      dispatch({type:'UPDATE_USER',payload:updatedUser})
+        if (currentAuthUser?.id === user_id) {
+          syncCurrentUser(updatedUser)
+        }
+        await fetchUsers()
+      return updatedUser
     }catch(error){
         dispatch({type:'SET_ERROR',payload:error.message})
+      throw error
     }
   }
 
@@ -66,6 +87,13 @@ export const UserProvider = ({children}) =>{
         const token = getToken()
          await deleteUserById(token,user_id)
         dispatch({type:'DELETE_USER',payload:user_id})
+        await fetchUsers()
+
+        if (currentAuthUser?.id === user_id) {
+          localStorage.removeItem("current_user");
+          localStorage.removeItem("auth_token");
+          window.location.href = "/login";
+        }
     }catch(error){
         dispatch({type:'SET_ERROR',payload:error.message})
     }
@@ -77,14 +105,42 @@ export const UserProvider = ({children}) =>{
 
     try {
         const token = getToken()
-        const data = await updateUserRoleById(token,user_id,role)
-        dispatch({type:'UPDATE_USER',payload:data})
+      await updateUserRoleById(token,user_id,role)
+
+      const currentUser = state.users.find((user) => user.id === user_id) || state.selectedUser || {}
+      const updatedUser = {
+        ...currentUser,
+        id: user_id,
+        role,
+      }
+
+      dispatch({type:'UPDATE_USER',payload:updatedUser})
+      if (currentAuthUser?.id === user_id) {
+        syncCurrentUser(updatedUser)
+      }
+      await fetchUsers()
+      return updatedUser
 
     }catch(error){
         dispatch({type:'SET_ERROR',payload:error.message})
+      throw error
     }
-  }
+    }
+
+     
+
+    const clearSelectedUser = () => {
+        dispatch({
+         type:'CLEAR_SELECTED_USER'
+        })
+     }
+
+
+     
  
+
+  
+  
    
 
 
@@ -101,7 +157,8 @@ export const UserProvider = ({children}) =>{
         selectedUser:state.selectedUser,
         updateUser:editUser,
         deleteUser:removeUser,
-        changeUserRole:changeUserRole
+        changeUserRole:changeUserRole,
+        clearSelectedUser:clearSelectedUser
     }}
     >
         {children }
@@ -110,4 +167,4 @@ export const UserProvider = ({children}) =>{
   )
 }
 
-export const useUsersContext  =() =>useContext(UserContext)
+export const useUserContext = () => useContext(UserContext)

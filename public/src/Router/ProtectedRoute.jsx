@@ -1,9 +1,9 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/Auth.js/AuthContext";
+import { useAuthContext } from "../context/Auth/AuthContext";
 
 
 export function ProtectedRoute({ children, allowedRoles }) {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
 
   // 1. Se l'utente non è loggato, vai al login
   if (!user) {

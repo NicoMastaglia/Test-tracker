@@ -6,16 +6,33 @@ const checkUser = require("../middleware/checkUser");
 const { hashPassword, comparePassword } = require("../auth/hash");
 const db = require("../database/db");
 
-router.get("/", checkSuperadmin, async (req, res) => {
-  db.execute("SELECT id, nome, cognome, email, role FROM user")
-    .then(([rows]) => {
-      res.status(200).json(rows);
-    })
-    .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
-    });
+router.get("/", checkAdmin, async (req, res) => {
+  if (req.user.role == "admin") {
+    return db
+      .execute(
+        "SELECT id, nome, cognome, email, role FROM user WHERE role = 'user'",
+      )
+      .then(([rows]) => {
+        res.status(200).json(rows);
+      })
+      .catch((err) => {
+        res
+          .status(500)
+          .json({ message: "Errore del server", specific: err.message });
+      });
+  } else if (req.user.role == "superadmin") {
+    db.execute("SELECT id, nome, cognome, email, role FROM user")
+      .then(([rows]) => {
+        res.status(200).json(rows);
+      })
+      .catch((err) => {
+        res
+          .status(500)
+          .json({ message: "Errore del server", specific: err.message });
+      });
+  } else {
+    res.status(403).json({ message: "Accesso negato" });
+  }
 });
 
 router.get("/me", checkUser, async (req, res) => {
