@@ -197,4 +197,121 @@ router.get("/:projectId", checkUser, (req, res) => {
   return res.status(403).json({ error: "Accesso negato" });
 });
 
+router.post("/:templateId/item", checkAdmin, async (req, res) => {
+  const templateId = req.params.templateId;
+  const { description } = req.body;
+  console.log(templateId, description);
+
+  if (!description) {
+    return res.status(400).json({ error: "Descrizione obbligatoria" });
+  }
+
+  const [templateResults] = await db.execute(
+    "SELECT ct.id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND (p.created_by = ? OR ?)",
+    [templateId, req.user.id, req.user.role === "superadmin"],
+  );
+
+  if (templateResults.length === 0) {
+    return res
+      .status(403)
+      .json({ error: "Accesso negato o template non trovato" });
+  }
+
+  try {
+    const [result] = await db.execute(
+      "INSERT INTO checklist_item (template_id, description) VALUES (?, ?)",
+      [templateId, description],
+    );
+
+    return res.status(201).json({
+      message: "Elemento della checklist aggiunto con successo",
+      id: result.insertId,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: "Errore interno del server",
+      specific: err.message,
+    });
+  }
+});
+
+router.put("/item/:id", checkAdmin, async (req, res) => {
+  const itemId = req.params.id;
+  const { description } = req.body;
+
+  if (!description) {
+    return res.status(400).json({ error: "Descrizione obbligatoria" });
+  }
+
+  const [itemResults] = await db.execute(
+    "SELECT ci.id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
+    [itemId, req.user.id, req.user.role === "superadmin"],
+  );
+
+  if (itemResults.length === 0) {
+    return res
+      .status(403)
+      .json({ error: "Accesso negato o elemento della checklist non trovato" });
+  }
+
+  try {
+    const [result] = await db.execute(
+      "UPDATE checklist_item SET description = ? WHERE id = ?",
+      [description, itemId],
+    );
+
+    if (result.affectedRows > 0) {
+      return res
+        .status(200)
+        .json({ message: "Elemento della checklist aggiornato con successo" });
+    } else {
+      return res
+        .status(404)
+        .json({ error: "Elemento della checklist non trovato" });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      error: "Errore interno del server",
+      specific: err.message,
+    });
+  }
+});
+
+router.delete("/item/:id", checkAdmin, async (req, res) => {
+  const itemId = req.params.id;
+
+  const [itemResults] = await db.execute(
+    "SELECT ci.id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
+    [itemId, req.user.id, req.user.role === "superadmin"],
+  );
+
+  if (itemResults.length === 0) {
+    return res
+      .status(403)
+      .json({ error: "Accesso negato o elemento della checklist non trovato" });
+  }
+
+  try {
+    const [result] = await db.execute(
+      "DELETE FROM checklist_item WHERE id = ?",
+      [itemId],
+    );
+
+    if (result.affectedRows > 0) {
+      return res
+        .status(200)
+        .json({ message: "Elemento della checklist eliminato con successo" });
+    } else {
+      return res
+        .status(404)
+        .json({ error: "Elemento della checklist non trovato" });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      error: "Errore interno del server",
+      specific: err.message,
+    });
+  }
+});
+
 module.exports = router;

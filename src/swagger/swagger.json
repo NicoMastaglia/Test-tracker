@@ -575,6 +575,334 @@
         }
       }
     },
+    "/api/checklists/{templeteId}/item": {
+      "post": {
+        "tags": ["Checklists"],
+        "summary": "Aggiunge un item a un template checklist",
+        "description": "Aggiunge un nuovo item a un template checklist specifico tramite ID template. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "templeteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del template checklist",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "example": "Verificare il login"
+                  }
+                },
+                "required": ["description"]
+              },
+              "example": {
+                "description": "Verificare il login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item della checklist aggiunto con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Elemento della checklist aggiunto con successo",
+                  "id": 7
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Descrizione mancante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Descrizione obbligatoria"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/checklists/item/{id}": {
+      "put": {
+        "tags": ["Checklists"],
+        "summary": "Aggiorna un item della checklist",
+        "description": "Aggiorna la descrizione di un item specifico della checklist tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dell'item della checklist",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "example": "Verificare il logout"
+                  }
+                },
+                "required": ["description"]
+              },
+              "example": {
+                "description": "Verificare il logout"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Elemento della checklist aggiornato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Elemento della checklist aggiornato con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Descrizione mancante",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Descrizione obbligatoria"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato o elemento della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato o elemento della checklist non trovato"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elemento della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Elemento della checklist non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Checklists"],
+        "summary": "Elimina un item della checklist",
+        "description": "Elimina un item specifico della checklist tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dell'item della checklist",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Elemento della checklist eliminato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Elemento della checklist eliminato con successo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato o elemento della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato o elemento della checklist non trovato"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elemento della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Elemento della checklist non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/checklists/{projectId}": {
       "get": {
         "tags": ["Checklists"],
