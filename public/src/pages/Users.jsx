@@ -7,6 +7,7 @@ import React,{useState,useEffect,useMemo} from "react";
 import { register } from "@/services/api";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
+import {filterSearch} from "@/utils/filterSearch";
 
 const Users = () => {
 
@@ -44,25 +45,12 @@ const Users = () => {
     }
 
 
-    const filterUsers = useMemo(() => {
-        const normalizedSearch = search.trim().toLowerCase();
+    const filterUsers = useMemo(()=>{
+        return filterSearch(search,users,['nome','cognome','email'])
 
-        if (!normalizedSearch) return users;
+    },[search,users])
 
-        return users.filter((user) => {
-            const name = (user.nome ?? user.name ?? "").toLowerCase();
-            const surname = (user.cognome ?? user.surname ?? "").toLowerCase();
-            const email = (user.email ?? "").toLowerCase();
-            const role = (user.role ?? "").toLowerCase();
-
-            return (
-                name.includes(normalizedSearch) ||
-                surname.includes(normalizedSearch) ||
-                email.includes(normalizedSearch) ||
-                role.includes(normalizedSearch)
-            );
-        });
-    }, [search, users]);
+   
   
     return (
         <AppLayout page="users">
