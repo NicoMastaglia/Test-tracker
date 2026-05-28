@@ -24,8 +24,8 @@
 //       if (item.id === id) {
 //         return {
 //           ...item,
-//           is_tested: true, // Il test è stato eseguito
-//           outcome: type    // 'pass' o 'fail'
+//           is_tested: true,
+//           outcome: type
 //         };
 //       }
 //       return item;
@@ -130,8 +130,8 @@
 //       if (item.id === id) {
 //         return {
 //           ...item,
-//           is_tested: true, // Il test è stato eseguito
-//           outcome: type    // 'pass' o 'fail'
+//           is_tested: true,
+//           outcome: type
 //         };
 //       }
 //       return item;

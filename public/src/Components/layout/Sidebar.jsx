@@ -198,7 +198,7 @@ export default function AppSidebar() {
             >
               <div className="flex items-center w-full gap-3 px-2.5">
                 <LogOut className="w-4 h-4 text-[#94A3B8] shrink-0" />
-                <span className="group-data-[collapsible=icon]:hidden">Disconnetti</span>
+                <span className="group-data-[collapsible=icon]:hidden">Esci</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -5,11 +5,24 @@
 const normalizeText = (value) => (value ?? "").toString().trim().toLowerCase();
 
 
+// uso classi di colore predefinite per i badge e gli avatar
+export const ROUND_COLOR_CLASSES = [
+  "bg-sky-100 text-sky-700",
+  "bg-emerald-100 text-emerald-700",
+  "bg-amber-100 text-amber-700",
+  "bg-rose-100 text-rose-700",
+  "bg-violet-100 text-violet-700",
+  "bg-cyan-100 text-cyan-700",
+];
+
+export const getRoundColorClass = (index = 0) => ROUND_COLOR_CLASSES[index % ROUND_COLOR_CLASSES.length];
+
+
 // estrare le iniziali di un utente 
 // si può estendere anche per altri campi
 export const getInitials = (item = {}) => {
-  const firstName = item.nome ??  "";
-  const lastName = item.cognome ?? "";
+  const firstName = item.nome ?? item.name ?? item.first_name ?? item.firstName ?? "";
+  const lastName = item.cognome ?? item.surname ?? item.last_name ?? item.lastName ?? "";
   const initials = `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.trim();
 
   // Se non ci sono iniziali, restituisci "U" per indicare un utente senza nome
@@ -21,10 +34,14 @@ export const getInitials = (item = {}) => {
 export const getFullName = (item = {}) => {
   const firstName = item.nome ?? item.name ?? item.first_name ?? item.firstName ?? "";
   const lastName = item.cognome ?? item.surname ?? item.last_name ?? item.lastName ?? "";
-  const fullName = `${firstName.slice(0,1).toUpperCase() + firstName.slice(1).toLowerCase()}
-  ${lastName.slice(0,1).toUpperCase() + lastName.slice(1).toLowerCase()}`.trim();
+  const normalizedFirstName = firstName
+    ? firstName.slice(0, 1).toUpperCase() + firstName.slice(1).toLowerCase()
+    : "";
+  const normalizedLastName = lastName
+    ? lastName.slice(0, 1).toUpperCase() + lastName.slice(1).toLowerCase()
+    : "";
 
-  return fullName || "Utente senza nome";
+  return `${normalizedFirstName} ${normalizedLastName}`.trim() || "Utente senza nome";
 };
 
 
@@ -51,7 +68,7 @@ export const getRoleInfo = (role) => {
 };
 
 
-// per ottenere le classi di stile in base allo stato del progetto
+//  per ottenere le classi di stile in base allo stato
 export const getStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
@@ -73,20 +90,13 @@ export const getStatusBadgeClass = (status) => {
 
 // per ottenere il nome del creatore di un progetto
 export const getCreatorName = (project = {}, users = []) => {
- 
   const creator = users.find((user) => Number(user.id) === Number(project.created_by));
 
   if (!creator) {
     return `User ${project.created_by ?? "-"}`;
   }
 
-  const fullName = [
-    creator.nome ?? "",
-    creator.cognome ??  "",
-  ]
-  
-
-  return fullName;
+  return getFullName(creator);
 };
 
 // per ottenere le classi di stile in base allo stato del progetto

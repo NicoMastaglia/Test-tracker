@@ -49,7 +49,8 @@ const ProjectTable = ({ data, users = [] }) => {
     unAssingUserAssignment,
     fetchProjectDetails,
     selectedProject,
-    clearSelectedProject
+    clearSelectedProject,
+    projects,
 
 
 
@@ -64,7 +65,7 @@ const ProjectTable = ({ data, users = [] }) => {
   const [deleteProjectTarget, setDeleteProjectTarget] = useState(null);
   const isAdmin = user?.role === "admin";
   const isSuperadmin = user?.role === "superadmin";
-  const [assignedUsersByProject, setAssignedUsersByProject] = useState({});
+ 
 
 
   
@@ -219,7 +220,9 @@ const ProjectTable = ({ data, users = [] }) => {
     const isAssigned = assignedUsers.some(au => (au.id ?? au.user_id) === u.id);
     return !isAssigned;
   });
+   
 
+  
   
 
  
