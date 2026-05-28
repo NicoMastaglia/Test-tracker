@@ -44,25 +44,50 @@ router.post("/", checkUser, async (req, res) => {
     }
   }
 
+  let connection;
+
   try {
-    const [result] = await db.execute(
+    connection = await db.getConnection();
+
+    await connection.beginTransaction();
+
+    const [result] = await connection.execute(
       "INSERT INTO test_session (project_id, user_id) VALUES (?, ?)",
       [projectId, testerId],
     );
-    if (result.affectedRows === 0) {
-      return res
-        .status(500)
-        .json({ error: "Errore durante la creazione della sessione di test" });
-    } else {
-      return res.status(201).json({
-        id: result.insertId,
-        message: "Sessione di test creata con successo",
-      });
+
+    const sessionId = result.insertId;
+
+    const [items] = await connection.execute(
+      "SELECT ci.id FROM checklist_template ct JOIN checklist_item ci ON ci.template_id = ct.id WHERE ct.project_id = ? ORDER BY ct.id, ci.position, ci.id",
+      [projectId],
+    );
+
+    if (items.length > 0) {
+      const values = items.map((item) => [sessionId, item.id, 0, null, null]);
+      await connection.query(
+        "INSERT INTO test_result (session_id, checklist_item_id, is_tested, outcome, note) VALUES ?",
+        [values],
+      );
     }
+
+    await connection.commit();
+
+    return res.status(201).json({
+      id: sessionId,
+      message: "Sessione di test creata con successo",
+    });
   } catch (error) {
+    if (typeof connection !== "undefined") {
+      await connection.rollback();
+    }
     return res
       .status(500)
       .json({ error: "Errore interno del server", details: error.message });
+  } finally {
+    if (typeof connection !== "undefined") {
+      connection.release();
+    }
   }
 });
 
@@ -131,71 +156,6 @@ router.get("/", checkUser, async (req, res) => {
   return res.status(403).json({ error: "Accesso non consentito" });
 });
 
-router.get("/:id", checkUser, async (req, res) => {
-  const sessionId = req.params.id;
-
-  if (!sessionId) {
-    return res.status(400).json({ error: "ID sessione non valido" });
-  }
-
-  if (req.user.role === "superadmin") {
-    try {
-      const [session] = await db.execute(
-        "SELECT * FROM test_session WHERE id = ?",
-        [sessionId],
-      );
-      if (!session.length) {
-        return res.status(404).json({ error: "Sessione di test non trovata" });
-      }
-      return res.status(200).json(session[0]);
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
-    }
-  }
-
-  if (req.user.role === "admin") {
-    try {
-      const [session] = await db.execute(
-        "SELECT ts.* FROM test_session ts JOIN project p ON ts.project_id = p.id WHERE p.created_by = ? AND ts.id = ?",
-        [req.user.id, sessionId],
-      );
-      if (!session.length) {
-        return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
-        });
-      }
-      return res.status(200).json(session[0]);
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
-    }
-  }
-
-  if (req.user.role === "user") {
-    try {
-      const [session] = await db.execute(
-        "SELECT ts.* FROM test_session ts WHERE ts.user_id = ? AND ts.id = ?",
-        [req.user.id, sessionId],
-      );
-      if (!session.length) {
-        return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
-        });
-      }
-      return res.status(200).json(session[0]);
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
-    }
-  }
-
-  return res.status(403).json({ error: "Accesso non consentito" });
-});
-
 router.patch("/:id/complete", checkUser, async (req, res) => {
   const sessionId = req.params.id;
 
@@ -237,6 +197,26 @@ router.patch("/:id/complete", checkUser, async (req, res) => {
         .status(500)
         .json({ error: "Errore interno del server", details: error.message });
     }
+  }
+
+  try {
+    const [progress] = await db.execute(
+      "SELECT COUNT(*) AS total_items, SUM(CASE WHEN is_tested = 1 THEN 1 ELSE 0 END) AS tested_items FROM test_result WHERE session_id = ?",
+      [sessionId],
+    );
+
+    const totalItems = Number(progress[0]?.total_items || 0);
+    const testedItems = Number(progress[0]?.tested_items || 0);
+
+    if (totalItems > 0 && testedItems < totalItems) {
+      return res.status(400).json({
+        error: "Non tutti gli item sono stati testati",
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Errore interno del server", details: error.message });
   }
 
   try {
@@ -284,10 +264,24 @@ router.delete("/:id", checkAdmin, async (req, res) => {
     }
   }
 
+  let connection;
+
   try {
-    const [result] = await db.execute("DELETE FROM test_session WHERE id = ?", [
+    connection = await db.getConnection();
+
+    await connection.beginTransaction();
+
+    await connection.execute("DELETE FROM test_result WHERE session_id = ?", [
       sessionId,
     ]);
+
+    const [result] = await connection.execute(
+      "DELETE FROM test_session WHERE id = ?",
+      [sessionId],
+    );
+
+    await connection.commit();
+
     if (result.affectedRows === 0) {
       return res.status(404).json({
         error: "Sessione di test non trovata",
@@ -297,9 +291,16 @@ router.delete("/:id", checkAdmin, async (req, res) => {
       .status(200)
       .json({ message: "Sessione di test eliminata con successo" });
   } catch (error) {
+    if (typeof connection !== "undefined") {
+      await connection.rollback();
+    }
     return res
       .status(500)
       .json({ error: "Errore interno del server", details: error.message });
+  } finally {
+    if (typeof connection !== "undefined") {
+      connection.release();
+    }
   }
 });
 
