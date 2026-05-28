@@ -24,6 +24,7 @@ const authRoutes = require("./src/routes/auth");
 const userRoutes = require("./src/routes/users");
 const projectRoutes = require("./src/routes/projects");
 const checklistRoutes = require("./src/routes/checklists");
+const testSessionRoutes = require("./src/routes/testSessions");
 
 app.use(express.json());
 app.use(cors(corsOptions));
@@ -46,6 +47,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/checklists", checklistRoutes);
+app.use("/api/test-sessions", testSessionRoutes);
 app.use("/", mainRoutes);
 
 app.listen(PORT, () => {
