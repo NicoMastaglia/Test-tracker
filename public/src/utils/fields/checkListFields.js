@@ -1,4 +1,7 @@
-  export const checkListFields = [
+  
+ // definizione dei campi per il form di creazione/modifica checklist
+ 
+ export const checkListFields = [
 	{
 		name: "title",
 		label: "Titolo checklist",

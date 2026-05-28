@@ -4,6 +4,8 @@ import { Folder, Users, PlayCircle, CheckCircle, ArrowUpRight, ArrowRight, Shiel
 import { Button } from "@/Components/ui/button";
 import { useUserContext } from "@/context/User/UserContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
+import {useNavigate} from "react-router-dom"; 
+
 const KpiCard = ({ title, value, subtext, icon: Icon, iconClass }) => {
   return (
     <Card className="border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
@@ -25,7 +27,7 @@ const KpiCard = ({ title, value, subtext, icon: Icon, iconClass }) => {
   );
 };
 
-const SuperAdminDashboard = () => {
+const SuperAdminDashboard = ({navigate}) => {
   const { fetchUsers, users } = useUserContext();
   const { fetchProjects, projects } = useProjectContext();
 
@@ -41,6 +43,7 @@ const SuperAdminDashboard = () => {
       icon: Folder,
       subtext: "progetti non completati",
       iconClass: "bg-emerald-100 text-emerald-700",
+
     },
     {
       title: "Sessioni in Corso",
@@ -67,22 +70,26 @@ const SuperAdminDashboard = () => {
 
   const quickActions = [
     {
-      title: "Visualizza report",
-      description: "Controlla i report amministrativi e le statistiche principali",
+      title: "Visualizza  progetti",
+      description: "Esplora e gestisci tutti i progetti attivi",
       icon: Folder,
       iconClass: "bg-emerald-100 text-emerald-700",
+      path: "/admin/projects"
+      
     },
     {
-      title: "Gestisci ruoli admin",
+      title: "Gestisci utenti",
       description: "Assegna ruoli e permessi agli amministratori",
       icon: Users,
       iconClass: "bg-blue-100 text-blue-700",
+      path: "/admin/users"
     },
     {
-      title: "Visualizza audit sicurezza",
-      description: "Apri il log di sicurezza e le attività rilevanti",
+      title: "Controlla attività",
+      description: "Monitora le attività recenti",
       icon: ShieldAlert,
       iconClass: "bg-amber-100 text-amber-700",
+      path: "/admin/audit-log"
     },
   ];
 
@@ -133,7 +140,9 @@ const SuperAdminDashboard = () => {
                 <button
                   key={action.title}
                   type="button"
-                  className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                  className="cursor-pointer group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                  onClick={() => navigate(action.path)}
+                
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${action.iconClass}`}>
@@ -146,7 +155,7 @@ const SuperAdminDashboard = () => {
                     </div>
                   </div>
 
-                  <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-700" />
+                  <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-700 " />
                 </button>
               );
             })}

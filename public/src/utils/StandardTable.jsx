@@ -1,3 +1,9 @@
+
+
+// componente riutilizzabile per visualizzare tabelle 
+// ancora da implementare funzionalità di ordinamento, paginazione e filtraggio
+
+
 import React from "react";
 import {
   Table,

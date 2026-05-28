@@ -48,15 +48,13 @@ const ManageUsers = ({ data }) => {
                   #{userItem.id}
                 </TableCell>
                 
-                <TableCell className="text-slate-900">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
-                      {getInitials(userItem)}
-                    </div>
+                <TableCell className="text-slate-900 ">
+                  
+                  
                     <div className="min-w-0">
                       <p className="font-medium text-slate-900">{getFullName(userItem)}</p>
-                      <p className="truncate text-xs text-slate-500">ID utente #{userItem.id}</p>
-                    </div>
+                    
+                 
                   </div>
                 </TableCell>
                 

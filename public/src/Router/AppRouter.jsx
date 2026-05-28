@@ -10,6 +10,7 @@ import AdminProjects from "../pages/AdminProjects";
 import UserProject from "../pages/UserProject";
 import CheckList from "@/pages/CheckList";
 import ProjectDetail from "@/Components/features/projects/ProjectDetail";
+import NotFound from "@/pages/NotFound";
 
 export default function AppRouter() {
   return (
@@ -93,7 +94,7 @@ export default function AppRouter() {
         <Route
           path="/admin/projects/:id/checklist"
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["superadmin","admin"]}>
               <CheckList />
             </ProtectedRoute>
           }
@@ -111,7 +112,7 @@ export default function AppRouter() {
           }
         />
 
-        <Route path="*" element={<h1>404 Not Found</h1>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

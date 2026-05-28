@@ -49,6 +49,10 @@ const ProjectTable = ({ data, users = [] }) => {
     unAssingUserAssignment,
     fetchProjectDetails,
     selectedProject,
+    clearSelectedProject
+
+
+
   } = useProjectContext();
 
   const [editingProject, setEditingProject] = useState(null);
@@ -60,6 +64,9 @@ const ProjectTable = ({ data, users = [] }) => {
   const [deleteProjectTarget, setDeleteProjectTarget] = useState(null);
   const isAdmin = user?.role === "admin";
   const isSuperadmin = user?.role === "superadmin";
+  const [assignedUsersByProject, setAssignedUsersByProject] = useState({});
+
+
   
   const calculateProgress = (project_id) => {
     const sessionByProject = sessions.filter(s => s.project_id === project_id);
@@ -68,8 +75,8 @@ const ProjectTable = ({ data, users = [] }) => {
     const completedSessions = sessionByProject.filter(s => s.status === 'completed' || s.status === 'passed').length;
     return Math.round((completedSessions / sessionByProject.length) * 100);
   };
-
-  const getSessionCount = (project_id) => sessions.filter((sessionItem) => sessionItem.project_id === project_id).length;
+  
+  
 
   const openEditDialog = (project) => {
     if (!isAdmin) return;
@@ -213,6 +220,8 @@ const ProjectTable = ({ data, users = [] }) => {
     return !isAssigned;
   });
 
+  
+
  
 
   return (
@@ -241,7 +250,7 @@ const ProjectTable = ({ data, users = [] }) => {
                   isSuperadmin={isSuperadmin}
                   users={users}
                   calculateProgress={calculateProgress}
-                  sessionCount={getSessionCount(project.id)}
+                  sessionCount={null} // manca logica sessioni 
                   handleProjectRowClick={handleProjectRowClick}
                   openEditDialog={openEditDialog}
                   openStatusDialog={openStatusDialog}

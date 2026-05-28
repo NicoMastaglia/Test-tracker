@@ -26,7 +26,7 @@ const AdminProjects = () => {
     },[])
 
     const handleAddProject = async () =>{
-        if (user?.role !== 'admin') return;
+        if (user?.role !== 'admin' && user?.role !== 'superadmin') return;
 
         const newProject = {
             name : formData.name,
@@ -36,6 +36,7 @@ const AdminProjects = () => {
         await fetchProjects();
         setFormData(emptyProjectData)
         setModalOpen(false)
+        console.log(2)
     }
 
    const filteredProjects = useMemo(() => {
@@ -59,8 +60,8 @@ const AdminProjects = () => {
                         search={search}
                         setSearch={setSearch}
                         placeholder="Cerca progetto..."
-                        buttonText={user?.role === 'admin' ? 'Add Project' : null}
-                        onButtonClick={user?.role === 'admin' ? () => setModalOpen(true) : undefined}
+                        buttonText={user?.role === 'admin'|| user?.role === 'superadmin' ? 'Add Project' : null}
+                        onButtonClick={user?.role === 'admin' || user?.role === 'superadmin' ? () => setModalOpen(true) : undefined}
                         buttonVariant="emerald"
                     />
                     <div className="pt-4">

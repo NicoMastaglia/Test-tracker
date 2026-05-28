@@ -5,7 +5,8 @@ export const initialState = {
     users :  [],
     loading : false,
     error : null,
-    selectedUser : null
+    selectedUser : null,
+
 }
 
 
@@ -66,6 +67,7 @@ export const userReducer = (state,action) =>{
                 users: state.users.filter(u=>u.id !==action.payload),
                 loading:false
             }
+        
         
         default: 
             return state;
