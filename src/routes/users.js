@@ -18,7 +18,7 @@ router.get("/", checkAdmin, async (req, res) => {
       .catch((err) => {
         res
           .status(500)
-          .json({ message: "Errore del server", specific: err.message });
+          .json({ message: "Server error", specific: err.message });
       });
   } else if (req.user.role == "superadmin") {
     db.execute("SELECT id, nome, cognome, email, role FROM user")
@@ -28,10 +28,10 @@ router.get("/", checkAdmin, async (req, res) => {
       .catch((err) => {
         res
           .status(500)
-          .json({ message: "Errore del server", specific: err.message });
+          .json({ message: "Server error", specific: err.message });
       });
   } else {
-    res.status(403).json({ message: "Accesso negato" });
+    res.status(403).json({ message: "Access denied" });
   }
 });
 
@@ -42,14 +42,12 @@ router.get("/me", checkUser, async (req, res) => {
   ])
     .then(([rows]) => {
       if (rows.length === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+        return res.status(404).json({ message: "User not found" });
       }
       res.status(200).json(rows[0]);
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+      res.status(500).json({ message: "Server error", specific: err.message });
     });
 });
 
@@ -65,14 +63,12 @@ router.put("/me", checkUser, async (req, res) => {
   ])
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+        return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json({ message: "Dati aggiornati con successo" });
+      res.status(200).json({ message: "Data updated successfully" });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+      res.status(500).json({ message: "Server error", specific: err.message });
     });
 });
 
@@ -86,14 +82,14 @@ router.patch("/me/password", checkUser, async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Utente non trovato" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const user = rows[0];
     const isMatch = await comparePassword(Oldpassword, user.password_hash);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Password attuale errata" });
+      return res.status(400).json({ message: "Current password is incorrect" });
     }
 
     const [result] = await db.execute(
@@ -102,13 +98,13 @@ router.patch("/me/password", checkUser, async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Utente non trovato" });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "Password aggiornata con successo" });
+    res.status(200).json({ message: "Password updated successfully" });
   } catch (err) {
     res.status(500).json({
-      message: "Errore del server",
+      message: "Server error",
       specific: err.message,
     });
   }
@@ -121,14 +117,12 @@ router.get("/:id", checkAdmin, async (req, res) => {
   ])
     .then(([rows]) => {
       if (rows.length === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+        return res.status(404).json({ message: "User not found" });
       }
       res.status(200).json(rows[0]);
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+      res.status(500).json({ message: "Server error", specific: err.message });
     });
 });
 
@@ -144,14 +138,12 @@ router.put("/:id", checkSuperadmin, async (req, res) => {
   ])
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+        return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json({ message: "Dati aggiornati con successo" });
+      res.status(200).json({ message: "Data updated successfully" });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+      res.status(500).json({ message: "Server error", specific: err.message });
     });
 });
 
@@ -161,14 +153,12 @@ router.delete("/:id", checkSuperadmin, async (req, res) => {
   db.execute("DELETE FROM user WHERE id = ?", [userId])
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+        return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json({ message: "Utente eliminato con successo" });
+      res.status(200).json({ message: "User deleted successfully" });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+      res.status(500).json({ message: "Server error", specific: err.message });
     });
 });
 
@@ -177,20 +167,18 @@ router.patch("/:id/role", checkSuperadmin, async (req, res) => {
   const { role } = req.body;
 
   if (!["user", "admin", "superadmin"].includes(role)) {
-    return res.status(400).json({ message: "Ruolo non valido" });
+    return res.status(400).json({ message: "Invalid role" });
   }
 
   db.execute("UPDATE user SET role = ? WHERE id = ?", [role, userId])
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+        return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json({ message: "Ruolo aggiornato con successo" });
+      res.status(200).json({ message: "Role updated successfully" });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+      res.status(500).json({ message: "Server error", specific: err.message });
     });
 });
 
@@ -203,7 +191,7 @@ router.patch("/:id/password", checkSuperadmin, async (req, res) => {
     ]);
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Utente non trovato" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const [result] = await db.execute(
@@ -212,13 +200,13 @@ router.patch("/:id/password", checkSuperadmin, async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Utente non trovato" });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "Password aggiornata con successo" });
+    res.status(200).json({ message: "Password updated successfully" });
   } catch (err) {
     res.status(500).json({
-      message: "Errore del server",
+      message: "Server error",
       specific: err.message,
     });
   }

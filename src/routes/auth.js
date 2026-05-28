@@ -11,14 +11,14 @@ router.post("/register", checkSuperadmin, async (req, res) => {
   const { name, surname, email, password, role } = req.body;
 
   if (!name || !surname || !email || !password || !role) {
-    return res.status(400).json({ message: "Tutti i campi sono obbligatori" });
+    return res.status(400).json({ message: "All fields are required" });
   }
   if (
     role.toLowerCase() !== "user" &&
     role.toLowerCase() !== "admin" &&
     role.toLowerCase() !== "superadmin"
   ) {
-    return res.status(400).json({ message: "Il ruolo non valido" });
+    return res.status(400).json({ message: "Invalid role" });
   }
 
   const passwordHash = await hashPassword(password);
@@ -28,12 +28,10 @@ router.post("/register", checkSuperadmin, async (req, res) => {
     [name, surname, email, passwordHash, role],
   )
     .then(() => {
-      res.status(201).json({ message: "Utente registrato con successo" });
+      res.status(201).json({ message: "User registered successfully" });
     })
     .catch((err) => {
-      res
-        .status(500)
-        .json({ message: "Errore del server", specific: err.message });
+      res.status(500).json({ message: "Server error", specific: err.message });
     });
 });
 
@@ -41,9 +39,7 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Email e password sono obbligatori" });
+    return res.status(400).json({ message: "Email and password are required" });
   }
 
   try {
@@ -52,7 +48,7 @@ router.post("/login", async (req, res) => {
     ]);
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Utente non trovato" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const user = rows[0];
@@ -60,7 +56,7 @@ router.post("/login", async (req, res) => {
     const isMatch = await comparePassword(password, user.password_hash);
 
     if (!isMatch) {
-      return res.status(401).json({ message: "Password non valida" });
+      return res.status(401).json({ message: "Invalid password" });
     }
 
     const userWithoutPassword = {
@@ -74,21 +70,21 @@ router.post("/login", async (req, res) => {
     const token = generateAccessToken(userWithoutPassword);
 
     res.status(200).json({
-      message: "Login effettuato con successo",
+      message: "Login successful",
       user: userWithoutPassword,
       token: token,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({
-      message: "Errore del server",
+      message: "Server error",
       specific: err.message,
     });
   }
 });
 
 router.post("/logout", checkUser, (req, res) => {
-  return res.status(200).json({ message: "Logout effettuato con successo" });
+  return res.status(200).json({ message: "Logout successful" });
 });
 
 module.exports = router;

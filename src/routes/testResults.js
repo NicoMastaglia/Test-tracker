@@ -53,7 +53,7 @@ router.get("/session/:sessionId", checkUser, async (req, res) => {
 
     if (!session) {
       return res.status(404).json({
-        error: "Sessione di test non trovata o permessi insufficienti",
+        error: "Test session not found or insufficient permissions",
       });
     }
 
@@ -82,7 +82,7 @@ router.get("/session/:sessionId", checkUser, async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ error: "Errore interno del server", details: error.message });
+      .json({ error: "Server error", details: error.message });
   }
 });
 
@@ -98,12 +98,12 @@ router.patch(
       outcome === undefined &&
       note === undefined
     ) {
-      return res.status(400).json({ error: "Nessun dato da aggiornare" });
+      return res.status(400).json({ error: "No data to update" });
     }
 
     if (outcome !== undefined && outcome !== null) {
       if (outcome !== "Positivo" && outcome !== "Negativo") {
-        return res.status(400).json({ error: "Esito non valido" });
+        return res.status(400).json({ error: "Invalid outcome" });
       }
     }
 
@@ -112,7 +112,7 @@ router.patch(
 
       if (!session) {
         return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
+          error: "Test session not found or insufficient permissions",
         });
       }
 
@@ -126,7 +126,7 @@ router.patch(
 
       if (!itemResults.length) {
         return res.status(404).json({
-          error: "Item della checklist non trovato nella sessione",
+          error: "Checklist item not found in session",
         });
       }
 
@@ -154,9 +154,7 @@ router.patch(
       }
 
       if (!updates.length) {
-        return res
-          .status(400)
-          .json({ error: "Nessun dato valido da aggiornare" });
+        return res.status(400).json({ error: "No valid data to update" });
       }
 
       parameters.push(sessionId, itemId);
@@ -186,7 +184,7 @@ router.patch(
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   },
 );

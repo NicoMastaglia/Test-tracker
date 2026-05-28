@@ -10,7 +10,7 @@ router.post("/", checkUser, async (req, res) => {
   const { projectId } = req.body;
 
   if (!projectId) {
-    return res.status(400).json({ error: "Progetto non valido" });
+    return res.status(400).json({ error: "Invalid project" });
   }
 
   const [projectResults] = await db.execute(
@@ -19,7 +19,7 @@ router.post("/", checkUser, async (req, res) => {
   );
 
   if (!projectResults.length) {
-    return res.status(404).json({ error: "Progetto non trovato" });
+    return res.status(404).json({ error: "Project not found" });
   }
 
   if (req.user.role === "user") {
@@ -29,7 +29,7 @@ router.post("/", checkUser, async (req, res) => {
     );
 
     if (!membershipResults.length) {
-      return res.status(403).json({ error: "Accesso non consentito" });
+      return res.status(403).json({ error: "Access denied" });
     }
   }
 
@@ -40,7 +40,7 @@ router.post("/", checkUser, async (req, res) => {
     );
 
     if (!adminResults.length) {
-      return res.status(403).json({ error: "Accesso non consentito" });
+      return res.status(403).json({ error: "Access denied" });
     }
   }
 
@@ -75,7 +75,7 @@ router.post("/", checkUser, async (req, res) => {
 
     return res.status(201).json({
       id: sessionId,
-      message: "Sessione di test creata con successo",
+      message: "Test session created successfully",
     });
   } catch (error) {
     if (typeof connection !== "undefined") {
@@ -83,7 +83,7 @@ router.post("/", checkUser, async (req, res) => {
     }
     return res
       .status(500)
-      .json({ error: "Errore interno del server", details: error.message });
+      .json({ error: "Server error", details: error.message });
   } finally {
     if (typeof connection !== "undefined") {
       connection.release();
@@ -103,15 +103,13 @@ router.get("/", checkUser, async (req, res) => {
         hasProject ? [projectId] : [],
       );
       if (!sessions.length) {
-        return res
-          .status(404)
-          .json({ error: "Nessuna sessione di test trovata" });
+        return res.status(404).json({ error: "No test sessions found" });
       }
       return res.status(200).json(sessions);
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   }
 
@@ -122,15 +120,13 @@ router.get("/", checkUser, async (req, res) => {
         hasProject ? [req.user.id, projectId] : [req.user.id],
       );
       if (!sessions.length) {
-        return res
-          .status(404)
-          .json({ error: "Nessuna sessione di test trovata" });
+        return res.status(404).json({ error: "No test sessions found" });
       }
       return res.status(200).json(sessions);
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   }
 
@@ -141,26 +137,24 @@ router.get("/", checkUser, async (req, res) => {
         hasProject ? [req.user.id, projectId] : [req.user.id],
       );
       if (!sessions.length) {
-        return res
-          .status(404)
-          .json({ error: "Nessuna sessione di test trovata" });
+        return res.status(404).json({ error: "No test sessions found" });
       }
       return res.status(200).json(sessions);
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   }
 
-  return res.status(403).json({ error: "Accesso non consentito" });
+  return res.status(403).json({ error: "Access denied" });
 });
 
 router.patch("/:id/complete", checkUser, async (req, res) => {
   const sessionId = req.params.id;
 
   if (!sessionId) {
-    return res.status(400).json({ error: "ID sessione non valido" });
+    return res.status(400).json({ error: "Invalid session ID" });
   }
 
   if (req.user.role === "user") {
@@ -171,13 +165,13 @@ router.patch("/:id/complete", checkUser, async (req, res) => {
       );
       if (!session.length) {
         return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
+          error: "Test session not found or insufficient permissions",
         });
       }
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   }
 
@@ -189,13 +183,13 @@ router.patch("/:id/complete", checkUser, async (req, res) => {
       );
       if (!session.length) {
         return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
+          error: "Test session not found or insufficient permissions",
         });
       }
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   }
 
@@ -210,13 +204,13 @@ router.patch("/:id/complete", checkUser, async (req, res) => {
 
     if (totalItems > 0 && testedItems < totalItems) {
       return res.status(400).json({
-        error: "Non tutti gli item sono stati testati",
+        error: "Not all items have been tested",
       });
     }
   } catch (error) {
     return res
       .status(500)
-      .json({ error: "Errore interno del server", details: error.message });
+      .json({ error: "Server error", details: error.message });
   }
 
   try {
@@ -226,16 +220,16 @@ router.patch("/:id/complete", checkUser, async (req, res) => {
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({
-        error: "Sessione di test non trovata o permessi insufficienti",
+        error: "Test session not found or insufficient permissions",
       });
     }
     return res
       .status(200)
-      .json({ message: "Sessione di test completata con successo" });
+      .json({ message: "Test session completed successfully" });
   } catch (error) {
     return res
       .status(500)
-      .json({ error: "Errore interno del server", details: error.message });
+      .json({ error: "Server error", details: error.message });
   }
 });
 
@@ -243,7 +237,7 @@ router.delete("/:id", checkAdmin, async (req, res) => {
   const sessionId = req.params.id;
 
   if (!sessionId) {
-    return res.status(400).json({ error: "ID sessione non valido" });
+    return res.status(400).json({ error: "Invalid session ID" });
   }
 
   if (req.user.role === "admin") {
@@ -254,13 +248,13 @@ router.delete("/:id", checkAdmin, async (req, res) => {
       );
       if (!session.length) {
         return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
+          error: "Test session not found or insufficient permissions",
         });
       }
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   }
 
@@ -284,19 +278,19 @@ router.delete("/:id", checkAdmin, async (req, res) => {
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
-        error: "Sessione di test non trovata",
+        error: "Test session not found",
       });
     }
     return res
       .status(200)
-      .json({ message: "Sessione di test eliminata con successo" });
+      .json({ message: "Test session deleted successfully" });
   } catch (error) {
     if (typeof connection !== "undefined") {
       await connection.rollback();
     }
     return res
       .status(500)
-      .json({ error: "Errore interno del server", details: error.message });
+      .json({ error: "Server error", details: error.message });
   } finally {
     if (typeof connection !== "undefined") {
       connection.release();
@@ -308,7 +302,7 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
   const sessionId = req.params.id;
 
   if (!sessionId) {
-    return res.status(400).json({ error: "ID sessione non valido" });
+    return res.status(400).json({ error: "Invalid session ID" });
   }
 
   if (req.user.role === "admin") {
@@ -319,13 +313,13 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
       );
       if (!session.length) {
         return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
+          error: "Test session not found or insufficient permissions",
         });
       }
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Errore interno del server", details: error.message });
+        .json({ error: "Server error", details: error.message });
     }
   }
 
@@ -336,16 +330,16 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({
-        error: "Sessione di test non trovata",
+        error: "Test session not found",
       });
     }
     return res
       .status(200)
-      .json({ message: "Sessione di test riaperta con successo" });
+      .json({ message: "Test session reopened successfully" });
   } catch (error) {
     return res
       .status(500)
-      .json({ error: "Errore interno del server", details: error.message });
+      .json({ error: "Server error", details: error.message });
   }
 });
 

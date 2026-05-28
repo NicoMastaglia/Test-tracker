@@ -6,7 +6,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("*", (req, res) => {
-  res.status(404).json({ error: "Endpoint non trovato" });
+  res.status(404).json({ error: "Endpoint not found" });
 });
 
 module.exports = router;
