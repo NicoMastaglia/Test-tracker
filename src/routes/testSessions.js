@@ -112,7 +112,7 @@ router.get("/", checkUser, async (req, res) => {
   if (req.user.role === "user") {
     try {
       const [sessions] = await db.execute(
-        `SELECT ts.id, ts.project_id, ts.user_id, ts.status, ts.started_at, ts.completed_at FROM test_session ts JOIN project_assignment pa ON ts.project_id = pa.project_id WHERE pa.user_id = ? ${hasProject ? "AND ts.project_id = ?" : ""}`,
+        `SELECT ts.id, ts.project_id, ts.user_id, ts.status, ts.started_at, ts.completed_at FROM test_session ts WHERE ts.user_id = ? ${hasProject ? "AND ts.project_id = ?" : ""}`,
         hasProject ? [req.user.id, projectId] : [req.user.id],
       );
       if (!sessions.length) {
@@ -177,7 +177,7 @@ router.get("/:id", checkUser, async (req, res) => {
   if (req.user.role === "user") {
     try {
       const [session] = await db.execute(
-        "SELECT ts.* FROM test_session ts JOIN project_assignment pa ON ts.project_id = pa.project_id WHERE pa.user_id = ? AND ts.id = ?",
+        "SELECT ts.* FROM test_session ts WHERE ts.user_id = ? AND ts.id = ?",
         [req.user.id, sessionId],
       );
       if (!session.length) {
@@ -194,6 +194,158 @@ router.get("/:id", checkUser, async (req, res) => {
   }
 
   return res.status(403).json({ error: "Accesso non consentito" });
+});
+
+router.patch("/:id/complete", checkUser, async (req, res) => {
+  const sessionId = req.params.id;
+
+  if (!sessionId) {
+    return res.status(400).json({ error: "ID sessione non valido" });
+  }
+
+  if (req.user.role === "user") {
+    try {
+      const [session] = await db.execute(
+        "SELECT * FROM test_session WHERE id = ? AND user_id = ?",
+        [sessionId, req.user.id],
+      );
+      if (!session.length) {
+        return res.status(404).json({
+          error: "Sessione di test non trovata o permessi insufficienti",
+        });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Errore interno del server", details: error.message });
+    }
+  }
+
+  if (req.user.role === "admin") {
+    try {
+      const [session] = await db.execute(
+        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND p.created_by = ?",
+        [sessionId, req.user.id],
+      );
+      if (!session.length) {
+        return res.status(404).json({
+          error: "Sessione di test non trovata o permessi insufficienti",
+        });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Errore interno del server", details: error.message });
+    }
+  }
+
+  try {
+    const [result] = await db.execute(
+      "UPDATE test_session SET status = 'Completata', completed_at = NOW() WHERE id = ?",
+      [sessionId],
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: "Sessione di test non trovata o permessi insufficienti",
+      });
+    }
+    return res
+      .status(200)
+      .json({ message: "Sessione di test completata con successo" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Errore interno del server", details: error.message });
+  }
+});
+
+router.delete("/:id", checkAdmin, async (req, res) => {
+  const sessionId = req.params.id;
+
+  if (!sessionId) {
+    return res.status(400).json({ error: "ID sessione non valido" });
+  }
+
+  if (req.user.role === "admin") {
+    try {
+      const [session] = await db.execute(
+        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND p.created_by = ?",
+        [sessionId, req.user.id],
+      );
+      if (!session.length) {
+        return res.status(404).json({
+          error: "Sessione di test non trovata o permessi insufficienti",
+        });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Errore interno del server", details: error.message });
+    }
+  }
+
+  try {
+    const [result] = await db.execute("DELETE FROM test_session WHERE id = ?", [
+      sessionId,
+    ]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: "Sessione di test non trovata",
+      });
+    }
+    return res
+      .status(200)
+      .json({ message: "Sessione di test eliminata con successo" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Errore interno del server", details: error.message });
+  }
+});
+
+router.patch("/:id/reopen", checkAdmin, async (req, res) => {
+  const sessionId = req.params.id;
+
+  if (!sessionId) {
+    return res.status(400).json({ error: "ID sessione non valido" });
+  }
+
+  if (req.user.role === "admin") {
+    try {
+      const [session] = await db.execute(
+        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND p.created_by = ?",
+        [sessionId, req.user.id],
+      );
+      if (!session.length) {
+        return res.status(404).json({
+          error: "Sessione di test non trovata o permessi insufficienti",
+        });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Errore interno del server", details: error.message });
+    }
+  }
+
+  try {
+    const [result] = await db.execute(
+      "UPDATE test_session SET status = 'In corso', completed_at = NULL WHERE id = ?",
+      [sessionId],
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: "Sessione di test non trovata",
+      });
+    }
+    return res
+      .status(200)
+      .json({ message: "Sessione di test riaperta con successo" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Errore interno del server", details: error.message });
+  }
 });
 
 module.exports = router;

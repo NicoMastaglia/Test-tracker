@@ -3219,6 +3219,319 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": ["test-sessions"],
+        "summary": "Elimina una sessione di test",
+        "description": "Elimina una sessione di test specifica tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della sessione di test",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessione di test eliminata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Sessione di test eliminata con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID sessione non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "ID sessione non valido"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso non consentito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso non consentito"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sessione di test non trovata o permessi insufficienti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Sessione di test non trovata o permessi insufficienti"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-sessions/{id}/complete": {
+      "patch": {
+        "tags": ["test-sessions"],
+        "summary": "Completa una sessione di test",
+        "description": "Imposta una sessione di test come completata tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della sessione di test",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessione di test completata con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Sessione di test completata con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID sessione non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "ID sessione non valido"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso non consentito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso non consentito"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sessione di test non trovata o permessi insufficienti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Sessione di test non trovata o permessi insufficienti"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-sessions/{id}/reopen": {
+      "patch": {
+        "tags": ["test-sessions"],
+        "summary": "Riapre una sessione di test",
+        "description": "Imposta una sessione di test come riaperta tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della sessione di test",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessione di test riaperta con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Sessione di test riaperta con successo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID sessione non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "ID sessione non valido"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso non consentito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso non consentito"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sessione di test non trovata o permessi insufficienti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Sessione di test non trovata o permessi insufficienti"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
