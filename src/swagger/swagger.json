@@ -65,6 +65,124 @@
         }
       }
     },
+    "/login": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to login page",
+        "description": "Redirects the request to the frontend login page.",
+        "security": [],
+        "responses": {
+          "302": {
+            "description": "Redirect to /login",
+            "headers": {
+              "Location": {
+                "description": "URL to redirect to",
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to dashboard",
+        "description": "Protected: redirects authenticated users to the dashboard.",
+        "security": [ { "bearerAuth": [] } ],
+        "responses": {
+          "302": {
+            "description": "Redirect to /dashboard",
+            "headers": {
+              "Location": { "description": "URL to redirect to", "schema": { "type": "string" } }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/user/projects": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to user projects",
+        "description": "Protected: redirects authenticated users to their projects list.",
+        "security": [ { "bearerAuth": [] } ],
+        "responses": {
+          "302": { "description": "Redirect to /user/projects", "headers": { "Location": { "description": "URL to redirect to", "schema": { "type": "string" } } } },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/user/checklists": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to user checklists",
+        "description": "Protected: redirects authenticated users to their checklists.",
+        "security": [ { "bearerAuth": [] } ],
+        "responses": {
+          "302": { "description": "Redirect to /user/checklists", "headers": { "Location": { "description": "URL to redirect to", "schema": { "type": "string" } } } },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/admin/projects": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to admin projects",
+        "description": "Admin protected: redirects admins to the admin projects page.",
+        "security": [ { "bearerAuth": [] } ],
+        "responses": {
+          "302": { "description": "Redirect to /admin/projects", "headers": { "Location": { "description": "URL to redirect to", "schema": { "type": "string" } } } },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        }
+      }
+    },
+    "/admin/projects/{id}": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to admin project detail",
+        "description": "Admin protected: redirects to a specific admin project page.",
+        "security": [ { "bearerAuth": [] } ],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "Project ID" }
+        ],
+        "responses": {
+          "302": { "description": "Redirect to /admin/projects/{id}", "headers": { "Location": { "description": "URL to redirect to", "schema": { "type": "string" } } } },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        }
+      }
+    },
+    "/admin/projects/{id}/checklist": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to admin project checklist",
+        "description": "Admin protected: redirects to the checklist view for a specific project.",
+        "security": [ { "bearerAuth": [] } ],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" }, "description": "Project ID" }
+        ],
+        "responses": {
+          "302": { "description": "Redirect to /admin/projects/{id}/checklist", "headers": { "Location": { "description": "URL to redirect to", "schema": { "type": "string" } } } },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": ["Main"],
+        "summary": "Redirect to admin users",
+        "description": "Superadmin protected: redirects to the admin users management page.",
+        "security": [ { "bearerAuth": [] } ],
+        "responses": {
+          "302": { "description": "Redirect to /admin/users", "headers": { "Location": { "description": "URL to redirect to", "schema": { "type": "string" } } } },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        }
+      }
+    },
     "/api/auth/register": {
       "post": {
         "tags": ["Auth"],
