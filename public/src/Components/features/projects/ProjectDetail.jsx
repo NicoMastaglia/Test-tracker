@@ -13,10 +13,13 @@ import {
     DialogTitle,
 } from "@/Components/ui/dialog";
 import { ArrowLeft, CalendarDays, CheckSquare2, Flag, FolderOpen, User, Users2 } from "lucide-react";
+import { Label } from "@/Components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/Components/ui/select";
 
 const ProjectDetail = () => {
     const navigate = useNavigate();
     const { id: projectId } = useParams();
+
     const { users, fetchUsers } = useUserContext();
     const {
         loading,
@@ -25,7 +28,9 @@ const ProjectDetail = () => {
         clearSelectedProject,
         unAssingUserAssignment,
     } = useProjectContext();
+    const { assignUserToProject } = useProjectContext();
     const [removeUserTarget, setRemoveUserTarget] = useState(null);
+    const [selectedAssignUserId, setSelectedAssignUserId] = useState("");
 
     useEffect(() => {
         if (!projectId) {
@@ -56,8 +61,13 @@ const ProjectDetail = () => {
     const handleManageChecklist = () => {
         navigate(`/admin/projects/${projectId}/checklist`);
     };
+ 
+    console.log("Selected Project:", selectedProject);
 
     const createdByUser = users.find((user) => user.id === selectedProject?.created_by);
+
+    console.log(createdByUser);
+    console.log("All Users:", users);
 
     return (
         <AppLayout page="projects">
@@ -151,6 +161,36 @@ const ProjectDetail = () => {
                                                     Nessun utente assegnato al progetto.
                                                 </div>
                                             )}
+                                        </div>
+                                        <div className="mt-4">
+                                            <Label>Assegna tester</Label>
+                                            <div className="mt-2 flex items-center gap-2">
+                                                <Select value={selectedAssignUserId} onValueChange={setSelectedAssignUserId}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Seleziona utente" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {(users || [])
+                                                            .filter(u => {
+                                                                const assigned = (selectedProject?.assigned_users || []).some(au => (au.id ?? au.user_id) === u.id);
+                                                                return !assigned;
+                                                            })
+                                                            .map(u => (
+                                                                <SelectItem key={u.id} value={String(u.id)}>{u.nome ?? u.name ?? u.email}</SelectItem>
+                                                            ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button disabled={!selectedAssignUserId} onClick={async () => {
+                                                    if (!projectId || !selectedAssignUserId) return;
+                                                    try {
+                                                        await assignUserToProject(Number(projectId), Number(selectedAssignUserId));
+                                                        await fetchProjectDetails(Number(projectId));
+                                                        setSelectedAssignUserId("");
+                                                    } catch (error) {
+                                                        // context handles global errors
+                                                    }
+                                                }}>Assegna</Button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -1,3 +1,8 @@
+
+
+// componente riutilizzabile per visualizzare una barra di azioni con funzionalità di ricerca e pulsante personalizzabile
+
+
 import React from "react";
 import { Search, Plus } from "lucide-react";
 import { Input } from "@/Components/ui/input";

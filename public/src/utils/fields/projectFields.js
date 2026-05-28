@@ -1,3 +1,8 @@
+
+
+// definizione dei campi per il form di creazione/modifica progetto
+
+
 export const projectFields = [
 	{
 		name: "name",

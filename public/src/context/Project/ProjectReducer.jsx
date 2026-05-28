@@ -74,7 +74,6 @@ export const projectReducer = (state,action) =>{
                 selectedProject: state.selectedProject && state.selectedProject.id === action.payload.id ? action.payload : state.selectedProject,
                 loading: false 
             }
-        
         default: 
             return state 
     }

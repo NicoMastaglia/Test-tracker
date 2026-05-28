@@ -1,3 +1,6 @@
+
+// componente riutilizzabile per visualizzare modali con form dinamici
+
 import React from "react";
 import {
 	Dialog,

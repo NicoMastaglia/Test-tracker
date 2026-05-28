@@ -12,24 +12,29 @@ import {
   getProjectStatusBadgeClass,
 } from "@/utils/tableHelpers";
 
-const ProjectRow = ({
-  project,
-  isAdmin,
-  isSuperadmin,
-  users,
-  calculateProgress,
-  sessionCount,
-  handleProjectRowClick,
-  openEditDialog,
+const ProjectRow = ({ project, isAdmin, isSuperadmin,users, calculateProgress, sessionCount, handleProjectRowClick,
+   openEditDialog,
   openStatusDialog,
   openAssignDialog,
   setDeleteProjectTarget,
 }) => {
+
+  
   const progressValue = calculateProgress(project.id);
+
+  // solo admin e superadmin possono accedere alla pagina di dettaglio del progetto
   const canOpenProjectDetail = isAdmin || isSuperadmin;
+
+  // trovo il creatore del progetto per mostrare nome e iniziali 
   const creator = users.find((userItem) => Number(userItem.id) === Number(project.created_by));
+
+  // trovo gli utenti assegnati al progetto
   const assignedUsers = Array.isArray(project.assigned_users) ? project.assigned_users : [];
+
+  // mostro solo i primi 2 assegnatari e se ci sono più di 2 mostro un badge con il numero di assegnatari extra
   const visibleAssignees = assignedUsers.slice(0, 2);
+
+  // calcolo il numero di assegnatari extra da mostrare nel badge
   const extraAssignees = Math.max(assignedUsers.length - visibleAssignees.length, 0);
 
   return (
@@ -42,9 +47,9 @@ const ProjectRow = ({
 
       <TableCell>
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
+          {/* <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
             {getInitials(project)}
-          </div>
+          </div> */}
           <div className="min-w-0">
             <p className="font-medium text-slate-900">{project.name}</p>
             <p className="truncate text-xs text-slate-500">Creato il {formatTableDate(project.created_at ?? project.createdAt)}</p>
@@ -60,14 +65,17 @@ const ProjectRow = ({
       </TableCell>
 
       <TableCell>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
+        <div className="flex items-center gap-3 text-center justify-center">
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-sm text-slate-700"
+            title={creator ? getFullName(creator) : getCreatorName(project, users)}
+          >
             {creator ? getInitials(creator) : "U"}
           </div>
-          <div className="min-w-0">
+          {/* <div className="min-w-0 text-center">
             <p className="font-medium text-slate-900">{creator ? getFullName(creator) : getCreatorName(project, users)}</p>
-            <p className="truncate text-xs text-slate-500">Creatore progetto</p>
-          </div>
+            <p className="truncate text-xs text-slate-500">Creatore progetto </p>
+          </div> */}
         </div>
       </TableCell>
 
@@ -88,7 +96,7 @@ const ProjectRow = ({
 
           {extraAssignees > 0 && (
             <div className="flex h-7 items-center justify-center rounded-full bg-slate-100 px-3 text-xs text-slate-600">
-              +{extraAssignees}
+              {extraAssignees}
             </div>
           )}
         </div>
@@ -105,7 +113,7 @@ const ProjectRow = ({
       </TableCell>
       <TableCell>
         <div className="flex items-center justify-center gap-2">
-          {isAdmin && (
+          {isAdmin || isSuperadmin ? (
             <>
               <Button variant="ghost" size="icon" className="text-slate-500 hover:text-blue-600" onClick={(e) => { e.stopPropagation(); openEditDialog(project); }}>
                 <Pencil className="h-4 w-4" />
@@ -113,10 +121,12 @@ const ProjectRow = ({
               <Button variant="ghost" size="icon" className="text-slate-500 hover:text-amber-600" onClick={(e) => { e.stopPropagation(); openStatusDialog(project); }}>
                 <Flag className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); openAssignDialog(project); }}>
+              {/* <Button variant="ghost" size="icon" className="text-slate-500 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); openAssignDialog(project); }}>
                 <UserPlus className="h-4 w-4" />
-              </Button>
+              </Button> */}
             </>
+          ) : (
+            <span className="text-sm text-slate-500">Nessuna azione disponibile</span>
           )}
           {isSuperadmin && (
             <Button variant="ghost" size="icon" className="text-slate-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setDeleteProjectTarget(project); }}>

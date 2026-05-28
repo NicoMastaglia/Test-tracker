@@ -1,21 +1,34 @@
+// funzioni helper per estrarre e formattare le tabelle 
+
+
+// Normalizza il testo per confronti (tutto minuscolo, senza spazi)
 const normalizeText = (value) => (value ?? "").toString().trim().toLowerCase();
 
+
+// estrare le iniziali di un utente 
+// si può estendere anche per altri campi
 export const getInitials = (item = {}) => {
-  const firstName = item.nome ?? item.name ?? item.first_name ?? item.firstName ?? "";
-  const lastName = item.cognome ?? item.surname ?? item.last_name ?? item.lastName ?? "";
+  const firstName = item.nome ??  "";
+  const lastName = item.cognome ?? "";
   const initials = `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.trim();
 
-  return initials || "U";
+  // Se non ci sono iniziali, restituisci "U" per indicare un utente senza nome
+  return initials.toUpperCase() || "U";
 };
 
+
+// per ottenere il nome completo di un utente, con fallback a "Utente senza nome"
 export const getFullName = (item = {}) => {
   const firstName = item.nome ?? item.name ?? item.first_name ?? item.firstName ?? "";
   const lastName = item.cognome ?? item.surname ?? item.last_name ?? item.lastName ?? "";
-  const fullName = `${firstName} ${lastName}`.trim();
+  const fullName = `${firstName.slice(0,1).toUpperCase() + firstName.slice(1).toLowerCase()}
+  ${lastName.slice(0,1).toUpperCase() + lastName.slice(1).toLowerCase()}`.trim();
 
   return fullName || "Utente senza nome";
 };
 
+
+// per ottenere le informazioni di ruolo, con classi di stile associate
 export const getRoleInfo = (role) => {
   const normalizedRole = normalizeText(role) || "user";
 
@@ -37,6 +50,8 @@ export const getRoleInfo = (role) => {
   return roleMap[normalizedRole] || roleMap.user;
 };
 
+
+// per ottenere le classi di stile in base allo stato del progetto
 export const getStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
@@ -55,7 +70,10 @@ export const getStatusBadgeClass = (status) => {
   return "bg-slate-100 text-slate-700 hover:bg-slate-100 border-none";
 };
 
+
+// per ottenere il nome del creatore di un progetto
 export const getCreatorName = (project = {}, users = []) => {
+ 
   const creator = users.find((user) => Number(user.id) === Number(project.created_by));
 
   if (!creator) {
@@ -63,15 +81,15 @@ export const getCreatorName = (project = {}, users = []) => {
   }
 
   const fullName = [
-    creator.nome ?? creator.name ?? "",
-    creator.cognome ?? creator.surname ?? "",
+    creator.nome ?? "",
+    creator.cognome ??  "",
   ]
-    .filter(Boolean)
-    .join(" ");
+  
 
-  return fullName || creator.email || `User ${creator.id}`;
+  return fullName;
 };
 
+// per ottenere le classi di stile in base allo stato del progetto
 export const getProjectStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
@@ -90,6 +108,8 @@ export const getProjectStatusBadgeClass = (status) => {
   return "bg-slate-100 text-slate-700";
 };
 
+
+// per formattare le date  nelle tabelle 
 export const formatTableDate = (value) => {
   if (!value) {
     return "Data non disponibile";

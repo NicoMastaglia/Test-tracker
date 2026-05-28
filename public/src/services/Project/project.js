@@ -67,3 +67,17 @@ export const unAssingUserAssignment = async (token, projectId, userId) => {
     return res.data;
 };
 
+
+export const  getProjectUsers = async (token, projectId) => {
+
+    const res = await axios.get(`${baseUrl}/api/projects/${projectId}/assign`, authConfig(token));
+    return res.data;
+}
+
+
+
+
+
+
+
+

@@ -40,8 +40,8 @@ import { AlertTriangle } from "lucide-react";
 // Configurazione dinamica dei titoli in base al ruolo utente
 const ROLE_CONSOLE_CONFIG = {
   superadmin: {
-    title: "Console Root",
-    subtitle: "Super Administrator",
+    title: "SuperAdmin  ",
+    subtitle: "Pannello di Controllo",
     icon: ShieldAlert,
   },
   admin: {

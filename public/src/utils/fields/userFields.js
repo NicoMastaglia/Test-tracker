@@ -1,3 +1,6 @@
+
+// definizione dei campi per il form di creazione/modifica utente
+
 export  const userFields = [{
     name: 'name',
     label: 'Nome',
