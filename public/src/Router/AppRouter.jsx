@@ -1,24 +1,38 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
+
 import Login from "../pages/Login";
 import DashBoard from "../pages/Dashboard";
-// import SessionsTests from "../pages/SessionsTests";
-// import AdminSessions from "../pages/AdminSessions";
-import Sessions from "../pages/Sessions";
+
 import Users from "../pages/Users";
+
 import AdminProjects from "../pages/AdminProjects";
 import UserProject from "../pages/UserProject";
+
 import CheckList from "@/pages/CheckList";
+
 import ProjectDetail from "@/Components/features/projects/ProjectDetail";
+
 import NotFound from "@/pages/NotFound";
+
+// import Sessions from "../pages/Sessions";
+// import AdminSessions from "../pages/AdminSessions";
+// import SessionsTests from "../pages/SessionsTests";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
 
+        {/* PUBLIC */}
+        <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
+
+        {/* SHARED DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -28,24 +42,7 @@ export default function AppRouter() {
           }
         />
 
-        {/* <Route
-          path="/sessions/:id"
-          element={
-            <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
-              <SessionsTests />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/sessions-test"
-          element={
-            <ProtectedRoute allowedRoles={["user"]}>
-              <Sessions />
-            </ProtectedRoute>
-          }
-        /> */}
-
+        {/* USER ROUTES */}
         <Route
           path="/user/projects"
           element={
@@ -64,15 +61,7 @@ export default function AppRouter() {
           }
         />
 
-        {/* <Route
-          path="/admin/sessions"
-          element={
-            <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
-              <AdminSessions />
-            </ProtectedRoute>
-          }
-        /> */}
-
+        {/* ADMIN + SUPERADMIN ROUTES */}
         <Route
           path="/admin/projects"
           element={
@@ -94,15 +83,13 @@ export default function AppRouter() {
         <Route
           path="/admin/projects/:id/checklist"
           element={
-            <ProtectedRoute allowedRoles={["superadmin","admin"]}>
+            <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
               <CheckList />
             </ProtectedRoute>
           }
         />
 
-
-        <Route path="/user/checkList" element={<Navigate to="/user/checklists" replace />} />
-
+        {/* SUPERADMIN ONLY */}
         <Route
           path="/admin/users"
           element={
@@ -112,7 +99,39 @@ export default function AppRouter() {
           }
         />
 
+        {/* FUTURE SESSIONS */}
+        {/*
+        <Route
+          path="/sessions/:id"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
+              <SessionsTests />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/sessions"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
+              <AdminSessions />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/sessions-test"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <Sessions />
+            </ProtectedRoute>
+          }
+        />
+        */}
+
+        {/* FALLBACK */}
         <Route path="*" element={<NotFound />} />
+
       </Routes>
     </BrowserRouter>
   );
