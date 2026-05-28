@@ -35,6 +35,10 @@
     {
       "name": "test-sessions",
       "description": "Creazione e gestione delle sessioni di test"
+    },
+    {
+      "name": "test-results",
+      "description": "Lettura e aggiornamento dei risultati delle sessioni di test"
     }
   ],
   "paths": {
@@ -2992,7 +2996,7 @@
       "post": {
         "tags": ["test-sessions"],
         "summary": "Crea una nuova sessione di test",
-        "description": "Crea una nuova sessione di test per un progetto. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "description": "Crea una nuova sessione di test per un progetto e prepara i risultati iniziali degli item della checklist. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
           {
             "bearerAuth": []
@@ -3111,115 +3115,6 @@
       }
     },
     "/api/test-sessions/{id}": {
-      "get": {
-        "tags": ["test-sessions"],
-        "summary": "Ottieni una sessione di test per ID",
-        "description": "Restituisce i dettagli di una sessione di test specifica tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID della sessione di test",
-            "example": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sessione di test restituita correttamente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "example": {
-                  "id": 1,
-                  "project_id": 1,
-                  "user_id": 2,
-                  "status": "in progress",
-                  "started_at": "2026-05-28T10:00:00Z",
-                  "completed_at": null
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "ID sessione non valido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "ID sessione non valido"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token mancante o non valido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "message": "Token mancante o formato non valido"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Accesso non consentito",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Accesso non consentito"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Sessione di test non trovata o permessi insufficienti",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Sessione di test non trovata o permessi insufficienti"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Errore del server",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Errore interno del server",
-                  "details": "Internal error"
-                }
-              }
-            }
-          }
-        }
-      },
       "delete": {
         "tags": ["test-sessions"],
         "summary": "Elimina una sessione di test",
@@ -3513,6 +3408,305 @@
                 },
                 "example": {
                   "error": "Sessione di test non trovata o permessi insufficienti"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-results/session/{sessionId}": {
+      "get": {
+        "tags": ["test-results"],
+        "summary": "Ottieni risultati e item di una sessione",
+        "description": "Restituisce la sessione di test e tutti gli item della checklist con il relativo stato salvato in test_result. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della sessione di test",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessione e risultati restituiti correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                      }
+                    }
+                  },
+                  "required": ["session", "items"]
+                },
+                "example": {
+                  "session": {
+                    "id": 1,
+                    "project_id": 1,
+                    "user_id": 2,
+                    "status": "In corso",
+                    "started_at": "2026-05-28T10:00:00Z",
+                    "completed_at": null
+                  },
+                  "items": [
+                    {
+                      "checklist_item_id": 10,
+                      "template_id": 3,
+                      "description": "Verificare login",
+                      "position": 1,
+                      "test_result_id": 55,
+                      "is_tested": 1,
+                      "outcome": "Positivo",
+                      "note": "Tutto ok"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso non consentito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso non consentito"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sessione di test non trovata o permessi insufficienti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Sessione di test non trovata o permessi insufficienti"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Errore interno del server",
+                  "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-results/session/{sessionId}/item/{itemId}": {
+      "patch": {
+        "tags": ["test-results"],
+        "summary": "Aggiorna il risultato di un item della sessione",
+        "description": "Aggiorna lo stato di test, l'esito e la nota di un singolo item all'interno di una sessione di test. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della sessione di test",
+            "example": 1
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dell'item della checklist",
+            "example": 10
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "is_tested": {
+                    "type": ["boolean", "integer", "string"],
+                    "example": true
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "enum": ["Positivo", "Negativo"],
+                    "example": "Positivo"
+                  },
+                  "note": {
+                    "type": "string",
+                    "example": "Verifica completata correttamente"
+                  }
+                }
+              },
+              "example": {
+                "is_tested": true,
+                "outcome": "Positivo",
+                "note": "Verifica completata correttamente"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Risultato aggiornato correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "example": {
+                  "id": 55,
+                  "session_id": 1,
+                  "checklist_item_id": 10,
+                  "is_tested": 1,
+                  "outcome": "Positivo",
+                  "note": "Verifica completata correttamente"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dati mancanti o non validi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingData": {
+                    "value": {
+                      "error": "Nessun dato da aggiornare"
+                    }
+                  },
+                  "invalidOutcome": {
+                    "value": {
+                      "error": "Esito non valido"
+                    }
+                  },
+                  "invalidUpdate": {
+                    "value": {
+                      "error": "Nessun dato valido da aggiornare"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso non consentito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso non consentito"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sessione o item non trovati",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "session": {
+                    "value": {
+                      "error": "Sessione di test non trovata o permessi insufficienti"
+                    }
+                  },
+                  "item": {
+                    "value": {
+                      "error": "Item della checklist non trovato nella sessione"
+                    }
+                  }
                 }
               }
             }
