@@ -9,9 +9,48 @@ const { route } = require("express/lib/application");
 router.get("/", checkUser, (req, res) => {
   if (req.user.role === "superadmin") {
     return db
-      .execute("SELECT id, name, description, status, created_by FROM project")
+      .execute(
+        `SELECT 
+        p.id, p.name, p.description, p.status, p.created_by,
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
+       FROM project p
+       JOIN user u ON p.created_by = u.id
+       LEFT JOIN project_assignment pa ON p.id = pa.project_id
+       LEFT JOIN user tu ON pa.user_id = tu.id`,
+      )
       .then(([results]) => {
-        return res.status(200).json(results);
+        const projectMap = new Map();
+
+        results.forEach((row) => {
+          if (!projectMap.has(row.id)) {
+            projectMap.set(row.id, {
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              created_by: {
+                id: row.created_by,
+                nome: row.creator_nome,
+                cognome: row.creator_cognome,
+                email: row.creator_email,
+              },
+              user_list: [],
+            });
+          }
+
+          if (row.tester_id) {
+            projectMap.get(row.id).user_list.push({
+              id: row.tester_id,
+              nome: row.tester_nome,
+              cognome: row.tester_cognome,
+              email: row.tester_email,
+            });
+          }
+        });
+
+        const projects = Array.from(projectMap.values());
+        return res.status(200).json(projects);
       })
       .catch((err) => {
         return res
@@ -21,11 +60,49 @@ router.get("/", checkUser, (req, res) => {
   } else if (req.user.role === "admin") {
     return db
       .execute(
-        "SELECT id, name, description, status, created_by FROM project WHERE created_by = ?;",
+        `SELECT 
+        p.id, p.name, p.description, p.status, p.created_by,
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
+       FROM project p
+       JOIN user u ON p.created_by = u.id
+       LEFT JOIN project_assignment pa ON p.id = pa.project_id
+       LEFT JOIN user tu ON pa.user_id = tu.id
+       WHERE p.created_by = ?`,
         [req.user.id],
       )
       .then(([results]) => {
-        return res.status(200).json(results);
+        const projectMap = new Map();
+
+        results.forEach((row) => {
+          if (!projectMap.has(row.id)) {
+            projectMap.set(row.id, {
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              created_by: {
+                id: row.created_by,
+                nome: row.creator_nome,
+                cognome: row.creator_cognome,
+                email: row.creator_email,
+              },
+              user_list: [],
+            });
+          }
+
+          if (row.tester_id) {
+            projectMap.get(row.id).user_list.push({
+              id: row.tester_id,
+              nome: row.tester_nome,
+              cognome: row.tester_cognome,
+              email: row.tester_email,
+            });
+          }
+        });
+
+        const projects = Array.from(projectMap.values());
+        return res.status(200).json(projects);
       })
       .catch((err) => {
         return res
@@ -35,11 +112,24 @@ router.get("/", checkUser, (req, res) => {
   } else if (req.user.role === "user") {
     return db
       .execute(
-        "SELECT p.id, p.name, p.description, p.status, p.created_by FROM project p JOIN project_assignment pa ON p.id = pa.project_id WHERE pa.user_id = ?;",
+        "SELECT p.id, p.name, p.description, p.status, p.created_by, u.nome, u.cognome, u.email FROM project p JOIN project_assignment pa ON p.id = pa.project_id JOIN user u ON p.created_by = u.id WHERE pa.user_id = ?;",
         [req.user.id],
       )
       .then(([results]) => {
-        return res.status(200).json(results);
+        const projects = results.map((row) => ({
+          id: row.id,
+          name: row.name,
+          description: row.description,
+          status: row.status,
+          created_by: {
+            id: row.created_by,
+            nome: row.nome,
+            cognome: row.cognome,
+            email: row.email,
+          },
+        }));
+
+        return res.status(200).json(projects);
       })
       .catch((err) => {
         return res
@@ -87,14 +177,49 @@ router.get("/:id", checkUser, (req, res) => {
   if (req.user.role === "superadmin") {
     return db
       .execute(
-        "SELECT id, name, description, status, created_by FROM project WHERE id = ?;",
+        `SELECT 
+        p.id, p.name, p.description, p.status, p.created_by,
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
+       FROM project p
+       JOIN user u ON p.created_by = u.id
+       LEFT JOIN project_assignment pa ON p.id = pa.project_id
+       LEFT JOIN user tu ON pa.user_id = tu.id
+       WHERE p.id = ?`,
         [projectId],
       )
       .then(([results]) => {
-        if (results.length === 0) {
-          return res.status(404).json({ error: "Project not found" });
-        }
-        return res.status(200).json(results[0]);
+        const projectMap = new Map();
+
+        results.forEach((row) => {
+          if (!projectMap.has(row.id)) {
+            projectMap.set(row.id, {
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              created_by: {
+                id: row.created_by,
+                nome: row.creator_nome,
+                cognome: row.creator_cognome,
+                email: row.creator_email,
+              },
+              user_list: [],
+            });
+          }
+
+          if (row.tester_id) {
+            projectMap.get(row.id).user_list.push({
+              id: row.tester_id,
+              nome: row.tester_nome,
+              cognome: row.tester_cognome,
+              email: row.tester_email,
+            });
+          }
+        });
+
+        const projects = Array.from(projectMap.values());
+        return res.status(200).json(projects);
       })
       .catch((err) => {
         return res
@@ -104,14 +229,49 @@ router.get("/:id", checkUser, (req, res) => {
   } else if (req.user.role === "admin") {
     return db
       .execute(
-        "SELECT id, name, description, status, created_by FROM project WHERE id = ? AND created_by = ?;",
+        `SELECT 
+        p.id, p.name, p.description, p.status, p.created_by,
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
+       FROM project p
+       JOIN user u ON p.created_by = u.id
+       LEFT JOIN project_assignment pa ON p.id = pa.project_id
+       LEFT JOIN user tu ON pa.user_id = tu.id
+       WHERE p.id = ? AND p.created_by = ?`,
         [projectId, req.user.id],
       )
       .then(([results]) => {
-        if (results.length === 0) {
-          return res.status(404).json({ error: "Project not found" });
-        }
-        return res.status(200).json(results[0]);
+        const projectMap = new Map();
+
+        results.forEach((row) => {
+          if (!projectMap.has(row.id)) {
+            projectMap.set(row.id, {
+              id: row.id,
+              name: row.name,
+              description: row.description,
+              status: row.status,
+              created_by: {
+                id: row.created_by,
+                nome: row.creator_nome,
+                cognome: row.creator_cognome,
+                email: row.creator_email,
+              },
+              user_list: [],
+            });
+          }
+
+          if (row.tester_id) {
+            projectMap.get(row.id).user_list.push({
+              id: row.tester_id,
+              nome: row.tester_nome,
+              cognome: row.tester_cognome,
+              email: row.tester_email,
+            });
+          }
+        });
+
+        const projects = Array.from(projectMap.values());
+        return res.status(200).json(projects);
       })
       .catch((err) => {
         return res
@@ -121,14 +281,30 @@ router.get("/:id", checkUser, (req, res) => {
   } else if (req.user.role === "user") {
     return db
       .execute(
-        "SELECT p.id, p.name, p.description, p.status, p.created_by FROM project p JOIN project_assignment pa ON p.id = pa.project_id WHERE p.id = ? AND pa.user_id = ?;",
+        `SELECT 
+        p.id, p.name, p.description, p.status, p.created_by,
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email 
+        FROM project p JOIN project_assignment pa ON p.id = pa.project_id 
+        WHERE p.id = ? AND pa.user_id = ?`,
         [projectId, req.user.id],
       )
       .then(([results]) => {
         if (results.length === 0) {
           return res.status(404).json({ error: "Project not found" });
         }
-        return res.status(200).json(results[0]);
+        const project = {
+          id: results[0].id,
+          name: results[0].name,
+          description: results[0].description,
+          status: results[0].status,
+          created_by: {
+            id: results[0].created_by,
+            nome: results[0].creator_nome,
+            cognome: results[0].creator_cognome,
+            email: results[0].creator_email,
+          },
+        };
+        return res.status(200).json(project);
       })
       .catch((err) => {
         return res
