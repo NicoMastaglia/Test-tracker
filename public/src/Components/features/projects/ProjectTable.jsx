@@ -80,7 +80,7 @@ const ProjectTable = ({ data, users = [] }) => {
   
 
   const openEditDialog = (project) => {
-    if (!isAdmin) return;
+    if (!isAdmin && !isSuperadmin) return;
     setEditingProject(project);
     setEditForm({
       name: project.name ?? "",
@@ -89,7 +89,7 @@ const ProjectTable = ({ data, users = [] }) => {
   };
 
   const handleUpdateProject = async () => {
-    if (!isAdmin) {
+    if (!isAdmin && !isSuperadmin) {
       toast.error("Solo admin puo modificare un progetto");
       return;
     }
@@ -129,14 +129,14 @@ const ProjectTable = ({ data, users = [] }) => {
   };
 
   const openStatusDialog = (project) => {
-    if (!isAdmin) return;
+    if (!isAdmin && !isSuperadmin) return;
     setStatusProject(project);
     setStatusValue(project.status ?? "Attivo");
   };
 
   const handleUpdateStatus = async () => {
-    if (!isAdmin) {
-      toast.error("Solo admin puo aggiornare lo stato del progetto");
+    if (!isAdmin && !isSuperadmin) {
+      toast.error("Solo admin o superadmin possono aggiornare lo stato del progetto");
       return;
     }
 
@@ -153,7 +153,7 @@ const ProjectTable = ({ data, users = [] }) => {
   };
 
   const openAssignDialog = async (project) => {
-    if (!isAdmin) return;
+    if (!isAdmin && !isSuperadmin) return;
     try {
       await fetchProjectDetails(project.id);
     } catch (err) {
@@ -164,8 +164,8 @@ const ProjectTable = ({ data, users = [] }) => {
   };
 
   const handleAssignUser = async () => {
-    if (!isAdmin) {
-      toast.error("Solo admin puo assegnare utenti al progetto");
+    if (!isAdmin && !isSuperadmin) {
+      toast.error("Solo admin o superadmin possono assegnare utenti al progetto");
       return;
     }
 
@@ -186,7 +186,7 @@ const ProjectTable = ({ data, users = [] }) => {
   };
 
   const handleUnassignUser = async () => {
-    if (!isAdmin) {
+    if (!isAdmin && !isSuperadmin) {
       toast.error("Solo admin puo rimuovere utenti dal progetto");
       return;
     }
