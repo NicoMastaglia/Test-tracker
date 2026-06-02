@@ -15,15 +15,15 @@ export const  getCurrentUser =async (token) =>{
 }
 
 export  const updateCurrentUser = async(token,userData) =>{
-
+ console.log("Dati inviati per l'aggiornamento del profilo:", userData)
     const response = await axios.put(`${baseUrl}/api/users/me`,userData,authConfig(token))
     return response.data
 }
 
-export  const updateCurrentUserPassword = async(token,currentPassword,newPassword) =>{
+export  const updateCurrentUserPassword = async(token,Oldpassword,Newpassword) =>{
 
 
-    const response = await axios.patch(`${baseUrl}/api/users/me/password`,{currentPassword,newPassword},authConfig(token))
+    const response = await axios.patch(`${baseUrl}/api/users/me/password`,{Oldpassword,Newpassword},authConfig(token))
     return response.data
 }
 
@@ -62,10 +62,10 @@ export const updateUserRoleById = async (token,userId,newRole) =>{
 
 }
 
-export const updateUserPasswordById = async (token,userId,newPassword) =>{
+export const updateUserPasswordById = async (token,userId,Newpassword) =>{
 
 
-    const response = await axios.patch(`${baseUrl}/api/users/${userId}/password`,{newPassword},authConfig(token))
+    const response = await axios.patch(`${baseUrl}/api/users/${userId}/password`,{Newpassword},authConfig(token))
 
     
     return response.data 

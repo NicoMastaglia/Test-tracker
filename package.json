@@ -4,7 +4,8 @@
   "description": "Documentazione dell'API Test Tracker",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "dev:all": "concurrently \"npm run start\" \"npm --prefix public run dev\""
   },
   "keywords": [
     "api",
@@ -24,6 +25,7 @@
     "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "concurrently": "^8.2.0"
   }
 }

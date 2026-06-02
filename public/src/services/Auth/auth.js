@@ -4,6 +4,7 @@ import {baseUrl, authConfig} from '../config';
 export const loginUser = async (email, password) => {
     try {
         const response = await axios.post(`${baseUrl}/api/auth/login`, { email, password });
+    
         return response.data;
     } catch (error) {
         console.error("Login failed:", error.response?.data || error.message);

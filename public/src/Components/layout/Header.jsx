@@ -30,6 +30,10 @@ const Header = ({ user, page }) => {
           ? "Visualizza e gestisci i task della tua checklist."
           : "Crea, modifica e assegna task alla checklist.",
     },
+    settings: {
+      title: () => "Impostazioni Account",
+      subtitle: () => "Gestisci le impostazioni del tuo account.",
+    },
   };
 
   const currentConfig = headerConfig[page] || headerConfig["dashboard"];

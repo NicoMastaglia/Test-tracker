@@ -8,7 +8,8 @@ import {
   CheckCircle,
   Terminal,      // Icona per l'ambiente User
   ShieldAlert,   // Icona per l'ambiente Superadmin
-  Briefcase      // Icona per l'ambiente Admin standard
+  Briefcase,
+  Settings    // Icona per l'ambiente Admin standard
 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuthContext } from "../../context/Auth/AuthContext"
@@ -62,6 +63,7 @@ const menuItemsByRole = {
     { text: "My Sessions", path: "/sessions-test", icon: CheckCircle },
     { text: "My Projects", path: "/user/projects", icon: Folder },
     { text: "Checklist", path: "/user/checklists", icon: CheckCircle },
+    {text: 'Impostazioni account', path: "/settings", icon: Settings}
   ],
   admin: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
@@ -69,13 +71,16 @@ const menuItemsByRole = {
     { text: "Projects", path: "/admin/projects", icon: Folder },
     { text: "Team", path: "/admin/team", icon: Users },
     { text: "Checklist", path: "/admin/checklists", icon: CheckCircle },
+    {text: 'Impostazioni account', path: "/settings", icon: Settings}
   ],
   superadmin: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
     { text: "Projects", path: "/admin/projects", icon: Folder },
     { text: "Users", path: "/admin/users", icon: Users },
     { text: "Audit Log", path: "/admin/audit-log", icon: ShieldAlert },
+    { text: "Impostazioni  ", path: "/settings", icon: Settings },
   ],
+ 
 }
 
 export default function AppSidebar() {
@@ -190,6 +195,22 @@ export default function AppSidebar() {
       {/* FOOTER: DISCONNESSIONE UTENTE */}
       <SidebarFooter className="p-2 bg-transparent">
         <SidebarMenu>
+          {/* <SidebarMenuItem>
+              <SidebarMenuButton 
+              onClick={()=>navigate("/settings")}
+              tooltip="Impostazioni account"
+              className="w-full text-[#F5F7FA] hover:bg-slate-500/15 hover:text-slate-300 py-2 h-9 rounded-lg transition-colors"
+              >
+
+                <div className="flex items-center w-full gap-3 px-2.5">
+                  <Settings className="w-4 h-4 text-[#94A3B8] shrink-0" />
+                   <span className="group-data-[collapsible=icon]:hidden text-sm text-[#F5F7FA]">Impostazioni</span>
+                </div>
+              </SidebarMenuButton>
+                
+              
+           
+          </SidebarMenuItem> */}
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={()=>setDeleteConfirmOpen(true)}

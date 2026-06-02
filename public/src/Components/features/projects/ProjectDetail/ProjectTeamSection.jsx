@@ -13,11 +13,15 @@ const ProjectTeamSection = ({
     fetchProjectDetails,
     onRemoveUser,
 }) => {
-    const availableUsers = (users || []).filter((u) => {
-        const assigned = projectAssignedUsers.some((au) => Number(au.id ?? au.user_id) === Number(u.id));
-        return !assigned;
-    });
-
+    // filtriamo gli utenti per mostrare solo quelli non ancora assegnati al progetto 
+    // e solo utenti user 
+    const availableUsers =  users.filter(u => 
+        !projectAssignedUsers.some(assigned => assigned.id === u.id || assigned.user_id === u.id) && 
+        u.role === "user"
+    );
+     
+  
+    console.log("Available users for assignment:", availableUsers);
     return (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">

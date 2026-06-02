@@ -1,5 +1,5 @@
-import { SidebarProvider, SidebarInset} from "@/Components/ui/sidebar"; // Importa i componenti Shadcn
-import AppSidebar from "./Sidebar"; // La tua nuova Sidebar (quella che abbiamo scritto prima)
+import { SidebarProvider, SidebarInset} from "@/Components/ui/sidebar"; 
+import AppSidebar from "./Sidebar"; 
 import Header from "./Header";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { TooltipProvider } from "../ui/tooltip";

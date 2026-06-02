@@ -14,7 +14,7 @@ import CheckList from "@/pages/shared/CheckList";
 import ProjectDetail from "@/Components/features/projects/ProjectDetail/ProjectDetail";
 
 import NotFound from "@/pages/auth/NotFound";
-
+import Settings from "@/pages/shared/Settings";
 // import Sessions from "../pages/Sessions";
 // import AdminSessions from "../pages/AdminSessions";
 // import SessionsTests from "../pages/SessionsTests";
@@ -41,6 +41,17 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+
+
 
         {/* USER ROUTES */}
         <Route
