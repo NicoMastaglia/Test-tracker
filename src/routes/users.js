@@ -65,7 +65,14 @@ router.put("/me", checkUser, async (req, res) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json({ message: "Data updated successfully" });
+      res.status(200).json({
+        message: "Data updated successfully",
+        data: {
+          name: nome,
+          surname: cognome,
+          email: email,
+        },
+      });
     })
     .catch((err) => {
       res.status(500).json({ message: "Server error", specific: err.message });
@@ -140,7 +147,14 @@ router.put("/:id", checkSuperadmin, async (req, res) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.status(200).json({ message: "Data updated successfully" });
+      res.status(200).json({
+        message: "Data updated successfully",
+        data: {
+          name: name,
+          surname: surname,
+          email: email,
+        },
+      });
     })
     .catch((err) => {
       res.status(500).json({ message: "Server error", specific: err.message });
