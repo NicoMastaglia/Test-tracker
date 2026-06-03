@@ -109,7 +109,6 @@ export const AuthProvider = ({ children }) => {
             isAuthenticated: state.isAuthenticated,
             loading: state.loading,
             error: state.error,
-
             login,
             logoutUser,
             syncCurrentUser

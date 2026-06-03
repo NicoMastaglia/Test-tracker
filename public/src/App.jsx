@@ -1,4 +1,4 @@
-import AppRouter from './Router/AppRouter.jsx'
+import AppRouter from './pages/user/Router/AppRouter.jsx'
 import './App.css'
 import {users,projects,sessions} from './fake_data/data.js'
 import {useState,useEffect} from "react";

@@ -10,8 +10,9 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { ClipboardList, ListTodo } from "lucide-react";
-
+import {useAuthContext} from "@/context/Auth/AuthContext";
 const ChecklistInfoCard = ({ checklistItems = [], project, onCreateChecklist }) => {
+  const {user} = useAuthContext();
   const activeChecklist = checklistItems?.[0] ?? null;
   const taskItems =
     activeChecklist?.tasks ?? activeChecklist?.items ?? activeChecklist?.checklist_items ?? [];
@@ -23,15 +24,28 @@ const ChecklistInfoCard = ({ checklistItems = [], project, onCreateChecklist }) 
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
             <ClipboardList className="h-7 w-7" />
           </div>
+
+          
           <div className="space-y-2">
-            <h2 className="text-lg font-semibold text-slate-900">Nessuna checklist trovata</h2>
-            <p className="max-w-md text-sm leading-6 text-slate-500">
-              Crea un template checklist per questo progetto: dopo la creazione il pulsante Add Task si abiliterà.
-            </p>
+            {user.role === "user" ? (
+              <>
+                <h2 className="text-lg font-semibold text-slate-900">Nessuna checklist assegnata</h2>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold text-slate-900">Nessuna checklist trovata</h2>
+                <p className="max-w-md text-sm leading-6 text-slate-500">
+                  Crea un template checklist per questo progetto: dopo la creazione il pulsante Add Task si abiliterà.
+                </p>
+                <Button onClick={onCreateChecklist} className="bg-emerald-600 text-white hover:bg-emerald-700">
+                  Crea template checklist
+                </Button>
+              </>
+            )}
           </div>
-          <Button onClick={onCreateChecklist} className="bg-emerald-600 text-white hover:bg-emerald-700">
-            Crea template checklist
-          </Button>
+
+
+          
         </div>
       </div>
     );

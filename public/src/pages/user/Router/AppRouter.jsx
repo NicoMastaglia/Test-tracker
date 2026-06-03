@@ -1,20 +1,20 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 
-import Login from "../pages/Login";
-import DashBoard from "../pages/Dashboard";
+import Login from "@/pages/auth/Login";
+import DashBoard from "@/pages/shared/Dashboard";
 
-import Users from "../pages/Users";
+import Users from "@/pages/admin/Users";
 
-import AdminProjects from "../pages/AdminProjects";
-import UserProject from "../pages/UserProject";
+import AdminProjects from "@/pages/admin/AdminProjects";
+import UserProject from "@/pages/user/UserProject";
 
-import CheckList from "@/pages/CheckList";
+import CheckList from "@/pages/shared/CheckList";
 
-import ProjectDetail from "@/Components/features/projects/ProjectDetail";
+import ProjectDetail from "@/Components/features/projects/ProjectDetail/ProjectDetail";
 
-import NotFound from "@/pages/NotFound";
-
+import NotFound from "@/pages/auth/NotFound";
+import Settings from "@/pages/shared/Settings";
 // import Sessions from "../pages/Sessions";
 // import AdminSessions from "../pages/AdminSessions";
 // import SessionsTests from "../pages/SessionsTests";
@@ -41,6 +41,17 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+
+
 
         {/* USER ROUTES */}
         <Route

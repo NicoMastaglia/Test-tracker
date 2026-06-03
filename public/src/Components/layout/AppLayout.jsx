@@ -1,9 +1,9 @@
-import { SidebarProvider, SidebarInset} from "@/Components/ui/sidebar"; // Importa i componenti Shadcn
-import AppSidebar from "./Sidebar"; // La tua nuova Sidebar (quella che abbiamo scritto prima)
+import { SidebarProvider, SidebarInset} from "@/Components/ui/sidebar"; 
+import AppSidebar from "./Sidebar"; 
 import Header from "./Header";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { TooltipProvider } from "../ui/tooltip";
-const AppLayout = ({ children, page }) => {
+const AppLayout = ({ children, page, hideHeader = false }) => {
   const { user } = useAuthContext();
 
   return (
@@ -18,7 +18,7 @@ const AppLayout = ({ children, page }) => {
        
         <SidebarInset className="flex flex-col flex-1 bg-slate-50">
           {/*  Header */}
-          <Header user={user} page={page} />
+          {!hideHeader && <Header user={user} page={page} />}
 
           {/* Il contenuto della pagina */}
           <main className="p-4 md:p-6">
