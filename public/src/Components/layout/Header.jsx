@@ -61,7 +61,7 @@ const Header = ({ user, page }) => {
         </h1>
        
         <p className="mt-1 text-xs md:text-sm text-slate-400 font-medium tracking-wide">
-          {currentConfig.subtitle(user)}
+          {currentConfig.subtitle(user)} 
         </p>
       </div>
     </header>

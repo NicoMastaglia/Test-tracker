@@ -36,7 +36,7 @@ const StandardTable = ({
 
         <TableBody>
           {data && data.length > 0 ? (
-            data.map((item) => renderRow ? renderRow(item) : null)
+            data.map((item, idx) => renderRow ? renderRow(item, idx) : null)
           ) : (
             <TableRow>
               <TableCell colSpan={Math.max(headers.length, 1)} className="h-24 text-center text-slate-500">

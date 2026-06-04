@@ -9,7 +9,7 @@ import Users from "@/pages/admin/Users";
 import AdminProjects from "@/pages/admin/AdminProjects";
 import UserProject from "@/pages/user/UserProject";
 
-import CheckList from "@/pages/shared/CheckList";
+import CheckListDetail from "@/pages/shared/CheckListDetail";
 
 import ProjectDetail from "@/Components/features/projects/ProjectDetail/ProjectDetail";
 
@@ -63,14 +63,15 @@ export default function AppRouter() {
           }
         />
 
-        <Route
-          path="/user/checklists"
-          element={
-            <ProtectedRoute allowedRoles={["user"]}>
-              <CheckList />
-            </ProtectedRoute>
-          }
-        />
+
+<Route
+  path="/user/projects/:id"
+  element={
+    <ProtectedRoute allowedRoles={["user"]}>
+      <ProjectDetail />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ADMIN + SUPERADMIN ROUTES */}
         <Route
@@ -91,11 +92,22 @@ export default function AppRouter() {
           }
         />
 
-        <Route
-          path="/admin/projects/:id/checklist"
+
+<Route
+          path="/admin/projects/:id/checklist/:checklistId"
           element={
             <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
-              <CheckList />
+              <CheckListDetail />
+            </ProtectedRoute>
+          }
+        />
+
+
+<Route
+          path="/user/projects/:id/checklist/:checklistId"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <CheckListDetail />
             </ProtectedRoute>
           }
         />

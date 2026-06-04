@@ -1,7 +1,9 @@
 import { createContext, useContext, useReducer, useRef } from "react";
 import { getToken } from "@/services/config";
-import { createCheckList, deleteCheckList as deleteCheckListApi, 
-    getCheckListsByProject, updateCheckList as updateCheckListApi } from "@/services/CheckList/checkList";
+import { createCheckList, deleteCheckList as deleteCheckListApi,
+    getCheckListsByProject, updateCheckList as updateCheckListApi,
+    addCheckListItem as addCheckListItemApi, updateCheckListItem as updateCheckListItemApi,
+    deleteCheckListItem as deleteCheckListItemApi } from "@/services/CheckList/checkList";
 import { checkListReducer, initialState } from "./CheckListReducer";
 import { useProjectContext } from "../Project/ProjectContext";
 
@@ -56,40 +58,7 @@ const normalizeCheckListRow = (row) => ({
 
 }
 
-// const fetchCheckListsByProjects = async (projectIds = []) => {
-//     const uniqueProjectIds = [...new Set(projectIds.map((projectId) => Number(projectId)).filter(Boolean))];
 
-//     if (uniqueProjectIds.length === 0) {
-//         dispatch({ type: 'SET_CHECKLIST_ITEMS', payload: [] });
-//         return [];
-//     }
-
-//     dispatch({ type: 'SET_LOADING' });
-
-//     try {
-//         const token = getToken();
-//         const results = await Promise.allSettled(
-//             uniqueProjectIds.map((projectId) => getCheckListsByProject(token, projectId))
-//         );
-
-//         const combined = results
-//             .filter((result) => result.status === 'fulfilled')
-//             .flatMap((result) => (Array.isArray(result.value) ? result.value : []))
-//             .map(normalizeCheckListRow);
-
-//         const uniqueById = new Map();
-//         combined.forEach((item) => {
-//             uniqueById.set(item.id, item);
-//         });
-
-//         const checklistItems = [...uniqueById.values()];
-//         dispatch({ type: 'SET_CHECKLIST_ITEMS', payload: checklistItems });
-//         return checklistItems;
-//     } catch (error) {
-//         dispatch({ type: 'SET_ERROR', payload: error.message });
-//         return [];
-//     }
-// };
 
 
 const removeCheckList = async (checkListId) => {
@@ -99,7 +68,7 @@ const removeCheckList = async (checkListId) => {
         const token = getToken()
         await deleteCheckListApi(token,checkListId)
         await fetchProjects()
-        dispatch({type:'DELETE_CHECKLIST_ITEM',payload:checkListId})
+        dispatch({type:'DELETE_CHECKLIST',payload:checkListId})
     }
     catch(error){
         dispatch({type:'SET_ERROR',payload:error.message})
@@ -115,7 +84,7 @@ const updateCheckList = async (checkListId,checkListData) => {
         const token = getToken()
         await updateCheckListApi(token,checkListId,checkListData)
         await fetchProjects()
-        dispatch({type:'UPDATE_CHECKLIST_ITEM',payload:{id:checkListId,data:checkListData}})
+        dispatch({type:'UPDATE_CHECKLIST',payload:{id:checkListId,data:checkListData}})
     }
     catch(error){
         dispatch({type:'SET_ERROR',payload:error.message})
@@ -131,13 +100,60 @@ const addCheckList = async (checkListData) => {
         const token = getToken()
         const newCheckList = await createCheckList(token,checkListData)
         await fetchProjects()
-        dispatch({type:'ADD_CHECKLIST_ITEM',payload:newCheckList})
+        dispatch({type:'ADD_CHECKLIST',payload:newCheckList})
     }
 
     catch(error){
         dispatch({type:'SET_ERROR',payload:error.message})
 
     }
+}
+
+const addCheckListItem = async (templateId, itemData) => {
+    dispatch({type:'SET_LOADING'})
+
+    try {
+        const token = getToken()
+        const newItem = await addCheckListItemApi(token, templateId, itemData)
+        dispatch({type:'ADD_TASK', payload:{templateId, item: newItem}})
+    }
+    catch(error){
+        dispatch({type:'SET_ERROR', payload:error.message})
+    }
+}
+
+const updateCheckListItem = async (itemId, itemData) => {
+    dispatch({type:'SET_LOADING'})
+
+    try {
+        const token = getToken()
+        await updateCheckListItemApi(token, itemId, itemData)
+        dispatch({type:'UPDATE_TASK', payload:{id: itemId, data: itemData}})
+    }
+    catch(error){
+        dispatch({type:'SET_ERROR', payload:error.message})
+    }
+}
+
+const removeCheckListItem = async (itemId) => {
+    dispatch({type:'SET_LOADING'})
+
+    try {
+        const token = getToken()
+        await deleteCheckListItemApi(token, itemId)
+        dispatch({type:'DELETE_TASK', payload:itemId})
+    }
+    catch(error){
+        dispatch({type:'SET_ERROR', payload:error.message})
+    }
+}
+
+const selectChecklist = (checklist) => {
+    dispatch({type:'SET_SELECTED_CHECKLIST', payload: checklist})
+}
+
+const clearChecklist = () => {
+    dispatch({type:'CLEAR_SELECTED_CHECKLIST'})
 }
 
     return (
@@ -148,9 +164,14 @@ const addCheckList = async (checkListData) => {
          selectedChecklist: state.selectedChecklist,
              fetchCheckListsByProject,
             //  fetchCheckListsByProjects,
-         removeCheckList, 
+         removeCheckList,
          updateCheckList,
-          addCheckList }}>
+         addCheckList,
+         addCheckListItem,
+         updateCheckListItem,
+         removeCheckListItem,
+         selectChecklist,
+         clearChecklist }}>
             {children}
         </CheckListContext.Provider>
     );

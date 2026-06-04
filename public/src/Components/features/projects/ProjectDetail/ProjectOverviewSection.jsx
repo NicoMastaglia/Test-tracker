@@ -1,7 +1,7 @@
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 
-const ProjectOverviewSection = ({ projectData, createdByUser, projectInfoItems, onOpenChecklist, statusBadgeClass, formatProjectStatusLabel }) => {
+const ProjectOverviewSection = ({ projectInfoItems, }) => {
     return (
         <div className="space-y-6">
             <div className="grid ">

@@ -21,7 +21,7 @@ const AppLayout = ({ children, page, hideHeader = false }) => {
           {!hideHeader && <Header user={user} page={page} />}
 
           {/* Il contenuto della pagina */}
-          <main className="p-4 md:p-6">
+          <main>
             {children}
           </main>
           

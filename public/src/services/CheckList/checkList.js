@@ -36,3 +36,29 @@ export const getCheckListsByProject = async (token, projectId) => {
 	);
 	return res.data;
 };
+
+export const addCheckListItem = async (token, templateId, itemData) => {
+	const res = await axios.post(
+		`${baseUrl}/api/checklists/${templateId}/item`,
+		itemData,
+		authConfig(token),
+	);
+	return res.data;
+};
+
+export const updateCheckListItem = async (token, itemId, itemData) => {
+	const res = await axios.put(
+		`${baseUrl}/api/checklists/item/${itemId}`,
+		itemData,
+		authConfig(token),
+	);
+	return res.data;
+};
+
+export const deleteCheckListItem = async (token, itemId) => {
+	const res = await axios.delete(
+		`${baseUrl}/api/checklists/item/${itemId}`,
+		authConfig(token),
+	);
+	return res.data;
+};
