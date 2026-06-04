@@ -283,9 +283,10 @@ router.get("/:id", checkUser, (req, res) => {
       .execute(
         `SELECT 
         p.id, p.name, p.description, p.status, p.created_by,
-        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email 
-        FROM project p JOIN project_assignment pa ON p.id = pa.project_id 
-        WHERE p.id = ? AND pa.user_id = ?`,
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email
+       FROM project p
+       JOIN user u ON p.created_by = u.id
+       WHERE p.id = ? AND p.created_by = ?`,
         [projectId, req.user.id],
       )
       .then(([results]) => {
