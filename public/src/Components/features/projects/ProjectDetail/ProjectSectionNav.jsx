@@ -7,11 +7,21 @@ const sectionLabels = {
     activities: "Attività",
 };
 
-const ProjectSectionNav = ({ activeSection, onSectionChange, counts = {} }) => {
+
+const ProjectSectionNav = ({ activeSection, onSectionChange, counts = {},
+isAdmin }) => {
+
+    const visibleSections = isAdmin
+    ? sectionLabels
+    : {
+        overview: "Panoramica",
+        checklist: "Checklist",
+      };
+
     return (
         <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
             <div className="flex flex-wrap gap-2">
-                {Object.entries(sectionLabels).map(([key, label]) => {
+                {Object.entries(visibleSections).map(([key, label]) => {
                     const isActive = activeSection === key;
 
                     return (

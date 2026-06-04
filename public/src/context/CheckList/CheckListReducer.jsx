@@ -38,7 +38,7 @@ export const checkListReducer = (state, action) => {
             loading: false,
         };
     
-    case 'ADD_CHECKLIST_ITEM':
+    case 'ADD_CHECKLIST':
         return {
             ...state,
             checklistItems: [...state.checklistItems, action.payload],
@@ -52,7 +52,7 @@ export const checkListReducer = (state, action) => {
             loading: false,
         };
     
-    case 'UPDATE_CHECKLIST_ITEM':
+    case 'UPDATE_CHECKLIST':
         return {
             ...state,
             checklistItems: state.checklistItems.map(item =>
@@ -61,15 +61,46 @@ export const checkListReducer = (state, action) => {
             loading: false,
         };
     
-    case 'DELETE_CHECKLIST_ITEM':
+    case 'DELETE_CHECKLIST':
         return {
             ...state,
             checklistItems: state.checklistItems.filter(item => item.id !== action.payload),
             loading: false
         }
 
-    
-    
+    case 'ADD_TASK':
+        return {
+            ...state,
+            checklistItems: state.checklistItems.map(checklist =>
+                checklist.id === action.payload.templateId
+                    ? { ...checklist, items: [...(checklist.items ?? []), action.payload.item] }
+                    : checklist
+            ),
+            loading: false,
+        };
+
+    case 'UPDATE_TASK':
+        return {
+            ...state,
+            checklistItems: state.checklistItems.map(checklist => ({
+                ...checklist,
+                items: (checklist.items ?? []).map(item =>
+                    item.id === action.payload.id ? { ...item, ...action.payload.data } : item
+                ),
+            })),
+            loading: false,
+        };
+
+    case 'DELETE_TASK':
+        return {
+            ...state,
+            checklistItems: state.checklistItems.map(checklist => ({
+                ...checklist,
+                items: (checklist.items ?? []).filter(item => item.id !== action.payload),
+            })),
+            loading: false,
+        };
+
     default:
         return state;
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import {
   Table,
   TableBody,
@@ -17,7 +17,14 @@ import {
 } from "@/utils/tableHelpers";
 
 
-const UserProjectsTable = ({ data = [], users = [] }) => {
+
+
+const UserProjectsTable = ({ data = [], handleProjectDetail}) => {
+
+
+  useEffect(() => {
+    console.log("Dati progetti ricevuti:", data);
+  }, [data]);
   return (
     <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <Table>
@@ -33,14 +40,16 @@ const UserProjectsTable = ({ data = [], users = [] }) => {
         <TableBody>
           {data.length > 0 ? (
             data.map((project) => (
-              <TableRow key={project.id} className="group transition-colors hover:bg-slate-50">
+              <TableRow key={project.id} className="group transition-colors hover:bg-slate-50"
+              
+              onClick={() => handleProjectDetail(project.id)}>
                 <TableCell className="font-mono text-xs text-slate-500">#{project.id}</TableCell>
 
                 <TableCell className="text-slate-900">
                   <div className="flex items-center gap-3 justify-center">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
+                    {/* <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
                       {getInitials(project)}
-                    </div>
+                    </div> */}
                     <div className="min-w-0">
                       <p className="font-medium text-slate-900">{project.name}</p>
                       <p className="truncate text-xs text-slate-500">
@@ -60,10 +69,15 @@ const UserProjectsTable = ({ data = [], users = [] }) => {
                 <TableCell className="text-slate-900">
                   <div className="flex items-center gap-3 justify-center">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
-                      {getInitials(users.find((userItem) => Number(userItem.id) === Number(project.created_by)) || { name: "U" })}
+                      {getInitials(project.created_by)}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-slate-900">{getCreatorName(project, users)}</p>
+                      <p className="font-medium text-slate-900">
+                        {project.created_by.nome.slice(0,1).toUpperCase()+project.created_by.nome.slice(1).toLowerCase()}   {project.created_by.cognome.slice(0,1).toUpperCase()+
+                         project.created_by.cognome.slice(1).toLowerCase()}
+
+
+                      </p>
                       <p className="truncate text-xs text-slate-500">Creatore progetto</p>
                     </div>
                   </div>

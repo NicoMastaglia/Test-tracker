@@ -48,7 +48,10 @@ export const ProjectProvider = ({ children }) => {
         try{
             const token = getToken()
             const projectDetails = await getProjectById(token, projectId)
-            dispatch({type:'SET_SELECTED_PROJECT', payload: projectDetails})
+            console.log(projectDetails)
+            // La res del be dovrà diventare un oggetto anche ora usiamo un arr 
+            dispatch({type:'SET_SELECTED_PROJECT', payload: Array.isArray(projectDetails) ? projectDetails[0] : projectDetails})
+            // dispatch({type:'SET_SELECTED_PROJECT', payload: projectDetails})
         } catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})
         }

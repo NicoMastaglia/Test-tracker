@@ -11,7 +11,7 @@ import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { ClipboardList, ListTodo } from "lucide-react";
 import {useAuthContext} from "@/context/Auth/AuthContext";
-const ChecklistInfoCard = ({ checklistItems = [], project, onCreateChecklist }) => {
+const CheckListInfoCard = ({ checklistItems = [],  selectedProject, onCreateChecklist }) => {
   const {user} = useAuthContext();
   const activeChecklist = checklistItems?.[0] ?? null;
   const taskItems =
@@ -34,9 +34,7 @@ const ChecklistInfoCard = ({ checklistItems = [], project, onCreateChecklist }) 
             ) : (
               <>
                 <h2 className="text-lg font-semibold text-slate-900">Nessuna checklist trovata</h2>
-                <p className="max-w-md text-sm leading-6 text-slate-500">
-                  Crea un template checklist per questo progetto: dopo la creazione il pulsante Add Task si abiliterà.
-                </p>
+                
                 <Button onClick={onCreateChecklist} className="bg-emerald-600 text-white hover:bg-emerald-700">
                   Crea template checklist
                 </Button>
@@ -64,14 +62,14 @@ const ChecklistInfoCard = ({ checklistItems = [], project, onCreateChecklist }) 
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Template checklist</p>
                 <h2 className="text-2xl font-bold text-slate-900">{activeChecklist.title}</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Progetto: <span className="font-medium text-slate-700">{project?.name ?? `Project ${activeChecklist.project_id}`}</span>
+                  Progetto: <span className="font-medium text-slate-700">{selectedProject?.name ?? `Project ${activeChecklist.project_id}`}</span>
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <Badge className="border-none bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-                Stato progetto: {project?.status ?? "N/D"}
+                Stato progetto: {selectedProject?.status ?? "N/Dgg"}
               </Badge>
             </div>
           </div>
@@ -85,7 +83,7 @@ const ChecklistInfoCard = ({ checklistItems = [], project, onCreateChecklist }) 
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Progetto</p>
-              <p className="mt-2 text-sm font-medium text-slate-900">{project?.name ?? `Project ${activeChecklist.project_id}`}</p>
+              <p className="mt-2 text-sm font-medium text-slate-900">{selectedProject?.name ?? `Project ${activeChecklist.project_id}`}</p>
             </div>
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Task</p>
@@ -136,4 +134,4 @@ const ChecklistInfoCard = ({ checklistItems = [], project, onCreateChecklist }) 
   );
 };
 
-export default ChecklistInfoCard;
+export default CheckListInfoCard;

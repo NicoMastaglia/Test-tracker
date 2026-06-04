@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import AppLayout from "@/Components/layout/AppLayout";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
@@ -13,7 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
-import { ArrowLeft, CalendarDays, CheckSquare2, Flag, FolderOpen, User, Users2 } from "lucide-react";
+import { ArrowLeft, Flag, FolderOpen } from "lucide-react";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/Components/ui/select";
 import { getFullName, getProjectStatusBadgeClass } from "@/utils/tableHelpers";
@@ -21,10 +21,16 @@ import ProjectSectionNav from "./ProjectSectionNav";
 import ProjectOverviewSection from "./ProjectOverviewSection";
 import ProjectTeamSection from "./ProjectTeamSection";
 import ProjectActivitiesSection from "./ProjectActivitiesSection";
-
+import CheckListSection from "@/Components/features/checkList/CheckListSection";
+import { useCheckListContext } from "@/context/CheckList/CheckListContext";
+import {useAuthContext} from "@/context/Auth/AuthContext";
 const ProjectDetail = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { id: projectId } = useParams();
+    const { user } = useAuthContext();
+    const isAdmin = user?.role !== "user";
+    const { checklistItems } = useCheckListContext();
 
     const { users, fetchUsers } = useUserContext();
     const {
@@ -37,26 +43,28 @@ const ProjectDetail = () => {
     const { assignUserToProject } = useProjectContext();
     const [removeUserTarget, setRemoveUserTarget] = useState(null);
     const [selectedAssignUserId, setSelectedAssignUserId] = useState("");
-    const [activeSection, setActiveSection] = useState("overview");
+    const [activeSection, setActiveSection] = useState(location.state?.section ?? "overview");
 
-    const projectData = Array.isArray(selectedProject) ? selectedProject[0] : selectedProject;
-    const projectAssignedUsers = Array.isArray(projectData?.user_list)
-        ? projectData.user_list
-        : (Array.isArray(projectData?.assigned_users) ? projectData.assigned_users : []);
+
+   
+    const projectAssignedUsers = selectedProject?.user_list || [];
 
     useEffect(() => {
-        if (!projectId) {
-            clearSelectedProject();
-            return;
-        }
+    if (!projectId) {
+        clearSelectedProject();
+        return;
+    }
 
-        fetchProjectDetails(projectId);
+    fetchProjectDetails(projectId);
+
+    if (isAdmin) {
         fetchUsers();
+    }
 
-        return () => {
-            clearSelectedProject();
-        };
-    }, [projectId]);
+    return () => {
+        clearSelectedProject();
+    };
+}, [projectId, isAdmin]);
 
     const handleRemoveAssignedUser = async () => {
         if (!projectId || !selectedProject || !removeUserTarget) return;
@@ -68,19 +76,11 @@ const ProjectDetail = () => {
         } catch (error) {
             // il context aggiorna già lo stato di errore globale
         }
-    };
+    }; 
 
-    const handleManageChecklist = () => {
-        navigate(`/admin/projects/${projectId}/checklist`);
-    };
- 
-    const creatorFromProject = projectData?.created_by && typeof projectData.created_by === "object"
-        ? projectData.created_by
-        : null;
 
-    const createdByUser = creatorFromProject
-        || ((users || []).find((user) => Number(user.id) === Number(projectData?.created_by)) || null);
 
+  
     const formatProjectDate = (value) => {
         if (!value) return "Non disponibile";
 
@@ -93,10 +93,12 @@ const ProjectDetail = () => {
             year: "numeric",
         }).format(parsedDate);
     };
+    
 
+    // La res del be dovrà diventare un oggetto anche  se ora usiamo un arr
     const readProjectValue = (...keys) => {
         for (const key of keys) {
-            const candidate = projectData?.[key];
+            const candidate = selectedProject?.[key];
             if (candidate !== null && candidate !== undefined && String(candidate).trim() !== "") {
                 return candidate;
             }
@@ -126,41 +128,51 @@ const ProjectDetail = () => {
             label: "Scadenza",
             value: formatProjectDate(readProjectValue("scadenza", "deadline", "due_date", "end_date")),
         },
-        {
-            label: "Responsabile",
-            value: createdByUser ? getFullName(createdByUser) : "Non disponibile",
-        },
+        // {
+        //     label: "Responsabile",
+        //     value: createdByUser ? getFullName(createdByUser) : "Non disponibile",
+        // },
     ];
-
+   
     const projectSectionCounts = {
-        checklist: 1,
+        checklist: checklistItems.length,
         team: projectAssignedUsers.length,
         activities: 3,
     };
 
-    const statusLabel = projectData?.status ?? "Unknown";
+    const statusLabel = selectedProject?.status ?? "Unknown";
+    
+    // user ritorna ai suoi progetti
+    const backRoute =
+    user?.role === "user"
+    ? "/user/projects"
+    : "/admin/projects";
+
+
+    
 
         return (
        
                 <AppLayout page="projects" hideHeader>
                     <div className="w-full flex flex-col gap-6 px-6 py-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <Button variant="outline" onClick={() => navigate("/admin/projects")} className="gap-2">
+                <Button variant="outline" onClick={() => navigate(backRoute)} className="gap-2">
                     <ArrowLeft className="h-4 w-4" />
                     Torna ai progetti
                 </Button>
 
-                <Button className="gap-2" onClick={handleManageChecklist}>
+                {/* <Button className="gap-2" onClick={handleManageChecklist}>
                     <CheckSquare2 className="h-4 w-4" />
                     Apri checklist
-                </Button>
+                </Button> */}
+
             </div>
 
-            {loading && !projectData ? (
+            {loading && !selectedProject ? (
                 <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
                     Caricamento dettagli progetto...
                 </div>
-            ) : projectData ? (
+            ) : selectedProject ? (
                 <div className="space-y-6">
                     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                         <div className="border-b border-slate-100 bg-slate-50 px-6 py-5">
@@ -172,23 +184,23 @@ const ProjectDetail = () => {
                                         </div>
                                         <div>
                                             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Project Detail</p>
-                                            <h2 className="text-2xl font-bold text-slate-900">{projectData.name ?? projectData.nome}</h2>
+                                            <h2 className="text-2xl font-bold text-slate-900">{selectedProject.name ?? selectedProject.nome}</h2>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                                        <Badge className={`border-none px-3 py-1 text-xs ${getProjectStatusBadgeClass(projectData.status)}`}>
+                                        <Badge className={`border-none px-3 py-1 text-xs ${getProjectStatusBadgeClass(selectedProject.status)}`}>
                                             <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
-                                            {projectData.status ?? "Unknown"}
+                                            {selectedProject.status ?? "Unknown"}
                                         </Badge>
                                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
-                                            Codice: #{projectData.id}
+                                            Codice: #{selectedProject.id}
                                         </span>
                                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
-                                            Creato da {createdByUser ? getFullName(createdByUser) : "Non disponibile"}
+                                            Creato da {selectedProject.created_by ? getFullName(selectedProject.created_by) : "Non disponibile"}
                                         </span>
                                         <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
-                                            {projectData.description || "Nessuna descrizione disponibile."}
+                                            {selectedProject.description || "Nessuna descrizione disponibile."}
                                         </span>
 
 
@@ -200,33 +212,26 @@ const ProjectDetail = () => {
                         </div>
                     </div>
 
-                    <ProjectSectionNav activeSection={activeSection} onSectionChange={setActiveSection} counts={projectSectionCounts} />
+                    <ProjectSectionNav activeSection={activeSection}
+                     onSectionChange={setActiveSection} counts={projectSectionCounts} 
+                     isAdmin={isAdmin}
+                     />
 
                     {activeSection === "overview" ? (
                         <ProjectOverviewSection
-                            projectData={projectData}
-                            createdByUser={createdByUser ? getFullName(createdByUser) : "Non disponibile"}
+                            projectData={selectedProject}
+                            createdByUser={selectedProject.created_by ? getFullName(selectedProject.created_by) : "Non disponibile"}
                             projectInfoItems={projectInfoItems}
-                            onOpenChecklist={handleManageChecklist}
-                            statusBadgeClass={getProjectStatusBadgeClass(projectData.status)}
+                            onOpenChecklist={() => setActiveSection("checklist")}
+                            statusBadgeClass={getProjectStatusBadgeClass(selectedProject.status)}
                             formatProjectStatusLabel={statusLabel} />
                     ) : null}
 
                     {activeSection === "checklist" ? (
-                        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Checklist</p>
-                            <h3 className="mt-1 text-lg font-semibold text-slate-900">Accesso rapido</h3>
-                            <p className="mt-2 text-sm leading-6 text-slate-600">
-                              Visualizza e gestisci la checklist di questo progetto.
-                            </p>
-                            <Button className="mt-4 gap-2" onClick={handleManageChecklist}>
-                                <CheckSquare2 className="h-4 w-4" />
-                                Apri checklist progetto
-                            </Button>
-                        </div>
+                        <CheckListSection projectId={projectId} isAdmin={isAdmin} />
                     ) : null}
 
-                    {activeSection === "team" ? (
+                    { isAdmin  && activeSection === "team" ? (
                         <ProjectTeamSection
                             users={users}
                             projectAssignedUsers={projectAssignedUsers}
@@ -238,7 +243,7 @@ const ProjectDetail = () => {
                             onRemoveUser={setRemoveUserTarget} />
                     ) : null}
 
-                    {activeSection === "activities" ? <ProjectActivitiesSection /> : null}
+                    { isAdmin  && activeSection === "activities" ? <ProjectActivitiesSection /> : null}
                 </div>
             ) : (
                 <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
@@ -246,6 +251,7 @@ const ProjectDetail = () => {
                 </div>
             )}
             </div>
+
             <Dialog open={!!removeUserTarget} onOpenChange={() => setRemoveUserTarget(null)}>
                 <DialogContent className="sm:max-w-105">
                     <DialogHeader>

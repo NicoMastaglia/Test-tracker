@@ -112,21 +112,12 @@ export const UserProvider = ({ children }) => {
       const token = getToken()
       await updateUserById(token, user_id, userData)
 
-      const currentUser = state.users.find((user) => user.id === user_id) || state.selectedUser || {}
-      const updatedUser = {
-        ...currentUser,
-        id: user_id,
-        name: userData.name ?? userData.nome ?? currentUser.name ?? currentUser.nome ?? "",
-        surname: userData.surname ?? userData.cognome ?? currentUser.surname ?? currentUser.cognome ?? "",
-        email: userData.email ?? currentUser.email ?? "",
-        nome: userData.name ?? userData.nome ?? currentUser.name ?? currentUser.nome ?? "",
-        cognome: userData.surname ?? userData.cognome ?? currentUser.surname ?? currentUser.cognome ?? "",
-      }
+    
 
       // se modifico utente loggato, aggiorno anche localStorage e stato globale per riflettere i cambiamenti
-      dispatch({ type: 'UPDATE_USER', payload: updatedUser })
+      dispatch({ type: 'UPDATE_USER', payload: userData })
       if (currentAuthUser?.id === user_id) {
-        syncCurrentUser(updatedUser)
+        syncCurrentUser(userData)
       }
       await fetchUsers()
       return updatedUser
@@ -195,6 +186,8 @@ export const UserProvider = ({ children }) => {
   const clearSelectedUser = () => {
     dispatch({ type: 'CLEAR_SELECTED_USER' })
   }
+
+   
 
 
   return (

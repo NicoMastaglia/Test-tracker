@@ -101,6 +101,9 @@ export const AuthProvider = ({ children }) => {
       dispatch({type:'SYNC_CURRENT_USER', payload: updatedUser});
     }
 
+    
+
+ 
 
     return (
         <AuthContext.Provider value={{
