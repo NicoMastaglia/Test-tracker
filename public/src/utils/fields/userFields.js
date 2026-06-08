@@ -9,7 +9,7 @@ export  const userFields = [{
     autoComplete: 'new-name',
     required: true
 },{
-    name: 'Cognome',
+    name: 'surname',
     label: 'Cognome',
     placeholder: 'Inserisci il cognome',
     type: 'text',

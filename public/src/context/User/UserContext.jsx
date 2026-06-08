@@ -120,7 +120,7 @@ export const UserProvider = ({ children }) => {
         syncCurrentUser(userData)
       }
       await fetchUsers()
-      return updatedUser
+      return userData
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message })
       throw error

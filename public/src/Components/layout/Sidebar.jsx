@@ -63,7 +63,7 @@ const menuItemsByRole = {
     { text: "My Sessions", path: "/sessions-test", icon: CheckCircle },
     { text: "My Projects", path: "/user/projects", icon: Folder },
     { text: "Checklist", path: "/user/checklists", icon: CheckCircle },
-    {text: 'Impostazioni account', path: "/settings", icon: Settings}
+    {text: 'Impostazioni', path: "/settings", icon: Settings}
   ],
   admin: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
@@ -71,7 +71,7 @@ const menuItemsByRole = {
     { text: "Projects", path: "/admin/projects", icon: Folder },
     { text: "Team", path: "/admin/team", icon: Users },
     { text: "Checklist", path: "/admin/checklists", icon: CheckCircle },
-    {text: 'Impostazioni account', path: "/settings", icon: Settings}
+    {text: 'Impostazioni', path: "/settings", icon: Settings}
   ],
   superadmin: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
@@ -128,7 +128,8 @@ export default function AppSidebar() {
     <Sidebar
       collapsible="icon"
       variant="sidebar"
-      className="text-[#F5F7FA] **:data-[slot=sidebar-inner]:bg-linear-to-b **:data-[slot=sidebar-inner]:from-[#07142B] **:data-[slot=sidebar-inner]:to-[#0B1F45] **:data-[slot=sidebar-inner]:text-[#F5F7FA]"
+      className="text-[#F5F7FA] **:data-[slot=sidebar-inner]:bg-linear-to-b
+       **:data-[slot=sidebar-inner]:from-[#07142B] **:data-[slot=sidebar-inner]:to-[#0B1F45] **:data-[slot=sidebar-inner]:text-[#F5F7FA]"
     >
 
       {/* HEADER: RUOLO DINAMICO */}
