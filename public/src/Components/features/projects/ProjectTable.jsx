@@ -72,7 +72,8 @@ const ProjectTable = ({ data, users = [] }) => {
  
 
 
-  
+  // logica progress è un po' forzata, idealmente dovrebbe essere calcolata lato backend 
+  // e restituita come campo del progetto, ma per ora la metto qui con dati finti
   const calculateProgress = (project_id) => {
     const sessionByProject = sessions.filter(s => s.project_id === project_id);
     if (sessionByProject.length === 0) return 0;
@@ -91,8 +92,11 @@ const ProjectTable = ({ data, users = [] }) => {
       description: project.description ?? "",  
     });
   };
+   
 
+  // modifica nome e descrizione progetto, non lo stato o assegnazioni che hanno dialoghi dedicati, per evitare confusione
   const handleUpdateProject = async () => {
+    console.log(2)
     if (!isAdmin) {
       toast.error("Solo admin puo modificare un progetto");
       return;

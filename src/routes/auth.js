@@ -7,7 +7,7 @@ const { hashPassword, comparePassword } = require("../auth/hash");
 
 const router = express.Router();
 
-router.post("/register", checkSuperadmin, async (req, res) => {
+router.post("/register", async (req, res) => {
   const { name, surname, email, password, role } = req.body;
 
   if (!name || !surname || !email || !password || !role) {
