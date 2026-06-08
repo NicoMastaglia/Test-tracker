@@ -16,8 +16,10 @@ import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 
+
 const renderField = (field, value, updateField) => {
 	switch (field.type) {
+		// props di field = {name, label, placeholder, rows} per textarea
 		case "textarea":
 			return (
 				<Textarea
@@ -30,10 +32,12 @@ const renderField = (field, value, updateField) => {
 				/>
 			);
 		case "select":
+			
+		    // props di field = {name, label, options: [{value, label}]}
 			return (
 				<Select value={value ?? ""} onValueChange={(nextValue) => updateField(field.name, nextValue)}>
 					<SelectTrigger className="w-full">
-						<SelectValue placeholder={field.placeholder ?? `Seleziona ${field.label.toLowerCase()}`} />
+						<SelectValue placeholder={field.placeholder ?? `Seleziona ${field.label?.toLowerCase()}`} />
 					</SelectTrigger>
 					<SelectContent>
 						{field.options?.map((option) => (
@@ -45,6 +49,7 @@ const renderField = (field, value, updateField) => {
 				</Select>
 			);
 		default:
+			// default input type = text, props di field = {name, label, placeholder, autoComplete, required}
 			return (
 				<Input
 					id={field.name}
@@ -67,13 +72,13 @@ const ModalForm = ({
 	infos,
 	fields = [],
 	formData = {},
-	setFormData,
+	setFormData ,
 	onSubmit,
 	onClose,
 	submitLabel = "Salva",
 	cancelLabel = "Annulla",
 	dialogClassName = "sm:max-w-106.25",
-	submitClassName = "bg-emerald-600 text-white hover:bg-emerald-700",
+	submitClassName =  "bg-emerald-600 text-white hover:bg-emerald-700",
 }) => {
 
     
@@ -112,6 +117,7 @@ const ModalForm = ({
 								<Label htmlFor={field.name} className="text-slate-700">
 									{field.label}
 								</Label>
+								
 								{renderField(field, formData[field.name], updateField)}
 								{field.helperText ? <p className="text-xs text-slate-500">{field.helperText}</p> : null}
 							</div>

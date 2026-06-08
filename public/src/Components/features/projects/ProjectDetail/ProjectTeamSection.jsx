@@ -8,9 +8,7 @@ const ProjectTeamSection = ({
     projectAssignedUsers = [],
     selectedAssignUserId,
     setSelectedAssignUserId,
-    projectId,
-    assignUserToProject,
-    fetchProjectDetails,
+    onAssignUser,
     onRemoveUser,
 }) => {
     // filtriamo gli utenti per mostrare solo quelli non ancora assegnati al progetto 
@@ -49,12 +47,7 @@ const ProjectTeamSection = ({
                     </Select>
                     <Button
                         disabled={!selectedAssignUserId}
-                        onClick={async () => {
-                            if (!projectId || !selectedAssignUserId) return;
-                            await assignUserToProject(Number(projectId), Number(selectedAssignUserId));
-                            await fetchProjectDetails(Number(projectId));
-                            setSelectedAssignUserId("");
-                        }}
+                        onClick={onAssignUser}
                         className="shrink-0 sm:w-auto"
                     >
                         Assegna

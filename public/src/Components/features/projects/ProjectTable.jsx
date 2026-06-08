@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/Components/ui/table";
-import { Progress } from "@/Components/ui/progress"; // Componente Shadcn
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
@@ -27,15 +26,32 @@ import {
   SelectValue,
 } from "@/Components/ui/select";
 import { toast } from "sonner";
-import { Pencil, Trash2, UserPlus, Flag, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { sessions } from "../../../fake_data/data";
 import ProjectRow from "./ProjectRow";
-import AssignDialog from "./AssignDialog";
+import ModalForm from "@/utils/ModalForm";
 
-const PROJECT_STATUS_OPTIONS = ["Attivo", "Completato", "In pausa"];
+const PROJECT_STATUS_OPTIONS = ["Attivo", "Completato", "In pausa",'Non iniziato'];
+
+const getAvailableStatuses = (currentStatus) => {
+  switch (currentStatus) {
+    case 'Non iniziato':
+      return ["Attivo"];
+      
+    case "Attivo":
+      return ["Completato", "In pausa"];
+    case "Completato":
+      return ["Attivo", "In pausa"];
+    case "In pausa":
+      return ["Attivo", "Completato"];
+    default:
+      return PROJECT_STATUS_OPTIONS;
+  }
+}
+
 
 const ProjectTable = ({ data, users = [] }) => {
   const { user } = useAuthContext();
@@ -45,65 +61,42 @@ const ProjectTable = ({ data, users = [] }) => {
     updateProject,
     deleteProject,
     updateProjectStatus,
-    assignUserToProject,
-    unAssingUserAssignment,
-    fetchProjectDetails,
-    selectedProject,
-    clearSelectedProject,
-    projects,
-
-
-
   } = useProjectContext();
 
   const [editingProject, setEditingProject] = useState(null);
   const [editForm, setEditForm] = useState({ name: "", description: "" });
   const [statusProject, setStatusProject] = useState(null);
   const [statusValue, setStatusValue] = useState("");
-  const [assignProject, setAssignProject] = useState(null);
-  const [selectedUserId, setSelectedUserId] = useState("");
   const [deleteProjectTarget, setDeleteProjectTarget] = useState(null);
 
-
-  // si può semplificare conm un unica var 
   const isAdmin = user?.role !== "user";
-  // const isAdmin = user?.role === "admin";
   const isSuperadmin = user?.role === "superadmin";
- 
 
-
-  // logica progress è un po' forzata, idealmente dovrebbe essere calcolata lato backend 
-  // e restituita come campo del progetto, ma per ora la metto qui con dati finti
+  // logica progress forzata con dati finti, idealmente calcolata lato backend
   const calculateProgress = (project_id) => {
     const sessionByProject = sessions.filter(s => s.project_id === project_id);
     if (sessionByProject.length === 0) return 0;
-
     const completedSessions = sessionByProject.filter(s => s.status === 'completed' || s.status === 'passed').length;
     return Math.round((completedSessions / sessionByProject.length) * 100);
   };
-  
-  
 
   const openEditDialog = (project) => {
     if (!isAdmin) return;
     setEditingProject(project);
-    setEditForm({
-      name: project.name ?? "",
-      description: project.description ?? "",  
-    });
+    setEditForm({ name: project.name ?? "", description: project.description ?? "" });
   };
-   
 
-  // modifica nome e descrizione progetto, non lo stato o assegnazioni che hanno dialoghi dedicati, per evitare confusione
+
   const handleUpdateProject = async () => {
-    console.log(2)
     if (!isAdmin) {
       toast.error("Solo admin puo modificare un progetto");
       return;
     }
-
     if (!editingProject) return;
-
+    if (editForm.name.trim() === "" || editForm.description.trim() === "") {
+      toast.error("Nome e descrizione non possono essere vuoti");
+      return;
+    }
     try {
       await updateProject(editingProject.id, {
         name: editForm.name.trim(),
@@ -113,6 +106,13 @@ const ProjectTable = ({ data, users = [] }) => {
       toast.success("Progetto aggiornato con successo");
       setEditingProject(null);
     } catch (error) {
+      const message = error.response?.data?.error;
+
+      // da implementare lato backend un messaggio di errore specifico per nome progetto duplicato, ora gestiamo in modo generico ma non è ottimale
+      if (message === "Project name already exists") {
+        toast.error("Esiste già un progetto con questo nome, scegli un nome diverso");
+        return;
+      }
       toast.error("Errore durante l'aggiornamento del progetto");
     }
   };
@@ -122,10 +122,7 @@ const ProjectTable = ({ data, users = [] }) => {
       toast.error("Solo superadmin puo eliminare un progetto");
       return;
     }
-
-    if (!deleteProjectTarget) {
-      return;
-    }
+    if (!deleteProjectTarget) return;
     try {
       await deleteProject(deleteProjectTarget.id);
       await fetchProjects();
@@ -139,7 +136,7 @@ const ProjectTable = ({ data, users = [] }) => {
   const openStatusDialog = (project) => {
     if (!isAdmin) return;
     setStatusProject(project);
-    setStatusValue(project.status ?? "Attivo");
+    setStatusValue("");
   };
 
   const handleUpdateStatus = async () => {
@@ -147,94 +144,31 @@ const ProjectTable = ({ data, users = [] }) => {
       toast.error("Solo admin o superadmin possono aggiornare lo stato del progetto");
       return;
     }
-
     if (!statusProject) return;
-
     try {
       await updateProjectStatus(statusProject.id, statusValue);
       await fetchProjects();
       toast.success("Stato progetto aggiornato");
       setStatusProject(null);
     } catch (error) {
+      const message = error.response?.data?.error;
+
+      // da implementare lato backend un messaggio di errore specifico per stato non valido, ora gestiamo in modo generico 
+      if (message === "Invalid status") {
+        toast.error("Stato non valido. Gli stati validi sono: Attivo, Completato, In pausa.");
+        return;
+      }
       toast.error("Errore durante aggiornamento stato");
     }
   };
 
-  const openAssignDialog = async (project) => {
-    if (!isAdmin) return;
-    try {
-      await fetchProjectDetails(project.id);
-    } catch (err) {
-      // ignore - we'll still open the dialog but assigned users may be stale
-    }
-    setAssignProject(project);
-    setSelectedUserId("");
-  };
-
-  const handleAssignUser = async () => {
-    if (!isAdmin) {
-      toast.error("Solo admin o superadmin possono assegnare utenti al progetto");
-      return;
-    }
-
-    if (!assignProject || !selectedUserId) {
-      toast.error("Seleziona un utente");
-      return;
-    }
-
-    try {
-      await assignUserToProject(assignProject.id, Number(selectedUserId));
-      await fetchProjects();
-      toast.success("Utente assegnato al progetto");
-      setAssignProject(null);
-    } catch (error) {
-      const message = error.response?.data?.specific || error.response?.data?.error || error.response?.data?.message || "Errore durante assegnazione utente";
-      toast.error(message);
-    }
-  };
-
-  const handleUnassignUser = async () => {
-    if (!isAdmin) {
-      toast.error("Solo admin puo rimuovere utenti dal progetto");
-      return;
-    }
-
-    if (!assignProject || !selectedUserId) {
-      toast.error("Seleziona un utente");
-      return;
-    }
-
-    try {
-      await unAssingUserAssignment(assignProject.id, Number(selectedUserId));
-      await fetchProjects();
-      toast.success("Utente rimosso dal progetto");
-      setAssignProject(null);
-    } catch (error) {
-      const message = error.response?.data?.specific || error.response?.data?.error || error.response?.data?.message || "Errore durante rimozione utente";
-      toast.error(message);
-    }
-  };
-
   const handleProjectRowClick = (projectId) => {
-    console.log(isAdmin)
-    if (!isAdmin) return;
+    if (!isAdmin) {
+      navigate(`/user/projects/${projectId}`);
+      return;
+    }
     navigate(`/admin/projects/${projectId}`);
   };
-
-  const assignedUsers = (selectedProject && Number(selectedProject.id) === Number(assignProject?.id))
-    ? selectedProject.assigned_users || []
-    : (assignProject?.assigned_users || []);
-
-  const availableUsers = users.filter(u => {
-    const isAssigned = assignedUsers.some(au => (au.id ?? au.user_id) === u.id);
-    return !isAssigned;
-  });
-   
-
-  
-  
-
- 
 
   return (
     <>
@@ -262,11 +196,10 @@ const ProjectTable = ({ data, users = [] }) => {
                   isSuperadmin={isSuperadmin}
                   users={users}
                   calculateProgress={calculateProgress}
-                  sessionCount={null} // manca logica sessioni 
+                  sessionCount={null}
                   handleProjectRowClick={handleProjectRowClick}
                   openEditDialog={openEditDialog}
                   openStatusDialog={openStatusDialog}
-                  openAssignDialog={openAssignDialog}
                   setDeleteProjectTarget={setDeleteProjectTarget}
                 />
               ))
@@ -281,75 +214,56 @@ const ProjectTable = ({ data, users = [] }) => {
         </Table>
       </div>
 
-      <Dialog open={!!editingProject} onOpenChange={() => setEditingProject(null)}>
-        <DialogContent className="sm:max-w-120">
-          <DialogHeader>
-            <DialogTitle>Modifica progetto</DialogTitle>
-            <DialogDescription>Aggiorna nome e descrizione del progetto.</DialogDescription>
-          </DialogHeader>
 
-          <div className="grid gap-4 py-2">
-            <div className="grid gap-2">
-              <Label htmlFor="edit-project-name">Nome</Label>
-              <Input
-                id="edit-project-name"
-                value={editForm.name}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="edit-project-description">Descrizione</Label>
-              <Input
-                id="edit-project-description"
-                value={editForm.description}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
-              />
-            </div>
-          </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingProject(null)}>Annulla</Button>
-            <Button onClick={handleUpdateProject}>Salva</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!statusProject} onOpenChange={() => setStatusProject(null)}>
-        <DialogContent className="sm:max-w-105">
-          <DialogHeader>
-            <DialogTitle>Aggiorna stato progetto</DialogTitle>
-            <DialogDescription>Seleziona uno stato valido lato backend.</DialogDescription>
-          </DialogHeader>
-
-          <Select value={statusValue} onValueChange={setStatusValue}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleziona stato" />
-            </SelectTrigger>
-            <SelectContent>
-              {PROJECT_STATUS_OPTIONS.map((status) => (
-                <SelectItem key={status} value={status}>{status}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setStatusProject(null)}>Annulla</Button>
-            <Button onClick={handleUpdateStatus}>Aggiorna</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <AssignDialog
-        assignProject={assignProject}
-        onClose={() => setAssignProject(null)}
-        availableUsers={availableUsers}
-        selectedUserId={selectedUserId}
-        setSelectedUserId={setSelectedUserId}
-        handleAssignUser={handleAssignUser}
-        handleUnassignUser={handleUnassignUser}
+      <ModalForm
+        modalOpen={!!editingProject}
+        setModalOpen={setEditingProject}
+        title="Modifica progetto"
+        infos="Aggiorna nome e descrizione del progetto"
+        fields={
+          
+          [
+          { name: "name", label: "Nome", type: "text" },
+          { name: "description", label: "Descrizione", type: "textarea" },
+        ]}
+        formData={editForm}
+        setFormData={setEditForm}
+        onSubmit={handleUpdateProject}
       />
 
-      <Dialog open={!!deleteProjectTarget} onOpenChange={() => setDeleteProjectTarget(null)}>
+     
+
+    
+     <ModalForm 
+        modalOpen={!!statusProject}
+        setModalOpen={setStatusProject}
+        title="Aggiorna stato progetto"
+        infos="Seleziona uno stato valido lato backend."
+        fields={[
+          { name: "status", label: "Stato", type: "select", options: getAvailableStatuses(statusProject?.status).map(status => ({ value: status, label: status })) }
+        ]}
+        formData={{ status: statusValue }}
+        setFormData={(data) => setStatusValue(data.status)}
+        onSubmit={handleUpdateStatus}
+      />
+
+      <ModalForm
+        modalOpen={!!deleteProjectTarget}
+        setModalOpen={setDeleteProjectTarget}
+        title="Conferma eliminazione"
+        infos={`Stai per eliminare il progetto "${deleteProjectTarget?.name}". Questa azione non può essere annullata.`}
+        fields={[]}
+        formData={{}}
+        setFormData={() => {}}
+        onSubmit={handleDeleteProject}
+        submitLabel="Elimina progetto"
+        dialogClassName="sm:max-w-105"
+        submitClassName="bg-rose-600 hover:bg-rose-700 text-white"
+      />
+      
+
+      {/* <Dialog open={!!deleteProjectTarget} onOpenChange={() => setDeleteProjectTarget(null)}>
         <DialogContent className="sm:max-w-105">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -360,13 +274,12 @@ const ProjectTable = ({ data, users = [] }) => {
               Stai per eliminare il progetto "{deleteProjectTarget?.name}". Questa azione non può essere annullata.
             </DialogDescription>
           </DialogHeader>
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteProjectTarget(null)}>Annulla</Button>
             <Button variant="destructive" onClick={handleDeleteProject}>Elimina progetto</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,10 @@ import {
 import { User, Mail, ShieldCheck, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
+import { isEmailValid } from "@/utils/validators";
+import ModalForm from "@/utils/ModalForm";
+import { userFields } from "@/utils/fields/userFields";
+
 
 const ModalForUsers = () => {
   const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
@@ -28,17 +32,27 @@ const ModalForUsers = () => {
   const [email, setEmail] = useState(selectedUser?.email ?? "");
   const [role, setRole] = useState(selectedUser?.role ?? "");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: selectedUser?.nome ?? "",
+    surname: selectedUser?.cognome ?? "",
+    email: selectedUser?.email ?? "",
+    role: selectedUser?.role ?? "",
+  });
 
   if (!selectedUser) {
     return null;
   }
+  useEffect(() => {
+console.log(selectedUser,'selectedUser')
+
+  },[selectedUser])
 
   const hasProfileChanges =
-    name.trim() !== (selectedUser.nome ?? "").trim() ||
-    surname.trim() !== (selectedUser.cognome ?? "").trim() ||
-    email.trim() !== (selectedUser.email ?? "").trim();
+    formData.name.trim() !== (selectedUser.nome ?? "").trim() ||
+    formData.surname.trim() !== (selectedUser.cognome ?? "").trim() ||
+    formData.email.trim() !== (selectedUser.email ?? "").trim();
 
-  const hasRoleChanges = role !== (selectedUser.role ?? "");
+  const hasRoleChanges = formData.role !== (selectedUser.role ?? "");
 
   const handleCloseModal = () => {
     setDeleteConfirmOpen(false);
@@ -51,11 +65,16 @@ const ModalForUsers = () => {
       return;
     }
 
+    if (!isEmailValid(formData.email)) {
+      toast.error("Indirizzo email non valido");
+      return;
+    }
+
     try {
       await updateUser(selectedUser.id, {
-        name: name.trim(),
-        surname: surname.trim(),
-        email: email.trim(),
+        name: formData.name.trim(),
+        surname: formData.surname.trim(),
+        email: formData.email.trim(),
       });
       toast.success("Profilo utente aggiornato con successo");
       handleCloseModal();
@@ -71,7 +90,7 @@ const ModalForUsers = () => {
     }
 
     try {
-      await changeUserRole(selectedUser.id, role);
+      await changeUserRole(selectedUser.id, formData.role);
       toast.success("Ruolo utente aggiornato con successo");
       handleCloseModal();
     } catch (error) {
@@ -94,7 +113,24 @@ const ModalForUsers = () => {
 
   return (
     <>
-      <Dialog open={true} onOpenChange={(open) => !open && handleCloseModal()}>
+
+
+
+    <ModalForm
+    modalOpen={true}
+    setModalOpen={handleCloseModal}
+    title="Modifica Utente"
+    infos="Aggiorna il profilo o il ruolo. Le due azioni sono separate."
+    fields={userFields}
+    formData={formData}
+    setFormData={setFormData}
+    onSubmit={handleSaveProfile}
+    submitLabel="Salva Modifiche"
+    cancelLabel="Annulla"
+    submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+  />
+        
+      {/* <Dialog open={true} onOpenChange={(open) => !open && handleCloseModal()}>
         <DialogContent className="sm:max-w-140">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-2">
@@ -113,8 +149,8 @@ const ModalForUsers = () => {
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
                   className="pl-10 focus-visible:ring-emerald-500"
                 />
               </div>
@@ -126,8 +162,8 @@ const ModalForUsers = () => {
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   id="surname"
-                  value={surname}
-                  onChange={(e) => setSurname(e.target.value)}
+                  value={formData.surname}
+                  onChange={(e) => setFormData({...formData, surname: e.target.value})}
                   className="pl-10 focus-visible:ring-emerald-500"
                 />
               </div>
@@ -140,8 +176,8 @@ const ModalForUsers = () => {
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="pl-10 focus-visible:ring-emerald-500"
                 />
               </div>
@@ -149,7 +185,7 @@ const ModalForUsers = () => {
 
             <div className="grid gap-2">
               <Label className="text-slate-700">Ruolo Piattaforma</Label>
-              <Select value={role} onValueChange={setRole}>
+              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
                 <SelectTrigger className="w-full focus:ring-emerald-500">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="h-4 w-4 text-slate-400" />
@@ -196,7 +232,7 @@ const ModalForUsers = () => {
             </div>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-105">

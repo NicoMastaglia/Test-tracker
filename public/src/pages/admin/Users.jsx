@@ -6,6 +6,7 @@ import { register } from "@/services/api";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { filterSearch } from "@/utils/filterSearch";
+import { isEmailValid } from "@/utils/validators";
 import ModalForm from "@/utils/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
 
@@ -27,9 +28,23 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+  
+
+  // reset formData quando si chiude il modal
+  useEffect(() => {
+    if (!modal) {
+      setNewUserData(emptyNewUserData);
+    }
+  }, [modal]);
+  
 
   const addUser = async () => {
     const { name, surname, email, role, password } = newUserData;
+
+    if (!isEmailValid(email)) {
+      toast.error("Indirizzo email non valido");
+      return;
+    }
 
     try {
       await register(name, surname, email, password, role, token);
@@ -39,6 +54,11 @@ const Users = () => {
       setModal(false);
     } catch (error) {
       console.error("Errore durante la creazione dell'utente:", error.response?.data || error.message);
+      const message = error.response?.data?.message || error.message;
+      if (message === "User with this email already exists") {
+        toast.error("Esiste già un utente con questa email, scegli un'email diversa");
+        return;
+      }
       toast.error("Errore durante la creazione dell'utente");
     }
   };

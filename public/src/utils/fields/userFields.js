@@ -14,6 +14,7 @@ export  const userFields = [{
     placeholder: 'Inserisci il cognome',
     type: 'text',
     autoComplete: 'new-cognome',
+    required: true,
 },{
     name: 'email',
     label: 'Email',
@@ -27,18 +28,20 @@ export  const userFields = [{
     placeholder: 'Seleziona il ruolo',
     type: 'select',
     options: [
-        { value: 'user', label: 'Utente' },
+        { value: 'user', label: 'User' },
         { value: 'admin', label: 'Admin' },
         { value: 'superadmin', label: 'Super Admin' },
     ],
     required: true
-},{
-    name: 'password',
-    label: 'Password',
-    placeholder: 'Inserisci la password',
-    type: 'password',
-    autoComplete: 'new-password',
-    required: true
-}
+},
+
+// {
+//     name: 'password',
+//     label: 'Password',
+//     placeholder: 'Inserisci la password',
+//     type: 'password',
+//     autoComplete: 'new-password',
+//     required: true
+// }
 
 ]

@@ -4,7 +4,7 @@ import { Progress } from "@/Components/ui/progress";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/Components/ui/tooltip";
-import { Pencil, Trash2, UserPlus, Flag } from "lucide-react";
+import { Pencil, Trash2, Flag } from "lucide-react";
 import {
   formatTableDate,
   getCreatorName,
@@ -14,7 +14,7 @@ import {
   getProjectStatusBadgeClass,
 } from "@/utils/tableHelpers";
 
-const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, sessionCount, handleProjectRowClick, openEditDialog, openStatusDialog, openAssignDialog, setDeleteProjectTarget }) => {
+const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, sessionCount, handleProjectRowClick, openEditDialog, openStatusDialog, setDeleteProjectTarget }) => {
   const progressValue = calculateProgress(project.id);
   const canOpenProjectDetail = isAdmin || isSuperadmin;
   const creator = project.created_by || users.find((user) => user.id === project.created_by);
