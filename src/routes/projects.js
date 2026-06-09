@@ -286,7 +286,8 @@ router.get("/:id", checkUser, (req, res) => {
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email
        FROM project p
        JOIN user u ON p.created_by = u.id
-       WHERE p.id = ? AND p.created_by = ?`,
+       JOIN project_assignment pa ON p.id = pa.project_id
+       WHERE p.id = ? AND pa.user_id = ?`,
         [projectId, req.user.id],
       )
       .then(([results]) => {
