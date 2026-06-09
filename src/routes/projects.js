@@ -234,7 +234,7 @@ router.get("/:id", checkUser, (req, res) => {
         });
 
         const projects = Array.from(projectMap.values());
-        return res.status(200).json(projects);
+        return res.status(200).json(projects[0]);
       })
       .catch((err) => {
         return res
@@ -286,7 +286,7 @@ router.get("/:id", checkUser, (req, res) => {
         });
 
         const projects = Array.from(projectMap.values());
-        return res.status(200).json(projects);
+        return res.status(200).json(projects[0]);
       })
       .catch((err) => {
         return res
