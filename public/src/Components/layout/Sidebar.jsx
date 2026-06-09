@@ -139,7 +139,7 @@ export default function AppSidebar() {
 
         <div className="flex items-center justify-between w-full bg-[#0B1F45]/80 rounded-xl p-3 group-data-[collapsible=icon]:hidden">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="h-10 w-10 bg-[#07142B] text-[#14D8A6] rounded-md flex items-center justify-center shadow-sm shrink-0">
+            <div className="h-10 w-10 bg-[#07142B] text-[#14D8A6] rounded-2xl flex items-center justify-center shadow-sm shrink-0">
               {/* <RoleIcon className="h-4 w-4" /> */}
               <img src={logo}  alt="Logo" className="w-full h-full object-co" />
             </div>
@@ -150,10 +150,10 @@ export default function AppSidebar() {
           </div>
           <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md h-7 w-7 ml-1 shrink-0" />
         </div>
-
+{/* 
         <div className="hidden group-data-[collapsible=icon]:block">
           <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md" />
-        </div>
+        </div> */}
       </SidebarHeader>
 
       {/* CONTENUTO PRINCIPALE */}
