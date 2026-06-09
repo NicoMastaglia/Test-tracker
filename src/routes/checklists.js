@@ -13,10 +13,10 @@ router.post("/", checkAdmin, async (req, res) => {
   const trimmedTitle = title ? title.trim() : "";
 
   if (!trimmedTitle) {
-    return res.status(400).json({ error: "Bad Request", message: "Il titolo della checklist non può essere vuoto." });
+    return res.status(400).json({ error: "Richiesta non valida", message: "Il titolo della checklist non può essere vuoto." });
   }
   if (!project_id) {
-    return res.status(400).json({ error: "Bad Request", message: "Il progetto di riferimento è obbligatorio." });
+    return res.status(400).json({ error: "Richiesta non valida", message: "Il progetto di riferimento è obbligatorio." });
   }
 
   try {
@@ -26,7 +26,7 @@ router.post("/", checkAdmin, async (req, res) => {
         [project_id, createdBy],
       );
       if (results.length === 0) {
-        return res.status(403).json({ error: "Access denied or project not found" });
+        return res.status(403).json({ error: "Accesso negato o progetto non trovato" });
       }
     }
 
@@ -41,7 +41,7 @@ router.post("/", checkAdmin, async (req, res) => {
       project_id,
     });
   } catch (err) {
-    res.status(500).json({ error: "Server error", specific: err.message });
+    res.status(500).json({ error: "Errore del server", specific: err.message });
   }
 });
 
@@ -49,8 +49,9 @@ router.put("/:id", checkAdmin, async (req, res) => {
   const checklistId = req.params.id;
   const { title } = req.body;
 
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
+  const trimmedTitle = title ? title.trim() : "";
+  if (!trimmedTitle) {
+    return res.status(400).json({ error: "Richiesta non valida", message: "Il titolo è obbligatorio e non può essere vuoto." });
   }
 
   try {
@@ -63,25 +64,25 @@ router.put("/:id", checkAdmin, async (req, res) => {
       if (results.length === 0) {
         return res
           .status(403)
-          .json({ error: "Access denied or checklist not found" });
+          .json({ error: "Accesso negato o checklist non trovata" });
       }
     }
 
     const [result] = await db.execute(
       "UPDATE checklist_template SET title = ? WHERE id = ?",
-      [title, checklistId],
+      [trimmedTitle, checklistId],
     );
 
     if (result.affectedRows === 1) {
       return res
         .status(200)
-        .json({ message: "Checklist updated successfully" });
+        .json({ message: "Checklist aggiornata con successo" });
     } else {
-      return res.status(404).json({ error: "Checklist not found" });
+      return res.status(404).json({ error: "Checklist non trovata" });
     }
   } catch (err) {
     return res.status(500).json({
-      error: "Server error",
+      error: "Errore del server",
       specific: err.message,
     });
   }
@@ -100,7 +101,7 @@ router.delete("/:id", checkAdmin, async (req, res) => {
       if (results.length === 0) {
         return res
           .status(403)
-          .json({ error: "Access denied or checklist not found" });
+          .json({ error: "Accesso negato o checklist non trovata" });
       }
     }
 
@@ -112,13 +113,13 @@ router.delete("/:id", checkAdmin, async (req, res) => {
     if (result.affectedRows > 0) {
       return res
         .status(200)
-        .json({ message: "Checklist deleted successfully" });
+        .json({ message: "Checklist eliminata con successo" });
     } else {
-      return res.status(404).json({ error: "Checklist not found" });
+      return res.status(404).json({ error: "Checklist non trovata" });
     }
   } catch (err) {
     return res.status(500).json({
-      error: "Server error",
+      error: "Errore del server",
       specific: err.message,
     });
   }
@@ -138,7 +139,7 @@ router.get("/:projectId", checkUser, (req, res) => {
       })
       .catch((err) => {
         res.status(500).json({
-          error: "Server error",
+          error: "Errore del server",
           specific: err.message,
         });
       });
@@ -153,7 +154,7 @@ router.get("/:projectId", checkUser, (req, res) => {
       })
       .catch((err) => {
         res.status(500).json({
-          error: "Server error",
+          error: "Errore del server",
           specific: err.message,
         });
       });
@@ -168,22 +169,22 @@ router.get("/:projectId", checkUser, (req, res) => {
       })
       .catch((err) => {
         res.status(500).json({
-          error: "Server error",
+          error: "Errore del server",
           specific: err.message,
         });
       });
   }
 
-  return res.status(403).json({ error: "Access denied" });
+  return res.status(403).json({ error: "Accesso negato" });
 });
 
 router.post("/:templateId/item", checkAdmin, async (req, res) => {
   const templateId = req.params.templateId;
   const { description } = req.body;
-  console.log(templateId, description);
+    const trimmedDescription = description ? description.trim() : "";
 
-  if (!description) {
-    return res.status(400).json({ error: "Description is required" });
+  if (!trimmedDescription) {
+    return res.status(400).json({ error: "Richiesta non valida", message: "La descrizione è obbligatoria e non può essere vuota." });
   }
 
   const [templateResults] = await db.execute(
@@ -194,22 +195,22 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
   if (templateResults.length === 0) {
     return res
       .status(403)
-      .json({ error: "Access denied or template not found" });
+      .json({ error: "Accesso negato o template non trovato" });
   }
 
   try {
     const [result] = await db.execute(
       "INSERT INTO checklist_item (template_id, description) VALUES (?, ?)",
-      [templateId, description],
+      [templateId, trimmedDescription],
     );
 
     return res.status(201).json({
-      message: "Checklist item added successfully",
+      message: "Elemento della checklist aggiunto con successo",
       id: result.insertId,
     });
   } catch (err) {
     return res.status(500).json({
-      error: "Server error",
+      error: "Errore del server",
       specific: err.message,
     });
   }
@@ -222,7 +223,7 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
   const trimmedDescription = description ? description.trim() : "";
 
   if (!trimmedDescription) {
-    return res.status(400).json({ error: "Bad Request", message: "La nuova descrizione non può essere vuota." });
+    return res.status(400).json({ error: "Richiesta non valida", message: "La nuova descrizione non può essere vuota." });
   }
 
   try {
@@ -232,12 +233,12 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
     );
 
     if (result.affectedRows > 0) {
-      return res.status(200).json({ message: "Checklist item updated successfully", description: trimmedDescription });
+      return res.status(200).json({ message: "Elemento della checklist aggiornato con successo", description: trimmedDescription });
     } else {
-      return res.status(404).json({ error: "Checklist item not found" });
+      return res.status(404).json({ error: "Elemento della checklist non trovato" });
     }
   } catch (err) {
-    return res.status(500).json({ error: "Server error", specific: err.message });
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
   }
 });
 
@@ -252,7 +253,7 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
   if (itemResults.length === 0) {
     return res
       .status(403)
-      .json({ error: "Access denied or checklist item not found" });
+      .json({ error: "Accesso negato o elemento della checklist non trovato" });
   }
 
   try {
@@ -264,13 +265,13 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
     if (result.affectedRows > 0) {
       return res
         .status(200)
-        .json({ message: "Checklist item deleted successfully" });
+        .json({ message: "Elemento della checklist eliminato con successo" });
     } else {
-      return res.status(404).json({ error: "Checklist item not found" });
+      return res.status(404).json({ error: "Elemento della checklist non trovato" });
     }
   } catch (err) {
     return res.status(500).json({
-      error: "Server error",
+      error: "Errore del server",
       specific: err.message,
     });
   }
