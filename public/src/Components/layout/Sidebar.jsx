@@ -1,10 +1,10 @@
 import React,{useState}from "react"
-import { 
-  Home, 
-  Repeat, 
-  Folder, 
-  Users, 
-  LogOut, 
+import {
+  Home,
+  Repeat,
+  Folder,
+  Users,
+  LogOut,
   CheckCircle,
   Terminal,      // Icona per l'ambiente User
   ShieldAlert,   // Icona per l'ambiente Superadmin
@@ -37,13 +37,14 @@ import {
   DialogTitle,
 } from "@/Components/ui/dialog";
 import { AlertTriangle } from "lucide-react";
+import logo from "@/assets/logo.png"
 
 // Configurazione dinamica dei titoli in base al ruolo utente
 const ROLE_CONSOLE_CONFIG = {
   superadmin: {
     title: "SuperAdmin  ",
     subtitle: "Pannello di Controllo",
-    icon: ShieldAlert,
+    icon: logo,
   },
   admin: {
     title: "Workspace Admin",
@@ -80,7 +81,7 @@ const menuItemsByRole = {
     { text: "Audit Log", path: "/admin/audit-log", icon: ShieldAlert },
     { text: "Impostazioni  ", path: "/settings", icon: Settings },
   ],
- 
+
 }
 
 export default function AppSidebar() {
@@ -96,7 +97,7 @@ export default function AppSidebar() {
     subtitle: user?.role || "Utente aziendale",
     icon: Terminal,
   }
-  
+
   const RoleIcon = roleConfig.icon
 
   const handleLogout = () => {
@@ -109,18 +110,18 @@ export default function AppSidebar() {
       return;
     }
 
-    
+
 
 
       logoutUser(token);
       toast.success("Logout effettuato con successo!");
       navigate("/login");
-    
-    
-   
 
 
-   
+
+
+
+
   }
 
   return (
@@ -138,8 +139,9 @@ export default function AppSidebar() {
 
         <div className="flex items-center justify-between w-full bg-[#0B1F45]/80 rounded-xl p-3 group-data-[collapsible=icon]:hidden">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="h-8 w-8 bg-[#07142B] text-[#14D8A6] rounded-md flex items-center justify-center shadow-sm shrink-0">
-              <RoleIcon className="h-4 w-4" />
+            <div className="h-10 w-10 bg-[#07142B] text-[#14D8A6] rounded-md flex items-center justify-center shadow-sm shrink-0">
+              {/* <RoleIcon className="h-4 w-4" /> */}
+              <img src={logo}  alt="Logo" className="w-full h-full object-co" />
             </div>
             <div className="flex flex-col truncate">
               <span className="text-[12px] text-[#F5F7FA] leading-none tracking-wide">{roleConfig.title}</span>
@@ -197,7 +199,7 @@ export default function AppSidebar() {
       <SidebarFooter className="p-2 bg-transparent">
         <SidebarMenu>
           {/* <SidebarMenuItem>
-              <SidebarMenuButton 
+              <SidebarMenuButton
               onClick={()=>navigate("/settings")}
               tooltip="Impostazioni account"
               className="w-full text-[#F5F7FA] hover:bg-slate-500/15 hover:text-slate-300 py-2 h-9 rounded-lg transition-colors"
@@ -208,9 +210,9 @@ export default function AppSidebar() {
                    <span className="group-data-[collapsible=icon]:hidden text-sm text-[#F5F7FA]">Impostazioni</span>
                 </div>
               </SidebarMenuButton>
-                
-              
-           
+
+
+
           </SidebarMenuItem> */}
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -239,7 +241,7 @@ export default function AppSidebar() {
               Sei sicuro di voler uscire? Tutti i progressi non salvati potrebbero andare persi.
             </DialogDescription>
           </DialogHeader>
-          
+
 
           <DialogFooter>
             <Button variant="outline" onClick={()=>setDeleteConfirmOpen(false)}>Annulla</Button>
@@ -248,9 +250,9 @@ export default function AppSidebar() {
         </DialogContent>
       </Dialog>
     </Sidebar>
-   
-      
+
+
       </>
-      
+
   )
 }
