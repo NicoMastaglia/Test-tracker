@@ -148,7 +148,7 @@ router.get("/:projectId", checkUser, (req, res) => {
   if (req.user.role === "superadmin") {
     return db
       .execute(
-        "SELECT * FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id WHERE ct.project_id = ?",
+        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ci.id AS item_id, ci.description, ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id WHERE ct.project_id = ? ",
         [projectId],
       )
       .then(([results]) => {
@@ -163,7 +163,7 @@ router.get("/:projectId", checkUser, (req, res) => {
   } else if (req.user.role === "admin") {
     return db
       .execute(
-        "SELECT * FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id JOIN project p ON ct.project_id = p.id WHERE ct.project_id = ? AND p.created_by = ?",
+        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ci.id AS item_id, ci.description, ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id JOIN project p ON ct.project_id = p.id WHERE ct.project_id = ? AND p.created_by = ?",
         [projectId, req.user.id],
       )
       .then(([results]) => {
@@ -178,7 +178,7 @@ router.get("/:projectId", checkUser, (req, res) => {
   } else if (req.user.role === "user") {
     return db
       .execute(
-        "SELECT * FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id JOIN project p ON ct.project_id = p.id JOIN project_assignment pa ON p.id = pa.project_id WHERE ct.project_id = ? AND pa.user_id = ?",
+        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ci.id AS item_id, ci.description, ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id JOIN project p ON ct.project_id = p.id JOIN project_assignment pa ON p.id = pa.project_id WHERE ct.project_id = ? AND pa.user_id = ?",
         [projectId, req.user.id],
       )
       .then(([results]) => {
