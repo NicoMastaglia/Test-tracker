@@ -53,25 +53,25 @@ router.get("/session/:sessionId", checkUser, async (req, res) => {
 
     if (!session) {
       return res.status(404).json({
-        error: "Test session not found or insufficient permissions",
+        error: "Sessione di test non trovata o permessi insufficienti",
       });
     }
 
     const [results] = await db.execute(
       `SELECT
-				ci.id AS checklist_item_id,
-				ci.template_id,
-				ci.description,
-				ci.position,
-				tr.id AS test_result_id,
-				tr.is_tested,
-				tr.outcome,
-				tr.note
-			FROM checklist_template ct
-			JOIN checklist_item ci ON ci.template_id = ct.id
-			LEFT JOIN test_result tr ON tr.session_id = ? AND tr.checklist_item_id = ci.id
-			WHERE ct.project_id = ?
-			ORDER BY ct.id, ci.position, ci.id`,
+        ci.id AS checklist_item_id,
+        ci.template_id,
+        ci.description,
+        ci.position,
+        tr.id AS test_result_id,
+        tr.is_tested,
+        tr.outcome,
+        tr.note
+      FROM checklist_template ct
+      JOIN checklist_item ci ON ci.template_id = ct.id
+      LEFT JOIN test_result tr ON tr.session_id = ? AND tr.checklist_item_id = ci.id
+      WHERE ct.project_id = ?
+      ORDER BY ct.id, ci.position, ci.id`,
       [sessionId, session.project_id],
     );
 
@@ -82,7 +82,7 @@ router.get("/session/:sessionId", checkUser, async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ error: "Server error", details: error.message });
+      .json({ error: "Errore del server", details: error.message });
   }
 });
 
@@ -98,12 +98,12 @@ router.patch(
       outcome === undefined &&
       note === undefined
     ) {
-      return res.status(400).json({ error: "No data to update" });
+      return res.status(400).json({ error: "Nessun dato da aggiornare" });
     }
 
     if (outcome !== undefined && outcome !== null) {
       if (outcome !== "Positivo" && outcome !== "Negativo") {
-        return res.status(400).json({ error: "Invalid outcome" });
+        return res.status(400).json({ error: "Esito non valido" });
       }
     }
 
@@ -112,21 +112,21 @@ router.patch(
 
       if (!session) {
         return res.status(404).json({
-          error: "Test session not found or insufficient permissions",
+          error: "Sessione di test non trovata o permessi insufficienti",
         });
       }
 
       const [itemResults] = await db.execute(
         `SELECT ci.id
-			 FROM checklist_template ct
-			 JOIN checklist_item ci ON ci.template_id = ct.id
-			 WHERE ct.project_id = ? AND ci.id = ?`,
+        FROM checklist_template ct
+       JOIN checklist_item ci ON ci.template_id = ct.id
+       WHERE ct.project_id = ? AND ci.id = ?`,
         [session.project_id, itemId],
       );
 
       if (!itemResults.length) {
         return res.status(404).json({
-          error: "Checklist item not found in session",
+          error: "Elemento della checklist non trovato nella sessione",
         });
       }
 
@@ -155,7 +155,7 @@ router.patch(
       }
 
       if (!updates.length) {
-        return res.status(400).json({ error: "No valid data to update" });
+        return res.status(400).json({ error: "Nessun dato valido da aggiornare" });
       }
 
       parameters.push(sessionId, itemId);
@@ -185,7 +185,7 @@ router.patch(
     } catch (error) {
       return res
         .status(500)
-        .json({ error: "Server error", details: error.message });
+        .json({ error: "Errore del server", details: error.message });
     }
   },
 );
