@@ -7,14 +7,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-
+import {toast} from "sonner"
 const AdminProjects = () => {
   const { projects, addProject, fetchProjects } = useProjectContext();
   const { users, fetchUsers } = useUserContext();
   const { user } = useAuthContext();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const emptyProjectData = { name: "", description: "" };
+  const emptyProjectData = { name: "", description: "", responsabile: "" };
   const [formData, setFormData] = useState(emptyProjectData);
 
   useEffect(() => {
@@ -22,19 +22,46 @@ const AdminProjects = () => {
     fetchUsers();
   }, []);
 
+  // reset formData quando si chiude il modal, 
+  // in modo da avere sempre un form vuoto all'apertura della
+  //  modal per creare un nuovo progetto
+  useEffect(() => {
+    if (!modalOpen) {
+      setFormData(emptyProjectData);
+    }
+  }, [modalOpen]);
+
   const handleAddProject = async () => {
     if (user?.role !== "admin" && user?.role !== "superadmin") return;
 
     const newProject = {
       name: formData.name,
       description: formData.description,
-    };
+      responsabile: formData.responsabile,
+    }; 
 
-    await addProject(newProject);
+    try {
+      await addProject(newProject);
+      toast.success("Progetto creato con successo");
     await fetchProjects();
+
     setFormData(emptyProjectData);
     setModalOpen(false);
-  };
+  }
+   catch (error) {
+    const message = error.response?.data?.error;
+
+    // da implementare lato backend un messaggio di errore specifico per nome progetto duplicato, ora gestiamo in modo generico 
+    if (message === "Project name already exists") {
+      toast.error("Esiste già un progetto con questo nome, scegli un nome diverso");
+      return;
+    }
+    toast.error("Errore durante creazione progetto");
+
+    }
+  } 
+
+    
 
   const filteredProjects = useMemo(() => {
     if (!search) return projects;
@@ -46,6 +73,30 @@ const AdminProjects = () => {
         (project.status ?? "").toLowerCase().includes(search.toLowerCase())
     );
   }, [search, projects]);
+
+
+  const dynamicFields = useMemo(() => {
+    return [
+      ...projectFields,
+      {
+        name: "responsabile",
+        label: "Responsabile",
+        placeholder: "Seleziona il responsabile del progetto",
+        type: "select",
+        info: "Solo utenti con ruolo admin possono essere responsabili di un progetto",
+        required: true,
+        options: user?.role === 'admin' // Aggiunto il ? di sicurezza
+          ? [{
+              value: user.id,
+              label: `${user.first_name} ${user.last_name} (tu)`
+            }] 
+          : users.filter(u => u.role === "admin").map(u => ({
+              value: u.id,
+              label: `${u.first_name} ${u.last_name}`
+            }))
+      }
+    ];
+  }, [users, user]);
 
   return (
     <AppLayout page="projects">
@@ -66,7 +117,7 @@ const AdminProjects = () => {
               onClose={() => setFormData(emptyProjectData)}
               title="Nuovo Progetto"
               infos="Inserisci le informazioni di base per il nuovo progetto."
-              fields={projectFields}
+              fields={dynamicFields}
               formData={formData}
               setFormData={setFormData}
               onSubmit={handleAddProject}
@@ -83,3 +134,5 @@ const AdminProjects = () => {
 };
 
 export default AdminProjects;
+
+               

@@ -81,6 +81,8 @@ export const ProjectProvider = ({ children }) => {
             throw error
         }
     }
+    
+
 
     const updateProjectStatus = async (projectId, status) => {
         dispatch({type:'SET_LOADING'})

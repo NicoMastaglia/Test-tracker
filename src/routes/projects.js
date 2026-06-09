@@ -141,7 +141,7 @@ router.get("/", checkUser, (req, res) => {
   return res.status(403).json({ error: "Forbidden" });
 });
 
-router.post("/", checkAdmin, (req, res) => {
+router.post("/", checkAdmin, async (req, res) => {
   const { name, description } = req.body;
   const createdBy = req.user.id;
   if (!name) {
@@ -151,24 +151,35 @@ router.post("/", checkAdmin, (req, res) => {
     return res.status(400).json({ error: "Project description is required" });
   }
 
-  db.execute(
-    "INSERT INTO project (name, description, created_by) VALUES (?, ?, ?)",
-    [name, description, createdBy],
-  )
-    .then(([result]) => {
-      return res.status(201).json({
-        id: result.id,
-        name: name,
-        description: description,
-        status: result.status,
-        created_by: createdBy,
+  try {
+    const [existingProject] = await db.execute(
+      "SELECT id FROM project WHERE name = ?",
+      [name]
+    );
+
+    if (existingProject.length > 0) {
+      return res.status(400).json({
+        error: "Project name already in use"
       });
-    })
-    .catch((err) => {
-      return res
-        .status(500)
-        .json({ error: "Internal server error", specific: err.message });
+    }
+
+    const [result] = await db.execute(
+      "INSERT INTO project (name, description, created_by) VALUES (?, ?, ?)",
+      [name, description, createdBy]);
+    
+    return res.status(201).json({
+      id: result.insertId,
+      name: name,
+      description: description,
+      status: result.status,
+      created_by: createdBy,
     });
+
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "Internal server error", specific: err.message });
+  }
 });
 
 router.get("/:id", checkUser, (req, res) => {
@@ -286,7 +297,8 @@ router.get("/:id", checkUser, (req, res) => {
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email
        FROM project p
        JOIN user u ON p.created_by = u.id
-       WHERE p.id = ? AND p.created_by = ?`,
+       JOIN project_assignment pa ON p.id = pa.project_id
+       WHERE p.id = ? AND pa.user_id = ?`,
         [projectId, req.user.id],
       )
       .then(([results]) => {

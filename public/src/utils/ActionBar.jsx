@@ -11,7 +11,7 @@ import { Button } from "@/Components/ui/button";
 const ActionBar = ({
   search,
   setSearch,
-  placeholder = "Cerca...",
+  placeholder = "cerca...",
   buttonText,
   onButtonClick,
   buttonVariant = "primary", 

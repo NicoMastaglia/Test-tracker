@@ -6,6 +6,7 @@ import SettingsProfile from "@/Components/features/settings/SettingsProfile"
 import SettingsSecurity from "@/Components/features/settings/SettingsSecurity"
 import {useUserContext} from "@/context/User/UserContext"
 import {toast} from "sonner"
+import { isEmailValid } from "@/utils/validators"
 const Settings = () => {
 
     const {user} = useAuthContext()
@@ -73,7 +74,7 @@ const Settings = () => {
             return
         }
 
-        if (!/\S+@\S+\.\S+/.test(profileData.email)) {
+        if (!isEmailValid(profileData.email)) {
             toast.error("Indirizzo email non valido")
             return
         }
@@ -85,6 +86,12 @@ const Settings = () => {
     
         }
         catch(error){
+            const message = error.response?.data?.message || error.message
+
+            if (message === "Email already in use") {
+                toast.error("L'email inserita è già in uso, scegli un'email diversa")
+                return
+            }
             console.error("Errore durante l'aggiornamento del profilo:",error)
             toast.error("Errore durante l'aggiornamento del profilo: " + error.message)
         }

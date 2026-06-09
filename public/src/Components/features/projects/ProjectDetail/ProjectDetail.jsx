@@ -24,6 +24,7 @@ import ProjectActivitiesSection from "./ProjectActivitiesSection";
 import CheckListSection from "@/Components/features/checkList/CheckListSection";
 import { useCheckListContext } from "@/context/CheckList/CheckListContext";
 import {useAuthContext} from "@/context/Auth/AuthContext";
+import { toast } from "sonner";
 const ProjectDetail = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -39,8 +40,9 @@ const ProjectDetail = () => {
         fetchProjectDetails,
         clearSelectedProject,
         unAssingUserAssignment,
+        assignUserToProject,
     } = useProjectContext();
-    const { assignUserToProject } = useProjectContext();
+
     const [removeUserTarget, setRemoveUserTarget] = useState(null);
     const [selectedAssignUserId, setSelectedAssignUserId] = useState("");
     const [activeSection, setActiveSection] = useState(location.state?.section ?? "overview");
@@ -72,16 +74,58 @@ const ProjectDetail = () => {
 }, [projectId, isAdmin]);
 
     const handleRemoveAssignedUser = async () => {
+        console.log(2)
         if (!projectId || !selectedProject || !removeUserTarget) return;
 
         try {
             await unAssingUserAssignment(Number(projectId), Number(removeUserTarget.id ?? removeUserTarget.user_id));
             await fetchProjectDetails(Number(projectId));
+              toast.success("Utente rimosso dal progetto");
             setRemoveUserTarget(null);
+          
         } catch (error) {
             // il context aggiorna già lo stato di errore globale
         }
     }; 
+
+    const handleAssignUser = async () => {
+        if (!projectId || !selectedAssignUserId) return;
+
+        try {
+            await assignUserToProject(Number(projectId), Number(selectedAssignUserId));
+            await fetchProjectDetails(Number(projectId));
+              toast.success("Utente assegnato al progetto");
+            setSelectedAssignUserId("");
+        }
+
+            catch (error) {
+                toast.error("Errore durante l'assegnazione dell'utente al progetto");
+
+            }
+
+
+
+
+
+    }
+      
+    // cambia lo stato del progetto in "Attivo" 
+    //  started_at diventa la data di avvio del progetto
+    // lo stato diventa 'attivo'
+    const handleStartProject = () =>{
+        if (!projectId) return;
+        toast.error("Funzionalità non ancora implementata");
+
+
+    }
+
+    const startProjects = () =>{
+        return (
+            <Button onClick={handleStartProject}>
+                Avvia progetto
+            </Button>
+        )
+    }
 
 
 
@@ -112,27 +156,37 @@ const ProjectDetail = () => {
         return null;
     };
 
+    
+
     const projectInfoItems = [
         {
-            label: "Cliente",
-            value: readProjectValue("cliente", "client", "customer", "committente"),
+            label: "Creato da",
+            value: selectedProject?.created_by  ? getFullName(selectedProject.created_by) : "Non disponibile"
+        },
+
+        {
+            label: "Data creazione",
+            value:  selectedProject?.created_at ? formatProjectDate(selectedProject.created_at) : "Non disponibile"
+        },
+        
+        {
+            label: "Data avvio progetto",
+            value:  selectedProject?.started_at ? formatProjectDate(selectedProject.started_at) : "Non disponibile",
         },
         {
-            label: "Area",
-            value: readProjectValue("area", "zone", "district"),
+            label: "Ultimo aggiornamento",
+            value: selectedProject?.updated_at ? formatProjectDate(selectedProject.updated_at) : "Non disponibile",
         },
-        {
-            label: "Categoria",
-            value: readProjectValue("categoria", "category", "type"),
-        },
-        {
-            label: "Inizio lavori",
-            value: formatProjectDate(readProjectValue("inizio_lavori", "start_date", "startDate", "created_at")),
-        },
+        
         {
             label: "Scadenza",
-            value: formatProjectDate(readProjectValue("scadenza", "deadline", "due_date", "end_date")),
+            value:  selectedProject?.deadline ? formatProjectDate(selectedProject.deadline) : "Non disponibile",
         },
+
+        {
+            label: "Responsabile",
+            value: selectedProject?.created_by  ? getFullName(selectedProject.created_by) : "Non disponibile"
+        }
         // {
         //     label: "Responsabile",
         //     value: createdByUser ? getFullName(createdByUser) : "Non disponibile",
@@ -248,7 +302,8 @@ const ProjectDetail = () => {
                             projectId={projectId}
                             assignUserToProject={assignUserToProject}
                             fetchProjectDetails={fetchProjectDetails}
-                            onRemoveUser={setRemoveUserTarget} />
+                            onRemoveUser={setRemoveUserTarget}
+                            onAssignUser={handleAssignUser} />
                     ) : null}
 
                     { isAdmin  && activeSection === "activities" ? <ProjectActivitiesSection /> : null}

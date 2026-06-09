@@ -1,4 +1,4 @@
-import { SidebarProvider, SidebarInset} from "@/Components/ui/sidebar"; 
+import { SidebarProvider, SidebarInset,SidebarTrigger} from "@/Components/ui/sidebar"; 
 import AppSidebar from "./Sidebar"; 
 import Header from "./Header";
 import { useAuthContext } from "@/context/Auth/AuthContext";
@@ -17,15 +17,22 @@ const AppLayout = ({ children, page, hideHeader = false }) => {
 
        
         <SidebarInset className="flex flex-col flex-1 bg-slate-50">
-          {/*  Header */}
-          {!hideHeader && <Header user={user} page={page} />}
+            
+            {/* BARRA MOBILE: Questo header contiene l'hamburger visibile SOLO su schermi piccoli */}
+            <header className="flex h-14 items-center gap-4 border-b bg-white px-4 md:hidden">
+              <SidebarTrigger className="text-slate-700" />
+              <span className="font-semibold text-sm text-slate-900"></span>
+            </header>
 
-          {/* Il contenuto della pagina */}
-          <main>
-            {children}
-          </main>
-          
-        </SidebarInset>
+            {/* Il tuo Header Desktop (nascondilo su mobile aggiungendo "hidden md:block" al suo interno se duplica la barra) */}
+            {!hideHeader && <Header user={user} page={page} />}
+
+            {/* Il contenuto della pagina */}
+            <main className="flex-1">
+              {children}
+            </main>
+            
+          </SidebarInset>
       </div>
     </SidebarProvider>
     </TooltipProvider>

@@ -19,4 +19,12 @@ export const projectFields = [
 		type: "textarea",
 		rows: 4,
 	},
+	// {
+	// 	name : "responsabile",
+	// 	label: "Responsabile",
+	// 	placeholder: "Seleziona il responsabile del progetto",
+	// 	type: "select",
+	// 	required: true,
+	// 	options: []
+	//  } // le opzioni vengono caricate dinamicamente in AdminProjects.jsx dopo aver fetchato gli utenti
 ];

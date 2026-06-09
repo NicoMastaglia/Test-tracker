@@ -48,7 +48,7 @@ const CheckListTable = ({ checklists = [], onOpen,handleEdit,hanbdleDelete
     emptyMessage="Nessuna checklist trovata per questo progetto."
     renderRow={(cl) => (
       <TableRow key={cl.id} className="group transition-colors hover:bg-slate-50">
-        <TableCell className="font-mono text-slate-500 text-center">#{cl.id }</TableCell>
+        <TableCell className="font-mono text-slate-500 text-center">#{cl.checklist_id }</TableCell>
         <TableCell className="font-semibold text-slate-900">{cl.title}</TableCell>
         <TableCell className="text-slate-600 text-center">{formatDate(cl.last_updated)}</TableCell>
         <TableCell className="text-center">
