@@ -1,0 +1,38 @@
+Descrizione funzionamento
+
+README -> istruzione per il funzionamento / installazione pacchetti
+
+index.js -> entry point dell'app, contiene configurazione docs (swagger.json) + primo routing
+
+src/auth/generateToken -> funzione JWT per generare access token
+
+src/auth/hash -> genera / valida password hash
+
+src/database -> config del db
+
+src/middleware -> check dei permessi (3 funzioni per 3 tipi di utenti) -> return user id/role
+
+src/routes/ -> lista di tutte le routes
+
+src/swagger/ -> configurazione docs (/api-docs) -> richiede update se aggiungi/rimuovi routes
+
+------------------------------------------------------------------------------
+
+Da finire:
+
+route /api/auth/logout -> invalida il token che riceve
+
+------------------------------------------------------------------------------
+
+Da iniziare:
+
+sistema di tracciamento, salvato nel db in audit -> qualsiasi operazione eseguita da un utente viene tracciata
+
+routes: get /api/audit (superadmin) -> elenco operazioni eseguite
+	get /api/audit/:id (superadmin) -> elenco operazione eseguite per utente
+
+
+
+
+
+
