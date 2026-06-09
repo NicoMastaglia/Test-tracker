@@ -10,11 +10,13 @@ router.post("/", checkAdmin, async (req, res) => {
   const { title, project_id } = req.body;
   const createdBy = req.user.id;
 
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
+  const trimmedTitle = title ? title.trim() : "";
+
+  if (!trimmedTitle) {
+    return res.status(400).json({ error: "Bad Request", message: "Il titolo della checklist non può essere vuoto." });
   }
   if (!project_id) {
-    return res.status(400).json({ error: "Reference project is required" });
+    return res.status(400).json({ error: "Bad Request", message: "Il progetto di riferimento è obbligatorio." });
   }
 
   try {
@@ -23,43 +25,23 @@ router.post("/", checkAdmin, async (req, res) => {
         "SELECT id FROM project WHERE id = ? AND created_by = ?",
         [project_id, createdBy],
       );
-
       if (results.length === 0) {
-        return res
-          .status(403)
-          .json({ error: "Access denied or project not found" });
-      }
-    } else if (req.user.role === "superadmin") {
-      const [results] = await db.execute(
-        "SELECT id FROM project WHERE id = ?",
-        [project_id],
-      );
-
-      if (results.length === 0) {
-        return res.status(404).json({ error: "Project not found" });
+        return res.status(403).json({ error: "Access denied or project not found" });
       }
     }
 
     const [result] = await db.execute(
       "INSERT INTO checklist_template (title, project_id) VALUES (?, ?)",
-      [title, project_id],
+      [trimmedTitle, project_id],
     );
 
-    if (result.affectedRows === 1) {
-      return res.status(201).json({
-        message: "Checklist created successfully",
-        checklistId: result.insertId,
-      });
-    } else {
-      return res
-        .status(500)
-        .json({ error: "Error while creating the checklist" });
-    }
-  } catch (err) {
-    return res.status(500).json({
-      error: "Server error",
-      specific: err.message,
+    res.status(201).json({
+      id: result.insertId,
+      title: trimmedTitle,
+      project_id,
     });
+  } catch (err) {
+    res.status(500).json({ error: "Server error", specific: err.message });
   }
 });
 
@@ -237,39 +219,25 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
   const itemId = req.params.id;
   const { description } = req.body;
 
-  if (!description) {
-    return res.status(400).json({ error: "Description is required" });
-  }
+  const trimmedDescription = description ? description.trim() : "";
 
-  const [itemResults] = await db.execute(
-    "SELECT ci.id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
-    [itemId, req.user.id, req.user.role === "superadmin"],
-  );
-
-  if (itemResults.length === 0) {
-    return res
-      .status(403)
-      .json({ error: "Access denied or checklist item not found" });
+  if (!trimmedDescription) {
+    return res.status(400).json({ error: "Bad Request", message: "La nuova descrizione non può essere vuota." });
   }
 
   try {
     const [result] = await db.execute(
       "UPDATE checklist_item SET description = ? WHERE id = ?",
-      [description, itemId],
+      [trimmedDescription, itemId],
     );
 
     if (result.affectedRows > 0) {
-      return res
-        .status(200)
-        .json({ message: "Checklist item updated successfully" });
+      return res.status(200).json({ message: "Checklist item updated successfully", description: trimmedDescription });
     } else {
       return res.status(404).json({ error: "Checklist item not found" });
     }
   } catch (err) {
-    return res.status(500).json({
-      error: "Server error",
-      specific: err.message,
-    });
+    return res.status(500).json({ error: "Server error", specific: err.message });
   }
 });
 

@@ -149,8 +149,9 @@ router.patch(
       }
 
       if (note !== undefined) {
+        const trimmedNote = (note && note.trim() !== "") ? note.trim() : null;
         updates.push("note = ?");
-        parameters.push(note);
+        parameters.push(trimmedNote);
       }
 
       if (!updates.length) {

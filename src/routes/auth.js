@@ -10,29 +10,36 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   const { name, surname, email, password, role } = req.body;
 
-  if (!name || !surname || !email || !password || !role) {
-    return res.status(400).json({ message: "All fields are required" });
+  const trimmedName = name ? name.trim() : "";
+  const trimmedSurname = surname ? surname.trim() : "";
+  const trimmedEmail = email ? email.trim() : "";
+  const trimmedPassword = password ? password.trim() : "";
+  const trimmedRole = role ? role.trim() : "";
+
+  if (!trimmedName || !trimmedSurname || !trimmedEmail || !trimmedPassword || !trimmedRole) {
+    return res.status(400).json({ message: "Tutti i campi sono obbligatori e non possono essere vuoti." });
   }
+
   if (
-    role.toLowerCase() !== "user" &&
-    role.toLowerCase() !== "admin" &&
-    role.toLowerCase() !== "superadmin"
+    trimmedRole.toLowerCase() !== "user" &&
+    trimmedRole.toLowerCase() !== "admin" &&
+    trimmedRole.toLowerCase() !== "superadmin"
   ) {
-    return res.status(400).json({ message: "Invalid role" });
+    return res.status(400).json({ message: "Ruolo non valido" });
   }
 
-  const passwordHash = await hashPassword(password);
+  try {
+    const passwordHash = await hashPassword(trimmedPassword);
 
-  db.execute(
-    "INSERT INTO user (nome, cognome, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
-    [name, surname, email, passwordHash, role],
-  )
-    .then(() => {
-      res.status(201).json({ message: "User registered successfully" });
-    })
-    .catch((err) => {
-      res.status(500).json({ message: "Server error", specific: err.message });
-    });
+    await db.execute(
+      "INSERT INTO user (nome, cognome, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
+      [trimmedName, trimmedSurname, trimmedEmail, passwordHash, trimmedRole.toLowerCase()],
+    );
+    
+    return res.status(201).json({ message: "User registered successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", specific: err.message });
+  }
 });
 
 router.post("/login", async (req, res) => {

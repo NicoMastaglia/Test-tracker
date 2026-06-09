@@ -144,41 +144,45 @@ router.get("/", checkUser, (req, res) => {
 router.post("/", checkAdmin, async (req, res) => {
   const { name, description } = req.body;
   const createdBy = req.user.id;
-  if (!name) {
-    return res.status(400).json({ error: "Project name is required" });
+
+  const trimmedName = name ? name.trim() : "";
+  const trimmedDescription = description ? description.trim() : "";
+
+  if (!trimmedName) {
+    return res.status(400).json({ error: "Bad Request", message: "Il nome del progetto non può essere vuoto o contenere solo spazi." });
   }
-  if (!description) {
-    return res.status(400).json({ error: "Project description is required" });
+  if (!trimmedDescription) {
+    return res.status(400).json({ error: "Bad Request", message: "La descrizione del progetto non può essere vuota o contenere solo spazi." });
   }
 
   try {
     const [existingProject] = await db.execute(
       "SELECT id FROM project WHERE name = ?",
-      [name]
+      [trimmedName]
     );
 
     if (existingProject.length > 0) {
-      return res.status(400).json({
-        error: "Project name already in use"
+      return res.status(400).json({ 
+        error: "Bad Request", 
+        message: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
       });
     }
 
     const [result] = await db.execute(
       "INSERT INTO project (name, description, created_by) VALUES (?, ?, ?)",
-      [name, description, createdBy]);
-    
+      [trimmedName, trimmedDescription, createdBy]
+    );
+
     return res.status(201).json({
       id: result.insertId,
-      name: name,
-      description: description,
-      status: result.status,
+      name: trimmedName,
+      description: trimmedDescription,
+      status: "Attivo",
       created_by: createdBy,
     });
 
   } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "Internal server error", specific: err.message });
+    return res.status(500).json({ error: "Internal server error", specific: err.message });
   }
 });
 
@@ -361,30 +365,21 @@ router.patch("/:id/status", checkAdmin, (req, res) => {
   const projectId = req.params.id;
   const { status } = req.body;
 
-  if (!status) {
-    return res.status(400).json({ error: "Project status is required" });
-  }
-  if (status !== "Attivo" && status !== "Completato" && status !== "In pausa") {
-    return res.status(400).json({ error: "Invalid project status" });
+  const trimmedStatus = status ? status.trim() : "";
+
+  if (!trimmedStatus) {
+    return res.status(400).json({ error: "Bad Request", message: "Lo stato non può essere vuoto." });
   }
 
-  db.execute("UPDATE project SET status = ? WHERE id = ? AND created_by = ?", [
-    status,
-    projectId,
-    req.user.id,
-  ])
+  db.execute("UPDATE project SET status = ? WHERE id = ?", [trimmedStatus, projectId])
     .then(([result]) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: "Project not found" });
       }
-      return res
-        .status(200)
-        .json({ message: "Project status updated successfully" });
+      return res.status(200).json({ message: "Project status updated successfully", status: trimmedStatus });
     })
     .catch((err) => {
-      return res
-        .status(500)
-        .json({ error: "Internal server error", specific: err.message });
+      return res.status(500).json({ error: "Internal server error", specific: err.message });
     });
 });
 

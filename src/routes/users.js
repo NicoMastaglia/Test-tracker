@@ -55,10 +55,18 @@ router.put("/me", checkUser, async (req, res) => {
   const userId = req.user.id;
   const { nome, cognome, email } = req.body;
 
+  const trimmedNome = nome ? nome.trim() : "";
+  const trimmedCognome = cognome ? cognome.trim() : "";
+  const trimmedEmail = email ? email.trim() : "";
+
+  if (!trimmedNome || !trimmedCognome || !trimmedEmail) {
+    return res.status(400).json({ message: "Nome, cognome ed email non possono essere vuoti o contenere solo spazi." });
+  }
+
   db.execute("UPDATE user SET nome = ?, cognome = ?, email = ? WHERE id = ?", [
-    nome,
-    cognome,
-    email,
+    trimmedNome,
+    trimmedCognome,
+    trimmedEmail,
     userId,
   ])
     .then(([result]) => {
@@ -68,9 +76,9 @@ router.put("/me", checkUser, async (req, res) => {
       res.status(200).json({
         message: "Data updated successfully",
         data: {
-          name: nome,
-          surname: cognome,
-          email: email,
+          name: trimmedNome,
+          surname: trimmedCognome,
+          email: trimmedEmail,
         },
       });
     })
@@ -82,6 +90,14 @@ router.put("/me", checkUser, async (req, res) => {
 router.patch("/me/password", checkUser, async (req, res) => {
   const userId = req.user.id;
   const { Oldpassword, Newpassword } = req.body;
+
+  const trimmedOld = Oldpassword ? Oldpassword.trim() : "";
+  const trimmedNew = Newpassword ? Newpassword.trim() : "";
+
+  if (!trimmedOld || !trimmedNew) {
+    return res.status(400).json({ message: "La vecchia e la nuova password non possono essere vuote." });
+  }
+
   try {
     const [rows] = await db.execute(
       "SELECT password_hash FROM user WHERE id = ?",
@@ -93,7 +109,7 @@ router.patch("/me/password", checkUser, async (req, res) => {
     }
 
     const user = rows[0];
-    const isMatch = await comparePassword(Oldpassword, user.password_hash);
+    const isMatch = await comparePassword(trimmedOld, user.password_hash);
 
     if (!isMatch) {
       return res.status(400).json({ message: "Current password is incorrect" });
@@ -101,7 +117,7 @@ router.patch("/me/password", checkUser, async (req, res) => {
 
     const [result] = await db.execute(
       "UPDATE user SET password_hash = ? WHERE id = ?",
-      [await hashPassword(Newpassword), userId],
+      [await hashPassword(trimmedNew), userId],
     );
 
     if (result.affectedRows === 0) {
@@ -110,10 +126,7 @@ router.patch("/me/password", checkUser, async (req, res) => {
 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (err) {
-    res.status(500).json({
-      message: "Server error",
-      specific: err.message,
-    });
+    res.status(500).json({ message: "Server error", specific: err.message });
   }
 });
 
@@ -137,10 +150,18 @@ router.put("/:id", checkSuperadmin, async (req, res) => {
   const userId = req.params.id;
   const { name, surname, email } = req.body;
 
+  const trimmedName = name ? name.trim() : "";
+  const trimmedSurname = surname ? surname.trim() : "";
+  const trimmedEmail = email ? email.trim() : "";
+
+  if (!trimmedName || !trimmedSurname || !trimmedEmail) {
+    return res.status(400).json({ message: "I campi modificati non possono essere vuoti." });
+  }
+
   db.execute("UPDATE user SET nome = ?, cognome = ?, email = ? WHERE id = ?", [
-    name,
-    surname,
-    email,
+    trimmedName,
+    trimmedSurname,
+    trimmedEmail,
     userId,
   ])
     .then(([result]) => {
@@ -150,9 +171,9 @@ router.put("/:id", checkSuperadmin, async (req, res) => {
       res.status(200).json({
         message: "Data updated successfully",
         data: {
-          name: name,
-          surname: surname,
-          email: email,
+          name: trimmedName,
+          surname: trimmedSurname,
+          email: trimmedEmail,
         },
       });
     })
