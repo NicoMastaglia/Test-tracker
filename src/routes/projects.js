@@ -55,7 +55,7 @@ router.get("/", checkUser, (req, res) => {
       .catch((err) => {
         return res
           .status(500)
-          .json({ error: "Internal server error", specific: err.message });
+          .json({ error: "Errore del server", specific: err.message });
       });
   } else if (req.user.role === "admin") {
     return db
@@ -107,7 +107,7 @@ router.get("/", checkUser, (req, res) => {
       .catch((err) => {
         return res
           .status(500)
-          .json({ error: "Internal server error", specific: err.message });
+          .json({ error: "Errore del server", specific: err.message });
       });
   } else if (req.user.role === "user") {
     return db
@@ -134,11 +134,11 @@ router.get("/", checkUser, (req, res) => {
       .catch((err) => {
         return res
           .status(500)
-          .json({ error: "Internal server error", specific: err.message });
+          .json({ error: "Errore del server", specific: err.message });
       });
   }
 
-  return res.status(403).json({ error: "Forbidden" });
+  return res.status(403).json({ error: "Accesso negato" });
 });
 
 router.post("/", checkAdmin, async (req, res) => {
@@ -149,10 +149,10 @@ router.post("/", checkAdmin, async (req, res) => {
   const trimmedDescription = description ? description.trim() : "";
 
   if (!trimmedName) {
-    return res.status(400).json({ error: "Bad Request", message: "Il nome del progetto non può essere vuoto o contenere solo spazi." });
+    return res.status(400).json({ error: "Richiesta non valida", message: "Il nome del progetto non può essere vuoto o contenere solo spazi." });
   }
   if (!trimmedDescription) {
-    return res.status(400).json({ error: "Bad Request", message: "La descrizione del progetto non può essere vuota o contenere solo spazi." });
+    return res.status(400).json({ error: "Richiesta non valida", message: "La descrizione del progetto non può essere vuota o contenere solo spazi." });
   }
 
   try {
@@ -163,7 +163,7 @@ router.post("/", checkAdmin, async (req, res) => {
 
     if (existingProject.length > 0) {
       return res.status(400).json({ 
-        error: "Bad Request", 
+        error: "Richiesta non valida", 
         message: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
       });
     }
@@ -182,7 +182,7 @@ router.post("/", checkAdmin, async (req, res) => {
     });
 
   } catch (err) {
-    return res.status(500).json({ error: "Internal server error", specific: err.message });
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
   }
 });
 
@@ -239,7 +239,7 @@ router.get("/:id", checkUser, (req, res) => {
       .catch((err) => {
         return res
           .status(500)
-          .json({ error: "Internal server error", specific: err.message });
+          .json({ error: "Errore del server", specific: err.message });
       });
   } else if (req.user.role === "admin") {
     return db
@@ -291,7 +291,7 @@ router.get("/:id", checkUser, (req, res) => {
       .catch((err) => {
         return res
           .status(500)
-          .json({ error: "Internal server error", specific: err.message });
+          .json({ error: "Errore del server", specific: err.message });
       });
   } else if (req.user.role === "user") {
     return db
@@ -307,7 +307,7 @@ router.get("/:id", checkUser, (req, res) => {
       )
       .then(([results]) => {
         if (results.length === 0) {
-          return res.status(404).json({ error: "Project not found" });
+          return res.status(404).json({ error: "Progetto non trovato" });
         }
         const project = {
           id: results[0].id,
@@ -326,38 +326,41 @@ router.get("/:id", checkUser, (req, res) => {
       .catch((err) => {
         return res
           .status(500)
-          .json({ error: "Internal server error", specific: err.message });
+          .json({ error: "Errore del server", specific: err.message });
       });
   }
 
-  return res.status(403).json({ error: "Forbidden" });
+  return res.status(403).json({ error: "Accesso negato" });
 });
 
 router.put("/:id", checkAdmin, (req, res) => {
   const projectId = req.params.id;
   const { name, description } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ error: "Project name is required" });
+  const trimmedName = name ? name.trim() : "";
+  const trimmedDescription = description ? description.trim() : "";
+
+  if (!trimmedName) {
+    return res.status(400).json({ error: "Richiesta non valida", message: "Il nome del progetto è obbligatorio e non può essere vuoto." });
   }
-  if (!description) {
-    return res.status(400).json({ error: "Project description is required" });
+  if (!trimmedDescription) {
+    return res.status(400).json({ error: "Richiesta non valida", message: "La descrizione del progetto è obbligatoria e non può essere vuota." });
   }
 
   db.execute(
     "UPDATE project SET name = ?, description = ? WHERE id = ? AND created_by = ?",
-    [name, description, projectId, req.user.id],
+    [trimmedName, trimmedDescription, projectId, req.user.id],
   )
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Project not found" });
+        return res.status(404).json({ error: "Progetto non trovato" });
       }
-      return res.status(200).json({ message: "Project updated successfully" });
+      return res.status(200).json({ message: "Progetto aggiornato con successo" });
     })
     .catch((err) => {
       return res
         .status(500)
-        .json({ error: "Internal server error", specific: err.message });
+        .json({ error: "Errore del server", specific: err.message });
     });
 });
 
@@ -368,18 +371,18 @@ router.patch("/:id/status", checkAdmin, (req, res) => {
   const trimmedStatus = status ? status.trim() : "";
 
   if (!trimmedStatus) {
-    return res.status(400).json({ error: "Bad Request", message: "Lo stato non può essere vuoto." });
+    return res.status(400).json({ error: "Richiesta non valida", message: "Lo stato non può essere vuoto." });
   }
 
   db.execute("UPDATE project SET status = ? WHERE id = ?", [trimmedStatus, projectId])
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Project not found" });
+        return res.status(404).json({ error: "Progetto non trovato" });
       }
-      return res.status(200).json({ message: "Project status updated successfully", status: trimmedStatus });
+      return res.status(200).json({ message: "Stato del progetto aggiornato con successo", status: trimmedStatus });
     })
     .catch((err) => {
-      return res.status(500).json({ error: "Internal server error", specific: err.message });
+      return res.status(500).json({ error: "Errore del server", specific: err.message });
     });
 });
 
@@ -388,7 +391,7 @@ router.post("/:id/assign", checkAdmin, (req, res) => {
   const { userId } = req.body;
 
   if (!userId) {
-    return res.status(400).json({ error: "User ID is required" });
+    return res.status(400).json({ error: "Richiesta non valida", message: "L'ID utente è obbligatorio" });
   }
 
   db.execute(
@@ -398,12 +401,12 @@ router.post("/:id/assign", checkAdmin, (req, res) => {
     .then(([result]) => {
       return res
         .status(200)
-        .json({ message: "User assigned to project successfully" });
+        .json({ message: "Utente assegnato al progetto con successo" });
     })
     .catch((err) => {
       return res
         .status(500)
-        .json({ error: "Internal server error", specific: err.message });
+        .json({ error: "Errore del server", specific: err.message });
     });
 });
 
@@ -420,7 +423,7 @@ router.get("/:id/assign", checkAdmin, (req, res) => {
     .catch((err) => {
       return res
         .status(500)
-        .json({ error: "Internal server error", specific: err.message });
+        .json({ error: "Errore del server", specific: err.message });
     });
 });
 
@@ -429,7 +432,7 @@ router.delete("/:id/assign", checkAdmin, (req, res) => {
   const { userId } = req.body;
 
   if (!userId) {
-    return res.status(400).json({ error: "User ID is required" });
+    return res.status(400).json({ error: "Richiesta non valida", message: "L'ID utente è obbligatorio" });
   }
 
   db.execute(
@@ -438,16 +441,16 @@ router.delete("/:id/assign", checkAdmin, (req, res) => {
   )
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Assignment not found" });
+        return res.status(404).json({ error: "Assegnazione non trovata" });
       }
       return res
         .status(200)
-        .json({ message: "User unassigned from project successfully" });
+        .json({ message: "Assegnazione utente rimossa con successo" });
     })
     .catch((err) => {
       return res
         .status(500)
-        .json({ error: "Internal server error", specific: err.message });
+        .json({ error: "Errore del server", specific: err.message });
     });
 });
 
@@ -457,14 +460,14 @@ router.delete("/:id", checkSuperadmin, (req, res) => {
   db.execute("DELETE FROM project WHERE id = ?", [projectId])
     .then(([result]) => {
       if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Project not found" });
+        return res.status(404).json({ error: "Progetto non trovato" });
       }
-      return res.status(200).json({ message: "Project deleted successfully" });
+      return res.status(200).json({ message: "Progetto eliminato con successo" });
     })
     .catch((err) => {
       return res
         .status(500)
-        .json({ error: "Internal server error", specific: err.message });
+        .json({ error: "Errore del server", specific: err.message });
     });
 });
 
