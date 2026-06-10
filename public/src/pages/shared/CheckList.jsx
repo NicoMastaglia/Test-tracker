@@ -45,7 +45,14 @@ const CheckList = () => {
       ? `/admin/projects/${id}/checklist`
       : `/user/projects/${id}/checklist`;
     navigate(`${base}/${cl.id}`);
-  };
+  }
+
+ const handleEdit = (cl) => {
+  console.log(cl)
+   
+
+
+ }
 
   const projectsPath = isAdmin ? "/admin/projects" : "/user/projects";
   const projectPath  = isAdmin ? `/admin/projects/${id}` : `/user/projects/${id}`;
@@ -89,7 +96,10 @@ const CheckList = () => {
         </div>
 
         {/* tabella */}
-        <CheckListTable checklists={filtered} onOpen={handleOpen} />
+        <CheckListTable checklists={filtered} onOpen={handleOpen} 
+        handleEdit={handleEdit}
+        isAdmin={isAdmin}
+         />
 
         <ModalForm
           modalOpen={modal}

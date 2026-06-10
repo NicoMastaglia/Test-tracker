@@ -50,12 +50,14 @@ const CheckListSection = ({ projectId, isAdmin }) => {
   };
 
   const handleOpenEditModal = (cl) => {
-  setEditingId(cl.id);
-  setFormData({ title: cl.title }); // Pre-compila il campo con il titolo attuale
+  setEditingId(cl.checklist_id);
+  setFormData({ title: cl.title }); 
   setModalForEdit(true);
 };
 
-const handleEdit = async () => {
+const handleEdit = async (editingId) => {
+  console.log("Editing checklist with ID:", editingId, "and new title:", formData.title);
+
   if (!editingId) return;
 
   try {
@@ -97,6 +99,7 @@ const handleEdit = async () => {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        
         <ActionBar
           search={search}
           setSearch={setSearch}
@@ -129,7 +132,7 @@ const handleEdit = async () => {
       fields={checkListFields}
       formData={formData}
       setFormData={setFormData}
-     onSubmit={handleEdit} // Adesso chiamerà la logica asincrona di aggiornamento
+     onSubmit={handleEdit} 
      submitLabel="Salva modifiche"
      cancelLabel="Annulla"
 

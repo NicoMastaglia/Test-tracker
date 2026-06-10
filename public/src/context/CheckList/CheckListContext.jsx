@@ -9,13 +9,15 @@ import { useProjectContext } from "../Project/ProjectContext";
 
 const CheckListContext = createContext();
 
+
+// Normalizza una riga (checklist x item)
 const normalizeCheckListRow = (row) => ({
-    ...row,
-    id: row.template_id ?? row.id,
-    template_id: row.template_id ?? row.id,
-    project_id: row.project_id ?? row.projectId ?? null,
+    checklist_id: row.checklist_id ?? row.template_id ?? row.id ?? null,
     title: row.title ?? row.name ?? "",
-    last_update: row.last_update ?? row.updated_at ?? row.updatedAt ?? row.created_at ?? row.createdAt ?? null,
+    project_id: row.project_id ?? row.projectId ?? null,
+    item_id: row.item_id ?? null,
+    description: row.description ?? "",
+    position: row.position ?? null,
 });
 
 

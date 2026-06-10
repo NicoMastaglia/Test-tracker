@@ -11,6 +11,7 @@ import ModalForm from "@/utils/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
 import { getFullName } from "@/utils/tableHelpers";
 import {useAuthContext} from "@/context/Auth/AuthContext"
+
 const ModalForUsers = () => {
   const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
   const { user } = useAuthContext();
@@ -69,7 +70,10 @@ console.log(selectedUser,'selectedUser')
       toast.success("Profilo utente aggiornato con successo");
       handleCloseModal();
     } catch (error) {
+
+      const message = error.response?.data?.specific|| error.message;
       console.error("Errore durante il salvataggio utente:", error.response?.data || error.message);
+      toast.error(message);
     }
   };
 
@@ -112,7 +116,7 @@ console.log(selectedUser,'selectedUser')
             onClick={() => setDeleteConfirmOpen(true)}
         >
             <Trash2 className="mr-2 h-4 w-4" />
-            Elimina Utente f
+            Elimina Utente 
         </Button>
         )
       
