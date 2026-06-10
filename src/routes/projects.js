@@ -333,7 +333,7 @@ router.get("/:id", checkUser, (req, res) => {
   return res.status(403).json({ error: "Accesso negato" });
 });
 
-router.put("/:id", checkAdmin, (req, res) => {
+router.put("/:id", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
   const { name, description } = req.body;
 
@@ -341,27 +341,51 @@ router.put("/:id", checkAdmin, (req, res) => {
   const trimmedDescription = description ? description.trim() : "";
 
   if (!trimmedName) {
-    return res.status(400).json({ error: "Richiesta non valida", message: "Il nome del progetto è obbligatorio e non può essere vuoto." });
+    return res.status(400).json({ 
+      message: "Errore nella richiesta", 
+      specific: "Il nome del progetto è obbligatorio e non può essere vuoto." 
+    });
   }
   if (!trimmedDescription) {
-    return res.status(400).json({ error: "Richiesta non valida", message: "La descrizione del progetto è obbligatoria e non può essere vuota." });
+    return res.status(400).json({ 
+      message: "Errore nella richiesta", 
+      specific: "La descrizione del progetto è obbligatoria e non può essere vuota." 
+    });
   }
 
-  db.execute(
-    "UPDATE project SET name = ?, description = ? WHERE id = ? AND created_by = ?",
-    [trimmedName, trimmedDescription, projectId, req.user.id],
-  )
-    .then(([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Progetto non trovato" });
-      }
-      return res.status(200).json({ message: "Progetto aggiornato con successo" });
-    })
-    .catch((err) => {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", specific: err.message });
+  try {
+    const [existingProject] = await db.execute(
+      "SELECT id FROM project WHERE name = ? AND id != ?",
+      [trimmedName, projectId]
+    );
+
+    if (existingProject.length > 0) {
+      return res.status(400).json({ 
+        message: "Errore nella richiesta", 
+        specific: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
+      });
+    }
+    const [result] = await db.execute(
+      "UPDATE project SET name = ?, description = ? WHERE id = ? AND created_by = ?",
+      [trimmedName, trimmedDescription, projectId, req.user.id],
+      
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        message: "Errore nella richiesta", 
+        specific: "Progetto non trovato o permessi insufficienti." 
+      });
+    }
+
+    return res.status(200).json({ message: "Progetto aggiornato con successo" });
+
+  } catch (err) {
+    return res.status(500).json({ 
+      message: "Errore del server", 
+      specific: err.message 
     });
+  }
 });
 
 router.patch("/:id/status", checkAdmin, (req, res) => {
