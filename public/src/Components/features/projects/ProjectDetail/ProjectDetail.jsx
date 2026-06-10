@@ -119,13 +119,13 @@ const ProjectDetail = () => {
 
     }
 
-    const startProjects = () =>{
-        return (
-            <Button onClick={handleStartProject}>
-                Avvia progetto
-            </Button>
-        )
-    }
+    // const startProjects = () =>{
+    //     return (
+    //         <Button onClick={handleStartProject}>
+    //             Avvia progetto
+    //         </Button>
+    //     )
+    // }
 
 
 
@@ -145,16 +145,16 @@ const ProjectDetail = () => {
     
 
     // La res del be dovrà diventare un oggetto anche  se ora usiamo un arr
-    const readProjectValue = (...keys) => {
-        for (const key of keys) {
-            const candidate = selectedProject?.[key];
-            if (candidate !== null && candidate !== undefined && String(candidate).trim() !== "") {
-                return candidate;
-            }
-        }
+    // const readProjectValue = (...keys) => {
+    //     for (const key of keys) {
+    //         const candidate = selectedProject?.[key];
+    //         if (candidate !== null && candidate !== undefined && String(candidate).trim() !== "") {
+    //             return candidate;
+    //         }
+    //     }
 
-        return null;
-    };
+    //     return null;
+    // };
 
     
 

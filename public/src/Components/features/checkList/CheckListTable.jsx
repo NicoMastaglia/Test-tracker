@@ -2,7 +2,7 @@ import { Pencil, Trash2,ExternalLink } from 'lucide-react';
 import { Button } from "@/Components/ui/button";
 import { TableRow, TableCell } from "@/Components/ui/table";
 import StandardTable from "@/utils/StandardTable";
-
+import React,{useState,useEffect} from 'react';
 
 // Configurazione delle intestazioni della tabella con chiavi e css
 const HEADERS = [
@@ -22,6 +22,8 @@ const ButtonAction = ({ onClick, icon: Icon, label,color }) => (
     {label}
   </Button>
 );
+
+
 
 
 // Formatta la data in formato italiano o restituisce un placeholder se non valida
@@ -47,7 +49,7 @@ const CheckListTable = ({ checklists = [], onOpen,handleEdit,hanbdleDelete
     data={checklists}
     emptyMessage="Nessuna checklist trovata per questo progetto."
     renderRow={(cl) => (
-      <TableRow key={cl.id} className="group transition-colors hover:bg-slate-50">
+      <TableRow key={cl.checklist_id} className="group transition-colors hover:bg-slate-50">
         <TableCell className="font-mono text-slate-500 text-center">#{cl.checklist_id }</TableCell>
         <TableCell className="font-semibold text-slate-900">{cl.title}</TableCell>
         <TableCell className="text-slate-600 text-center">{formatDate(cl.last_updated)}</TableCell>
@@ -62,13 +64,14 @@ const CheckListTable = ({ checklists = [], onOpen,handleEdit,hanbdleDelete
             />
             
               {isAdmin && (
-            <><ButtonAction
+            <>
+            <ButtonAction
                 onClick={() => handleEdit(cl)}
                 icon={Pencil}
                 color="hover:text-blue-600" />
                 
                 <ButtonAction
-                  onClick={() => hanbdleDelete(cl.id)}
+                  onClick={() => hanbdleDelete(cl.checklist_id)}
                   icon={Trash2}
                   color="hover:text-red-600" /></>
               )}
