@@ -1,10 +1,11 @@
 import React from "react";
-import { Separator } from "@/Components/ui/separator"; 
+import { Separator } from "@/Components/ui/separator";
 
 const Header = ({ user, page }) => {
   const headerConfig = {
     dashboard: {
-      title: (user) => `Benvenuto, ${user.name.slice(0, 1).toUpperCase() + user.name.slice(1)}!`,
+      title: (user) =>
+        `Benvenuto, ${user.name.slice(0, 1).toUpperCase() + user.name.slice(1)}!`,
       subtitle: (user) => `Hai effettuato l'accesso come ${user.role}`,
     },
     projects: {
@@ -24,7 +25,8 @@ const Header = ({ user, page }) => {
       subtitle: () => "Visualizza e gestisci gli utenti della piattaforma.",
     },
     checklists: {
-      title: (user) => (user?.role === "user" ? "La mia Checklist" : "Gestione Checklist"),
+      title: (user) =>
+        user?.role === "user" ? "La mia Checklist" : "Gestione Checklist",
       subtitle: (user) =>
         user?.role === "user"
           ? "Visualizza e gestisci i task della tua checklist."
@@ -41,27 +43,22 @@ const Header = ({ user, page }) => {
 
   return (
     <header className="flex flex-col w-full bg-white border-b border-slate-100">
-    
       <div className="flex items-center h-8 px-6 gap-2">
-   
         <Separator orientation="vertical" className="h-2 bg-slate-200" />
         <div className="flex-1 pl-2">
-          
-           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-             {pageLabel}
-           </span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            {pageLabel}
+          </span>
         </div>
       </div>
 
-    
       <div className="px-2 py-3 md:px-8 bg-slate-50/40">
-       
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
           {currentConfig.title(user)}
         </h1>
-       
+
         <p className="mt-1 text-xs md:text-sm text-slate-400 font-medium tracking-wide">
-          {currentConfig.subtitle(user)} 
+          {currentConfig.subtitle(user)}
         </p>
       </div>
     </header>

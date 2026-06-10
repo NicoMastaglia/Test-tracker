@@ -4,20 +4,11 @@ import AppLayout from "@/Components/layout/AppLayout";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { Button } from "@/Components/ui/button";
-import { Badge } from "@/Components/ui/badge";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/Components/ui/dialog";
-import { ArrowLeft, Flag, FolderOpen } from "lucide-react";
-import { Label } from "@/Components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/Components/ui/select";
-import { getFullName, getProjectStatusBadgeClass } from "@/utils/tableHelpers";
+import { ArrowLeft, Flag } from "lucide-react";
+import ModalForm from "@/utils/ModalForm";
+import { getProjectInfoItems } from "@/utils/projectInfoItems";
 import ProjectSectionNav from "./ProjectSectionNav";
+import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
 import ProjectTeamSection from "./ProjectTeamSection";
 import ProjectActivitiesSection from "./ProjectActivitiesSection";
@@ -26,333 +17,198 @@ import { useCheckListContext } from "@/context/CheckList/CheckListContext";
 import {useAuthContext} from "@/context/Auth/AuthContext";
 import { toast } from "sonner";
 const ProjectDetail = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { id: projectId } = useParams();
-    const { user } = useAuthContext();
-    const isAdmin = user?.role !== "user";
-    const { checklistItems,fetchCheckListsByProject } = useCheckListContext();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id: projectId } = useParams();
+  const { user } = useAuthContext();
+  const isAdmin = user?.role !== "user";
+  const { checklistItems, fetchCheckListsByProject } = useCheckListContext();
 
-    const { users, fetchUsers } = useUserContext();
-    const {
-        loading,
-        selectedProject,
-        fetchProjectDetails,
-        clearSelectedProject,
-        unAssingUserAssignment,
-        assignUserToProject,
-    } = useProjectContext();
+  const { users, fetchUsers } = useUserContext();
+  const {
+    loading,
+    selectedProject,
+    fetchProjectDetails,
+    clearSelectedProject,
+    unAssingUserAssignment,
+    assignUserToProject,
+  } = useProjectContext();
 
-    const [removeUserTarget, setRemoveUserTarget] = useState(null);
-    const [selectedAssignUserId, setSelectedAssignUserId] = useState("");
-    const [activeSection, setActiveSection] = useState(location.state?.section ?? "overview");
+  const [removeUserTarget, setRemoveUserTarget] = useState(null);
+  const [selectedAssignUserId, setSelectedAssignUserId] = useState("");
+  const [activeSection, setActiveSection] = useState(
+    location.state?.section ?? "overview",
+  );
 
+  const projectAssignedUsers = selectedProject?.user_list || [];
 
-   
-    const projectAssignedUsers = selectedProject?.user_list || [];
-
-
-
-    useEffect(() => {
+  useEffect(() => {
     if (!projectId) {
-        clearSelectedProject();
-        return;
+      clearSelectedProject();
+      return;
     }
 
     fetchProjectDetails(projectId);
     fetchCheckListsByProject(projectId);
 
     if (isAdmin) {
-        fetchUsers();
+      fetchUsers();
     }
-
-  
 
     return () => {
-        clearSelectedProject();
+      clearSelectedProject();
     };
-}, [projectId, isAdmin]);
+  }, [projectId, isAdmin]);
 
-    const handleRemoveAssignedUser = async () => {
-        console.log(2)
-        if (!projectId || !selectedProject || !removeUserTarget) return;
+  const handleRemoveAssignedUser = async () => {
+    if (!projectId || !selectedProject || !removeUserTarget) return;
 
-        try {
-            await unAssingUserAssignment(Number(projectId), Number(removeUserTarget.id ?? removeUserTarget.user_id));
-            await fetchProjectDetails(Number(projectId));
-              toast.success("Utente rimosso dal progetto");
-            setRemoveUserTarget(null);
-          
-        } catch (error) {
-            // il context aggiorna già lo stato di errore globale
-        }
-    }; 
-
-    const handleAssignUser = async () => {
-        if (!projectId || !selectedAssignUserId) return;
-
-        try {
-            await assignUserToProject(Number(projectId), Number(selectedAssignUserId));
-            await fetchProjectDetails(Number(projectId));
-              toast.success("Utente assegnato al progetto");
-            setSelectedAssignUserId("");
-        }
-
-            catch (error) {
-                toast.error("Errore durante l'assegnazione dell'utente al progetto");
-
-            }
-
-
-
-
-
+    try {
+      await unAssingUserAssignment(
+        Number(projectId),
+        Number(removeUserTarget.id ?? removeUserTarget.user_id),
+      );
+      await fetchProjectDetails(Number(projectId));
+      toast.success("Utente rimosso dal progetto");
+      setRemoveUserTarget(null);
+    } catch (error) {
+      // il context aggiorna già lo stato di errore globale
     }
-      
-    // cambia lo stato del progetto in "Attivo" 
-    //  started_at diventa la data di avvio del progetto
-    // lo stato diventa 'attivo'
-    const handleStartProject = () =>{
-        if (!projectId) return;
-        toast.error("Funzionalità non ancora implementata");
+  };
 
+  const handleAssignUser = async () => {
+    if (!projectId || !selectedAssignUserId) return;
 
+    try {
+      await assignUserToProject(
+        Number(projectId),
+        Number(selectedAssignUserId),
+      );
+      await fetchProjectDetails(Number(projectId));
+      toast.success("Utente assegnato al progetto");
+      setSelectedAssignUserId("");
+    } catch (error) {
+      toast.error("Errore durante l'assegnazione dell'utente al progetto");
     }
+  };
 
-    // const startProjects = () =>{
-    //     return (
-    //         <Button onClick={handleStartProject}>
-    //             Avvia progetto
-    //         </Button>
-    //     )
-    // }
+  const projectInfoItems = getProjectInfoItems(selectedProject);
 
+  const projectSectionCounts = {
+    // Per il conteggio della checklist, usiamo la lunghezza di checklistItems
+    checklist: checklistItems.length,
+    // Per il conteggio del team, usiamo la lunghezza di projectAssignedUsers
+    team: projectAssignedUsers.length,
+    // Placeholder per attività, da sostituire con dati reali quando disponibili
+    activities: 3,
+  };
 
+  const deleteFormDescription = (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+      {removeUserTarget ? (
+        <>
+          <p className="font-medium text-slate-900">
+            {[
+              removeUserTarget.nome ?? removeUserTarget.name ?? "",
+              removeUserTarget.cognome ?? removeUserTarget.surname ?? "",
+            ]
+              .filter(Boolean)
+              .join(" ") ||
+              removeUserTarget.email ||
+              `User ${removeUserTarget.id ?? removeUserTarget.user_id}`}
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            {removeUserTarget.email ??
+              `ID ${removeUserTarget.id ?? removeUserTarget.user_id}`}
+          </p>
+        </>
+      ) : null}
+    </div>
+  );
 
-  
-    const formatProjectDate = (value) => {
-        if (!value) return "Non disponibile";
+  // user ritorna ai suoi progetti
+  const backRoute =
+    user?.role === "user" ? "/user/projects" : "/admin/projects";
 
-        const parsedDate = new Date(value);
-        if (Number.isNaN(parsedDate.getTime())) return String(value);
+  return (
+    <AppLayout page="projects" hideHeader>
+      <div className="w-full flex flex-col gap-6 px-6 py-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Button
+            variant="outline"
+            onClick={() => navigate(backRoute)}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Torna ai progetti
+          </Button>
+        </div>
 
-        return new Intl.DateTimeFormat("it-IT", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-        }).format(parsedDate);
-    };
-    
+        {loading && !selectedProject ? (
+          <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+            Caricamento dettagli progetto...
+          </div>
+        ) : selectedProject ? (
+          <div className="space-y-6">
+            <ProjectHeaderCard selectedProject={selectedProject} />
 
-    // La res del be dovrà diventare un oggetto anche  se ora usiamo un arr
-    // const readProjectValue = (...keys) => {
-    //     for (const key of keys) {
-    //         const candidate = selectedProject?.[key];
-    //         if (candidate !== null && candidate !== undefined && String(candidate).trim() !== "") {
-    //             return candidate;
-    //         }
-    //     }
+            <ProjectSectionNav
+              activeSection={activeSection}
+              onSectionChange={setActiveSection}
+              counts={projectSectionCounts}
+              isAdmin={isAdmin}
+            />
 
-    //     return null;
-    // };
+            {activeSection === "overview" ? (
+              <ProjectOverviewSection projectInfoItems={projectInfoItems} />
+            ) : null}
 
-    
+            {activeSection === "checklist" ? (
+              <CheckListSection projectId={projectId} isAdmin={isAdmin} />
+            ) : null}
 
-    const projectInfoItems = [
-        {
-            label: "Creato da",
-            value: selectedProject?.created_by  ? getFullName(selectedProject.created_by) : "Non disponibile"
-        },
+            {isAdmin && activeSection === "team" ? (
+              <ProjectTeamSection
+                users={users}
+                projectAssignedUsers={projectAssignedUsers}
+                selectedAssignUserId={selectedAssignUserId}
+                setSelectedAssignUserId={setSelectedAssignUserId}
+                projectId={projectId}
+                assignUserToProject={assignUserToProject}
+                fetchProjectDetails={fetchProjectDetails}
+                onRemoveUser={setRemoveUserTarget}
+                onAssignUser={handleAssignUser}
+              />
+            ) : null}
 
-        {
-            label: "Data creazione",
-            value:  selectedProject?.created_at ? formatProjectDate(selectedProject.created_at) : "Non disponibile"
-        },
-        
-        {
-            label: "Data avvio progetto",
-            value:  selectedProject?.started_at ? formatProjectDate(selectedProject.started_at) : "Non disponibile",
-        },
-        {
-            label: "Ultimo aggiornamento",
-            value: selectedProject?.updated_at ? formatProjectDate(selectedProject.updated_at) : "Non disponibile",
-        },
-        
-        {
-            label: "Scadenza",
-            value:  selectedProject?.deadline ? formatProjectDate(selectedProject.deadline) : "Non disponibile",
-        },
+            {isAdmin && activeSection === "activities" ? (
+              <ProjectActivitiesSection />
+            ) : null}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+            Nessun dettaglio progetto disponibile.
+          </div>
+        )}
+      </div>
 
-        {
-            label: "Responsabile",
-            value: selectedProject?.created_by  ? getFullName(selectedProject.created_by) : "Non disponibile"
-        }
-        // {
-        //     label: "Responsabile",
-        //     value: createdByUser ? getFullName(createdByUser) : "Non disponibile",
-        // },
-    ];
-   
-    const projectSectionCounts = {
-         // Per il conteggio della checklist, usiamo la lunghezza di checklistItems
-        checklist: checklistItems.length,
-        // Per il conteggio del team, usiamo la lunghezza di projectAssignedUsers
-        team: projectAssignedUsers.length,
-        // Placeholder per attività, da sostituire con dati reali quando disponibili
-        activities: 3,
-    };
-
-    const statusLabel = selectedProject?.status ?? "Unknown";
-    
-    // user ritorna ai suoi progetti
-    const backRoute =
-    user?.role === "user"
-    ? "/user/projects"
-    : "/admin/projects";
-
-
-    
-
-        return (
-       
-                <AppLayout page="projects" hideHeader>
-                    <div className="w-full flex flex-col gap-6 px-6 py-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <Button variant="outline" onClick={() => navigate(backRoute)} className="gap-2">
-                    <ArrowLeft className="h-4 w-4" />
-                    Torna ai progetti
-                </Button>
-
-                {/* <Button className="gap-2" onClick={handleManageChecklist}>
-                    <CheckSquare2 className="h-4 w-4" />
-                    Apri checklist
-                </Button> */}
-
-            </div>
-
-            {loading && !selectedProject ? (
-                <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-                    Caricamento dettagli progetto...
-                </div>
-            ) : selectedProject ? (
-                <div className="space-y-6">
-                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                        <div className="border-b border-slate-100 bg-slate-50 px-6 py-5">
-                            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
-                                            <FolderOpen className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Project Detail</p>
-                                            <h2 className="text-2xl font-bold text-slate-900">{selectedProject.name ?? selectedProject.nome}</h2>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                                        <Badge className={`border-none px-3 py-1 text-xs ${getProjectStatusBadgeClass(selectedProject.status)}`}>
-                                            <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
-                                            {selectedProject.status ?? "Unknown"}
-                                        </Badge>
-                                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
-                                            Codice: #{selectedProject.id}
-                                        </span>
-                                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
-                                            Creato da {selectedProject.created_by ? getFullName(selectedProject.created_by) : "Non disponibile"}
-                                        </span>
-                                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1">
-                                            {selectedProject.description || "Nessuna descrizione disponibile."}
-                                        </span>
-
-
-
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <ProjectSectionNav activeSection={activeSection}
-                     onSectionChange={setActiveSection} counts={projectSectionCounts} 
-                     isAdmin={isAdmin}
-                     />
-
-                    {activeSection === "overview" ? (
-                        <ProjectOverviewSection
-                            projectData={selectedProject}
-                            createdByUser={selectedProject.created_by ? getFullName(selectedProject.created_by) : "Non disponibile"}
-                            projectInfoItems={projectInfoItems}
-                            onOpenChecklist={() => setActiveSection("checklist")}
-                            statusBadgeClass={getProjectStatusBadgeClass(selectedProject.status)}
-                            formatProjectStatusLabel={statusLabel} />
-                    ) : null}
-
-                    {activeSection === "checklist" ? (
-                        <CheckListSection projectId={projectId} isAdmin={isAdmin} />
-                    ) : null}
-
-                    { isAdmin  && activeSection === "team" ? (
-                        <ProjectTeamSection
-                            users={users}
-                            projectAssignedUsers={projectAssignedUsers}
-                            selectedAssignUserId={selectedAssignUserId}
-                            setSelectedAssignUserId={setSelectedAssignUserId}
-                            projectId={projectId}
-                            assignUserToProject={assignUserToProject}
-                            fetchProjectDetails={fetchProjectDetails}
-                            onRemoveUser={setRemoveUserTarget}
-                            onAssignUser={handleAssignUser} />
-                    ) : null}
-
-                    { isAdmin  && activeSection === "activities" ? <ProjectActivitiesSection /> : null}
-                </div>
-            ) : (
-                <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-                    Nessun dettaglio progetto disponibile.
-                </div>
-            )}
-            </div>
-
-            <Dialog open={!!removeUserTarget} onOpenChange={() => setRemoveUserTarget(null)}>
-                <DialogContent className="sm:max-w-105">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <Flag className="h-5 w-5 text-rose-500" />
-                            Conferma rimozione utente
-                        </DialogTitle>
-                        <DialogDescription>
-                            Stai per rimuovere questo utente dal progetto. L'operazione aggiornerà subito l'assegnazione.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                        {removeUserTarget ? (
-                            <>
-                                <p className="font-medium text-slate-900">
-                                    {[removeUserTarget.nome ?? removeUserTarget.name ?? "", removeUserTarget.cognome ?? removeUserTarget.surname ?? ""].filter(Boolean).join(" ") || removeUserTarget.email || `User ${removeUserTarget.id ?? removeUserTarget.user_id}`}
-                                </p>
-                                <p className="mt-1 text-xs text-slate-500">
-                                    {removeUserTarget.email ?? `ID ${removeUserTarget.id ?? removeUserTarget.user_id}`}
-                                </p>
-                            </>
-                        ) : null}
-                    </div>
-
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setRemoveUserTarget(null)}>
-                            Annulla
-                        </Button>
-                        <Button variant="destructive" onClick={handleRemoveAssignedUser}>
-                            Rimuovi dal progetto
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-                </Dialog>
-            </AppLayout>
-        
-    );
+      <ModalForm
+        modalOpen={!!removeUserTarget}
+        setModalOpen={setRemoveUserTarget}
+        title="Conferma rimozione utente"
+        infos="Stai per rimuovere questo utente dal progetto. L'operazione aggiornerà subito l'assegnazione."
+        hasDescripion={true}
+        description={deleteFormDescription}
+        onSubmit={handleRemoveAssignedUser}
+        submitLabel="Rimuovi dal progetto"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Flag}
+        iconColor="text-rose-500"
+        submitVariant="destructive"
+      />
+    </AppLayout>
+  );
 };
 
 export default ProjectDetail;

@@ -128,7 +128,7 @@ export const getProjectStatusBadgeClass = (status) => {
 };
 
 
-// per formattare le date  nelle tabelle 
+// per formattare le date  nelle tabelle
 export const formatTableDate = (value) => {
   if (!value) {
     return "Data non disponibile";
@@ -141,4 +141,19 @@ export const formatTableDate = (value) => {
   }
 
   return date.toLocaleDateString("it-IT");
+};
+
+
+// per formattare le date nella pagina di dettaglio progetto
+export const formatProjectDate = (value) => {
+  if (!value) return "Non disponibile";
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) return String(value);
+
+  return new Intl.DateTimeFormat("it-IT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(parsedDate);
 };

@@ -70,8 +70,8 @@ console.log(selectedUser,'selectedUser')
       toast.success("Profilo utente aggiornato con successo");
       handleCloseModal();
     } catch (error) {
-
-      const message = error.response?.data?.specific|| error.message;
+      
+      const message = error.response?.message|| error.message;
       console.error("Errore durante il salvataggio utente:", error.response?.data || error.message);
       toast.error(message);
     }

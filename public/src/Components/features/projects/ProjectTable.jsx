@@ -293,23 +293,7 @@ const ProjectTable = ({ data, users = [] }) => {
      
       
 
-      {/* <Dialog open={!!deleteProjectTarget} onOpenChange={() => setDeleteProjectTarget(null)}>
-        <DialogContent className="sm:max-w-105">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Conferma eliminazione
-            </DialogTitle>
-            <DialogDescription>
-              Stai per eliminare il progetto "{deleteProjectTarget?.name}". Questa azione non può essere annullata.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteProjectTarget(null)}>Annulla</Button>
-            <Button variant="destructive" onClick={handleDeleteProject}>Elimina progetto</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
+    
     </>
   );
 };

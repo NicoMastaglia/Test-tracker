@@ -109,6 +109,9 @@ const ModalForm = ({
 	infos,
 	fields = [],
 	formData = {},
+	
+    hasDescripion = false,
+	description = null,
 	setFormData ,
 	onSubmit,
 	onClose,
@@ -171,6 +174,11 @@ const ModalForm = ({
 						))}
 					</div>
 
+				 {hasDescripion && (
+
+					description 
+				
+				)}
 
 					{customFooter ? (customFooter) : (
 
