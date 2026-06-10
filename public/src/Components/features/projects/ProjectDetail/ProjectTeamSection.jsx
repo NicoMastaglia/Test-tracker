@@ -1,7 +1,8 @@
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/Components/ui/select";
-import { getFullName, getInitials, getRoundColorClass } from "@/utils/tableHelpers";
+import { getFullName } from "@/utils/tableHelpers";
+import UserAvatar from "@/utils/UserAvatar";
 
 const ProjectTeamSection = ({
     users = [],
@@ -65,9 +66,7 @@ const ProjectTeamSection = ({
                         return (
                             <div key={assignedUserId} className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:bg-slate-50">
                                 <div className="flex min-w-0 items-center gap-3">
-                                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold shadow-sm ${getRoundColorClass(index)}`}>
-                                        {getInitials(assignedUser)}
-                                    </div>
+                                    <UserAvatar user={assignedUser} colorIndex={index} size="md" />
                                     <div className="min-w-0">
                                         <div className="text-sm font-medium text-slate-900">
                                             <span className="truncate">{assignedUserName}</span>

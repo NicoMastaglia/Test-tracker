@@ -1,36 +1,22 @@
 import React, { useState,useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/Components/ui/dialog";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
+
+
 import { Button } from "@/Components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select";
-import { User, Mail, ShieldCheck, Trash2, AlertTriangle } from "lucide-react";
+
+import { User, Mail, ShieldCheck, Trash2, AlertTriangle,ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { isEmailValid } from "@/utils/validators";
 import ModalForm from "@/utils/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
-
-
+import { getFullName } from "@/utils/tableHelpers";
+import {useAuthContext} from "@/context/Auth/AuthContext"
 const ModalForUsers = () => {
   const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
-  const [name, setName] = useState(selectedUser?.nome ?? "");
-  const [surname, setSurname] = useState(selectedUser?.cognome ?? "");
-  const [email, setEmail] = useState(selectedUser?.email ?? "");
-  const [role, setRole] = useState(selectedUser?.role ?? "");
+  const { user } = useAuthContext();
+
+  
+
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: selectedUser?.nome ?? "",
@@ -38,6 +24,10 @@ const ModalForUsers = () => {
     email: selectedUser?.email ?? "",
     role: selectedUser?.role ?? "",
   });
+
+  const isCurrentSuperadmin = formData?.role === "superadmin";
+
+ 
 
   if (!selectedUser) {
     return null;
@@ -52,7 +42,7 @@ console.log(selectedUser,'selectedUser')
     formData.surname.trim() !== (selectedUser.cognome ?? "").trim() ||
     formData.email.trim() !== (selectedUser.email ?? "").trim();
 
-  const hasRoleChanges = formData.role !== (selectedUser.role ?? "");
+  const hasRoleChanges = formData.role !== (selectedUser.role ?? ""); 
 
   const handleCloseModal = () => {
     setDeleteConfirmOpen(false);
@@ -111,12 +101,63 @@ console.log(selectedUser,'selectedUser')
     }
   };
 
+   const userModalFooter = (
+    <div className={isCurrentSuperadmin ? "flex justify-end gap-3" : "flex justify-between items-center"}>
+        {/* Bottone a sinistra */}
+        {!isCurrentSuperadmin  ? (
+        <Button
+            type="button"
+            variant="ghost"
+            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            onClick={() => setDeleteConfirmOpen(true)}
+        >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Elimina Utente f
+        </Button>
+        )
+      
+      : (
+        <div className="text-xs text-slate-400 font-medium flex items-center gap-1 select-none bg-slate-50 px-2.5 py-1.5 rounded-md border border-slate-100">
+                <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
+                Account di sistema protetto
+            </div>
+      )
+      
+      }
+
+        {/* Gruppo di bottoni a destra */}
+        <div className="flex gap-3">
+            <Button type="button" variant="outline" onClick={handleCloseModal}>
+                Annulla
+            </Button>
+            <Button
+                type="button"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={handleSaveProfile}
+                disabled={!hasProfileChanges}
+            >
+                Salva Profilo
+            </Button>
+            {!isCurrentSuperadmin && (
+            <Button
+                type="button"
+                variant="secondary"
+                onClick={handleRoleChange}
+                disabled={!hasRoleChanges}
+            >
+                Aggiorna Ruolo
+            </Button>
+            )}
+        </div>
+    </div>
+);
+
   return (
     <>
 
 
 
-    <ModalForm
+  <ModalForm 
     modalOpen={true}
     setModalOpen={handleCloseModal}
     title="Modifica Utente"
@@ -128,134 +169,39 @@ console.log(selectedUser,'selectedUser')
     submitLabel="Salva Modifiche"
     cancelLabel="Annulla"
     submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+    customFooter={userModalFooter}
+    titleIcon={User}
+    dialogClassName = "sm:max-w-124.25"
+    iconColor="text-emerald-500"
   />
-        
-      {/* <Dialog open={true} onOpenChange={(open) => !open && handleCloseModal()}>
-        <DialogContent className="sm:max-w-140">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-              <User className="h-6 w-6 text-emerald-600" />
-              Modifica Utente
-            </DialogTitle>
-            <DialogDescription>
-              Aggiorna il profilo o il ruolo. Le due azioni sono separate.
-            </DialogDescription>
-          </DialogHeader>
 
-          <div className="grid gap-6 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name" className="text-slate-700">Nome</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="pl-10 focus-visible:ring-emerald-500"
-                />
-              </div>
-            </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="surname" className="text-slate-700">Cognome</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  id="surname"
-                  value={formData.surname}
-                  onChange={(e) => setFormData({...formData, surname: e.target.value})}
-                  className="pl-10 focus-visible:ring-emerald-500"
-                />
-              </div>
-            </div>
+  
 
-            <div className="grid gap-2">
-              <Label htmlFor="email" className="text-slate-700">Indirizzo Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="pl-10 focus-visible:ring-emerald-500"
-                />
-              </div>
-            </div>
+      <ModalForm 
+      modalOpen={deleteConfirmOpen}
+      setModalOpen={setDeleteConfirmOpen}
+      title="Conferma eliminazione"
+      infos={<span className="text-base text-slate-700">
+      Stai per eliminare definitivamente l'utente{" "}
+      <strong className="font-semibold text-slate-900 underline decoration-red-500/40 decoration-2 underline-offset-2">
+        {getFullName(selectedUser)}
+      </strong>.
+      
+       Questa azione è irreversibile.
+    </span>}
+      onSubmit={handleDeleteUser}
+      onClose={setDeleteConfirmOpen}
+      submitLabel='Elimina'
+      cancelLabel="Annulla"
+      dialogClassName="sm:max-w-90"
+      submitClassName="hover:text-red-700 hover:bg-red-50"
+      submitVariant="destructive"
+      titleIcon={AlertTriangle}
+      iconColor="text-red-500"
+      />
 
-            <div className="grid gap-2">
-              <Label className="text-slate-700">Ruolo Piattaforma</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
-                <SelectTrigger className="w-full focus:ring-emerald-500">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-slate-400" />
-                    <SelectValue placeholder="Seleziona un ruolo" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="superadmin">Superadmin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter className="flex flex-row justify-between sm:justify-between items-center mt-4">
-            <Button
-              variant="ghost"
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-              onClick={() => setDeleteConfirmOpen(true)}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Elimina Utente
-            </Button>
-
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={handleCloseModal}>
-                Annulla
-              </Button>
-              <Button
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={handleSaveProfile}
-                disabled={!hasProfileChanges}
-              >
-                Salva Profilo
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={handleRoleChange}
-                disabled={!hasRoleChanges}
-              >
-                Aggiorna Ruolo
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
-
-      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent className="sm:max-w-105">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Conferma eliminazione
-            </DialogTitle>
-            <DialogDescription>
-              Stai per eliminare {selectedUser.nome} {selectedUser.cognome}. Questa azione non può essere annullata.
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-              Annulla
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteUser}>
-              Elimina definitivamente
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  
     </>
   );
 };

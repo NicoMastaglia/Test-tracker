@@ -17,7 +17,7 @@ const KpiCard = ({ title, value, subtext, icon: Icon, iconClass, subtextColor = 
           <p className="text-sm text-slate-500">{title}</p>
           <p className="text-[30px] leading-none text-slate-900">{value}</p>
           <p className={`mt-1 flex items-center gap-1 text-xs ${subtextColor}`}>
-            <ArrowUpRight className="h-3.5 w-3.5" />
+            {/* <ArrowUpRight className="h-3.5 w-3.5" /> */}
             {subtext}
           </p>
         </div>
@@ -33,28 +33,43 @@ const UserDashboard = () => {
 
   useEffect(() => {
     fetchProjects();
+    
   }, []);
+  
 
-  const assignedProjects = useMemo(() => {
+  const assignedProjects  = useMemo(() => {
     const currentUserId = Number(user?.id);
+
 
     if (!currentUserId) return [];
 
-    return (projects || []).filter((project) => {
-      const assignedUsers = Array.isArray(project.assigned_users) ? project.assigned_users : [];
+    return projects.length
+      
 
-      return assignedUsers.some((assignedUser) => Number(assignedUser.id ?? assignedUser.user_id) === currentUserId);
-    });
-  }, [projects, user?.id]);
+    },[projects,user?.id])
+
+  // const assignedProjects = useMemo(() => {
+  //   const currentUserId = Number(user?.id);
+
+  //   if (!currentUserId) return [];
+
+  //   return (projects || []).filter((project) => {
+  //     const assignedUsers = Array.isArray(project.assigned_users) ? project.assigned_users : [];
+
+  //     return assignedUsers.some((assignedUser) => Number(assignedUser.id ?? assignedUser.user_id) === currentUserId);
+  //   });
+  // }, [projects, user?.id]);
+
+  // console.log("Progetti assegnati all'utente:", assignedProjects);
 
   const kpiItems = [
     {
       title: "Progetti Assegnati",
-      value: assignedProjects.length.toString(),
+      value: assignedProjects,
       icon: Folder,
       iconClass: "bg-emerald-100 text-emerald-700",
-      subtext: "Progetti attivi nel tuo workspace.",
-      subtextColor: "text-slate-400",
+      // subtext: "Progetti attivi nel tuo workspace.",
+      // subtextColor: "text-slate-400",
     },
     {
       title: "Sessioni",

@@ -7,26 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/Components/ui/table";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/Components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select";
+import {Button} from "@/Components/ui/button"
 import { toast } from "sonner";
-import { AlertTriangle } from "lucide-react";
+import {User, Trash2, Edit, AlertTriangle} from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
@@ -170,6 +153,26 @@ const ProjectTable = ({ data, users = [] }) => {
     navigate(`/admin/projects/${projectId}`);
   };
 
+  const hasProjectChanges = 
+
+    editForm.name.trim() !== (editingProject?.name ?? "").trim() ||
+    editForm.description.trim() !== (editingProject?.description ?? "").trim();
+
+
+  const customFooter = (
+    <div className="flex items-center justify-end gap-2">
+      <Button variant="outline" onClick={() => setEditingProject(null)}>Annulla</Button>
+      <Button
+   
+         className="bg-emerald-600 hover:bg-emerald-700 text-white"
+        onClick={handleUpdateProject}
+        disabled={!hasProjectChanges}
+      >
+        Salva modifiche
+      </Button>
+    </div>
+   
+  );
   return (
     <>
       <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -230,6 +233,14 @@ const ProjectTable = ({ data, users = [] }) => {
         formData={editForm}
         setFormData={setEditForm}
         onSubmit={handleUpdateProject}
+        submitLabel="Salva modifiche"
+        submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+        dialogClassName="sm:max-w-124.25"
+        titleIcon={Edit}
+        iconColor="text-emerald-500"
+        customFooter={customFooter}
+
+    
       />
 
      
@@ -246,21 +257,40 @@ const ProjectTable = ({ data, users = [] }) => {
         formData={{ status: statusValue }}
         setFormData={(data) => setStatusValue(data.status)}
         onSubmit={handleUpdateStatus}
+        submitLabel="Aggiorna stato"
+        submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Edit}
+        iconColor="text-emerald-500"
       />
 
       <ModalForm
         modalOpen={!!deleteProjectTarget}
         setModalOpen={setDeleteProjectTarget}
         title="Conferma eliminazione"
-        infos={`Stai per eliminare il progetto "${deleteProjectTarget?.name}". Questa azione non può essere annullata.`}
-        fields={[]}
+        infos={ <span className="text-base text-slate-700">
+              Stai per eliminare definitivamente il progetto{" "}
+              <strong className="font-semibold text-slate-900 underline decoration-red-500/40 decoration-2 underline-offset-2">
+                {deleteProjectTarget?.name}
+              </strong>.
+              
+               Questa azione è irreversibile.
+            </span>}
+      
         formData={{}}
         setFormData={() => {}}
         onSubmit={handleDeleteProject}
         submitLabel="Elimina progetto"
         dialogClassName="sm:max-w-105"
         submitClassName="bg-rose-600 hover:bg-rose-700 text-white"
-      />
+        titleIcon={AlertTriangle}
+        iconColor="text-rose-500" 
+        />
+
+
+       
+
+     
       
 
       {/* <Dialog open={!!deleteProjectTarget} onOpenChange={() => setDeleteProjectTarget(null)}>

@@ -8,7 +8,7 @@ import { Mail, Lock } from "lucide-react";
 export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
 
   return  (
-    <Card className="border-none shadow-none bg-transparent">
+    <Card className="border-none shadow-none bg-transparent px-3">
       <CardHeader className="p-0 h-0" />
       <CardContent className="p-0">
         <form onSubmit={handleSubmit} className="grid gap-4">

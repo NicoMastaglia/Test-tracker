@@ -1,4 +1,5 @@
 import React,{useState}from "react"
+
 import {
   Home,
   Repeat,
@@ -36,28 +37,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle,Menu } from "lucide-react";
 import logo from "@/assets/logo.png"
-
+import { getInitials,getFullName } from "@/utils/tableHelpers";
 // Configurazione dinamica dei titoli in base al ruolo utente
-const ROLE_CONSOLE_CONFIG = {
-  superadmin: {
-    title: "SuperAdmin  ",
-    subtitle: "Pannello di Controllo",
-    icon: logo,
-  },
-  admin: {
-    title: "Workspace Admin",
-    subtitle: "QA Testing Platform",
-    icon: Briefcase,
-  },
-  user: {
-    title: "Testing Env",
-    subtitle: "Analisi & Debug",
-    icon: Terminal,
-  }
+
+const userConfig = ({user}) => {
+  const name = getFullName(user);
+  const title = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Utente";
+  return {name,title}
 }
 
+  
+
+
+  
 const menuItemsByRole = {
   user: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
@@ -90,15 +84,9 @@ export default function AppSidebar() {
   const navigate = useNavigate()
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const menuItems = menuItemsByRole[user?.role] || [];
+  const userConfigData = userConfig({user})
 
-  // Recupera la configurazione del ruolo (con fallback di sicurezza)
-  const roleConfig = ROLE_CONSOLE_CONFIG[user?.role] || {
-    title: "Console",
-    subtitle: user?.role || "Utente aziendale",
-    icon: Terminal,
-  }
 
-  const RoleIcon = roleConfig.icon
 
   const handleLogout = () => {
     setDeleteConfirmOpen(true);
@@ -129,9 +117,18 @@ export default function AppSidebar() {
     <Sidebar
       collapsible="icon"
       variant="sidebar"
-      className="text-[#F5F7FA] **:data-[slot=sidebar-inner]:bg-linear-to-b
-       **:data-[slot=sidebar-inner]:from-[#07142B] **:data-[slot=sidebar-inner]:to-[#0B1F45] **:data-[slot=sidebar-inner]:text-[#F5F7FA]"
-    >
+ className="text-[#F5F7FA] border-r-0
+    
+    **:data-[slot=sidebar-inner]:bg-linear-to-b 
+    **:data-[slot=sidebar-inner]:from-[#07142B] 
+    **:data-[slot=sidebar-inner]:to-[#0B1F45]"
+    
+
+  
+>
+
+
+      
 
       {/* HEADER: RUOLO DINAMICO */}
       <SidebarHeader className="flex flex-col gap-2 p-4 justify-center group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:items-center">
@@ -139,28 +136,36 @@ export default function AppSidebar() {
 
         <div className="flex items-center justify-between w-full bg-[#0B1F45]/80 rounded-xl p-3 group-data-[collapsible=icon]:hidden">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="h-10 w-10 bg-[#07142B] text-[#14D8A6] rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+            <div className="h-10 w-10 bg-[#07142B] text-[#14D8A6] rounded-2xl flex items-center justify-center shadow-sm shrink-0
+            cursor-pointer "
+            onClick={()=>navigate("/settings")}>
               {/* <RoleIcon className="h-4 w-4" /> */}
-              <img src={logo}  alt="Logo" className="w-full h-full object-co" />
+              {/* <img src={logo}  alt="Logo" className="w-full h-full object-cover" /> */}
+              <span className="font-bold">{getInitials(user)}</span>
             </div>
             <div className="flex flex-col truncate">
-              <span className="text-[12px] text-[#F5F7FA] leading-none tracking-wide">{roleConfig.title}</span>
-              <span className="text-[11px] text-[#F5F7FA] mt-1 truncate">{roleConfig.subtitle}</span>
+              <span className="text-[#F5F7FA] leading-none tracking-wide text-[12px] font-bold">{userConfigData.name}</span>
+              <span className="text-[12px] text-[#F5F7FA] mt-1 truncate">{userConfigData.title}</span>
             </div>
           </div>
-          <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md h-7 w-7 ml-1 shrink-0" />
+          <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md h-7 w-7 ml-1 shrink-0" >
+            <Menu className="h-4 w-4" />
+          </SidebarTrigger>
         </div>
-{/* 
-        <div className="hidden group-data-[collapsible=icon]:block">
-          <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md" />
-        </div> */}
+        <div className="hidden group-data-[collapsible=icon]:md:flex bg-[#0B1F45]/80 p-2 rounded-xl items-center justify-center">
+      <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md h-7 w-7" >
+
+        <Menu className="h-4 w-4" />
+      </SidebarTrigger>
+    </div>
+
       </SidebarHeader>
 
       {/* CONTENUTO PRINCIPALE */}
       <SidebarContent className="gap-0 pt-3 bg-transparent">
         <SidebarGroup className="px-2">
           <SidebarGroupLabel className="text-[11px] uppercase tracking-wide text-[#F5F7FA] px-2 mb-3 group-data-[collapsible=icon]:hidden">
-            Menu Amministrazione
+            Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1.5">
@@ -220,8 +225,8 @@ export default function AppSidebar() {
               tooltip="Disconnetti"
               className="w-full text-[#F5F7FA] hover:bg-rose-500/15 hover:text-rose-300 py-2 h-9 rounded-lg transition-colors"
             >
-              <div className="flex items-center w-full gap-3 px-2.5">
-                <LogOut className="w-4 h-4 text-[#94A3B8] shrink-0" />
+              <div className="flex items-center w-full gap-3 ">
+                <LogOut className="w-4 h-4 text-[#94A3B8] shrink-0 hover:text-rose-300" />
                 <span className="group-data-[collapsible=icon]:hidden">Esci</span>
               </div>
             </SidebarMenuButton>

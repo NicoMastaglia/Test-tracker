@@ -8,14 +8,20 @@ import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import {toast} from "sonner"
+import {getFullName} from "@/utils/tableHelpers"
+import {Plus} from "lucide-react"
 const AdminProjects = () => {
   const { projects, addProject, fetchProjects } = useProjectContext();
   const { users, fetchUsers } = useUserContext();
   const { user } = useAuthContext();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const emptyProjectData = { name: "", description: "", responsabile: "" };
-  const [formData, setFormData] = useState(emptyProjectData);
+  
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    responsabile: "",
+  });
 
   useEffect(() => {
     fetchProjects();
@@ -27,7 +33,11 @@ const AdminProjects = () => {
   //  modal per creare un nuovo progetto
   useEffect(() => {
     if (!modalOpen) {
-      setFormData(emptyProjectData);
+      setFormData({
+        name: "",
+        description: "",
+        responsabile: "",
+      });
     }
   }, [modalOpen]);
 
@@ -37,6 +47,7 @@ const AdminProjects = () => {
     const newProject = {
       name: formData.name,
       description: formData.description,
+      // DA INTEGRARE LATO BE
       responsabile: formData.responsabile,
     }; 
 
@@ -45,7 +56,11 @@ const AdminProjects = () => {
       toast.success("Progetto creato con successo");
     await fetchProjects();
 
-    setFormData(emptyProjectData);
+    setFormData({
+      name: "",
+      description: "",
+      responsabile: "",
+    });
     setModalOpen(false);
   }
    catch (error) {
@@ -79,21 +94,25 @@ const AdminProjects = () => {
     return [
       ...projectFields,
       {
+       key: "field-responsabile",
         name: "responsabile",
         label: "Responsabile",
         placeholder: "Seleziona il responsabile del progetto",
         type: "select",
         info: "Solo utenti con ruolo admin possono essere responsabili di un progetto",
         required: true,
-        options: user?.role === 'admin' // Aggiunto il ? di sicurezza
+      
+        options: user?.role === 'admin' 
           ? [{
-              value: user.id,
-              label: `${user.first_name} ${user.last_name} (tu)`
+              value: user.id?.toString(),
+              label: `${getFullName(user)}(tu)`
             }] 
           : users.filter(u => u.role === "admin").map(u => ({
-              value: u.id,
-              label: `${u.first_name} ${u.last_name}`
+              value: u.id?.toString(),
+              label: `${getFullName(u)}`
             }))
+      ,
+   
       }
     ];
   }, [users, user]);
@@ -114,7 +133,11 @@ const AdminProjects = () => {
             <ModalForm
               modalOpen={modalOpen}
               setModalOpen={setModalOpen}
-              onClose={() => setFormData(emptyProjectData)}
+              onClose={() => setFormData({
+                name: "",
+                description: "",
+                responsabile: "",
+              })}
               title="Nuovo Progetto"
               infos="Inserisci le informazioni di base per il nuovo progetto."
               fields={dynamicFields}
@@ -123,6 +146,10 @@ const AdminProjects = () => {
               onSubmit={handleAddProject}
               submitLabel="Crea Progetto"
               cancelLabel="Annulla"
+              titleIcon={Plus}
+              iconColor="text-emerald-500"
+              submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+            
             />
           </div>
         </div>

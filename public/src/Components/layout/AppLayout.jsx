@@ -3,6 +3,7 @@ import AppSidebar from "./Sidebar";
 import Header from "./Header";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { TooltipProvider } from "../ui/tooltip";
+import { Menu } from "lucide-react";
 const AppLayout = ({ children, page, hideHeader = false }) => {
   const { user } = useAuthContext();
 
@@ -18,13 +19,16 @@ const AppLayout = ({ children, page, hideHeader = false }) => {
        
         <SidebarInset className="flex flex-col flex-1 bg-slate-50">
             
-            {/* BARRA MOBILE: Questo header contiene l'hamburger visibile SOLO su schermi piccoli */}
-            <header className="flex h-14 items-center gap-4 border-b bg-white px-4 md:hidden">
-              <SidebarTrigger className="text-slate-700" />
-              <span className="font-semibold text-sm text-slate-900"></span>
-            </header>
+            
+          <header className="flex h-14 items-center gap-4 border-b border-[#0B1F45] bg-[#07142B] px-4 md:hidden">
+             <SidebarTrigger className="text-[#F5F7FA] hover:bg-[#0E3B52] rounded-md">
+              <Menu className="h-5 w-5" /> 
+            </SidebarTrigger>
+             <span className="font-semibold text-sm text-[#F5F7FA]">Menu</span>
+        </header>
+   
 
-            {/* Il tuo Header Desktop (nascondilo su mobile aggiungendo "hidden md:block" al suo interno se duplica la barra) */}
+        
             {!hideHeader && <Header user={user} page={page} />}
 
             {/* Il contenuto della pagina */}

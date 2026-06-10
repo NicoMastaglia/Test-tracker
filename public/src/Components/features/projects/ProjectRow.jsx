@@ -13,6 +13,8 @@ import {
   getRoundColorClass,
   getProjectStatusBadgeClass,
 } from "@/utils/tableHelpers";
+import UserAvatar from "@/utils/UserAvatar";
+import {  upppercaseFirstLetter  } from "@/utils/tableHelpers";
 
 const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, sessionCount, handleProjectRowClick, openEditDialog, openStatusDialog, setDeleteProjectTarget }) => {
   const progressValue = calculateProgress(project.id);
@@ -33,7 +35,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, 
       <TableCell>
         <div className="flex items-center gap-3">
           <div className="min-w-0">
-            <p className="font-medium text-slate-900">{project.name}</p>
+            <p className="font-medium text-slate-900">{upppercaseFirstLetter(project.name)}</p>
             <p className="truncate text-xs text-slate-500">Creato il {formatTableDate(project.created_at ?? project.createdAt)}</p>
           </div>
         </div>
@@ -50,9 +52,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, 
         <div className="flex items-center justify-center gap-3 text-center">
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm shadow-sm ${getRoundColorClass(0)}`}>
-                {getInitials(creator)}
-              </div>
+              <UserAvatar user={creator} colorIndex={0} size="sm" />
             </TooltipTrigger>
             <TooltipContent className="max-w-none px-3 py-2 text-xs">
               <span className="whitespace-nowrap">Creato da: {creator ? getFullName(creator) : getCreatorName(project, users)}</span>
@@ -81,6 +81,19 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, 
                   </div>
                 </TooltipContent>
               </Tooltip>
+
+              // <Tooltip key={assignedUser.id ?? assignedUser.user_id}>
+              //   <TooltipTrigger asChild>
+              //     <UserAvatar user={assignedUser} colorIndex={index + 1} size="sm" />
+              //   </TooltipTrigger>
+              //   <TooltipContent className="px-3 py-2 text-xs">
+              //     <div className="flex flex-col gap-0.5">
+              //       {/* <span className="font-medium">Tester assegnato</span> */}
+              //       <span className="whitespace-nowrap">{getFullName(assignedUser)}</span>
+                    
+              //     </div>
+              //   </TooltipContent>
+              // </Tooltip>
             ))
           ) : (
             <span className="text-sm text-slate-500">Nessun tester assegnato</span>

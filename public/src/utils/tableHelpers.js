@@ -44,6 +44,14 @@ export const getFullName = (item = {}) => {
   return `${normalizedFirstName} ${normalizedLastName}`.trim() || "Utente senza nome";
 };
 
+// passo una stringa ed ogni prima lettera in maiuscolo, utile per i nomi dei progetti o dei campi personalizzati
+ export const upppercaseFirstLetter = (text) => {
+  if (!text) return "";
+  const letter = text.split(' ')
+  
+  return letter.map((l)=>l.charAt(0).toUpperCase().concat(l.slice(1))).join(' ')
+};
+
 
 // per ottenere le informazioni di ruolo, con classi di stile associate
 export const getRoleInfo = (role) => {

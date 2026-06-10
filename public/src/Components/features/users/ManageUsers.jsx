@@ -12,10 +12,12 @@ import { Badge } from "@/Components/ui/badge";
 import { UserCog } from "lucide-react"; // Icona per gestione utente
 import ModalForUsers from './ModalForUsers';
 import { useUserContext } from "@/context/User/UserContext";
-import { getFullName, getInitials, getRoleInfo } from "@/utils/tableHelpers";
-
+import { getFullName, getRoleInfo } from "@/utils/tableHelpers";
+import UserAvatar from "@/utils/UserAvatar";
+import { useAuthContext } from "@/context/Auth/AuthContext";
 const ManageUsers = ({ data }) => {
   const { selectedUser, fetchUserById, clearSelectedUser } = useUserContext();
+  const { user } = useAuthContext();
 
   const getRoleBadge = (role) => {
     const roleInfo = getRoleInfo(role);
@@ -32,7 +34,7 @@ const ManageUsers = ({ data }) => {
     <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <Table>
         <TableHeader className="bg-slate-900">
-          <TableRow className="bg-slate-900 hover:bg-slate-900 text-center">
+          <TableRow  className={`bg-slate-900 hover:bg-slate-900 text-center`}>
             <TableHead className="w-24 font-semibold text-white text-center">ID</TableHead>
             <TableHead className="font-semibold text-white text-center">Utente</TableHead>
             <TableHead className="font-semibold text-white text-center">Email</TableHead>
@@ -41,21 +43,25 @@ const ManageUsers = ({ data }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
+
+          {/* volendo si può creare un componente UserRow per semplificare */}
           {data.length > 0 ? (
             data.map((userItem) => (
-              <TableRow key={userItem.id} className="group transition-colors hover:bg-slate-50">
+              <TableRow key={userItem.id} 
+              
+              className={`group transition-colors hover:bg-slate-50 ${user.id === userItem.id ? "bg-emerald-50 hover:bg-emerald-100" : ""}`}>
                 <TableCell className="font-mono text-xs text-slate-500">
                   #{userItem.id}
                 </TableCell>
                 
-                <TableCell className="text-slate-900 ">
-                  
-                  
-                    <div className="min-w-0">
-                      <p className="font-medium text-slate-900">{getFullName(userItem)}</p>
-                    
-                 
+                <TableCell className="text-slate-900">
+
+                  <div className="flex items-center gap-3">
+                    <UserAvatar user={userItem} colorIndex={userItem.id} size="sm" />
+                    <span>{getFullName(userItem)}{user.id== userItem.id ? ' (tu)' : ''}</span>
                   </div>
+                  
+                  
                 </TableCell>
                 
                 <TableCell className="text-slate-600">

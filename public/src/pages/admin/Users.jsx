@@ -9,6 +9,7 @@ import { filterSearch } from "@/utils/filterSearch";
 import { isEmailValid } from "@/utils/validators";
 import ModalForm from "@/utils/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
+import {UserPlus} from "lucide-react"
 
 const Users = () => {
   const emptyNewUserData = {
@@ -84,16 +85,19 @@ const Users = () => {
               modalOpen={modal}
               setModalOpen={setModal}
               onClose={() => setNewUserData(emptyNewUserData)}
-              title="Aggiungi Nuovo Utente"
+              title="Nuovo Utente"
               infos="Compila i campi per creare un nuovo utente."
               fields={userFields}
               formData={newUserData}
               setFormData={setNewUserData}
               onSubmit={addUser}
-              submitLabel="Crea"
+              submitLabel="Aggiungi Utente"
               cancelLabel="Annulla"
               submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
-            />
+              iconColor="text-emerald-500"
+              titleIcon={UserPlus}
+             />
+            
           </div>
         </div>
 
