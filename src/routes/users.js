@@ -63,28 +63,40 @@ router.put("/me", checkUser, async (req, res) => {
     return res.status(400).json({ message: "Nome, cognome ed email non possono essere vuoti o contenere solo spazi." });
   }
 
-  db.execute("UPDATE user SET nome = ?, cognome = ?, email = ? WHERE id = ?", [
-    trimmedNome,
-    trimmedCognome,
-    trimmedEmail,
-    userId,
-  ])
-    .then(([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
-      }
-      res.status(200).json({
-        message: "Dati aggiornati con successo",
-        data: {
-          name: trimmedNome,
-          surname: trimmedCognome,
-          email: trimmedEmail,
-        },
+  try {
+    const [existingUser] = await db.execute(
+      "SELECT id FROM user WHERE email = ? AND id != ?",
+      [trimmedEmail, userId]
+    );
+    if (existingUser.length > 0) {
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: `L'utenza con la mail ${trimmedEmail} esiste già.`
       });
-    })
-    .catch((err) => {
-      res.status(500).json({ message: "Errore del server", specific: err.message });
+    }
+    const [result] = await db.execute(
+      "UPDATE user SET nome = ?, cognome = ?, email = ? WHERE id = ?",
+      [trimmedNome,
+        trimmedCognome,
+        trimmedEmail,
+        userId,
+      ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Utente non trovato" });
+    }
+
+    return res.status(200).json({
+      message: "Dati aggiornati con successo",
+      data: {
+        name: trimmedNome,
+        surname: trimmedCognome,
+        email: trimmedEmail,
+      },
     });
+  } catch (err) {
+    return res.status(500).json({ message: "Errore del server", specific: err.message });
+  }
 });
 
 router.patch("/me/password", checkUser, async (req, res) => {
@@ -158,28 +170,40 @@ router.put("/:id", checkSuperadmin, async (req, res) => {
     return res.status(400).json({ message: "I campi modificati non possono essere vuoti." });
   }
 
-  db.execute("UPDATE user SET nome = ?, cognome = ?, email = ? WHERE id = ?", [
-    trimmedName,
-    trimmedSurname,
-    trimmedEmail,
-    userId,
-  ])
-    .then(([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
-      }
-      res.status(200).json({
-        message: "Dati aggiornati con successo",
-        data: {
-          name: trimmedName,
-          surname: trimmedSurname,
-          email: trimmedEmail,
-        },
+  try {
+    const [existingUser] = await db.execute(
+      "SELECT id FROM user WHERE email = ? AND id != ?",
+      [trimmedEmail, userId]
+    );
+    if (existingUser.length > 0) {
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: `L'utenza con la mail ${trimmedEmail} esiste già.`
       });
-    })
-    .catch((err) => {
-      res.status(500).json({ message: "Errore del server", specific: err.message });
+    }
+    const [result] = await db.execute(
+      "UPDATE user SET nome = ?, cognome = ?, email = ? WHERE id = ?",
+      [trimmedName,
+        trimmedSurname,
+        trimmedEmail,
+        userId,
+      ]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Utente non trovato" });
+    }
+
+    return res.status(200).json({
+      message: "Dati aggiornati con successo",
+      data: {
+        name: trimmedName,
+        surname: trimmedSurname,
+        email: trimmedEmail,
+      },
     });
+  } catch (err) {
+    return res.status(500).json({ message: "Errore del server", specific: err.message });
+  }
 });
 
 router.delete("/:id", checkSuperadmin, async (req, res) => {
