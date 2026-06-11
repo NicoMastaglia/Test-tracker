@@ -89,14 +89,11 @@ const ProjectTable = ({ data, users = [] }) => {
       toast.success("Progetto aggiornato con successo");
       setEditingProject(null);
     } catch (error) {
-      const message = error.response?.data?.error;
+  
+      const message = error.response?.data?.specific || error.response?.data?.error || "Errore durante l'aggiornamento del progetto"
 
-      // da implementare lato backend un messaggio di errore specifico per nome progetto duplicato, ora gestiamo in modo generico ma non è ottimale
-      if (message === "Project name already exists") {
-        toast.error("Esiste già un progetto con questo nome, scegli un nome diverso");
-        return;
-      }
-      toast.error("Errore durante l'aggiornamento del progetto");
+      toast.error(message);
+
     }
   };
 
@@ -161,9 +158,9 @@ const ProjectTable = ({ data, users = [] }) => {
 
   const customFooter = (
     <div className="flex items-center justify-end gap-2">
-      <Button variant="outline" onClick={() => setEditingProject(null)}>Annulla</Button>
+      <Button type="button" variant="outline" onClick={() => setEditingProject(null)}>Annulla</Button>
       <Button
-   
+        type="button"
          className="bg-emerald-600 hover:bg-emerald-700 text-white"
         onClick={handleUpdateProject}
         disabled={!hasProjectChanges}
@@ -171,7 +168,7 @@ const ProjectTable = ({ data, users = [] }) => {
         Salva modifiche
       </Button>
     </div>
-   
+
   );
   return (
     <>

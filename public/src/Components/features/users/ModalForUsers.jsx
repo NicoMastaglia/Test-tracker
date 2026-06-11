@@ -71,7 +71,7 @@ console.log(selectedUser,'selectedUser')
       handleCloseModal();
     } catch (error) {
       
-      const message = error.response?.message|| error.message;
+      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante il salvataggio del profilo";
       console.error("Errore durante il salvataggio utente:", error.response?.data || error.message);
       toast.error(message);
     }

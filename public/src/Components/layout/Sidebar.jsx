@@ -33,7 +33,8 @@ import {
 import { AlertTriangle, Menu } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { getInitials, getFullName } from "@/utils/tableHelpers";
-import { ModalForm } from "@/utils/ModalForm";
+import ModalForm from "@/utils/ModalForm";
+
 // Configurazione dinamica dei titoli in base al ruolo utente
 
 const userConfig = ({ user }) => {

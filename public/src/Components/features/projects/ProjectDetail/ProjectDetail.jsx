@@ -72,7 +72,8 @@ const ProjectDetail = () => {
       toast.success("Utente rimosso dal progetto");
       setRemoveUserTarget(null);
     } catch (error) {
-      // il context aggiorna già lo stato di errore globale
+      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante la rimozione dell'utente dal progetto";
+      toast.error(message);
     }
   };
 
@@ -88,7 +89,8 @@ const ProjectDetail = () => {
       toast.success("Utente assegnato al progetto");
       setSelectedAssignUserId("");
     } catch (error) {
-      toast.error("Errore durante l'assegnazione dell'utente al progetto");
+      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante l'assegnazione dell'utente al progetto";
+      toast.error(message);
     }
   };
 
