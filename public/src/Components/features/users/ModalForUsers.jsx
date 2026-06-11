@@ -112,16 +112,16 @@ console.log(selectedUser,'selectedUser')
         <Button
             type="button"
             variant="ghost"
-            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
             onClick={() => setDeleteConfirmOpen(true)}
         >
             <Trash2 className="mr-2 h-4 w-4" />
-            Elimina Utente 
+            Elimina Utente
         </Button>
         )
-      
+
       : (
-        <div className="text-xs text-slate-400 font-medium flex items-center gap-1 select-none bg-slate-50 px-2.5 py-1.5 rounded-md border border-slate-100">
+        <div className="text-xs text-slate-500 font-medium flex items-center gap-1 select-none bg-slate-50 px-2.5 py-1.5 rounded-md border border-slate-200">
                 <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
                 Account di sistema protetto
             </div>
@@ -136,7 +136,7 @@ console.log(selectedUser,'selectedUser')
             </Button>
             <Button
                 type="button"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
                 onClick={handleSaveProfile}
                 disabled={!hasProfileChanges}
             >
@@ -172,11 +172,11 @@ console.log(selectedUser,'selectedUser')
     onSubmit={handleSaveProfile}
     submitLabel="Salva Modifiche"
     cancelLabel="Annulla"
-    submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+    submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
     customFooter={userModalFooter}
     titleIcon={User}
     dialogClassName = "sm:max-w-124.25"
-    iconColor="text-emerald-500"
+    iconColor="text-emerald-600"
   />
 
 
@@ -186,12 +186,12 @@ console.log(selectedUser,'selectedUser')
       modalOpen={deleteConfirmOpen}
       setModalOpen={setDeleteConfirmOpen}
       title="Conferma eliminazione"
-      infos={<span className="text-base text-slate-700">
+      infos={<span className="text-base text-slate-500">
       Stai per eliminare definitivamente l'utente{" "}
       <strong className="font-semibold text-slate-900 underline decoration-red-500/40 decoration-2 underline-offset-2">
         {getFullName(selectedUser)}
       </strong>.
-      
+
        Questa azione è irreversibile.
     </span>}
       onSubmit={handleDeleteUser}

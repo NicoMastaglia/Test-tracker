@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCheckListContext } from "@/context/CheckList/CheckListContext";
+import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
 import ActionBar from "@/utils/ActionBar";
 import ModalForm from "@/utils/ModalForm";
-import CheckListTable from "./CheckListTable";
-import { checkListFields } from "@/utils/fields/checkListFields";
+import ChecklistTable from "./ChecklistTable";
+import { checklistFields } from "@/utils/fields/checklistFields";
 import {toast} from "sonner";
 
-const CheckListSection = ({ projectId, isAdmin }) => {
+const ChecklistSection = ({ projectId, isAdmin }) => {
   const [search, setSearch]     = useState("");
   const [modal, setModal]       = useState(false);
   const [formData, setFormData] = useState({ title: "" });
@@ -16,14 +16,14 @@ const CheckListSection = ({ projectId, isAdmin }) => {
   
   const navigate = useNavigate();
 
-  const { checklistItems, fetchCheckListsByProject, addCheckList, selectChecklist,
-    updateCheckList,removeCheckList
+  const { checklistItems, fetchChecklistsByProject, addChecklist, selectChecklist,
+    updateChecklist,removeChecklist
    } =
-    useCheckListContext();
+    useChecklistContext();
 
   useEffect(() => {
-    if (projectId) fetchCheckListsByProject(projectId);
-    console.log(" checklistItems in CheckListSection:", checklistItems);
+    if (projectId) fetchChecklistsByProject(projectId);
+    console.log(" checklistItems in ChecklistSection:", checklistItems);
   }, [projectId]);
 
   const filtered = useMemo(() => {
@@ -35,8 +35,8 @@ const CheckListSection = ({ projectId, isAdmin }) => {
 
   const handleCreate = async () => {
     if (!projectId) return;
-    await addCheckList({ title: formData.title, project_id: Number(projectId) });
-    await fetchCheckListsByProject(projectId);
+    await addChecklist({ title: formData.title, project_id: Number(projectId) });
+    await fetchChecklistsByProject(projectId);
     setFormData({ title: "" });
     setModal(false);
   };
@@ -62,8 +62,8 @@ const handleEdit = async (editingId) => {
 
   try {
   
-    await updateCheckList(editingId, { title: formData.title });
-    await fetchCheckListsByProject(projectId); // Rinfresca la lista
+    await updateChecklist(editingId, { title: formData.title });
+    await fetchChecklistsByProject(projectId); // Rinfresca la lista
     toast.success("Checklist modificata con successo");
     
     // Reset degli stati e chiusura modale
@@ -82,8 +82,8 @@ const handleEdit = async (editingId) => {
     }
 
     try {
-      await removeCheckList(clId);
-      await fetchCheckListsByProject(projectId);
+      await removeChecklist(clId);
+      await fetchChecklistsByProject(projectId);
       toast.success("Checklist eliminata con successo");
     } catch (error) {
       toast.error("Errore durante l'eliminazione della checklist");
@@ -97,9 +97,8 @@ const handleEdit = async (editingId) => {
 
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        
+    <div className="space-y-6">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <ActionBar
           search={search}
           setSearch={setSearch}
@@ -108,16 +107,15 @@ const handleEdit = async (editingId) => {
           onButtonClick={() => setModal(true)}
           buttonVariant="emerald"
         />
-      </div>
 
-      
-          <CheckListTable 
-        checklists={filtered} 
-        onOpen={handleOpen} 
-        isAdmin={isAdmin} 
-       handleEdit={handleOpenEditModal}  
-         handleDelete={handleDelete} 
-         />
+        <ChecklistTable
+          checklists={filtered}
+          onOpen={handleOpen}
+          isAdmin={isAdmin}
+          handleEdit={handleOpenEditModal}
+          handleDelete={handleDelete}
+        />
+      </div>
 
          <ModalForm
         modalOpen={modalForEdit}
@@ -129,7 +127,7 @@ const handleEdit = async (editingId) => {
              }}
         title="Modifica Checklist"
        infos="Modifica il template checklist associato al progetto corrente."
-      fields={checkListFields}
+      fields={checklistFields}
       formData={formData}
       setFormData={setFormData}
      onSubmit={handleEdit} 
@@ -148,7 +146,7 @@ const handleEdit = async (editingId) => {
         onClose={() => setFormData({ title: "" })}
         title="Nuova Checklist"
         infos="Crea un template checklist associato al progetto corrente."
-        fields={checkListFields}
+        fields={checklistFields}
         formData={formData}
         setFormData={setFormData}
         onSubmit={handleCreate}
@@ -159,4 +157,4 @@ const handleEdit = async (editingId) => {
   );
 };
 
-export default CheckListSection;
+export default ChecklistSection;

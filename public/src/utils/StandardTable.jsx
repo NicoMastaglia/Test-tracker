@@ -23,29 +23,31 @@ const StandardTable = ({
 }) => {
   return (
     <div className={containerClass}>
-      <Table>
-        <TableHeader className="bg-slate-900">
-          <TableRow className="bg-slate-900 hover:bg-slate-900 text-center">
-            {headers.map((h, idx) => (
-              <TableHead key={h.key ?? idx} className={`${h.className ?? "font-semibold text-white"}`}>
-                {h.label}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {data && data.length > 0 ? (
-            data.map((item, idx) => renderRow ? renderRow(item, idx) : null)
-          ) : (
-            <TableRow>
-              <TableCell colSpan={Math.max(headers.length, 1)} className="h-24 text-center text-slate-500">
-                {emptyMessage}
-              </TableCell>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader className="bg-slate-50">
+            <TableRow className="bg-slate-50 hover:bg-slate-50 text-center">
+              {headers.map((h, idx) => (
+                <TableHead key={h.key ?? idx} className={`${h.className ?? "font-semibold text-slate-900"}`}>
+                  {h.label}
+                </TableHead>
+              ))}
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+
+          <TableBody>
+            {data && data.length > 0 ? (
+              data.map((item, idx) => renderRow ? renderRow(item, idx) : null)
+            ) : (
+              <TableRow>
+                <TableCell colSpan={Math.max(headers.length, 1)} className="h-24 text-center text-slate-500">
+                  {emptyMessage}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

@@ -11,7 +11,7 @@ const SessionDetail = ({ sessions, user }) => {
     ? sessions 
     : sessions.filter(s => s?.user_id === user?.id);
 
-  // 2. Badge stilizzati in linea con il design system (morbidi e senza contrasti acidi)
+  // 2. Badge stilizzati 
   const getStatusBadge = (status) => {
     const normalizedStatus = (status ?? "")
       .toString()
@@ -23,7 +23,7 @@ const SessionDetail = ({ sessions, user }) => {
       case "completed":
       case "completato":
         return (
-          <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border border-emerald-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
+          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
             Completed
           </Badge>
         );
@@ -31,7 +31,7 @@ const SessionDetail = ({ sessions, user }) => {
       case "in_corso":
       case "ongoing":
         return (
-          <Badge className="bg-amber-50 text-amber-700 hover:bg-amber-50 border border-amber-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
+          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border border-blue-200 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
             In Progress
           </Badge>
         );
@@ -39,13 +39,13 @@ const SessionDetail = ({ sessions, user }) => {
       case "non_iniziato":
       case "da_iniziare":
         return (
-          <Badge className="bg-rose-50 text-rose-700 hover:bg-rose-50 border border-rose-200/60 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
+          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border border-amber-200 shadow-sm rounded-md font-semibold px-2 py-0.5 text-[11px]">
             Not Started
           </Badge>
         );
       default:
         return (
-          <Badge variant="outline" className="text-slate-500 border-slate-200 text-[11px]">
+          <Badge variant="outline" className="text-slate-600 border-slate-200 text-[11px]">
             {status || "Unknown"}
           </Badge>
         );
@@ -56,28 +56,28 @@ const SessionDetail = ({ sessions, user }) => {
     <TableBody>
       {displayedSessions.length > 0 ? (
         displayedSessions.map((session) => (
-          <TableRow 
-            key={session.id} 
-            className="group border-b border-slate-100 transition-colors hover:bg-slate-50/60"
+          <TableRow
+            key={session.id}
+            className="group border-b border-slate-200 transition-colors hover:bg-slate-50"
           >
             <TableCell className="w-20 font-mono text-center text-[11px] font-semibold text-slate-400">
               #{session.id}
             </TableCell>
-            
-            <TableCell className="text-center text-xs font-semibold text-slate-700">
+
+            <TableCell className="text-center text-xs font-semibold text-slate-900">
               {session.project_name || `Progetto ${session.project_id}`}
             </TableCell>
-            
+
             <TableCell className="text-center">
               {getStatusBadge(session.status)}
             </TableCell>
-            
+
             <TableCell className="text-center">
               <Link
                 to={`/sessions/${session.id}`}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-transparent hover:bg-slate-100 hover:text-slate-900 px-2.5 py-1.5 rounded-lg transition-all"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-transparent hover:bg-slate-100 hover:text-slate-900 px-2.5 py-1.5 rounded-lg transition-all"
               >
-                <Eye className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
+                <Eye className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-900 transition-colors" />
                 <span>Vedi dettagli</span>
               </Link>
             </TableCell>
@@ -85,10 +85,8 @@ const SessionDetail = ({ sessions, user }) => {
         ))
       ) : (
         <TableRow>
-          <TableCell colSpan={4} className="h-32 text-center text-xs font-medium text-slate-400 bg-white">
-            <span className="inline-block bg-slate-50 border border-slate-100/80 rounded-full px-4 py-2 italic">
-              Nessuna sessione di test assegnata o trovata.
-            </span>
+          <TableCell colSpan={4} className="h-24 text-center text-sm text-slate-500">
+            Nessuna sessione di test assegnata o trovata.
           </TableCell>
         </TableRow>
       )}

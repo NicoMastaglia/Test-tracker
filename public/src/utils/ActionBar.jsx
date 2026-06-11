@@ -19,10 +19,10 @@ const ActionBar = ({
   children,                  
 }) => {
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between w-full">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-6 py-4 w-full">
       
     
-      <div className="flex flex-col flex-1 gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col flex-1 gap-3 sm:flex-row sm:items-center ">
         <div className="relative w-full md:w-75">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
@@ -47,9 +47,9 @@ const ActionBar = ({
           onClick={onButtonClick}
           disabled={buttonDisabled}
           className={`h-10 px-6 font-medium transition-all active:scale-95 shrink-0
-            ${buttonVariant === "emerald" 
-              ? "bg-emerald-600 hover:bg-emerald-700 text-white" 
-              : "bg-slate-900 hover:bg-slate-800 text-white"
+            ${buttonVariant === "emerald"
+              ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+              : "bg-slate-100 hover:bg-slate-200 text-slate-900"
             }
             ${buttonDisabled ? "opacity-50 cursor-not-allowed hover:bg-inherit active:scale-100" : ""}`}
         >

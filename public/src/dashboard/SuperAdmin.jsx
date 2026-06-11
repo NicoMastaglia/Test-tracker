@@ -5,27 +5,8 @@ import { Button } from "@/Components/ui/button";
 import { useUserContext } from "@/context/User/UserContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import {useNavigate} from "react-router-dom"; 
+import {KpiCard} from "@/utils/KpiCard";
 
-const KpiCard = ({ title, value, subtext, icon: Icon, iconClass }) => {
-  return (
-    <Card className="border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <CardContent className="flex items-start gap-4 pt-6">
-        <div className={`flex h-14 w-14 shrink-0 items-start justify-center rounded-2xl pt-3 ${iconClass}`}>
-          <Icon className="h-6 w-6" />
-        </div>
-
-        <div className="min-w-0 flex flex-col items-start text-left gap-3">
-          <p className="text-[30px] leading-none text-slate-900">{value}</p>
-          <p className="text-sm text-slate-500">{title}</p>
-          <p className="mt-1 flex items-center gap-1 text-xs text-emerald-600">
-            <ArrowUpRight className="h-3.5 w-3.5" />
-            {subtext}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
 
 const SuperAdminDashboard = ({navigate}) => {
   const { fetchUsers, users } = useUserContext();
@@ -42,7 +23,7 @@ const SuperAdminDashboard = ({navigate}) => {
       value: projects.filter(p => p.stato !== 'completed').length.toString(),
       icon: Folder,
       subtext: "progetti non completati",
-      iconClass: "bg-emerald-100 text-emerald-700",
+      iconClass: "bg-green-100 text-green-600",
 
     },
     {
@@ -50,21 +31,21 @@ const SuperAdminDashboard = ({navigate}) => {
       value: "0",
       icon: PlayCircle,
       subtext: "sessioni attive adesso",
-      iconClass: "bg-blue-100 text-blue-700",
+      iconClass: "bg-emerald-100 text-emerald-600",
     },
     {
       title: "Sessioni finite",
       value: "0",
       icon: CheckCircle,
       subtext: "sessioni concluse oggi",
-      iconClass: "bg-amber-100 text-amber-700",
+      iconClass: "bg-amber-100 text-amber-600",
     },
     {
       title: "Utenti Totali",
       value: users.length.toString(),
       icon: Users,
       subtext: "utenti registrati nel sistema",
-      iconClass: "bg-violet-100 text-violet-700",
+      iconClass: "bg-violet-100 text-violet-600",
     },
   ];
 
@@ -73,28 +54,28 @@ const SuperAdminDashboard = ({navigate}) => {
       title: "Visualizza  progetti",
       description: "Esplora e gestisci tutti i progetti attivi",
       icon: Folder,
-      iconClass: "bg-emerald-100 text-emerald-700",
+      iconClass: "bg-green-100 text-green-600",
       path: "/admin/projects"
-      
+
     },
     {
       title: "Gestisci utenti",
       description: "Assegna ruoli e permessi agli amministratori",
       icon: Users,
-      iconClass: "bg-blue-100 text-blue-700",
+      iconClass: "bg-emerald-100 text-emerald-600",
       path: "/admin/users"
     },
     {
       title: "Controlla attività",
       description: "Monitora le attività recenti",
       icon: ShieldAlert,
-      iconClass: "bg-amber-100 text-amber-700",
+      iconClass: "bg-amber-100 text-amber-600",
       path: "/admin/audit-log"
     },
   ];
 
   return (
-    <div className="p-6 space-y-6 bg-slate-50/30 min-h-screen">
+    <div className="p-6 space-y-6">
       {/*  */}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -111,24 +92,24 @@ const SuperAdminDashboard = ({navigate}) => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-4 border-slate-200/80 bg-white shadow-sm flex flex-col">
-          <CardHeader className="border-b border-slate-50 pb-4">
-            <CardTitle className="flex items-center gap-2 text-slate-800">
-              <ShieldAlert className="h-4 w-4 text-slate-700" />
+        <Card className="col-span-4 border-slate-200 bg-white shadow-sm flex flex-col">
+          <CardHeader className="border-b border-slate-200 pb-4">
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <ShieldAlert className="h-4 w-4 text-slate-400" />
               Attività Recente: Audit LOG
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex items-center justify-center py-10">
-            <p className="text-xs italic text-slate-400 bg-slate-50 px-4 py-2 rounded-full border border-slate-100/60">
+            <p className="text-xs italic text-slate-500 bg-slate-50 px-4 py-2 rounded-full border border-slate-200">
               Nessun log o attività registrata nello storico
             </p>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 border-slate-200/80 bg-white shadow-sm">
+        <Card className="col-span-3 border-slate-200 bg-white shadow-sm">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-slate-800">
-              <ShieldAlert className="h-4 w-4 text-slate-700" />
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <ShieldAlert className="h-4 w-4 text-slate-400" />
               Azioni rapide
             </CardTitle>
           </CardHeader>
@@ -140,9 +121,9 @@ const SuperAdminDashboard = ({navigate}) => {
                 <button
                   key={action.title}
                   type="button"
-                  className="cursor-pointer group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                  className="cursor-pointer group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
                   onClick={() => navigate(action.path)}
-                
+
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${action.iconClass}`}>
@@ -155,7 +136,7 @@ const SuperAdminDashboard = ({navigate}) => {
                     </div>
                   </div>
 
-                  <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-700 " />
+                  <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-900 " />
                 </button>
               );
             })}

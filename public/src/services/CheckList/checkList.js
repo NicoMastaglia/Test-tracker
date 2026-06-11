@@ -1,7 +1,7 @@
 import axios from "axios";
 import { baseUrl, authConfig } from "../config";
 
-export const createCheckList = async (token, checklistData) => {
+export const createChecklist = async (token, checklistData) => {
 	const res = await axios.post(
 		`${baseUrl}/api/checklists`,
 		checklistData,
@@ -10,9 +10,9 @@ export const createCheckList = async (token, checklistData) => {
 	return res.data;
 };
 
-export const updateCheckList = async (token,checkListId, checklistData) => {
+export const updateChecklist = async (token, checklistId, checklistData) => {
 	const res = await axios.put(
-		`${baseUrl}/api/checklists/${checkListId}`,
+		`${baseUrl}/api/checklists/${checklistId}`,
 		checklistData,
 		authConfig(token),
 	);
@@ -20,8 +20,8 @@ export const updateCheckList = async (token,checkListId, checklistData) => {
 };
 
 
-// elimina checklist 
-export const deleteCheckList = async (token, checklistId) => {
+// elimina checklist
+export const deleteChecklist = async (token, checklistId) => {
 	const res = await axios.delete(
 		`${baseUrl}/api/checklists/${checklistId}`,
 		authConfig(token),
@@ -29,7 +29,7 @@ export const deleteCheckList = async (token, checklistId) => {
 	return res.data;
 };
 
-export const getCheckListsByProject = async (token, projectId) => {
+export const getChecklistsByProject = async (token, projectId) => {
 	const res = await axios.get(
 		`${baseUrl}/api/checklists/${projectId}`,
 		authConfig(token),
@@ -37,7 +37,7 @@ export const getCheckListsByProject = async (token, projectId) => {
 	return res.data;
 };
 
-export const addCheckListItem = async (token, templateId, itemData) => {
+export const addChecklistItem = async (token, templateId, itemData) => {
 	const res = await axios.post(
 		`${baseUrl}/api/checklists/${templateId}/item`,
 		itemData,
@@ -46,7 +46,7 @@ export const addCheckListItem = async (token, templateId, itemData) => {
 	return res.data;
 };
 
-export const updateCheckListItem = async (token, itemId, itemData) => {
+export const updateChecklistItem = async (token, itemId, itemData) => {
 	const res = await axios.put(
 		`${baseUrl}/api/checklists/item/${itemId}`,
 		itemData,
@@ -55,7 +55,7 @@ export const updateCheckListItem = async (token, itemId, itemData) => {
 	return res.data;
 };
 
-export const deleteCheckListItem = async (token, itemId) => {
+export const deleteChecklistItem = async (token, itemId) => {
 	const res = await axios.delete(
 		`${baseUrl}/api/checklists/item/${itemId}`,
 		authConfig(token),

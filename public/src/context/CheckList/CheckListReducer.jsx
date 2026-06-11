@@ -12,7 +12,7 @@ export const initialState = {
 
 
 
-export const checkListReducer = (state, action) => {
+export const checklistReducer = (state, action) => {
 
     switch (action.type) {
         case 'SET_SELECTED_CHECKLIST':

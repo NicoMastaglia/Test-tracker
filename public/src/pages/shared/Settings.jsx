@@ -4,6 +4,7 @@ import { useAuthContext } from "@/context/Auth/AuthContext"
 import { useState,useEffect } from "react"
 import SettingsProfile from "@/Components/features/settings/SettingsProfile"
 import SettingsSecurity from "@/Components/features/settings/SettingsSecurity"
+import SettingsUserSummary from "@/Components/features/settings/SettingsUserSummary"
 import {useUserContext} from "@/context/User/UserContext"
 import {toast} from "sonner"
 import { isEmailValid } from "@/utils/validators"
@@ -97,9 +98,8 @@ const Settings = () => {
         }
     }
 
-    const handleUpdatePassword = async (e) => {
-        e.preventDefault()
-
+    const handleUpdatePassword = async () => {
+        
         const {Oldpassword, Newpassword, confirmPassword} = securityData
 
        
@@ -142,9 +142,11 @@ const Settings = () => {
         <AppLayout title="Impostazioni Account" description="Gestisci le impostazioni del tuo account, come nome, email e password."
         hideHeader={true}>
             <Header page="settings" /> 
-           <div className="w-full max-w-7xl mx-auto p-4">
-            
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+           <div className="w-full max-w-7xl mx-auto p-4 flex flex-col gap-6">
+
+            <SettingsUserSummary user={user} />
+
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
             <SettingsProfile profileData={profileData} handleSave={handleUpdateProfile} handleChange={handleChange} />
               <SettingsSecurity
                handleUpdatePassword={

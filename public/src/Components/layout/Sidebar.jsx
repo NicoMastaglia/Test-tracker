@@ -79,7 +79,7 @@ export default function AppSidebar() {
   const userConfigData = userConfig({ user });
 
   const handleLogout = () => {
-    setDeleteConfirmOpen(true);
+    setDeleteConfirmOpen(false);
 
     const token = localStorage.getItem("auth_token");
 
@@ -100,18 +100,16 @@ export default function AppSidebar() {
       <Sidebar
         collapsible="icon"
         variant="sidebar"
-        className="text-[#F5F7FA] border-r-0
-    
-    **:data-[slot=sidebar-inner]:bg-linear-to-b 
-    **:data-[slot=sidebar-inner]:from-[#07142B] 
-    **:data-[slot=sidebar-inner]:to-[#0B1F45]"
+        className="text-white border-r-0
+
+    **:data-[slot=sidebar-inner]:bg-slate-900"
       >
         {/* HEADER: RUOLO DINAMICO */}
         <SidebarHeader className="flex flex-col gap-2 p-4 justify-center group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:items-center">
-          <div className="flex items-center justify-between w-full bg-[#0B1F45]/80 rounded-xl p-3 group-data-[collapsible=icon]:hidden">
+          <div className="flex items-center justify-between w-full bg-slate-800/60 rounded-xl p-3 group-data-[collapsible=icon]:hidden">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div
-                className="h-10 w-10 bg-[#07142B] text-[#14D8A6] rounded-2xl flex items-center justify-center shadow-sm shrink-0
+                className="h-10 w-10 bg-slate-900 text-emerald-400 rounded-2xl flex items-center justify-center shadow-sm shrink-0
             cursor-pointer "
                 onClick={() => navigate("/settings")}
               >
@@ -120,33 +118,33 @@ export default function AppSidebar() {
                 <span className="font-bold">{getInitials(user)}</span>
               </div>
               <div className="flex flex-col truncate">
-                <span className="text-[#F5F7FA] leading-none tracking-wide text-[12px] font-bold">
+                <span className="text-white leading-none tracking-wide text-[12px] font-bold">
                   {userConfigData.name}
                 </span>
-                <span className="text-[12px] text-[#F5F7FA] mt-1 truncate">
+                <span className="text-[12px] text-slate-300 mt-1 truncate">
                   {userConfigData.title}
                 </span>
               </div>
             </div>
-            <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md h-7 w-7 ml-1 shrink-0">
+            <SidebarTrigger className="text-slate-400 hover:bg-slate-800 hover:text-white rounded-md h-7 w-7 ml-1 shrink-0">
               <Menu className="h-4 w-4" />
             </SidebarTrigger>
           </div>
-          <div className="hidden group-data-[collapsible=icon]:md:flex bg-[#0B1F45]/80 p-2 rounded-xl items-center justify-center">
-            <SidebarTrigger className="text-[#94A3B8] hover:bg-[#0E3B52] hover:text-[#AFC4E2] rounded-md h-7 w-7">
+          <div className="hidden group-data-[collapsible=icon]:md:flex bg-slate-800/60 p-2 rounded-xl items-center justify-center">
+            <SidebarTrigger className="text-slate-400 hover:bg-slate-800 hover:text-white rounded-md h-7 w-7">
               <Menu className="h-4 w-4" />
             </SidebarTrigger>
           </div>
         </SidebarHeader>
 
         {/* CONTENUTO PRINCIPALE */}
-        <SidebarContent className="gap-0 pt-3 bg-transparent">
-          <SidebarGroup className="px-2">
-            <SidebarGroupLabel className="text-[11px] uppercase tracking-wide text-[#F5F7FA] px-2 mb-3 group-data-[collapsible=icon]:hidden">
+        <SidebarContent className="gap-0 pt-4 bg-transparent">
+          <SidebarGroup className="px-3">
+            <SidebarGroupLabel className="text-[11px] uppercase tracking-wide text-slate-400 px-2 mb-3 group-data-[collapsible=icon]:hidden">
               Menu
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-1.5">
+              <SidebarMenu className="gap-2">
                 {menuItems.map((item) => {
                   const isActive =
                     location.pathname === item.path ||
@@ -158,19 +156,26 @@ export default function AppSidebar() {
                         asChild
                         isActive={isActive}
                         tooltip={item.text}
-                        className={`w-full transition-all duration-150 rounded-xl py-2.5 h-10 text-sm data-[active=true]:text-[#F5F7FA]! data-[active=true]:font-normal
-                        ${
-                          isActive
-                            ? "bg-linear-to-r from-[#0E3B52] via-[#0F6A67] to-[#10B981]/45 text-[#F5F7FA] shadow-[0_0_14px_rgba(20,216,166,0.26)]"
-                            : "text-[#F5F7FA] hover:bg-[#0B1F45] hover:text-[#F5F7FA]"
-                        }`}
+                        // mettiamo un effetto sfumato al testo e all'icona quando il menu è collassato
+                        className={`
+  w-full transition-all duration-150 rounded-xl py-2.5
+  h-10 text-sm
+
+  data-[active=true]:font-normal
+  data-[active=true]:text-white
+  data-[active=true]:rounded-2xl
+  data-[active=true]:bg-[linear-gradient(90deg,#059669_0%,#10b981_55%,#8ef3c7_100%)]
+  data-[active=true]:shadow-[0_0_25px_rgba(16,185,129,0.25)]
+  cursor-pointer
+ 
+`}
                       >
                         <button
                           onClick={() => navigate(item.path)}
                           className="flex items-center w-full gap-3 px-2.5"
                         >
                           <item.icon
-                            className={`w-4 h-4 shrink-0 transition-colors ${isActive ? "text-[#14D8A6]" : "text-[#94A3B8]"}`}
+                            className={`w-4 h-4 shrink-0 transition-colors ${isActive ? "text-emerald-400" : "text-slate-400"}`}
                           />
                           <span className="truncate text-sm group-data-[collapsible=icon]:hidden">
                             {item.text}
@@ -192,10 +197,10 @@ export default function AppSidebar() {
               <SidebarMenuButton
                 onClick={() => setDeleteConfirmOpen(true)}
                 tooltip="Disconnetti"
-                className="w-full text-[#F5F7FA] hover:bg-rose-500/15 hover:text-rose-300 py-2 h-9 rounded-lg transition-colors"
+                className="w-full text-slate-300 hover:bg-red-500/10 hover:text-red-400 py-2 h-9 rounded-xl transition-colors"
               >
                 <div className="flex items-center w-full gap-3 ">
-                  <LogOut className="w-4 h-4 text-[#94A3B8] shrink-0 hover:text-rose-300" />
+                  <LogOut className="w-4 h-4 text-slate-400 shrink-0 hover:text-red-400" />
                   <span className="group-data-[collapsible=icon]:hidden">
                     Esci
                   </span>
@@ -206,8 +211,8 @@ export default function AppSidebar() {
         </SidebarFooter>
 
         <ModalForm
-          open={deleteConfirmOpen}
-          onClose={() => setDeleteConfirmOpen(false)}
+          modalOpen={deleteConfirmOpen}
+          setModalOpen={setDeleteConfirmOpen}
           title="Conferma disconnessione"
           infos="Sei sicuro di voler uscire? Tutti i progressi non salvati potrebbero andare persi."
           submitLabel="Effettua Disconnessione"

@@ -44,28 +44,28 @@ const NewUser = ({setModal,
                     }}>
                     <div className="grid gap-6 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="name" className="text-slate-700">Nome</Label>
+                            <Label htmlFor="name" className="text-slate-900">Nome</Label>
                             <Input onChange={(e)=>setNewUserData({
                                 ...newUserData,name:e.target.value
                             })} id="name" placeholder="Mario Rossi"
                             autoComplete="new-name" required />
                         </div>
                           <div className="grid gap-2">
-                            <Label htmlFor="surname" className="text-slate-700">Cognome</Label>
+                            <Label htmlFor="surname" className="text-slate-900">Cognome</Label>
                             <Input onChange={(e)=>setNewUserData({
                                 ...newUserData,surname:e.target.value
                             })} id="surname" placeholder="Mario Rossi"
                             autoComplete="new-surname" required />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="email" className="text-slate-700">Email</Label>
+                            <Label htmlFor="email" className="text-slate-900">Email</Label>
                             <Input onChange={(e)=>setNewUserData({
                                 ...newUserData,email:e.target.value
                             })} id="email" placeholder="formato email valido"
                             autoComplete="new-email" required />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="role" className="text-slate-700">Ruolo</Label>
+                            <Label htmlFor="role" className="text-slate-900">Ruolo</Label>
                             <Select onValueChange={(value)=>setNewUserData({
                                 ...newUserData,role:value
                             })} required>
@@ -83,7 +83,7 @@ const NewUser = ({setModal,
                             </Select>
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="password" className="text-slate-700">Password</Label>
+                            <Label htmlFor="password" className="text-slate-900">Password</Label>
                             <Input  onChange={(e)=>setNewUserData({
                                 ...newUserData,password:e.target.value
                             })} id="password" type="password" placeholder="Inserisci la password" 
@@ -91,7 +91,7 @@ const NewUser = ({setModal,
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                        <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white">
                             Crea Utente
                         </Button>
                     </DialogFooter>

@@ -63,6 +63,20 @@ export const projects = [
   }
 ];
 
+export const fakeTasks= [
+    {
+    id: 1,
+    checklist_id: 1,
+    description: "Verificare login",
+    position: 1,
+  },
+  {
+    id: 2,
+    checklist_id: 1,
+    description: "Verificare logout",
+    position: 2,
+  },
+]
 export const sessions = [
   {
     id: 1,

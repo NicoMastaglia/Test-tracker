@@ -14,12 +14,12 @@ const UserView = ({ sessions }) => {
   return (
     <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <Table>
-        <TableHeader className="bg-slate-900">
-          <TableRow className="bg-slate-900 hover:bg-slate-900">
-            <TableHead className="text-center font-bold text-white w-30">Session #</TableHead>
-            <TableHead className="text-center font-bold text-white">Project #</TableHead>
-            <TableHead className="text-center font-bold text-white">Status</TableHead>
-            <TableHead className="text-center font-bold text-white">Actions</TableHead>
+        <TableHeader className="bg-slate-50">
+          <TableRow className="bg-slate-50 hover:bg-slate-50">
+            <TableHead className="text-center font-bold text-slate-900 w-30">Session #</TableHead>
+            <TableHead className="text-center font-bold text-slate-900">Project #</TableHead>
+            <TableHead className="text-center font-bold text-slate-900">Status</TableHead>
+            <TableHead className="text-center font-bold text-slate-900">Actions</TableHead>
           </TableRow>
         </TableHeader>
         

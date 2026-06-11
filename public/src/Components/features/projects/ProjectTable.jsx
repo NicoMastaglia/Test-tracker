@@ -161,7 +161,7 @@ const ProjectTable = ({ data, users = [] }) => {
       <Button type="button" variant="outline" onClick={() => setEditingProject(null)}>Annulla</Button>
       <Button
         type="button"
-         className="bg-emerald-600 hover:bg-emerald-700 text-white"
+         className="bg-emerald-500 hover:bg-emerald-600 text-white"
         onClick={handleUpdateProject}
         disabled={!hasProjectChanges}
       >
@@ -172,18 +172,18 @@ const ProjectTable = ({ data, users = [] }) => {
   );
   return (
     <>
-      <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto">
         <Table>
-          <TableHeader className="bg-slate-900">
-            <TableRow className="bg-slate-900 hover:bg-slate-900">
-              <TableHead className="text-white font-semibold w-25 text-center">ID</TableHead>
-              <TableHead className="text-white font-semibold text-center">Progetto</TableHead>
-              <TableHead className="text-white font-semibold text-center">Stato</TableHead>
-              <TableHead className="text-white font-semibold w-50 text-center">Creato da</TableHead>
-              <TableHead className="text-white font-semibold w-50 text-center">Tester assegnati</TableHead>
-              <TableHead className="text-white font-semibold w-50 text-center">Sessioni</TableHead>
-              <TableHead className="text-white font-semibold w-50 text-center">Progress</TableHead>
-              <TableHead className="text-white font-semibold w-50 text-center">Azioni</TableHead>
+          <TableHeader className="bg-slate-50">
+            <TableRow className="bg-slate-50 hover:bg-slate-50">
+              <TableHead className="text-slate-900 font-semibold w-25 text-center">ID</TableHead>
+              <TableHead className="text-slate-900 font-semibold text-center">Progetto</TableHead>
+              <TableHead className="text-slate-900 font-semibold text-center">Stato</TableHead>
+              <TableHead className="text-slate-900 font-semibold w-50 text-center">Creato da</TableHead>
+              <TableHead className="text-slate-900 font-semibold w-50 text-center">Tester assegnati</TableHead>
+              <TableHead className="text-slate-900 font-semibold w-50 text-center">Sessioni</TableHead>
+              <TableHead className="text-slate-900 font-semibold w-50 text-center">Progress</TableHead>
+              <TableHead className="text-slate-900 font-semibold w-50 text-center">Azioni</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -231,10 +231,10 @@ const ProjectTable = ({ data, users = [] }) => {
         setFormData={setEditForm}
         onSubmit={handleUpdateProject}
         submitLabel="Salva modifiche"
-        submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+        submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
         dialogClassName="sm:max-w-124.25"
         titleIcon={Edit}
-        iconColor="text-emerald-500"
+        iconColor="text-emerald-600"
         customFooter={customFooter}
 
     
@@ -255,33 +255,33 @@ const ProjectTable = ({ data, users = [] }) => {
         setFormData={(data) => setStatusValue(data.status)}
         onSubmit={handleUpdateStatus}
         submitLabel="Aggiorna stato"
-        submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
+        submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
         dialogClassName="sm:max-w-105"
         titleIcon={Edit}
-        iconColor="text-emerald-500"
+        iconColor="text-emerald-600"
       />
 
       <ModalForm
         modalOpen={!!deleteProjectTarget}
         setModalOpen={setDeleteProjectTarget}
         title="Conferma eliminazione"
-        infos={ <span className="text-base text-slate-700">
+        infos={ <span className="text-base text-slate-500">
               Stai per eliminare definitivamente il progetto{" "}
               <strong className="font-semibold text-slate-900 underline decoration-red-500/40 decoration-2 underline-offset-2">
                 {deleteProjectTarget?.name}
               </strong>.
-              
+
                Questa azione è irreversibile.
             </span>}
-      
+
         formData={{}}
         setFormData={() => {}}
         onSubmit={handleDeleteProject}
         submitLabel="Elimina progetto"
         dialogClassName="sm:max-w-105"
-        submitClassName="bg-rose-600 hover:bg-rose-700 text-white"
+        submitClassName="bg-red-600 hover:bg-red-700 text-white"
         titleIcon={AlertTriangle}
-        iconColor="text-rose-500" 
+        iconColor="text-red-500"
         />
 
 

@@ -7,6 +7,8 @@ const sectionLabels = {
   activities: "Attività",
 };
 
+
+// MENUI DI NAVIGAZIONE PER LE SEZIONI DEL PROGETTO (OVERVIEW, CHECKLIST, TEAM, ACTIVITIES)
 const ProjectSectionNav = ({
   activeSection,
   onSectionChange,
@@ -31,14 +33,14 @@ const ProjectSectionNav = ({
               key={key}
               type="button"
               onClick={() => onSectionChange(key)}
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${isActive ? "bg-emerald-500 text-white" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"}`}
             >
               {label}
               {/* Badge for section counts */}
               {typeof counts[key] === "number" ? (
                 <Badge
                   variant="outline"
-                  className={`border-0 ${isActive ? "bg-white/15 text-white" : "bg-slate-100 text-slate-500"}`}
+                  className={`border-0 ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}
                 >
                   {counts[key]}
                 </Badge>

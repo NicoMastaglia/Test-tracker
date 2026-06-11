@@ -2,18 +2,20 @@ import { Badge } from "@/Components/ui/badge";
 import { FolderOpen } from "lucide-react";
 import { getFullName, getProjectStatusBadgeClass } from "@/utils/tableHelpers";
 
+
+// COMPONENTE PER LA CARD HEADER DEL PROGETTO, MOSTRA IL NOME DEL PROGETTO, LO STATO, IL CODICE, IL CREATORE E LA DESCRIZIONE
 const ProjectHeaderCard = ({ selectedProject }) => {
     return (
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 bg-slate-50 px-6 py-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-4">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ">
+        <div className="border-b border-slate-200 bg-slate-50 px-6 py-5 ">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between ">
+            <div className="space-y-4 ">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                   <FolderOpen className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                     Project Detail
                   </p>
                   <h2 className="text-2xl font-bold text-slate-900">
@@ -22,7 +24,7 @@ const ProjectHeaderCard = ({ selectedProject }) => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 text-center">
                 <Badge
                   className={`border-none px-3 py-1 text-xs ${getProjectStatusBadgeClass(selectedProject.status)}`}
                 >

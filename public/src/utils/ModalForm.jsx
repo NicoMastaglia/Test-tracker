@@ -41,12 +41,12 @@ const renderField = (field, value, updateField) => {
 		// es un superadmin non può cambiare ruolo
 		if (field.name ==='role' && value === 'superadmin') {
 			return(
-				<div className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 h-10 text-sm text-slate-400 cursor-not-allowed flex items-center justify-between select-none">
+				<div className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 h-10 text-sm text-slate-500 cursor-not-allowed flex items-center justify-between select-none">
                 <div className="flex items-center gap-2">
                     {Icon && <Icon className="h-4 w-4 text-slate-400" />}
                     <span className="font-medium text-slate-500">Super Admin</span>
                 </div>
-              
+
                 <Lock className="h-3.5 w-3.5 text-slate-400" />
             </div>
 			)
@@ -88,7 +88,7 @@ const renderField = (field, value, updateField) => {
                 />
             );
 
-          
+
             if (Icon) {
                 return (
                     <div className="relative">
@@ -164,10 +164,10 @@ const ModalForm = ({
 					<div className="grid gap-4">
 						{fields.map((field) => (
 							<div key={field.name} className="grid gap-2">
-								<Label htmlFor={field.name} className="text-slate-700">
+								<Label htmlFor={field.name} className="text-slate-900">
 									{field.label}
 								</Label>
-								
+
 								{renderField(field, formData[field.name], updateField)}
 								{field.helperText ? <p className="text-xs text-slate-500">{field.helperText}</p> : null}
 							</div>

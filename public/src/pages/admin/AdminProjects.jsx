@@ -116,8 +116,8 @@ const AdminProjects = () => {
 
   return (
     <AppLayout page="projects">
-      <div className="space-y-6">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar
             search={search}
             setSearch={setSearch}
@@ -126,32 +126,30 @@ const AdminProjects = () => {
             onButtonClick={user?.role === "admin" || user?.role === "superadmin" ? () => setModalOpen(true) : undefined}
             buttonVariant="emerald"
           />
-          <div className="pt-4">
-            <ModalForm
-              modalOpen={modalOpen}
-              setModalOpen={setModalOpen}
-              onClose={() => setFormData({
-                name: "",
-                description: "",
-                responsabile: "",
-              })}
-              title="Nuovo Progetto"
-              infos="Inserisci le informazioni di base per il nuovo progetto."
-              fields={dynamicFields}
-              formData={formData}
-              setFormData={setFormData}
-              onSubmit={handleAddProject}
-              submitLabel="Crea Progetto"
-              cancelLabel="Annulla"
-              titleIcon={Plus}
-              iconColor="text-emerald-500"
-              submitClassName="bg-emerald-600 text-white hover:bg-emerald-700"
-            
-            />
-          </div>
-        </div>
 
-        <ProjectTable data={filteredProjects} users={users} />
+          <ProjectTable data={filteredProjects} users={users} />
+
+          <ModalForm
+            modalOpen={modalOpen}
+            setModalOpen={setModalOpen}
+            onClose={() => setFormData({
+              name: "",
+              description: "",
+              responsabile: "",
+            })}
+            title="Nuovo Progetto"
+            infos="Inserisci le informazioni di base per il nuovo progetto."
+            fields={dynamicFields}
+            formData={formData}
+            setFormData={setFormData}
+            onSubmit={handleAddProject}
+            submitLabel="Crea Progetto"
+            cancelLabel="Annulla"
+            titleIcon={Plus}
+            iconColor="text-emerald-600"
+            submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
+          />
+        </div>
       </div>
     </AppLayout>
   );

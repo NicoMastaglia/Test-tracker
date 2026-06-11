@@ -13,7 +13,7 @@ import {
   getCreatorName,
   getFullName,
   getInitials,
-  getStatusBadgeClass,
+  getProjectStatusBadgeClass,
 } from "@/utils/tableHelpers";
 
 
@@ -26,23 +26,23 @@ const UserProjectsTable = ({ data = [], handleProjectDetail}) => {
     console.log("Dati progetti ricevuti:", data);
   }, [data]);
   return (
-    <div className="mx-auto my-8 max-w-300 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-x-auto">
       <Table>
-        <TableHeader className="bg-slate-900">
-          <TableRow className="bg-slate-900 hover:bg-slate-900">
-            <TableHead className="w-24 text-center font-semibold text-white">
+        <TableHeader className="bg-slate-50">
+          <TableRow className="bg-slate-50 hover:bg-slate-50">
+            <TableHead className="w-24 text-center font-semibold text-slate-900">
               ID
             </TableHead>
-            <TableHead className="text-center font-semibold text-white">
+            <TableHead className="text-center font-semibold text-slate-900">
               Progetto
             </TableHead>
-            <TableHead className="text-center font-semibold text-white">
+            <TableHead className="text-center font-semibold text-slate-900">
               Stato
             </TableHead>
-            <TableHead className="text-center font-semibold text-white">
+            <TableHead className="text-center font-semibold text-slate-900">
               Creato da
             </TableHead>
-            <TableHead className="text-center font-semibold text-white">
+            <TableHead className="text-center font-semibold text-slate-900">
               Descrizione
             </TableHead>
           </TableRow>
@@ -55,7 +55,7 @@ const UserProjectsTable = ({ data = [], handleProjectDetail}) => {
                 className="group transition-colors hover:bg-slate-50"
                 onClick={() => handleProjectDetail(project.id)}
               >
-                <TableCell className="font-mono text-xs text-slate-500">
+                <TableCell className="font-mono text-xs text-slate-400">
                   #{project.id}
                 </TableCell>
 
@@ -80,7 +80,7 @@ const UserProjectsTable = ({ data = [], handleProjectDetail}) => {
 
                 <TableCell className="text-center">
                   <Badge
-                    className={`border-none px-3 py-1 text-xs ${getStatusBadgeClass(project.status)}`}
+                    className={`border-none px-3 py-1 text-xs ${getProjectStatusBadgeClass(project.status)}`}
                   >
                     <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
                     {project.status ?? "Unknown"}
@@ -89,7 +89,7 @@ const UserProjectsTable = ({ data = [], handleProjectDetail}) => {
 
                 <TableCell className="text-slate-900">
                   <div className="flex items-center gap-3 justify-center">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-900">
                       {getInitials(project.created_by)}
                     </div>
                     <div className="min-w-0">
@@ -106,7 +106,7 @@ const UserProjectsTable = ({ data = [], handleProjectDetail}) => {
                   </div>
                 </TableCell>
 
-                <TableCell className="max-w-140 text-slate-600">
+                <TableCell className="max-w-140 text-slate-500">
                   <p className="line-clamp-2">
                     {project.description || "Nessuna descrizione disponibile."}
                   </p>

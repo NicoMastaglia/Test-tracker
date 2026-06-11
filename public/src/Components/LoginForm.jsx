@@ -14,7 +14,7 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
         <form onSubmit={handleSubmit} className="grid gap-4">
           {/* Campo Email */}
           <div className="grid gap-2">
-            <Label htmlFor="email" className="text-sm font-medium text-slate-700 ml-1">
+            <Label htmlFor="email" className="text-sm font-medium text-slate-900 ml-1">
               Email
             </Label>
             <div className="relative">
@@ -34,7 +34,7 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
           {/* Campo Password */}
           <div className="grid gap-2">
             <div className="flex items-center justify-between ml-1">
-              <Label htmlFor="password" university className="text-sm font-medium text-slate-700">
+              <Label htmlFor="password" university className="text-sm font-medium text-slate-900">
                 Password
               </Label>
               <a href="#" className="text-xs text-emerald-600 hover:underline">
@@ -55,9 +55,9 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
           </div>
 
           {/* Pulsante Accedi */}
-          <Button 
-            type="submit" 
-            className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200 transition-all active:scale-[0.98]"
+          <Button
+            type="submit"
+            className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]"
           >
             Accedi al portale
           </Button>

@@ -15,11 +15,11 @@ const AppLayout = ({ children, page, hideHeader = false }) => {
           <AppSidebar user={user} />
 
           <SidebarInset className="flex flex-col flex-1 bg-slate-50">
-            <header className="flex h-14 items-center gap-4 border-b border-[#0B1F45] bg-[#07142B] px-4 md:hidden">
-              <SidebarTrigger className="text-[#F5F7FA] hover:bg-[#0E3B52] rounded-md">
+            <header className="flex h-14 items-center gap-4 border-b border-sidebar-border bg-sidebar px-4 md:hidden">
+              <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent rounded-md">
                 <Menu className="h-5 w-5" />
               </SidebarTrigger>
-              <span className="font-semibold text-sm text-[#F5F7FA]">Menu</span>
+              <span className="font-semibold text-sm text-sidebar-foreground">Menu</span>
             </header>
 
             {!hideHeader && <Header user={user} page={page} />}

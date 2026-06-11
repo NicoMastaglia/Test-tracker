@@ -10,21 +10,21 @@ const AdminDashboard = () => {
         value: "3",
         trend: "es +2 mese precedente",
         icon: Folder,
-        iconClass: "bg-emerald-100 text-emerald-700",
+        iconClass: "bg-green-100 text-green-600",
       },
       {
         title: "Sessioni in Corso",
         value: "5",
         trend: "numero user attivi atm",
         icon: PlayCircle,
-        iconClass: "bg-blue-100 text-blue-700",
+        iconClass: "bg-emerald-100 text-emerald-600",
       },
       {
         title: "Checklist aggiornate",
         value: "4",
         trend: "...",
         icon: CheckCircle,
-        iconClass: "bg-amber-100 text-amber-700",
+        iconClass: "bg-amber-100 text-amber-600",
       },
       // {
       //   title: "Team Attivo",
@@ -40,19 +40,19 @@ const AdminDashboard = () => {
         title: "Gestisci Progetti",
         description: "Visualizza e gestisci tutti i progetti e i relativi tester",
         icon: Folder,
-        iconClass: "bg-emerald-100 text-emerald-700",
+        iconClass: "bg-green-100 text-green-600",
       },
       {
         title: "Apri Sessioni",
         description: "Gestisci le sessioni di testing in corso",
         icon: PlayCircle,
-        iconClass: "bg-blue-100 text-blue-700",
+        iconClass: "bg-emerald-100 text-emerald-600",
       },
       {
         title: "Apri Checklist Progetto",
         description: "Accedi alle checklist dei progetti e gestisci le task",
         icon: CheckCircle,
-        iconClass: "bg-amber-100 text-amber-700",
+        iconClass: "bg-amber-100 text-amber-600",
       },
     ];
 
@@ -66,17 +66,17 @@ const AdminDashboard = () => {
                  const Icon = card.icon;
 
                  return (
-                   <Card key={card.title} className="border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                   <Card key={card.title} className="border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                      <CardContent className="flex items-start gap-4 pt-2">
                        <div className={`flex h-14 w-14 shrink-0 items-start justify-center rounded-2xl pt-3 ${card.iconClass}`}>
                          <Icon className="h-6 w-6" />
                        </div>
 
                        <div className="min-w-0 flex flex-col items-start text-left gap-3">
-                       
+
                          <p className="mt-1 text-sm text-slate-500">{card.title}</p>
                            <p className="text-[30px] leading-none text-slate-900">{card.value}</p>
-                         <p className="mt-2 flex items-center gap-1 text-xs text-emerald-600">
+                         <p className="mt-2 flex items-center gap-1 text-xs text-green-600">
                            <ArrowUpRight className="h-3.5 w-3.5" />
                            {card.trend}
                          </p>
@@ -91,10 +91,10 @@ const AdminDashboard = () => {
              <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7 mt-6">
                 
                 
-                 <Card className="col-span-full border-slate-200/80 bg-white shadow-sm">
+                 <Card className="col-span-full border-slate-200 bg-white shadow-sm">
                    <CardHeader className="pb-4">
-                     <CardTitle className="flex items-center gap-2 text-slate-800">
-                       <Zap className="h-4 w-4 text-slate-700" />
+                     <CardTitle className="flex items-center gap-2 text-slate-900">
+                       <Zap className="h-4 w-4 text-slate-400" />
                        Azioni rapide
                      </CardTitle>
                    </CardHeader>
@@ -106,7 +106,7 @@ const AdminDashboard = () => {
                          <button
                            key={action.title}
                            type="button"
-                           className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                           className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
                          >
                            <div className="flex min-w-0 items-start gap-3">
                              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${action.iconClass}`}>
@@ -119,7 +119,7 @@ const AdminDashboard = () => {
                              </div>
                            </div>
 
-                           <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-700" />
+                           <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-900" />
                          </button>
                        );
                      })}

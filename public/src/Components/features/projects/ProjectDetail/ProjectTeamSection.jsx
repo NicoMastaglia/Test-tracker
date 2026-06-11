@@ -32,14 +32,14 @@ const ProjectTeamSection = ({
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
             Team
           </p>
           <h3 className="mt-1 text-lg font-semibold text-slate-900">
             Utenti del progetto
           </h3>
         </div>
-        <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-600">
+        <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-500">
           {projectAssignedUsers.length} assegnati
         </div>
       </div>
@@ -103,7 +103,7 @@ const ProjectTeamSection = ({
 
                 <Button
                   variant="outline"
-                  className="shrink-0 border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  className="shrink-0 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                   onClick={() => onRemoveUser(assignedUser)}
                 >
                   Rimuovi

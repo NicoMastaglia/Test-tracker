@@ -1,11 +1,13 @@
 import { Badge } from "@/Components/ui/badge";
 
+
+// COMPONENTE PER LA SEZIONE ATTIVITÀ DEL PROGETTO, MOSTRA LE ATTIVITÀ RECENTI LEGATE AL PROGETTO (IN LAVORAZIONE)
 const ProjectActivitiesSection = () => {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
               Attività recenti
             </p>
             <h3 className="mt-1 text-lg font-semibold text-slate-900">
@@ -14,7 +16,7 @@ const ProjectActivitiesSection = () => {
           </div>
           <Badge
             variant="outline"
-            className="border-slate-200 bg-slate-50 text-slate-600"
+            className="border-slate-200 bg-slate-50 text-slate-500"
           >
             WIP
           </Badge>
@@ -41,7 +43,7 @@ const ProjectActivitiesSection = () => {
               className="rounded-xl border border-slate-200 bg-slate-50 p-4"
             >
               <p className="text-sm font-medium text-slate-900">{item.title}</p>
-              <p className="mt-1 text-sm leading-6 text-slate-600">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 {item.description}
               </p>
             </div>

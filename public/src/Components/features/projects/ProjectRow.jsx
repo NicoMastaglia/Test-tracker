@@ -30,7 +30,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, 
       className={`group transition-colors hover:bg-slate-50 ${canOpenProjectDetail ? "cursor-pointer" : ""}`}
       onClick={() => handleProjectRowClick(project.id)}
     >
-      <TableCell className="font-mono text-slate-500">#{project.id}</TableCell>
+      <TableCell className="font-mono text-slate-400">#{project.id}</TableCell>
 
       <TableCell>
         <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, 
 
       <TableCell>
         <div className="flex flex-col gap-2">
-          <Progress value={progressValue} className="h-2 bg-slate-100 [&>div]:bg-emerald-500" />
+          <Progress value={progressValue} className="h-2 bg-slate-100 [&>div]:bg-green-500" />
         </div>
       </TableCell>
 
@@ -134,10 +134,10 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, 
         <div className="flex items-center justify-center gap-2">
           {isAdmin || isSuperadmin ? (
             <>
-              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-blue-600" onClick={(e) => { e.stopPropagation(); openEditDialog(project); }}>
+              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); openEditDialog(project); }}>
                 <Pencil className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-slate-500 hover:text-amber-600" onClick={(e) => { e.stopPropagation(); openStatusDialog(project); }}>
+              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-amber-600" onClick={(e) => { e.stopPropagation(); openStatusDialog(project); }}>
                 <Flag className="h-4 w-4" />
               </Button>
             </>
@@ -145,7 +145,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, calculateProgress, 
             <span className="text-sm text-slate-500">Nessuna azione disponibile</span>
           )}
           {isSuperadmin && (
-            <Button variant="ghost" size="icon" className="text-slate-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setDeleteProjectTarget(project); }}>
+            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-red-600" onClick={(e) => { e.stopPropagation(); setDeleteProjectTarget(project); }}>
               <Trash2 className="h-4 w-4" />
             </Button>
           )}

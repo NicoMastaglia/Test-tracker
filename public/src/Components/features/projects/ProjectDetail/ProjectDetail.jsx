@@ -12,17 +12,20 @@ import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
 import ProjectTeamSection from "./ProjectTeamSection";
 import ProjectActivitiesSection from "./ProjectActivitiesSection";
-import CheckListSection from "@/Components/features/checkList/CheckListSection";
-import { useCheckListContext } from "@/context/CheckList/CheckListContext";
+import ChecklistSection from "@/Components/features/projects/ProjectDetail/ChecklistSection";
+import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
 import {useAuthContext} from "@/context/Auth/AuthContext";
 import { toast } from "sonner";
+
+
+// COMPONENTE PRINCIPALE PER LA PAGINA DI DETTAGLIO DEL PROGETTO
 const ProjectDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id: projectId } = useParams();
   const { user } = useAuthContext();
   const isAdmin = user?.role !== "user";
-  const { checklistItems, fetchCheckListsByProject } = useCheckListContext();
+  const { checklistItems, fetchChecklistsByProject } = useChecklistContext();
 
   const { users, fetchUsers } = useUserContext();
   const {
@@ -49,7 +52,7 @@ const ProjectDetail = () => {
     }
 
     fetchProjectDetails(projectId);
-    fetchCheckListsByProject(projectId);
+    fetchChecklistsByProject(projectId);
 
     if (isAdmin) {
       fetchUsers();
@@ -106,7 +109,7 @@ const ProjectDetail = () => {
   };
 
   const deleteFormDescription = (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
       {removeUserTarget ? (
         <>
           <p className="font-medium text-slate-900">
@@ -134,10 +137,10 @@ const ProjectDetail = () => {
 
   return (
     <AppLayout page="projects" hideHeader>
-      <div className="w-full flex flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => navigate(backRoute)}
             className="gap-2"
           >
@@ -151,9 +154,8 @@ const ProjectDetail = () => {
             Caricamento dettagli progetto...
           </div>
         ) : selectedProject ? (
-          <div className="space-y-6">
+          <div className="flex w-full flex-col gap-6">
             <ProjectHeaderCard selectedProject={selectedProject} />
-
             <ProjectSectionNav
               activeSection={activeSection}
               onSectionChange={setActiveSection}
@@ -166,7 +168,7 @@ const ProjectDetail = () => {
             ) : null}
 
             {activeSection === "checklist" ? (
-              <CheckListSection projectId={projectId} isAdmin={isAdmin} />
+              <ChecklistSection projectId={projectId} isAdmin={isAdmin} />
             ) : null}
 
             {isAdmin && activeSection === "team" ? (
@@ -206,7 +208,7 @@ const ProjectDetail = () => {
         cancelLabel="Annulla"
         dialogClassName="sm:max-w-105"
         titleIcon={Flag}
-        iconColor="text-rose-500"
+        iconColor="text-red-500"
         submitVariant="destructive"
       />
     </AppLayout>

@@ -61,7 +61,7 @@ export const getRoleInfo = (role) => {
     user: {
       // label: "Utente",
       label: "User",
-      className: "bg-emerald-100 text-emerald-700",
+      className: "bg-green-100 text-green-800",
     },
     admin: {
       label: "Admin",
@@ -69,7 +69,7 @@ export const getRoleInfo = (role) => {
     },
     superadmin: {
       label: "Super Admin",
-      className: "bg-rose-100 text-rose-700",
+      className: "bg-pink-100 text-pink-700",
     },
   };
 
@@ -93,7 +93,7 @@ export const getStatusBadgeClass = (status) => {
     return "bg-amber-100 text-amber-700 hover:bg-amber-100 border-none";
   }
 
-  return "bg-slate-100 text-slate-700 hover:bg-slate-100 border-none";
+  return "bg-slate-100 text-slate-600 hover:bg-slate-100 border-none";
 };
 
 
@@ -112,19 +112,27 @@ export const getCreatorName = (project = {}, users = []) => {
 export const getProjectStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
-  if (normalizedStatus === "attivo" || normalizedStatus === "active") {
-    return "bg-emerald-100 text-emerald-700";
-  }
-
-  if (normalizedStatus === "completato" || normalizedStatus === "completed") {
+  // Attivo / Active = "In Progress" -> blue
+  if (normalizedStatus === "attivo" || normalizedStatus === "active" || normalizedStatus === "in progress" || normalizedStatus === "in_progress") {
     return "bg-blue-100 text-blue-700";
   }
 
-  if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold") {
+  // Completato / Completed -> emerald
+  if (normalizedStatus === "completato" || normalizedStatus === "completed") {
+    return "bg-emerald-100 text-emerald-700";
+  }
+
+  // In pausa / Non iniziato / Pending -> amber
+  if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold" || normalizedStatus === "non iniziato" || normalizedStatus === "pending") {
     return "bg-amber-100 text-amber-700";
   }
 
-  return "bg-slate-100 text-slate-700";
+  // Bloccato / Blocked -> red
+  if (normalizedStatus === "bloccato" || normalizedStatus === "blocked") {
+    return "bg-red-100 text-red-700";
+  }
+
+  return "bg-slate-100 text-slate-600";
 };
 
 

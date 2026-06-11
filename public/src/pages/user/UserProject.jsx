@@ -45,12 +45,12 @@ const UserProject = () => {
 
   return (
     <AppLayout page="projects">
-      <div className="space-y-6">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar search={search} setSearch={setSearch} placeholder="Cerca tra i tuoi progetti..." />
-        </div>
 
-        <UserProjectsTable data={filteredProjects} handleProjectDetail={handleProjectRowClick} />
+          <UserProjectsTable data={filteredProjects} handleProjectDetail={handleProjectRowClick} />
+        </div>
       </div>
     </AppLayout>
   );

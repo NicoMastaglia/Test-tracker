@@ -5,16 +5,16 @@ import App from './App.jsx'
 import { AuthProvider } from './context/Auth/AuthContext.jsx';
 import { ProjectProvider } from './context/Project/ProjectContext';
 import { UserProvider } from './context/User/UserContext';
-import { CheckListProvider } from './context/CheckList/CheckListContext';
+import { ChecklistProvider } from './context/Checklist/ChecklistContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <ProjectProvider>
         <UserProvider>
-          <CheckListProvider>
+          <ChecklistProvider>
             <App/>
-          </CheckListProvider>
+          </ChecklistProvider>
         </UserProvider>
       </ProjectProvider>
     </AuthProvider>
