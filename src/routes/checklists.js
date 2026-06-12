@@ -127,6 +127,30 @@ router.delete("/:id", checkAdmin, async (req, res) => {
 
 router.get("/:projectId", checkUser, (req, res) => {
   const projectId = req.params.projectId;
+  const formatChecklists = (results) => {
+    const checklistMap = new Map();
+    results.forEach((row) => {
+      if (!checklistMap.has(row.checklist_id)) {
+        checklistMap.set(row.checklist_id, {
+          id: row.checklist_id,
+          checklist_id: row.checklist_id,
+          title: row.title,
+          project_id: row.project_id,
+          items: [],
+        });
+      }
+      if (row.item_id) {
+        checklistMap.get(row.checklist_id).items.push({
+          id: row.item_id,
+          item_id: row.item_id,
+          description: row.description,
+          position: row.position,
+        });
+      }
+    });
+
+    return Array.from(checklistMap.values());
+  };
 
   if (req.user.role === "superadmin") {
     return db
@@ -135,7 +159,7 @@ router.get("/:projectId", checkUser, (req, res) => {
         [projectId],
       )
       .then(([results]) => {
-        res.status(200).json(results);
+        res.status(200).json(formatChecklists(results));
       })
       .catch((err) => {
         res.status(500).json({
@@ -150,7 +174,7 @@ router.get("/:projectId", checkUser, (req, res) => {
         [projectId, req.user.id],
       )
       .then(([results]) => {
-        res.status(200).json(results);
+        res.status(200).json(formatChecklists(results));
       })
       .catch((err) => {
         res.status(500).json({
@@ -165,7 +189,7 @@ router.get("/:projectId", checkUser, (req, res) => {
         [projectId, req.user.id],
       )
       .then(([results]) => {
-        res.status(200).json(results);
+        res.status(200).json(formatChecklists(results));
       })
       .catch((err) => {
         res.status(500).json({
