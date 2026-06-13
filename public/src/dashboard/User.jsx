@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { CheckCircle, Folder, PlayCircle, ArrowUpRight, FolderOpen, Clock3, CheckSquare, ChevronRight, Gauge } from "lucide-react";
-import KpiCard from "@/utils/KpiCard";
+import KpiCard from "@/utils/components/KpiCard";
+import WelcomeCard from "./WelcomeCard";
 
 
 const UserDashboard = () => {
@@ -84,10 +85,10 @@ const UserDashboard = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl text-slate-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">Panoramica generale della piattaforma di testing</p>
-      </div>
+      <WelcomeCard
+        user={user}
+        subtitle="Visualizza i tuoi progetti, checklist e sessioni di test."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kpiItems.map((kpi) => (

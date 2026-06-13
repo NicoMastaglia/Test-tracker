@@ -4,13 +4,16 @@ import { Folder, Users, PlayCircle, CheckCircle, ArrowUpRight, ArrowRight, Shiel
 import { Button } from "@/Components/ui/button";
 import { useUserContext } from "@/context/User/UserContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
-import {useNavigate} from "react-router-dom"; 
-import {KpiCard} from "@/utils/KpiCard";
+import {useAuthContext}  from "@/context/Auth/AuthContext";
+import {KpiCard} from "@/utils/components/KpiCard";
+import WelcomeCard from "./WelcomeCard";
 
 
 const SuperAdminDashboard = ({navigate}) => {
   const { fetchUsers, users } = useUserContext();
   const { fetchProjects, projects } = useProjectContext();
+  const { user } = useAuthContext();
+
 
   useEffect(() => {
     fetchUsers();
@@ -76,7 +79,10 @@ const SuperAdminDashboard = ({navigate}) => {
 
   return (
     <div className="p-6 space-y-6">
-      {/*  */}
+      <WelcomeCard
+        user={user}
+        subtitle="Gestisci progetti, utenti e sessioni di test da un'unica dashboard."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpiItems.map((kpi, idx) => (

@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState } from "react";
 
 
 import { Button } from "@/Components/ui/button";
@@ -6,17 +6,13 @@ import { Button } from "@/Components/ui/button";
 import { User, Mail, ShieldCheck, Trash2, AlertTriangle,ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
-import { isEmailValid } from "@/utils/validators";
-import ModalForm from "@/utils/ModalForm";
+import { isEmailValid } from "@/utils/helpers/validators";
+import ModalForm from "@/utils/components/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
-import { getFullName } from "@/utils/tableHelpers";
-import {useAuthContext} from "@/context/Auth/AuthContext"
+import { getFullName } from "@/utils/helpers/tableHelpers";
 
 const ModalForUsers = () => {
   const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
-  const { user } = useAuthContext();
-
-  
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -28,15 +24,9 @@ const ModalForUsers = () => {
 
   const isCurrentSuperadmin = formData?.role === "superadmin";
 
- 
-
   if (!selectedUser) {
     return null;
   }
-  useEffect(() => {
-console.log(selectedUser,'selectedUser')
-
-  },[selectedUser])
 
   const hasProfileChanges =
     formData.name.trim() !== (selectedUser.nome ?? "").trim() ||

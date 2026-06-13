@@ -1,4 +1,4 @@
-import { getInitials, getRoundColorClass } from "@/utils/tableHelpers";
+import { getInitials, getRoundColorClass } from "@/utils/helpers/tableHelpers";
 
 const SIZE_CLASSES = {
   sm: "h-8 w-8 text-xs",

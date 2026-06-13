@@ -1,92 +1,82 @@
-import React, { useState, useEffect } from "react";
-import { fakeTasks } from "@/fake_data/data";
-import StandardTable from "@/utils/StandardTable";
+import React from "react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
+import StandardTable from "@/utils/components/StandardTable";
 import { TableCell, TableRow } from "@/Components/ui/table";
-import { Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/Components/ui";
+import TableActionButton from "@/utils/components/TableActionButton";
 
-const fake_task_header = [
+// Colonne limitate ai campi realmente presenti nel BE (checklist_item: description, position)
+const HEADERS = [
   {
     key: "id",
     label: "#",
-    className: "w-16 font-semibold text-slate-900 text-center",
+    className: "text-center font-semibold text-slate-900 px-4 py-3.5 w-16",
   },
   {
     key: "description",
     label: "Descrizione",
-    className: "font-semibold text-slate-900 text-center",
+    className: "text-left font-semibold text-slate-900 px-5 py-3.5 w-full",
   },
   {
-    key: "position",
-    label: "Posizione",
-    className: "w-28 font-semibold text-slate-900 text-center",
-  },
-  {
-    key: "actions",
+    key: "azioni",
     label: "Azioni",
-    className: "w-28 font-semibold text-slate-900 text-center",
+    className: "text-center font-semibold text-slate-900 px-6 py-3.5 w-32",
   },
 ];
 
 const TaskTable = ({
-  tasks,
+  tasks = [],
   isAdmin,
-  handleDelete,
+  handleView,
   handleEdit,
-}) => {
-  const data = tasks && tasks.length > 0 ? tasks : fakeTasks;
+  handleDelete,
+}) => (
+  <StandardTable
+    headers={HEADERS}
+    data={tasks}
+    emptyMessage="Nessun task trovato per questa checklist."
+    containerClass=""
+    renderRow={(task, index) => (
+      <TableRow key={task.id ?? task.task_id ?? index} className="group transition-colors hover:bg-slate-50/50">
+        {/* 1. CELLA: # */}
+        <TableCell className="text-center font-mono text-slate-400 px-4 py-3.5">
+          {task.position ?? index + 1}
+        </TableCell>
 
-  return (
-    <StandardTable
-      headers={fake_task_header}
-      data={data}
-      emptyMessage="Nessun task trovato per questa checklist."
-      containerClass=""
-      renderRow={(task, index) => (
-        <TableRow
-          key={task.id}
-          className="group transition-colors hover:bg-slate-50"
-        >
-          <TableCell className="font-mono text-slate-400 text-center">
-            #{task.id}
-          </TableCell>
-          <TableCell className="font-semibold text-slate-900">
-            {task.description}
-          </TableCell>
-          <TableCell className="text-slate-500 text-center">
-            {task.position}
-          </TableCell>
+        {/* 2. CELLA: DESCRIZIONE */}
+        <TableCell className="text-left px-5 py-3.5">
+          <span className="font-semibold text-slate-900 text-sm">
+            {task.description || "Nessuna descrizione"}
+          </span>
+        </TableCell>
 
-          <TableCell>
-            {isAdmin ? (
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-slate-400 hover:text-emerald-600"
+        {/* 3. CELLA: AZIONI */}
+        <TableCell className="text-center px-6 py-3.5">
+          <div className="flex items-center justify-center gap-0.5">
+            <TableActionButton
+              onClick={() => handleView?.(task)}
+              icon={Eye}
+              color="hover:text-slate-600 hover:bg-slate-100"
+            />
+
+            {isAdmin && (
+              <>
+                <TableActionButton
                   onClick={() => handleEdit?.(task)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-slate-400 hover:text-red-600"
+                  icon={Pencil}
+                  color="hover:text-emerald-600 hover:bg-emerald-50/50"
+                />
+                <TableActionButton
                   onClick={() => handleDelete?.(task)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <span className="text-sm text-slate-500">
-                Nessuna azione disponibile
-              </span>
+                  icon={Trash2}
+                  color="hover:text-red-600 hover:bg-red-50/50"
+                />
+              </>
             )}
-          </TableCell>
-        </TableRow>
-      )}
-    />
-  );
-};
+          </div>
+        </TableCell>
+      </TableRow>
+    )}
+  />
+);
 
 export default TaskTable;

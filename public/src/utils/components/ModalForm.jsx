@@ -74,7 +74,7 @@ const renderField = (field, value, updateField) => {
                 </Select>
             );
 
-        default: // text, email, password, 
+        default: { // text, email, password,
             const inputElement = (
                 <Input
                     id={field.name}
@@ -99,6 +99,7 @@ const renderField = (field, value, updateField) => {
             }
 
             return inputElement;
+        }
     }
 };
 

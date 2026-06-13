@@ -13,9 +13,21 @@ export const ROUND_COLOR_CLASSES = [
   "bg-rose-100 text-rose-700",
   "bg-violet-100 text-violet-700",
   "bg-cyan-100 text-cyan-700",
+  "bg-pink-100 text-pink-700",
+  "bg-lime-100 text-lime-700",
+  "bg-indigo-100 text-indigo-700",
+  "bg-yellow-100 text-yellow-700",
+  "bg-orange-100 text-orange-700",
+
+
 ];
 
-export const getRoundColorClass = (index = 0) => ROUND_COLOR_CLASSES[index % ROUND_COLOR_CLASSES.length];
+export const getRoundColorClass = (index = 0) => {
+  if (!index) return ROUND_COLOR_CLASSES[0];
+  
+  const id = index % ROUND_COLOR_CLASSES.length;
+  return ROUND_COLOR_CLASSES[id];
+};
 
 
 // estrare le iniziali di un utente 
@@ -45,7 +57,7 @@ export const getFullName = (item = {}) => {
 };
 
 // passo una stringa ed ogni prima lettera in maiuscolo, utile per i nomi dei progetti o dei campi personalizzati
- export const upppercaseFirstLetter = (text) => {
+ export const uppercaseFirstLetter = (text) => {
   if (!text) return "";
   const letter = text.split(' ')
   
@@ -82,18 +94,18 @@ export const getStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
   if (normalizedStatus === "attivo" || normalizedStatus === "active") {
-    return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none";
+    return "font-bold bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none";
   }
 
   if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-    return "bg-blue-100 text-blue-700 hover:bg-blue-100 border-none";
+    return "font-bold bg-blue-100 text-blue-700 hover:bg-blue-100 border-none";
   }
 
   if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold") {
-    return "bg-amber-100 text-amber-700 hover:bg-amber-100 border-none";
+    return "font-bold bg-amber-100 text-amber-700 hover:bg-amber-100 border-none";
   }
 
-  return "bg-slate-100 text-slate-600 hover:bg-slate-100 border-none";
+  return "font-bold bg-slate-100 text-slate-600 hover:bg-slate-100 border-none";
 };
 
 
@@ -114,25 +126,25 @@ export const getProjectStatusBadgeClass = (status) => {
 
   // Attivo / Active = "In Progress" -> blue
   if (normalizedStatus === "attivo" || normalizedStatus === "active" || normalizedStatus === "in progress" || normalizedStatus === "in_progress") {
-    return "bg-blue-100 text-blue-700";
+    return "font-bold bg-blue-100 text-blue-700";
   }
 
   // Completato / Completed -> emerald
   if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-    return "bg-emerald-100 text-emerald-700";
+    return "font-bold bg-emerald-100 text-emerald-700";
   }
 
   // In pausa / Non iniziato / Pending -> amber
   if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold" || normalizedStatus === "non iniziato" || normalizedStatus === "pending") {
-    return "bg-amber-100 text-amber-700";
+    return "font-bold bg-amber-100 text-amber-700";
   }
 
   // Bloccato / Blocked -> red
   if (normalizedStatus === "bloccato" || normalizedStatus === "blocked") {
-    return "bg-red-100 text-red-700";
+    return "font-bold bg-red-100 text-red-700";
   }
 
-  return "bg-slate-100 text-slate-600";
+  return "font-bold bg-slate-100 text-slate-600";
 };
 
 

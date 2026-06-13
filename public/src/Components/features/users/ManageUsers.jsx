@@ -12,8 +12,8 @@ import { Badge } from "@/Components/ui/badge";
 import { UserCog } from "lucide-react"; // Icona per gestione utente
 import ModalForUsers from './ModalForUsers';
 import { useUserContext } from "@/context/User/UserContext";
-import { getFullName, getRoleInfo } from "@/utils/tableHelpers";
-import UserAvatar from "@/utils/UserAvatar";
+import { getFullName, getRoleInfo } from "@/utils/helpers/tableHelpers";
+import UserAvatar from "@/utils/components/UserAvatar";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 const ManageUsers = ({ data }) => {
   const { selectedUser, fetchUserById, clearSelectedUser } = useUserContext();

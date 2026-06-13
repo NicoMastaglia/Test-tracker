@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AppLayout from "@/Components/layout/AppLayout";
 import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
@@ -6,20 +6,24 @@ import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import ChecklistDetailView from "@/Components/features/projects/ProjectDetail/ChecklistDetail/ChecklistDetailView";
 import { Button } from "@/Components/ui/button";
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import ModalForm from "@/utils/components/ModalForm";
+import { checklistFields } from "@/utils/fields/checklistFields";
+import { ArrowLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 const ChecklistDetail = () => {
   const { id, checklistId } = useParams();
   const navigate = useNavigate();
 
-  const { checklistItems, selectedChecklist, fetchChecklistsByProject, clearChecklist } = useChecklistContext();
+  const { checklistItems, selectedChecklist, fetchChecklistsByProject, clearChecklist, updateChecklist, removeChecklist } = useChecklistContext();
   const { selectedProject, fetchProjectDetails, clearSelectedProject } = useProjectContext();
   const { user } = useAuthContext();
 
   const isAdmin = user?.role !== "user";
-  console.log(isAdmin)
 
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({ title: "" });
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const checklist = useMemo(() => {
     if (selectedChecklist && String(selectedChecklist.id) === String(checklistId)) {
@@ -50,6 +54,10 @@ const ChecklistDetail = () => {
     toast.info("Funzionalità di aggiunta task non ancora disponibile.");
   };
 
+  const handleViewTask = () => {
+    toast.info("Funzionalità di visualizzazione task non ancora disponibile.");
+  };
+
   const handleEditTask = () => {
     toast.info("Funzionalità di modifica task non ancora disponibile.");
   };
@@ -58,7 +66,45 @@ const ChecklistDetail = () => {
     toast.info("Funzionalità di eliminazione task non ancora disponibile.");
   };
 
+  const handleOpenEditChecklistModal = () => {
+    setEditFormData({ title: checklist?.title ?? "" });
+    setEditModalOpen(true);
+  };
 
+  const handleEditChecklist = async () => {
+    if (!checklist?.checklist_id) return;
+    try {
+      await updateChecklist(checklist.checklist_id, { title: editFormData.title });
+      await fetchChecklistsByProject(id);
+      toast.success("Checklist modificata con successo");
+      setEditModalOpen(false);
+    } catch {
+      toast.error("Errore durante la modifica della checklist");
+    }
+  };
+
+  // placeholder: il BE non espone ancora uno stato per le checklist
+  const handleChangeChecklistStatus = () => {
+    toast.info("Cambio stato non ancora disponibile: campo non presente nel backend.");
+  };
+
+  const handleDeleteChecklist = async () => {
+    if (!checklist?.checklist_id) return;
+    try {
+      await removeChecklist(checklist.checklist_id);
+      toast.success("Checklist eliminata con successo");
+      goBackToChecklist();
+    } catch {
+      toast.error("Errore durante l'eliminazione della checklist");
+    }
+  };
+
+  const deleteChecklistDescription = (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+      <p className="font-medium text-slate-900">{checklist?.title}</p>
+      <p className="mt-1 text-xs text-slate-500">{checklist?.description || "Nessuna descrizione"}</p>
+    </div>
+  );
 
   return (
     <AppLayout page="checklists">
@@ -76,7 +122,7 @@ const ChecklistDetail = () => {
             </button>
             <ChevronRight className="h-3.5 w-3.5" />
             <button onClick={goBackToChecklist} className="hover:text-slate-900 transition-colors">
-
+              Checklist
             </button>
             <ChevronRight className="h-3.5 w-3.5" />
             <span className="font-medium text-slate-900">
@@ -97,8 +143,12 @@ const ChecklistDetail = () => {
             project={selectedProject}
             isAdmin={isAdmin}
             handleAdd={handleAddTask}
+            handleView={handleViewTask}
             handleEdit={handleEditTask}
             handleDelete={handleDeleteTask}
+            onEditChecklist={handleOpenEditChecklistModal}
+            onChangeChecklistStatus={handleChangeChecklistStatus}
+            onDeleteChecklist={() => setDeleteModalOpen(true)}
           />
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
@@ -106,6 +156,37 @@ const ChecklistDetail = () => {
           </div>
         )}
       </div>
+
+      <ModalForm
+        modalOpen={editModalOpen}
+        setModalOpen={setEditModalOpen}
+        title="Modifica Checklist"
+        infos="Modifica il template checklist associato al progetto corrente."
+        fields={checklistFields}
+        formData={editFormData}
+        setFormData={setEditFormData}
+        onSubmit={handleEditChecklist}
+        submitLabel="Salva modifiche"
+        cancelLabel="Annulla"
+        titleIcon={Pencil}
+        iconColor="text-emerald-500"
+      />
+
+      <ModalForm
+        modalOpen={deleteModalOpen}
+        setModalOpen={setDeleteModalOpen}
+        title="Elimina checklist"
+        infos="Questa azione è irreversibile: la checklist e tutti i task collegati verranno eliminati definitivamente."
+        hasDescripion={true}
+        description={deleteChecklistDescription}
+        onSubmit={handleDeleteChecklist}
+        submitLabel="Elimina checklist"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Trash2}
+        iconColor="text-red-500"
+        submitVariant="destructive"
+      />
     </AppLayout>
   );
 };

@@ -2,7 +2,8 @@ import React from "react";
 import { Card, CardContent } from "@/Components/ui/card";
 
 // componente   utilizzato nella dashboard per mostrare metriche 
-export const KpiCard = ({ title, value, subtext, icon: Icon, iconClass }) => {
+export const KpiCard = ({ title, value, subtext, icon, iconClass }) => {
+  const Icon = icon;
   return (
     <Card className="border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
       <CardContent className="flex items-start gap-4 pt-6">

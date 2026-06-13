@@ -1,7 +1,7 @@
 import { Mail, CalendarDays } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
-import UserAvatar from "@/utils/UserAvatar";
-import { getFullName, getRoleInfo, formatProjectDate } from "@/utils/tableHelpers";
+import UserAvatar from "@/utils/components/UserAvatar";
+import { getFullName, getRoleInfo, formatProjectDate } from "@/utils/helpers/tableHelpers";
 
 const SettingsUserSummary = ({ user = {} }) => {
   const roleInfo = getRoleInfo(user.role);

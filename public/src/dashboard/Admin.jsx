@@ -1,9 +1,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Users, Folder, PlayCircle, CheckCircle, ArrowUpRight, ArrowRight, Zap } from "lucide-react";
+import { useAuthContext } from "@/context/Auth/AuthContext";
+import WelcomeCard from "./WelcomeCard";
 
 
 const AdminDashboard = () => {
+    const { user } = useAuthContext();
     const statCards = [
       {
         title: "Progetti Attivi",
@@ -59,6 +62,11 @@ const AdminDashboard = () => {
 
     return(
            <div className="p-6 space-y-6">
+
+            <WelcomeCard
+              user={user}
+              subtitle="Gestisci progetti, checklist e sessioni del team."
+            />
            
           
              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

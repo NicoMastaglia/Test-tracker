@@ -7,11 +7,11 @@ import SettingsSecurity from "@/Components/features/settings/SettingsSecurity"
 import SettingsUserSummary from "@/Components/features/settings/SettingsUserSummary"
 import {useUserContext} from "@/context/User/UserContext"
 import {toast} from "sonner"
-import { isEmailValid } from "@/utils/validators"
+import { isEmailValid } from "@/utils/helpers/validators"
 const Settings = () => {
 
     const {user} = useAuthContext()
-    const {updateMyProfile,changeMyPassword,fetchCurrentUser} = useUserContext()
+    const {updateMyProfile,changeMyPassword} = useUserContext()
 
     const [profileData, setProfileData] = useState({
         nome: user.name || '',
@@ -43,7 +43,7 @@ const Settings = () => {
 
     
 
-
+   // 
   const handleChange = (field, value) => {
         switch (field) {
             case 'nome':
@@ -141,7 +141,7 @@ const Settings = () => {
 
         <AppLayout title="Impostazioni Account" description="Gestisci le impostazioni del tuo account, come nome, email e password."
         hideHeader={true}>
-            <Header page="settings" /> 
+            <Header page="settings" user={user} />
            <div className="w-full max-w-7xl mx-auto p-4 flex flex-col gap-6">
 
             <SettingsUserSummary user={user} />

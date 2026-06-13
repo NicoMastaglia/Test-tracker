@@ -1,4 +1,4 @@
-import React,{useEffect} from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -8,125 +8,92 @@ import {
   TableRow,
 } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
+import { Folder } from "lucide-react";
 import {
-  formatTableDate,
-  getCreatorName,
   getFullName,
-  getInitials,
   getProjectStatusBadgeClass,
-} from "@/utils/tableHelpers";
+  getRoundColorClass,
+  uppercaseFirstLetter,
+} from "@/utils/helpers/tableHelpers";
+import UserAvatar from "@/utils/components/UserAvatar";
 
+// Tabella dei progetti assegnati all'utente: stesso stile della tabella admin (ProjectRow)
+const UserProjectsTable = ({ data = [], handleProjectDetail }) => (
+  <div className="overflow-x-auto">
+    <Table>
+      <TableHeader className="bg-slate-50/70 border-b border-slate-100">
+        <TableRow className="bg-slate-50/70 hover:bg-slate-50/70">
+          <TableHead className="text-slate-700 font-semibold text-sm text-left px-4 py-3">Progetto</TableHead>
+          <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Stato</TableHead>
+          <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Creato da</TableHead>
+          <TableHead className="text-slate-700 font-semibold text-sm text-left px-4 py-3">Descrizione</TableHead>
+        </TableRow>
+      </TableHeader>
 
+      <TableBody>
+        {data.length > 0 ? (
+          data.map((project) => {
+            const colorClass = getRoundColorClass(project.id);
 
-
-const UserProjectsTable = ({ data = [], handleProjectDetail}) => {
-
-
-  useEffect(() => {
-    console.log("Dati progetti ricevuti:", data);
-  }, [data]);
-  return (
-    <div className="overflow-x-auto">
-      <Table>
-        <TableHeader className="bg-slate-50">
-          <TableRow className="bg-slate-50 hover:bg-slate-50">
-            <TableHead className="w-24 text-center font-semibold text-slate-900">
-              ID
-            </TableHead>
-            <TableHead className="text-center font-semibold text-slate-900">
-              Progetto
-            </TableHead>
-            <TableHead className="text-center font-semibold text-slate-900">
-              Stato
-            </TableHead>
-            <TableHead className="text-center font-semibold text-slate-900">
-              Creato da
-            </TableHead>
-            <TableHead className="text-center font-semibold text-slate-900">
-              Descrizione
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.length > 0 ? (
-            data.map((project) => (
+            return (
               <TableRow
                 key={project.id}
-                className="group transition-colors hover:bg-slate-50"
+                className="group cursor-pointer transition-colors hover:bg-slate-50/60"
                 onClick={() => handleProjectDetail(project.id)}
               >
-                <TableCell className="font-mono text-xs text-slate-400">
-                  #{project.id}
-                </TableCell>
-
-                <TableCell className="text-slate-900">
-                  <div className="flex items-center gap-3 justify-center">
-                    {/* <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-700">
-                      {getInitials(project)}
-                    </div> */}
-                    <div className="min-w-0">
-                      <p className="font-medium text-slate-900">
-                        {project.name}
-                      </p>
-                      <p className="truncate text-xs text-slate-500">
-                        Creato il{" "}
-                        {formatTableDate(
-                          project.created_at ?? project.createdAt,
-                        )}
-                      </p>
+                {/* 1. CELLA: INFO PROGETTO */}
+                <TableCell className="text-left px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-transparent ${colorClass}`}>
+                      <Folder className="h-5 w-5 text-current" />
                     </div>
+
+                    <p className="font-semibold text-slate-900 text-sm leading-tight">
+                      {uppercaseFirstLetter(project.name)}
+                    </p>
                   </div>
                 </TableCell>
 
-                <TableCell className="text-center">
-                  <Badge
-                    className={`border-none px-3 py-1 text-xs ${getProjectStatusBadgeClass(project.status)}`}
-                  >
-                    <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+                {/* 2. CELLA: STATO */}
+                <TableCell className="text-center px-4 py-3">
+                  <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center ${getProjectStatusBadgeClass(project.status)}`}>
+                    <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
                     {project.status ?? "Unknown"}
                   </Badge>
                 </TableCell>
 
-                <TableCell className="text-slate-900">
-                  <div className="flex items-center gap-3 justify-center">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm text-slate-900">
-                      {getInitials(project.created_by)}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-slate-900">
-                        {project.created_by.nome.slice(0, 1).toUpperCase() +
-                          project.created_by.nome.slice(1).toLowerCase()}{" "}
-                        {project.created_by.cognome.slice(0, 1).toUpperCase() +
-                          project.created_by.cognome.slice(1).toLowerCase()}
+                {/* 3. CELLA: CREATORE */}
+                <TableCell className="px-4 py-3">
+                  <div className="flex items-center justify-center gap-3">
+                    <UserAvatar user={project.created_by} colorIndex={project.id} size="md" />
+                    <div className="min-w-0 text-left">
+                      <p className="font-medium text-sm text-slate-900">
+                        {getFullName(project.created_by)}
                       </p>
-                      <p className="truncate text-xs text-slate-500">
-                        Creatore progetto
-                      </p>
+                      <p className="truncate text-xs text-slate-400">Creatore progetto</p>
                     </div>
                   </div>
                 </TableCell>
 
-                <TableCell className="max-w-140 text-slate-500">
+                {/* 4. CELLA: DESCRIZIONE */}
+                <TableCell className="max-w-140 px-4 py-3 text-left text-sm text-slate-500">
                   <p className="line-clamp-2">
                     {project.description || "Nessuna descrizione disponibile."}
                   </p>
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={5}
-                className="h-24 text-center text-slate-500"
-              >
-                Nessun progetto assegnato trovato.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
-};
+            );
+          })
+        ) : (
+          <TableRow>
+            <TableCell colSpan={4} className="h-32 text-center text-slate-400 text-sm font-medium">
+              Nessun progetto assegnato trovato.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  </div>
+);
 
 export default UserProjectsTable;

@@ -1,15 +1,15 @@
 import AppLayout from "@/Components/layout/AppLayout";
 import ManageUsers from "@/Components/features/users/ManageUsers";
-import ActionBar from "@/utils/ActionBar";
+import ActionBar from "@/utils/components/ActionBar";
 import React, { useState, useEffect, useMemo } from "react";
 import { register } from "@/services/api";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
-import { filterSearch } from "@/utils/filterSearch";
-import { isEmailValid } from "@/utils/validators";
-import ModalForm from "@/utils/ModalForm";
+import { filterSearch } from "@/utils/helpers/filterSearch";
+import { isEmailValid } from "@/utils/helpers/validators";
+import ModalForm from "@/utils/components/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
-import KpiCard from "@/utils/KpiCard";
+import KpiCard from "@/utils/components/KpiCard";
 import { UserPlus, Users as UsersIcon, ShieldCheck, ShieldAlert, User } from "lucide-react"
 
 const Users = () => {

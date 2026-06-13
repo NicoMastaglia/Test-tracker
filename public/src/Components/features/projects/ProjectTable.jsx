@@ -13,27 +13,10 @@ import {User, Trash2, Edit, AlertTriangle} from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-import { sessions } from "../../../fake_data/data";
 import ProjectRow from "./ProjectRow";
-import ModalForm from "@/utils/ModalForm";
-
-const PROJECT_STATUS_OPTIONS = ["Attivo", "Completato", "In pausa",'Non iniziato'];
-
-const getAvailableStatuses = (currentStatus) => {
-  switch (currentStatus) {
-    case 'Non iniziato':
-      return ["Attivo"];
-      
-    case "Attivo":
-      return ["Completato", "In pausa"];
-    case "Completato":
-      return ["Attivo", "In pausa"];
-    case "In pausa":
-      return ["Attivo", "Completato"];
-    default:
-      return PROJECT_STATUS_OPTIONS;
-  }
-}
+import ModalForm from "@/utils/components/ModalForm";
+import { getRoundColorClass } from "@/utils/helpers/tableHelpers";
+import { getAvailableProjectStatuses } from "@/utils/helpers/statusFlow";
 
 
 const ProjectTable = ({ data, users = [] }) => {
@@ -54,14 +37,6 @@ const ProjectTable = ({ data, users = [] }) => {
 
   const isAdmin = user?.role !== "user";
   const isSuperadmin = user?.role === "superadmin";
-
-  // logica progress forzata con dati finti, idealmente calcolata lato backend
-  const calculateProgress = (project_id) => {
-    const sessionByProject = sessions.filter(s => s.project_id === project_id);
-    if (sessionByProject.length === 0) return 0;
-    const completedSessions = sessionByProject.filter(s => s.status === 'completed' || s.status === 'passed').length;
-    return Math.round((completedSessions / sessionByProject.length) * 100);
-  };
 
   const openEditDialog = (project) => {
     if (!isAdmin) return;
@@ -108,7 +83,7 @@ const ProjectTable = ({ data, users = [] }) => {
       await fetchProjects();
       toast.success("Progetto eliminato con successo");
       setDeleteProjectTarget(null);
-    } catch (error) {
+    } catch {
       toast.error("Errore durante l'eliminazione del progetto");
     }
   };
@@ -173,45 +148,51 @@ const ProjectTable = ({ data, users = [] }) => {
   return (
     <>
       <div className="overflow-x-auto">
-        <Table>
-          <TableHeader className="bg-slate-50">
-            <TableRow className="bg-slate-50 hover:bg-slate-50">
-              <TableHead className="text-slate-900 font-semibold w-25 text-center">ID</TableHead>
-              <TableHead className="text-slate-900 font-semibold text-center">Progetto</TableHead>
-              <TableHead className="text-slate-900 font-semibold text-center">Stato</TableHead>
-              <TableHead className="text-slate-900 font-semibold w-50 text-center">Creato da</TableHead>
-              <TableHead className="text-slate-900 font-semibold w-50 text-center">Tester assegnati</TableHead>
-              <TableHead className="text-slate-900 font-semibold w-50 text-center">Sessioni</TableHead>
-              <TableHead className="text-slate-900 font-semibold w-50 text-center">Progress</TableHead>
-              <TableHead className="text-slate-900 font-semibold w-50 text-center">Azioni</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data && data.length > 0 ? (
-              data.map((project) => (
-                <ProjectRow
-                  key={project.id}
-                  project={project}
-                  isAdmin={isAdmin}
-                  isSuperadmin={isSuperadmin}
-                  users={users}
-                  calculateProgress={calculateProgress}
-                  sessionCount={null}
-                  handleProjectRowClick={handleProjectRowClick}
-                  openEditDialog={openEditDialog}
-                  openStatusDialog={openStatusDialog}
-                  setDeleteProjectTarget={setDeleteProjectTarget}
-                />
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center text-slate-500">
-                  Non ci sono Progetti attivi...
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+       <Table>
+  <TableHeader className="bg-slate-50/70 border-b border-slate-100">
+    <TableRow className="bg-slate-50/70 hover:bg-slate-50/70">
+      {/* Progetto a sinistra perché contiene testi lunghi */}
+      <TableHead className="text-slate-700 font-semibold text-sm text-left px-4 py-3">Progetto</TableHead>
+      
+      {/* Tutti gli altri centrati per bilanciare i badge e gli avatar */}
+      <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Stato</TableHead>
+      <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Responsabile</TableHead>
+      <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Team</TableHead>
+      <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Deadline</TableHead>
+      <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Ultimo aggiornamento</TableHead>
+      <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Azioni</TableHead>
+    </TableRow>
+  </TableHeader>
+  
+  <TableBody>
+    {data && data.length > 0 ? (
+      data.map((project) => {
+        const colorClass = getRoundColorClass(project.id);
+
+        return (
+          <ProjectRow
+            key={project.id}
+            project={project}
+            colorClass={colorClass}
+            isAdmin={isAdmin}
+            isSuperadmin={isSuperadmin}
+            users={users}
+            handleProjectRowClick={handleProjectRowClick}
+            openEditDialog={openEditDialog}
+            openStatusDialog={openStatusDialog}
+            setDeleteProjectTarget={setDeleteProjectTarget}
+          />
+        );
+      })
+    ) : (
+      <TableRow>
+        <TableCell colSpan={7} className="h-32 text-center text-slate-400 text-sm font-medium">
+          Non ci sono Progetti attivi...
+        </TableCell>
+      </TableRow>
+    )}
+  </TableBody>
+</Table>
       </div>
 
 
@@ -249,7 +230,7 @@ const ProjectTable = ({ data, users = [] }) => {
         title="Aggiorna stato progetto"
         infos="Seleziona uno stato valido lato backend."
         fields={[
-          { name: "status", label: "Stato", type: "select", options: getAvailableStatuses(statusProject?.status).map(status => ({ value: status, label: status })) }
+          { name: "status", label: "Stato", type: "select", options: getAvailableProjectStatuses(statusProject?.status).map(status => ({ value: status, label: status })) }
         ]}
         formData={{ status: statusValue }}
         setFormData={(data) => setStatusValue(data.status)}

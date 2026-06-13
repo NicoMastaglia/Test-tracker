@@ -1,14 +1,14 @@
 import AppLayout from "@/Components/layout/AppLayout";
 import ProjectTable from "@/Components/features/projects/ProjectTable";
-import ActionBar from "@/utils/ActionBar";
-import ModalForm from "@/utils/ModalForm";
+import ActionBar from "@/utils/components/ActionBar";
+import ModalForm from "@/utils/components/ModalForm";
 import { projectFields } from "@/utils/fields/projectFields";
 import React, { useState, useEffect, useMemo } from "react";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import {toast} from "sonner"
-import {getFullName} from "@/utils/tableHelpers"
+import {getFullName} from "@/utils/helpers/tableHelpers"
 import {Plus} from "lucide-react"
 const AdminProjects = () => {
   const { projects, addProject, fetchProjects } = useProjectContext();

@@ -2,7 +2,6 @@ import { Button } from "@/Components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Input } from "@/Components/ui/input"
 import { Label } from "@/Components/ui/label"
-import { useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 
 export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {

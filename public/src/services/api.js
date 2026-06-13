@@ -17,8 +17,6 @@ const API_URL = 'http://localhost:3000';
 export const loginUser = async (email, password) => {
   try {
     const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
-    console.log("Login effettuato con successo:ff", response.data);
-   
     return response.data;
   } catch (error) {
     console.error("Login failed:", error.response?.data || error.message);

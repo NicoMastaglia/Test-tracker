@@ -1,7 +1,7 @@
 import React,{useEffect}from "react";
 import { User, Save } from "lucide-react";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-import { getRoleInfo } from "@/utils/tableHelpers";
+import { getRoleInfo } from "@/utils/helpers/tableHelpers";
 
 const InputField = ({ label, value, onChange, disabled, icon, type = "text" }) => {
 

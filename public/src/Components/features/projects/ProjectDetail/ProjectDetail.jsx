@@ -4,10 +4,10 @@ import AppLayout from "@/Components/layout/AppLayout";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { Button } from "@/Components/ui/button";
-import { ArrowLeft, Flag } from "lucide-react";
-import ModalForm from "@/utils/ModalForm";
-import { getProjectInfoItems } from "@/utils/projectInfoItems";
-import ProjectSectionNav from "./ProjectSectionNav";
+import { ArrowLeft, Flag, Pencil, Trash2 } from "lucide-react";
+import ModalForm from "@/utils/components/ModalForm";
+import { getProjectInfoItems } from "@/utils/helpers/projectInfoItems";
+import { projectEditFields } from "@/utils/fields/projectEditFields";
 import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
 import ProjectTeamSection from "./ProjectTeamSection";
@@ -25,6 +25,7 @@ const ProjectDetail = () => {
   const { id: projectId } = useParams();
   const { user } = useAuthContext();
   const isAdmin = user?.role !== "user";
+  const isSuperAdmin = user?.role === "superadmin";
   const { checklistItems, fetchChecklistsByProject } = useChecklistContext();
 
   const { users, fetchUsers } = useUserContext();
@@ -35,6 +36,9 @@ const ProjectDetail = () => {
     clearSelectedProject,
     unAssingUserAssignment,
     assignUserToProject,
+    updateProject,
+    updateProjectStatus,
+    deleteProject,
   } = useProjectContext();
 
   const [removeUserTarget, setRemoveUserTarget] = useState(null);
@@ -42,6 +46,9 @@ const ProjectDetail = () => {
   const [activeSection, setActiveSection] = useState(
     location.state?.section ?? "overview",
   );
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({ name: "", description: "" });
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const projectAssignedUsers = selectedProject?.user_list || [];
 
@@ -97,6 +104,59 @@ const ProjectDetail = () => {
     }
   };
 
+  const handleOpenEditModal = () => {
+    setEditFormData({
+      name: selectedProject?.name ?? "",
+      description: selectedProject?.description ?? "",
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleEditProject = async () => {
+    if (!projectId || !selectedProject) return;
+
+    try {
+      await updateProject(Number(projectId), {
+        name: editFormData.name,
+        description: editFormData.description,
+      });
+
+      await fetchProjectDetails(Number(projectId));
+      toast.success("Progetto aggiornato con successo");
+      setEditModalOpen(false);
+    } catch (error) {
+      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante l'aggiornamento del progetto";
+      toast.error(message);
+    }
+  };
+
+  // cambio stato separato dalla modifica: parte dal dropdown "Cambia stato" nell'header
+  const handleChangeProjectStatus = async (status) => {
+    if (!projectId || !status || status === selectedProject?.status) return;
+
+    try {
+      await updateProjectStatus(Number(projectId), status);
+      await fetchProjectDetails(Number(projectId));
+      toast.success(`Stato del progetto aggiornato a "${status}"`);
+    } catch (error) {
+      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante il cambio di stato del progetto";
+      toast.error(message);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!projectId) return;
+
+    try {
+      await deleteProject(Number(projectId));
+      toast.success("Progetto eliminato con successo");
+      navigate(backRoute);
+    } catch (error) {
+      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante l'eliminazione del progetto";
+      toast.error(message);
+    }
+  };
+
   const projectInfoItems = getProjectInfoItems(selectedProject);
 
   const projectSectionCounts = {
@@ -131,22 +191,30 @@ const ProjectDetail = () => {
     </div>
   );
 
+  const deleteProjectFormDescription = (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+      <p className="font-medium text-slate-900">{selectedProject?.name}</p>
+      <p className="mt-1 text-xs text-slate-500">Codice progetto #{selectedProject?.id}</p>
+    </div>
+  );
+
   // user ritorna ai suoi progetti
   const backRoute =
     user?.role === "user" ? "/user/projects" : "/admin/projects";
 
   return (
     <AppLayout page="projects" hideHeader>
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto flex w-full  flex-col gap-6 px-6 py-6">
+        <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
-            onClick={() => navigate(backRoute)}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Torna ai progetti
-          </Button>
+  variant="outline"
+  onClick={() => navigate(backRoute)}
+  className="inline-flex items-center gap-2 border-none bg-transparent hover:bg-slate-50 py-2"
+>
+  {/* h-4 w-4 (16px) è la dimensione standard perfetta per i font di testo */}
+  <ArrowLeft className="h-4 w-4 text-slate-600" />
+  <span className="text-sm font-medium text-slate-600">Torna ai progetti</span>
+</Button>
         </div>
 
         {loading && !selectedProject ? (
@@ -154,17 +222,25 @@ const ProjectDetail = () => {
             Caricamento dettagli progetto...
           </div>
         ) : selectedProject ? (
-          <div className="flex w-full flex-col gap-6">
-            <ProjectHeaderCard selectedProject={selectedProject} />
-            <ProjectSectionNav
+          <div className="flex w-full flex-col gap-6 ">
+            <ProjectHeaderCard
+              selectedProject={selectedProject}
               activeSection={activeSection}
-              onSectionChange={setActiveSection}
+              oneSectionChange={setActiveSection}
               counts={projectSectionCounts}
               isAdmin={isAdmin}
+              isSuperAdmin={isSuperAdmin}
+              onEditProject={handleOpenEditModal}
+              onChangeStatus={handleChangeProjectStatus}
+              onDeleteProject={() => setDeleteModalOpen(true)}
             />
 
             {activeSection === "overview" ? (
-              <ProjectOverviewSection projectInfoItems={projectInfoItems} />
+              <ProjectOverviewSection
+                projectInfoItems={projectInfoItems}
+                selectedProject={selectedProject}
+                checklistItems={checklistItems}
+              />
             ) : null}
 
             {activeSection === "checklist" ? (
@@ -173,6 +249,7 @@ const ProjectDetail = () => {
 
             {isAdmin && activeSection === "team" ? (
               <ProjectTeamSection
+                selectedProject={selectedProject}
                 users={users}
                 projectAssignedUsers={projectAssignedUsers}
                 selectedAssignUserId={selectedAssignUserId}
@@ -208,6 +285,37 @@ const ProjectDetail = () => {
         cancelLabel="Annulla"
         dialogClassName="sm:max-w-105"
         titleIcon={Flag}
+        iconColor="text-red-500"
+        submitVariant="destructive"
+      />
+
+      <ModalForm
+        modalOpen={editModalOpen}
+        setModalOpen={setEditModalOpen}
+        title="Modifica progetto"
+        infos="Aggiorna il nome e la descrizione del progetto."
+        fields={projectEditFields}
+        formData={editFormData}
+        setFormData={setEditFormData}
+        onSubmit={handleEditProject}
+        submitLabel="Salva modifiche"
+        cancelLabel="Annulla"
+        titleIcon={Pencil}
+        iconColor="text-emerald-500"
+      />
+
+      <ModalForm
+        modalOpen={deleteModalOpen}
+        setModalOpen={setDeleteModalOpen}
+        title="Elimina progetto"
+        infos="Questa azione è irreversibile: il progetto e tutti i dati collegati verranno eliminati definitivamente."
+        hasDescripion={true}
+        description={deleteProjectFormDescription}
+        onSubmit={handleDeleteProject}
+        submitLabel="Elimina progetto"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Trash2}
         iconColor="text-red-500"
         submitVariant="destructive"
       />

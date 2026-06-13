@@ -1,7 +1,7 @@
 import AppRouter from './Router/AppRouter.jsx'
 import './App.css'
-import {users,projects,sessions} from './fake_data/data.js'
-import {useState,useEffect} from "react";
+import {users} from './fake_data/data.js'
+import {useEffect} from "react";
 import { Toaster } from 'sonner';
 function App() {
 
