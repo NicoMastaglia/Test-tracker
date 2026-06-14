@@ -2308,7 +2308,8 @@
                 "properties": {
                   "name": { "type": "string", "example": "Progetto Alpha Aggiornato" },
                   "description": { "type": "string", "example": "Descrizione aggiornata" },
-                  "manager_id": { "type": "integer", "example": 2 }
+                  "manager_id": { "type": "integer", "example": 2 },
+                  "deadline": { "type": "string", "format": "date", "example": "2026-12-31" }
                 },
                 "required": ["name", "description"]
               },
@@ -2505,9 +2506,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "status": {
+                 "status": {
                     "type": "string",
-                    "enum": ["Attivo", "Completato", "In pausa"],
+                    "enum": ["Non iniziato", "Attivo", "In pausa", "Completato"],
                     "example": "Attivo"
                   }
                 },
@@ -2959,13 +2960,14 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": { "type": "integer" },
-                      "project_id": { "type": "integer" },
-                      "user_id": { "type": "integer" },
-                      "status": { "type": "string", "example": "In corso" },
-                      "started_at": { "type": "string", "format": "date-time", "nullable": true },
-                      "completed_at": { "type": "string", "format": "date-time", "nullable": true }
-                    }
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "description": { "type": "string" },
+                    "status": { "type": "string", "example": "Non iniziato" },
+                    "created_by": { "type": "integer" },
+                    "manager_id": { "type": "integer", "nullable": true },
+                    "deadline": { "type": "string", "format": "date", "nullable": true }
+                  }
                   }
                 },
                 "example": [
@@ -3901,7 +3903,8 @@
         "properties": {
           "name": { "type": "string", "example": "Progetto Alpha" },
           "description": { "type": "string", "example": "Descrizione del progetto Alpha" },
-          "manager_id": { "type": "integer", "description": "Obbligatorio per i superadmin", "example": 2 }
+          "manager_id": { "type": "integer", "description": "Obbligatorio per i superadmin", "example": 2 },
+          "deadline": { "type": "string", "format": "date", "description": "Scadenza opzionale (YYYY-MM-DD)", "example": "2026-12-31" }
         },
         "required": ["name", "description"]
       },
@@ -3911,7 +3914,12 @@
           "id": { "type": "integer", "example": 1 },
           "name": { "type": "string", "example": "Progetto Alpha" },
           "description": { "type": "string", "example": "Descrizione" },
-          "status": { "type": "string", "example": "Attivo" },
+          "status": { "type": "string", "example": "Non iniziato" },
+          "created_at": { "type": "string", "format": "date-time", "example": "2026-06-14T10:00:00Z" },
+          "updated_at": { "type": "string", "format": "date-time", "nullable": true },
+          "started_at": { "type": "string", "format": "date-time", "nullable": true },
+          "deadline": { "type": "string", "format": "date", "nullable": true, "example": "2026-12-31" },
+          "completed_at": { "type": "string", "format": "date-time", "nullable": true },
           "created_by": {
             "type": "object",
             "properties": {

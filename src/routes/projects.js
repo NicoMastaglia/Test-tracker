@@ -12,6 +12,7 @@ router.get("/", checkUser, (req, res) => {
       .execute(
         `SELECT 
         p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
+        p.created_at, p.updated_at, p.started_at, p.deadline, p.completed_at,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
         mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
@@ -31,6 +32,11 @@ router.get("/", checkUser, (req, res) => {
               name: row.name,
               description: row.description,
               status: row.status,
+              created_at: row.created_at,
+              updated_at: row.updated_at,
+              started_at: row.started_at,
+              deadline: row.deadline,
+              completed_at: row.completed_at,
               created_by: {
                 id: row.created_by,
                 nome: row.creator_nome,
@@ -70,6 +76,7 @@ router.get("/", checkUser, (req, res) => {
       .execute(
         `SELECT 
         p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
+        p.created_at, p.updated_at, p.started_at, p.deadline, p.completed_at,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
         mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
@@ -91,6 +98,11 @@ router.get("/", checkUser, (req, res) => {
               name: row.name,
               description: row.description,
               status: row.status,
+              created_at: row.created_at,
+              updated_at: row.updated_at,
+              started_at: row.started_at,
+              deadline: row.deadline,
+              completed_at: row.completed_at,
               created_by: {
                 id: row.created_by,
                 nome: row.creator_nome,
@@ -129,6 +141,7 @@ router.get("/", checkUser, (req, res) => {
     return db
       .execute(
         `SELECT p.id, p.name, p.description, p.status, p.created_by, p.manager_id, 
+        p.created_at, p.updated_at, p.started_at, p.deadline, p.completed_at,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
         mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email
         FROM project p 
@@ -144,6 +157,11 @@ router.get("/", checkUser, (req, res) => {
           name: row.name,
           description: row.description,
           status: row.status,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          started_at: row.started_at,
+          deadline: row.deadline,
+          completed_at: row.completed_at,
           created_by: {
             id: row.created_by,
             nome: row.creator_nome,
@@ -171,11 +189,12 @@ router.get("/", checkUser, (req, res) => {
 });
 
 router.post("/", checkAdmin, async (req, res) => {
-  const { name, description, manager_id } = req.body;
+  const { name, description, manager_id, deadline } = req.body;
   const createdBy = req.user.id;
 
   const trimmedName = name ? name.trim() : "";
   const trimmedDescription = description ? description.trim() : "";
+  const finalDeadline = deadline ? deadline : null;
 
   if (!trimmedName) {
     return res.status(400).json({ error: "Richiesta non valida", message: "Il nome del progetto non può essere vuoto o contenere solo spazi." });
@@ -215,8 +234,8 @@ router.post("/", checkAdmin, async (req, res) => {
     }
 
     const [result] = await db.execute(
-      "INSERT INTO project (name, description, created_by, manager_id) VALUES (?, ?, ?, ?)",
-      [trimmedName, trimmedDescription, createdBy, finalManagerId]
+      "INSERT INTO project (name, description, created_by, manager_id, deadline) VALUES (?, ?, ?, ?, ?)",
+      [trimmedName, trimmedDescription, createdBy, finalManagerId, finalDeadline]
     );
 
     return res.status(201).json({
@@ -225,7 +244,8 @@ router.post("/", checkAdmin, async (req, res) => {
       description: trimmedDescription,
       status: "Non iniziato",
       created_by: createdBy,
-      manager_id: finalManagerId
+      manager_id: finalManagerId,
+      deadline: finalDeadline
     });
 
   } catch (err) {
@@ -241,6 +261,7 @@ router.get("/:id", checkUser, (req, res) => {
       .execute(
         `SELECT 
         p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
+        p.created_at, p.updated_at, p.started_at, p.deadline, p.completed_at,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
         mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
@@ -262,6 +283,11 @@ router.get("/:id", checkUser, (req, res) => {
               name: row.name,
               description: row.description,
               status: row.status,
+              created_at: row.created_at,
+              updated_at: row.updated_at,
+              started_at: row.started_at,
+              deadline: row.deadline,
+              completed_at: row.completed_at,
               created_by: {
                 id: row.created_by,
                 nome: row.creator_nome,
@@ -301,6 +327,7 @@ router.get("/:id", checkUser, (req, res) => {
       .execute(
         `SELECT 
         p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
+        p.created_at, p.updated_at, p.started_at, p.deadline, p.completed_at,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
         mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
@@ -322,6 +349,11 @@ router.get("/:id", checkUser, (req, res) => {
               name: row.name,
               description: row.description,
               status: row.status,
+              created_at: row.created_at,
+              updated_at: row.updated_at,
+              started_at: row.started_at,
+              deadline: row.deadline,
+              completed_at: row.completed_at,
               created_by: {
                 id: row.created_by,
                 nome: row.creator_nome,
@@ -361,6 +393,7 @@ router.get("/:id", checkUser, (req, res) => {
       .execute(
         `SELECT 
         p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
+        p.created_at, p.updated_at, p.started_at, p.deadline, p.completed_at,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
         mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email
        FROM project p
@@ -379,6 +412,11 @@ router.get("/:id", checkUser, (req, res) => {
           name: results[0].name,
           description: results[0].description,
           status: results[0].status,
+          created_at: results[0].created_at,
+          updated_at: results[0].updated_at,
+          started_at: results[0].started_at,
+          deadline: results[0].deadline,
+          completed_at: results[0].completed_at,
           created_by: {
             id: results[0].created_by,
             nome: results[0].creator_nome,
@@ -406,10 +444,11 @@ router.get("/:id", checkUser, (req, res) => {
 
 router.put("/:id", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
-  const { name, description, manager_id } = req.body;
+  const { name, description, manager_id, deadline } = req.body;
 
   const trimmedName = name ? name.trim() : "";
   const trimmedDescription = description ? description.trim() : "";
+  const finalDeadline = deadline ? deadline : null;
 
   if (!trimmedName) {
     return res.status(400).json({ 
@@ -436,8 +475,8 @@ router.put("/:id", checkAdmin, async (req, res) => {
         specific: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
       });
     }
-    let updateQuery = "UPDATE project SET name = ?, description = ?";
-    let queryParams = [trimmedName, trimmedDescription];
+    let updateQuery = "UPDATE project SET name = ?, description = ?, deadline = ?";
+    let queryParams = [trimmedName, trimmedDescription, finalDeadline];
 
     if (req.user.role === "superadmin") {
       if (manager_id) {
@@ -502,7 +541,23 @@ router.patch("/:id/status", checkAdmin, async (req, res) => {
         message: `Non puoi passare da "${currentStatus}" a "${trimmedStatus}".`
       });
     }
-    const [result] = await db.execute("UPDATE project SET status = ? WHERE id = ?", [trimmedStatus, projectId]); 
+    let result;
+    if (trimmedStatus === "Attivo") {
+      [result] = await db.execute(
+        "UPDATE project SET status = ?, started_at = IFNULL(started_at, NOW()) WHERE id = ?",
+        [trimmedStatus, projectId]
+      );
+    } else if (trimmedStatus === "Completato") {
+      [result] = await db.execute(
+        "UPDATE project SET status = ?, completed_at = NOW() WHERE id = ?",
+        [trimmedStatus, projectId]
+      );
+    } else {
+      [result] = await db.execute(
+        "UPDATE project SET status = ? WHERE id = ?",
+        [trimmedStatus, projectId]
+      );
+    }
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Progetto non trovato" });
     }
