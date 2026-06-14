@@ -223,7 +223,7 @@ router.post("/", checkAdmin, async (req, res) => {
       id: result.insertId,
       name: trimmedName,
       description: trimmedDescription,
-      status: "Attivo",
+      status: "Non iniziato",
       created_by: createdBy,
       manager_id: finalManagerId
     });
@@ -473,7 +473,7 @@ router.put("/:id", checkAdmin, async (req, res) => {
   }
 });
 
-router.patch("/:id/status", checkAdmin, (req, res) => {
+router.patch("/:id/status", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
   const { status } = req.body;
 
@@ -483,16 +483,33 @@ router.patch("/:id/status", checkAdmin, (req, res) => {
     return res.status(400).json({ error: "Richiesta non valida", message: "Lo stato non può essere vuoto." });
   }
 
-  db.execute("UPDATE project SET status = ? WHERE id = ?", [trimmedStatus, projectId])
-    .then(([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Progetto non trovato" });
-      }
-      return res.status(200).json({ message: "Stato del progetto aggiornato con successo", status: trimmedStatus });
-    })
-    .catch((err) => {
-      return res.status(500).json({ error: "Errore del server", specific: err.message });
-    });
+  const ALLOWED = {
+    "Non iniziato": ["Attivo"],
+    "Attivo": ["Completato", "In pausa"],
+    "In pausa": ["Attivo"],
+    "Completato": []
+  };
+
+  try {
+    const [rows] = await db.execute("SELECT status FROM project WHERE id = ?", [projectId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Progetto non trovato" });
+    }
+    const currentStatus = rows[0].status;
+    if (!ALLOWED[currentStatus] || !ALLOWED[currentStatus].includes(trimmedStatus)) {
+      return res.status(400).json({
+        error: "Transizione di stato non consentita",
+        message: `Non puoi passare da "${currentStatus}" a "${trimmedStatus}".`
+      });
+    }
+    const [result] = await db.execute("UPDATE project SET status = ? WHERE id = ?", [trimmedStatus, projectId]); 
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Progetto non trovato" });
+    }
+    return res.status(200).json({ message: "Stato del progetto aggiornato con successo", status: trimmedStatus });
+  } catch (err) {
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
+  }
 });
 
 router.post("/:id/assign", checkAdmin, (req, res) => {
