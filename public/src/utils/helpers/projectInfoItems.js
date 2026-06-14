@@ -1,5 +1,6 @@
 import { getFullName, formatProjectDate,} from "./tableHelpers";
 // formatRelativeDays
+
 // per costruire gli info item mostrati nella sezione "Panoramica" del dettaglio progetto
 export const getProjectInfoItems = (selectedProject) => {
   const creator = selectedProject?.created_by;
