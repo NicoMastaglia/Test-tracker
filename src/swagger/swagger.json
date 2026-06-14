@@ -494,18 +494,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "checklistId": {
-                      "type": "integer"
-                    }
-                  },
-                  "required": ["message", "checklistId"]
+                    "id": { "type": "integer" },
+                    "title": { "type": "string" },
+                    "project_id": { "type": "integer" }
+                  }
                 },
                 "example": {
-                  "message": "Checklist creata con successo",
-                  "checklistId": 12
+                  "id": 12,
+                  "title": "Smoke test checklist",
+                  "project_id": 1
                 }
               }
             }
@@ -764,7 +761,7 @@
         }
       }
     },
-    "/api/checklists/{templeteId}/item": {
+    "/api/checklists/{templateId}/item": {
       "post": {
         "tags": ["Checklists"],
         "summary": "Aggiunge un item a un template checklist",
@@ -776,7 +773,7 @@
         ],
         "parameters": [
           {
-            "name": "templeteId",
+            "name": "templateId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1116,23 +1113,55 @@
         ],
         "responses": {
           "200": {
-            "description": "Checklist del progetto restituite correttamente",
+            "description": "Checklist del progetto restituite correttamente con i task nidificati",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
                     "type": "object",
-                    "additionalProperties": true
+                    "properties": {
+                      "id": { "type": "integer" },
+                      "checklist_id": { "type": "integer" },
+                      "title": { "type": "string" },
+                      "project_id": { "type": "integer" },
+                      "last_updated": { "type": "string", "format": "date-time" },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "item_id": { "type": "integer" },
+                            "description": { "type": "string" },
+                            "position": { "type": "integer" }
+                          }
+                        }
+                      }
+                    }
                   }
                 },
                 "example": [
                   {
                     "id": 1,
-                    "title": "Smoke test checklist",
+                    "checklist_id": 1,
+                    "title": "Checklist Login",
                     "project_id": 1,
-                    "template_id": 1,
-                    "item": "Login funzionante"
+                    "last_updated": "2026-06-14T18:00:00Z",
+                    "items": [
+                      {
+                        "id": 10,
+                        "item_id": 10,
+                        "description": "Verifica login con credenziali corrette",
+                        "position": 1
+                      },
+                      {
+                        "id": 11,
+                        "item_id": 11,
+                        "description": "Verifica messaggio errore password errata",
+                        "position": 2
+                      }
+                    ]
                   }
                 ]
               }
@@ -1184,10 +1213,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UsersListResponse"
-                },
-                "example": {
-                  "message": "Lista utenti"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
                 }
               }
             }
@@ -1211,31 +1240,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "example": 1
-                    },
-                    "nome": {
-                      "type": "string",
-                      "example": "Mario"
-                    },
-                    "cognome": {
-                      "type": "string",
-                      "example": "Rossi"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "mario.rossi@example.com"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "user"
-                    }
-                  },
-                  "required": ["id", "nome", "cognome", "email", "role"]
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -1558,8 +1563,8 @@
                 },
                 "example": {
                   "id": 1,
-                  "name": "Mario",
-                  "surname": "Rossi",
+                  "nome": "Mario",
+                  "cognome": "Rossi",
                   "email": "mario.rossi@example.com",
                   "role": "user"
                 }
@@ -1832,128 +1837,6 @@
             }
           }
         }
-      },
-      "/api/users/{id}/role": {
-        "patch": {
-          "tags": ["Users"],
-          "summary": "Aggiorna ruolo utente per ID",
-          "description": "Aggiorna il ruolo di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
-          "security": [
-            {
-              "bearerAuth": []
-            }
-          ],
-          "parameters": [
-            {
-              "name": "id",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              },
-              "description": "ID dell'utente",
-              "example": 1
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "role": {
-                      "type": "string",
-                      "enum": ["user", "admin", "superadmin"],
-                      "example": "admin"
-                    }
-                  },
-                  "required": ["role"]
-                },
-                "example": {
-                  "role": "admin"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Ruolo aggiornato con successo",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/SuccessMessage"
-                  },
-                  "example": {
-                    "message": "Ruolo aggiornato con successo"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Ruolo non valido",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorMessage"
-                  },
-                  "example": {
-                    "message": "Ruolo non valido"
-                  }
-                }
-              }
-            },
-            "401": {
-              "description": "Token mancante o non valido",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorMessage"
-                  },
-                  "examples": {
-                    "missingToken": {
-                      "value": {
-                        "message": "Token mancante o formato non valido"
-                      }
-                    },
-                    "invalidToken": {
-                      "value": {
-                        "message": "Token non valido"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Utente non trovato",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorMessage"
-                  },
-                  "example": {
-                    "message": "Utente non trovato"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "Errore del server",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ErrorWithDetail"
-                  },
-                  "example": {
-                    "message": "Errore del server",
-                    "specific": "Internal error"
-                  }
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/users/{id}/role": {
@@ -2220,10 +2103,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectsListResponse"
-                },
-                "example": {
-                  "message": "Lista progetti"
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProjectDetailedResponse" }
                 }
               }
             }
@@ -2261,7 +2142,8 @@
               },
               "example": {
                 "name": "Progetto Alpha",
-                "description": "Descrizione del progetto Alpha"
+                "description": "Descrizione del progetto Alpha",
+                "manager_id": 2
               }
             }
           }
@@ -2272,12 +2154,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectResponse"
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Progetto Alpha",
-                  "description": "Descrizione del progetto Alpha"
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "description": { "type": "string" },
+                    "status": { "type": "string" },
+                    "created_by": { "type": "integer" },
+                    "manager_id": { "type": "integer", "nullable": true }
+                  }
                 }
               }
             }
@@ -2338,16 +2223,7 @@
             "description": "Dettagli progetto restituiti correttamente",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectResponse"
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Progetto Alpha",
-                  "description": "Descrizione del progetto Alpha",
-                  "status": "active",
-                  "created_by": 1
-                }
+                "schema": { "$ref": "#/components/schemas/ProjectDetailedResponse" }
               }
             }
           },
@@ -2430,20 +2306,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "example": "Progetto Alpha Aggiornato"
-                  },
-                  "description": {
-                    "type": "string",
-                    "example": "Descrizione aggiornata del progetto Alpha"
-                  }
+                  "name": { "type": "string", "example": "Progetto Alpha Aggiornato" },
+                  "description": { "type": "string", "example": "Descrizione aggiornata" },
+                  "manager_id": { "type": "integer", "example": 2 }
                 },
                 "required": ["name", "description"]
               },
               "example": {
                 "name": "Progetto Alpha Aggiornato",
-                "description": "Descrizione aggiornata del progetto Alpha"
+                "description": "Descrizione aggiornata del progetto Alpha",
+                "manager_id": 2
               }
             }
           }
@@ -2865,17 +2737,12 @@
                   "userId": {
                     "type": "integer",
                     "example": 2
-                  },
-                  "role": {
-                    "type": "string",
-                    "example": "tester"
                   }
                 },
                 "required": ["userId"]
               },
               "example": {
-                "userId": 2,
-                "role": "tester"
+                "userId": 2
               }
             }
           }
@@ -3092,19 +2959,12 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": {
-                        "type": "integer"
-                      },
-                      "project_id": {
-                        "type": "integer"
-                      },
-                      "user_id": {
-                        "type": "integer"
-                      },
-                      "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                      }
+                      "id": { "type": "integer" },
+                      "project_id": { "type": "integer" },
+                      "user_id": { "type": "integer" },
+                      "status": { "type": "string", "example": "In corso" },
+                      "started_at": { "type": "string", "format": "date-time", "nullable": true },
+                      "completed_at": { "type": "string", "format": "date-time", "nullable": true }
                     }
                   }
                 },
@@ -3113,7 +2973,9 @@
                     "id": 1,
                     "project_id": 1,
                     "user_id": 2,
-                    "created_at": "2026-05-28T10:00:00Z"
+                    "status": "In corso",
+                    "started_at": "2026-05-28T10:00:00Z",
+                    "completed_at": null
                   }
                 ]
               }
@@ -4008,29 +3870,13 @@
       "User": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "example": 1
-          },
-          "name": {
-            "type": "string",
-            "example": "Mario"
-          },
-          "surname": {
-            "type": "string",
-            "example": "Rossi"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "example": "mario.rossi@example.com"
-          },
-          "role": {
-            "type": "string",
-            "example": "user"
-          }
+          "id": { "type": "integer", "example": 1 },
+          "nome": { "type": "string", "example": "Mario" },
+          "cognome": { "type": "string", "example": "Rossi" },
+          "email": { "type": "string", "format": "email", "example": "mario.rossi@example.com" },
+          "role": { "type": "string", "example": "user" }
         },
-        "required": ["id", "name", "surname", "email", "role"]
+        "required": ["id", "nome", "cognome", "email", "role"]
       },
       "LoginResponse": {
         "type": "object",
@@ -4050,39 +3896,54 @@
         },
         "required": ["message", "user", "token"]
       },
-      "UsersListResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "Lista utenti"
-          }
-        },
-        "required": ["message"]
-      },
-      "ProjectsListResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "Lista progetti"
-          }
-        },
-        "required": ["message"]
-      },
       "ProjectCreateRequest": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "example": "Progetto Alpha"
-          },
-          "description": {
-            "type": "string",
-            "example": "Descrizione del progetto Alpha"
-          }
+          "name": { "type": "string", "example": "Progetto Alpha" },
+          "description": { "type": "string", "example": "Descrizione del progetto Alpha" },
+          "manager_id": { "type": "integer", "description": "Obbligatorio per i superadmin", "example": 2 }
         },
-        "required": ["name"]
+        "required": ["name", "description"]
+      },
+      "ProjectDetailedResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "Progetto Alpha" },
+          "description": { "type": "string", "example": "Descrizione" },
+          "status": { "type": "string", "example": "Attivo" },
+          "created_by": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer" },
+              "nome": { "type": "string" },
+              "cognome": { "type": "string" },
+              "email": { "type": "string" }
+            }
+          },
+          "manager": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer" },
+              "nome": { "type": "string" },
+              "cognome": { "type": "string" },
+              "email": { "type": "string" }
+            }
+          },
+          "user_list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer" },
+                "nome": { "type": "string" },
+                "cognome": { "type": "string" },
+                "email": { "type": "string" }
+              }
+            }
+          }
+        }
       },
       "ProjectResponse": {
         "type": "object",

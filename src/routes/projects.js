@@ -11,11 +11,13 @@ router.get("/", checkUser, (req, res) => {
     return db
       .execute(
         `SELECT 
-        p.id, p.name, p.description, p.status, p.created_by,
+        p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
        FROM project p
        JOIN user u ON p.created_by = u.id
+       LEFT JOIN user mu ON p.manager_id = mu.id
        LEFT JOIN project_assignment pa ON p.id = pa.project_id
        LEFT JOIN user tu ON pa.user_id = tu.id`,
       )
@@ -35,6 +37,12 @@ router.get("/", checkUser, (req, res) => {
                 cognome: row.creator_cognome,
                 email: row.creator_email,
               },
+              manager: row.manager_id ? {
+                id: row.manager_id,
+                nome: row.manager_nome,
+                cognome: row.manager_cognome,
+                email: row.manager_email
+              } : null,
               user_list: [],
             });
           }
@@ -61,11 +69,13 @@ router.get("/", checkUser, (req, res) => {
     return db
       .execute(
         `SELECT 
-        p.id, p.name, p.description, p.status, p.created_by,
+        p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
        FROM project p
        JOIN user u ON p.created_by = u.id
+       LEFT JOIN user mu ON p.manager_id = mu.id
        LEFT JOIN project_assignment pa ON p.id = pa.project_id
        LEFT JOIN user tu ON pa.user_id = tu.id
        WHERE p.created_by = ?`,
@@ -87,6 +97,12 @@ router.get("/", checkUser, (req, res) => {
                 cognome: row.creator_cognome,
                 email: row.creator_email,
               },
+              manager: row.manager_id ? {
+                id: row.manager_id,
+                nome: row.manager_nome,
+                cognome: row.manager_cognome,
+                email: row.manager_email
+              } : null,
               user_list: [],
             });
           }
@@ -112,7 +128,14 @@ router.get("/", checkUser, (req, res) => {
   } else if (req.user.role === "user") {
     return db
       .execute(
-        "SELECT p.id, p.name, p.description, p.status, p.created_by, u.nome, u.cognome, u.email FROM project p JOIN project_assignment pa ON p.id = pa.project_id JOIN user u ON p.created_by = u.id WHERE pa.user_id = ?;",
+        `SELECT p.id, p.name, p.description, p.status, p.created_by, p.manager_id, 
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email
+        FROM project p 
+        JOIN project_assignment pa ON p.id = pa.project_id 
+        JOIN user u ON p.created_by = u.id 
+        LEFT JOIN user mu ON p.manager_id = mu.id
+        WHERE pa.user_id = ?;`,
         [req.user.id],
       )
       .then(([results]) => {
@@ -123,10 +146,16 @@ router.get("/", checkUser, (req, res) => {
           status: row.status,
           created_by: {
             id: row.created_by,
-            nome: row.nome,
-            cognome: row.cognome,
-            email: row.email,
+            nome: row.creator_nome,
+            cognome: row.creator_cognome,
+            email: row.creator_email,
           },
+          manager: row.manager_id ? {
+            id: row.manager_id,
+            nome: row.manager_nome,
+            cognome: row.manager_cognome,
+            email: row.manager_email
+          } : null,
         }));
 
         return res.status(200).json(projects);
@@ -142,7 +171,7 @@ router.get("/", checkUser, (req, res) => {
 });
 
 router.post("/", checkAdmin, async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, manager_id } = req.body;
   const createdBy = req.user.id;
 
   const trimmedName = name ? name.trim() : "";
@@ -153,6 +182,23 @@ router.post("/", checkAdmin, async (req, res) => {
   }
   if (!trimmedDescription) {
     return res.status(400).json({ error: "Richiesta non valida", message: "La descrizione del progetto non può essere vuota o contenere solo spazi." });
+  }
+
+  let finalManagerId;
+  if (req.user.role === "admin") {
+    finalManagerId = req.user.id;
+  } else if (req.user.role === "superadmin") {
+    finalManagerId = manager_id;
+    if (!finalManagerId) {
+      return res.status(400).json({ error: "Richiesta non valida", message: "Seleziona un responsabile (admin)." });
+    }
+    const [managerResult] = await db.execute(
+      "SELECT id FROM user WHERE id = ? AND role = 'admin'",
+      [finalManagerId]
+    );
+    if (!managerResult.length) {
+      return res.status(400).json({ error: "Richiesta non valida", message: "Il responsabile deve essere un admin esistente." });
+    }
   }
 
   try {
@@ -169,8 +215,8 @@ router.post("/", checkAdmin, async (req, res) => {
     }
 
     const [result] = await db.execute(
-      "INSERT INTO project (name, description, created_by) VALUES (?, ?, ?)",
-      [trimmedName, trimmedDescription, createdBy]
+      "INSERT INTO project (name, description, created_by, manager_id) VALUES (?, ?, ?, ?)",
+      [trimmedName, trimmedDescription, createdBy, finalManagerId]
     );
 
     return res.status(201).json({
@@ -179,6 +225,7 @@ router.post("/", checkAdmin, async (req, res) => {
       description: trimmedDescription,
       status: "Attivo",
       created_by: createdBy,
+      manager_id: finalManagerId
     });
 
   } catch (err) {
@@ -193,11 +240,13 @@ router.get("/:id", checkUser, (req, res) => {
     return db
       .execute(
         `SELECT 
-        p.id, p.name, p.description, p.status, p.created_by,
+        p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
        FROM project p
        JOIN user u ON p.created_by = u.id
+       LEFT JOIN user mu ON p.manager_id = mu.id
        LEFT JOIN project_assignment pa ON p.id = pa.project_id
        LEFT JOIN user tu ON pa.user_id = tu.id
        WHERE p.id = ?`,
@@ -219,6 +268,12 @@ router.get("/:id", checkUser, (req, res) => {
                 cognome: row.creator_cognome,
                 email: row.creator_email,
               },
+              manager: row.manager_id ? {
+                id: row.manager_id,
+                nome: row.manager_nome,
+                cognome: row.manager_cognome,
+                email: row.manager_email
+              } : null,
               user_list: [],
             });
           }
@@ -245,11 +300,13 @@ router.get("/:id", checkUser, (req, res) => {
     return db
       .execute(
         `SELECT 
-        p.id, p.name, p.description, p.status, p.created_by,
+        p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
         u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email,
         tu.id AS tester_id, tu.nome AS tester_nome, tu.cognome AS tester_cognome, tu.email AS tester_email
        FROM project p
        JOIN user u ON p.created_by = u.id
+       LEFT JOIN user mu ON p.manager_id = mu.id
        LEFT JOIN project_assignment pa ON p.id = pa.project_id
        LEFT JOIN user tu ON pa.user_id = tu.id
        WHERE p.id = ? AND p.created_by = ?`,
@@ -271,6 +328,12 @@ router.get("/:id", checkUser, (req, res) => {
                 cognome: row.creator_cognome,
                 email: row.creator_email,
               },
+              manager: row.manager_id ? {
+                id: row.manager_id,
+                nome: row.manager_nome,
+                cognome: row.manager_cognome,
+                email: row.manager_email
+              } : null,
               user_list: [],
             });
           }
@@ -297,10 +360,12 @@ router.get("/:id", checkUser, (req, res) => {
     return db
       .execute(
         `SELECT 
-        p.id, p.name, p.description, p.status, p.created_by,
-        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email
+        p.id, p.name, p.description, p.status, p.created_by, p.manager_id,
+        u.nome AS creator_nome, u.cognome AS creator_cognome, u.email AS creator_email,
+        mu.nome AS manager_nome, mu.cognome AS manager_cognome, mu.email AS manager_email
        FROM project p
        JOIN user u ON p.created_by = u.id
+       LEFT JOIN user mu ON p.manager_id = mu.id
        JOIN project_assignment pa ON p.id = pa.project_id
        WHERE p.id = ? AND pa.user_id = ?`,
         [projectId, req.user.id],
@@ -320,6 +385,12 @@ router.get("/:id", checkUser, (req, res) => {
             cognome: results[0].creator_cognome,
             email: results[0].creator_email,
           },
+          manager: results[0].manager_id ? {
+            id: results[0].manager_id,
+            nome: results[0].manager_nome,
+            cognome: results[0].manager_cognome,
+            email: results[0].manager_email
+          } : null,
         };
         return res.status(200).json(project);
       })
@@ -335,7 +406,7 @@ router.get("/:id", checkUser, (req, res) => {
 
 router.put("/:id", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
-  const { name, description } = req.body;
+  const { name, description, manager_id } = req.body;
 
   const trimmedName = name ? name.trim() : "";
   const trimmedDescription = description ? description.trim() : "";
@@ -365,11 +436,25 @@ router.put("/:id", checkAdmin, async (req, res) => {
         specific: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
       });
     }
-    const [result] = await db.execute(
-      "UPDATE project SET name = ?, description = ? WHERE id = ? AND created_by = ?",
-      [trimmedName, trimmedDescription, projectId, req.user.id],
-      
-    );
+    let updateQuery = "UPDATE project SET name = ?, description = ?";
+    let queryParams = [trimmedName, trimmedDescription];
+
+    if (req.user.role === "superadmin") {
+      if (manager_id) {
+        const [m] = await db.execute("SELECT id FROM user WHERE id = ? AND role = 'admin'", [manager_id]);
+        if (!m.length) {
+          return res.status(400).json({ message: "Errore nella richiesta", specific: "Il responsabile deve essere un admin esistente." });
+        }
+        updateQuery += ", manager_id = ?";
+        queryParams.push(manager_id);
+      }
+      updateQuery += " WHERE id = ?";
+      queryParams.push(projectId);
+    } else {
+      updateQuery += " WHERE id = ? AND created_by = ?";
+      queryParams.push(projectId, req.user.id);
+    }
+    const [result] = await db.execute(updateQuery, queryParams);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ 
