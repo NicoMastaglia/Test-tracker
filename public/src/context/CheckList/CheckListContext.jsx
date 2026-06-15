@@ -10,14 +10,14 @@ import { useProjectContext } from "../Project/ProjectContext";
 const ChecklistContext = createContext();
 
 
-// Normalizza una riga (checklist x item)
-const normalizeChecklistRow = (row) => ({
-    checklist_id: row.checklist_id ?? row.template_id ?? row.id ?? null,
-    title: row.title ?? row.name ?? "",
-    project_id: row.project_id ?? row.projectId ?? null,
-    item_id: row.item_id ?? null,
-    description: row.description ?? "",
-    position: row.position ?? null,
+// Normalizza una checklist (il BE la restituisce GIÀ raggruppata, con items annidati)
+const normalizeChecklistRow = (checklist) => ({
+    id: checklist.id ?? checklist.checklist_id ?? null,
+    checklist_id: checklist.checklist_id ?? checklist.template_id ?? checklist.id ?? null,
+    title: checklist.title ?? checklist.name ?? "",
+    project_id: checklist.project_id ?? checklist.projectId ?? null,
+    last_updated: checklist.last_updated ?? null,
+    items: Array.isArray(checklist.items) ? checklist.items : [],
 });
 
 

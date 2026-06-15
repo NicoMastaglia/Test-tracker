@@ -36,10 +36,10 @@ const TaskTable = ({
     emptyMessage="Nessun task trovato per questa checklist."
     containerClass=""
     renderRow={(task, index) => (
-      <TableRow key={task.id ?? task.task_id ?? index} className="group transition-colors hover:bg-slate-50/50">
+      <TableRow key={task.id} className="group transition-colors hover:bg-slate-50/50">
         {/* 1. CELLA: # */}
         <TableCell className="text-center font-mono text-slate-400 px-4 py-3.5">
-          {task.position ?? index + 1}
+          {index+1 }
         </TableCell>
 
         {/* 2. CELLA: DESCRIZIONE */}

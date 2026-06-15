@@ -104,21 +104,12 @@ export const ProjectProvider = ({ children }) => {
         try {
             const token = getToken()
             await assignUserToProjectApi(token, projectId, userId)
-            // Optimistically update selectedProject assigned_users with a minimal user object
-            const assignedUser = { id: userId };
 
+            // rinfresco la lista progetti e, se è quello aperto, i suoi dettagli
+            // (che includono user_list, la fonte unica degli assegnati)
             await fetchProjects()
-
             if (state.selectedProject && Number(state.selectedProject.id) === Number(projectId)) {
-                const currentAssigned = state.selectedProject.assigned_users || [];
-                const already = currentAssigned.some(au => (au.id ?? au.user_id) === Number(userId));
-                if (!already) {
-                    const updatedSelected = {
-                        ...state.selectedProject,
-                        assigned_users: [...currentAssigned, assignedUser]
-                    }
-                    dispatch({ type: 'UPDATE_PROJECT', payload: updatedSelected })
-                }
+                await fetchProjectDetails(projectId)
             }
 
             return { projectId, userId }
@@ -133,16 +124,11 @@ export const ProjectProvider = ({ children }) => {
         try {
             const token = getToken()
             await unAssingUserAssignmentApi(token, projectId, userId)
-            await fetchProjects()
 
+            // rinfresco la lista progetti e, se è quello aperto, i suoi dettagli
+            await fetchProjects()
             if (state.selectedProject && Number(state.selectedProject.id) === Number(projectId)) {
-                const currentAssigned = state.selectedProject.assigned_users || [];
-                const updatedAssigned = currentAssigned.filter(au => (au.id ?? au.user_id) !== Number(userId));
-                const updatedSelected = {
-                    ...state.selectedProject,
-                    assigned_users: updatedAssigned
-                }
-                dispatch({ type: 'UPDATE_PROJECT', payload: updatedSelected })
+                await fetchProjectDetails(projectId)
             }
 
             return { projectId, userId }

@@ -35,14 +35,9 @@ const ProjectTeamSection = ({
 }) => {
   const [sortOrder, setSortOrder] = useState("asc");
 
-  // filtriamo gli utenti per mostrare solo quelli non ancora assegnati al progetto
-  // e solo utenti user
-  const availableUsers = users.filter(
-    (u) =>
-      !projectAssignedUsers.some(
-        (assigned) => assigned.id === u.id || assigned.user_id === u.id,
-      ) && u.role === "user",
-  );
+  // `users` arriva già filtrato dal parent (availableUser): solo utenti con ruolo
+  // "user" e non ancora assegnati al progetto. Niente doppio filtraggio qui.
+  const availableUsers = users;
 
   const sortedAssignedUsers = useMemo(() => {
     const sorted = [...projectAssignedUsers].sort((a, b) =>

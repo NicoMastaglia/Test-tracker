@@ -240,11 +240,9 @@ const ProjectOverviewSection = ({ projectInfoItems, selectedProject, checklistIt
 
  
 
-  // conto le le checklist uniche e i task totali (escludendo eventuali item senza task_id)
-  const checklistCount = new Set(
-    checklistItems.map((item) => item.checklist_id).filter(Boolean),
-  ).size;
-  const totalTasks = checklistItems.filter((item) => item.item_id != null).length;
+  // checklist (il BE le manda già raggruppate) e task totali (somma degli items)
+  const checklistCount = checklistItems.length;
+  const totalTasks = checklistItems.reduce((sum, cl) => sum + (cl.items?.length || 0), 0);
 
   return (
     <div className="space-y-6">

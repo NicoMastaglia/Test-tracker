@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState,useEffect } from "react";
 import { ListChecks, CheckCircle2, Loader2, Ban, PieChart } from "lucide-react";
 import ActionBar from "@/utils/components/ActionBar";
 import TaskTable from "./TaskTable";
@@ -22,7 +22,7 @@ const ChecklistDetailView = ({
   const [search, setSearch] = useState("");
 
   const taskItems = useMemo(
-    () => checklist?.tasks ?? checklist?.items ?? checklist?.checklist_items ?? [],
+    () =>  checklist?.items ?? [] ,
     [checklist]
   );
 
@@ -32,6 +32,10 @@ const ChecklistDetailView = ({
       task.description?.toLowerCase().includes(search.toLowerCase())
     );
   }, [taskItems, search]);
+
+  useEffect(() => {
+console.log(checklist.items);
+  },[]);
 
   const taskStats = [
     {

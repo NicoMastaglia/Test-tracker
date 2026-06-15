@@ -6,6 +6,7 @@ import { AuthProvider } from './context/Auth/AuthContext.jsx';
 import { ProjectProvider } from './context/Project/ProjectContext';
 import { UserProvider } from './context/User/UserContext';
 import { ChecklistProvider } from './context/Checklist/ChecklistContext';
+import { SessionProvider } from './context/Session/SessionContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')).render(
       <ProjectProvider>
         <UserProvider>
           <ChecklistProvider>
-            <App/>
+            <SessionProvider>
+              <App/>
+            </SessionProvider>
           </ChecklistProvider>
         </UserProvider>
       </ProjectProvider>

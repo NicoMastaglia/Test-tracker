@@ -15,7 +15,7 @@ const ChecklistDetail = () => {
   const { id, checklistId } = useParams();
   const navigate = useNavigate();
 
-  const { checklistItems, selectedChecklist, fetchChecklistsByProject, clearChecklist, updateChecklist, removeChecklist } = useChecklistContext();
+  const { checklistItems, selectedChecklist, fetchChecklistsByProject, clearChecklist, updateChecklist, removeChecklist, addChecklistItem } = useChecklistContext();
   const { selectedProject, fetchProjectDetails, clearSelectedProject } = useProjectContext();
   const { user } = useAuthContext();
 
@@ -24,13 +24,20 @@ const ChecklistDetail = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({ title: "" });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
+  const [addTaskFormData, setAddTaskFormData] = useState({ description: "" });
 
+  // il BE restituisce le checklist GIÀ raggruppate (con items): basta trovare quella giusta
   const checklist = useMemo(() => {
-    if (selectedChecklist && String(selectedChecklist.id) === String(checklistId)) {
+    const found = checklistItems.find(
+      (cl) => String(cl.checklist_id) === String(checklistId),
+    );
+    if (found) return found;
+    if (selectedChecklist && String(selectedChecklist.checklist_id) === String(checklistId)) {
       return selectedChecklist;
     }
-    return checklistItems.find((cl) => String(cl.id) === String(checklistId)) ?? null;
-  }, [selectedChecklist, checklistItems, checklistId]);
+    return null;
+  }, [checklistItems, selectedChecklist, checklistId]);
 
   useEffect(() => {
     if (id) {
@@ -50,8 +57,25 @@ const ChecklistDetail = () => {
   const goBackToChecklist = () =>
     navigate(projectPath, { state: { section: "checklist" } });
 
-  const handleAddTask = () => {
-    toast.info("Funzionalità di aggiunta task non ancora disponibile.");
+  const handleOpenAddTaskModal = () => {
+    setAddTaskFormData({ description: "" });
+    setAddTaskModalOpen(true);
+  };
+
+  const handleAddTask = async () => {
+    if (!checklist?.checklist_id) return;
+    if (addTaskFormData.description.trim() === "") {
+      toast.error("La descrizione del task non può essere vuota");
+      return;
+    }
+    try {
+      await addChecklistItem(checklist.checklist_id, { description: addTaskFormData.description.trim() });
+      await fetchChecklistsByProject(id);
+      toast.success("Task aggiunto con successo");
+      setAddTaskModalOpen(false);
+    } catch {
+      toast.error("Errore durante l'aggiunta del task");
+    }
   };
 
   const handleViewTask = () => {
@@ -142,7 +166,7 @@ const ChecklistDetail = () => {
             checklist={checklist}
             project={selectedProject}
             isAdmin={isAdmin}
-            handleAdd={handleAddTask}
+            handleAdd={handleOpenAddTaskModal}
             handleView={handleViewTask}
             handleEdit={handleEditTask}
             handleDelete={handleDeleteTask}
@@ -156,6 +180,23 @@ const ChecklistDetail = () => {
           </div>
         )}
       </div>
+
+      <ModalForm
+        modalOpen={addTaskModalOpen}
+        setModalOpen={setAddTaskModalOpen}
+        title="Crea task"
+        infos="Aggiungi un nuovo task alla checklist corrente."
+        fields={[
+          { name: "description", label: "Descrizione task", type: "textarea", rows: 3, placeholder: "Descrivi il task da testare" },
+        ]}
+        formData={addTaskFormData}
+        setFormData={setAddTaskFormData}
+        onSubmit={handleAddTask}
+        submitLabel="Aggiungi task"
+        cancelLabel="Annulla"
+        titleIcon={Pencil}
+        iconColor="text-emerald-500"
+      />
 
       <ModalForm
         modalOpen={editModalOpen}

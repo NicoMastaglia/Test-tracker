@@ -12,6 +12,7 @@ const SessionDetail = ({ sessions, user }) => {
     : sessions.filter(s => s?.user_id === user?.id);
 
   // 2. Badge stilizzati 
+  // da modificare in base ai dati che arrivano dal be 
   const getStatusBadge = (status) => {
     const normalizedStatus = (status ?? "")
       .toString()

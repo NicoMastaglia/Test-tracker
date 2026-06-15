@@ -17,7 +17,7 @@ import ChecklistSection from "@/Components/features/projects/ProjectDetail/Check
 import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
 import {useAuthContext} from "@/context/Auth/AuthContext";
 import { toast } from "sonner";
-
+import {filterSearch}  from '@/utils/helpers/filterSearch'
 
 // COMPONENTE PRINCIPALE PER LA PAGINA DI DETTAGLIO DEL PROGETTO
 const ProjectDetail = () => {
@@ -51,16 +51,33 @@ const ProjectDetail = () => {
   const [editFormData, setEditFormData] = useState({ name: "", description: "", deadline: "" });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  const projectAssignedUsers = selectedProject?.user_list || [];
+   const [searchUser, setSearchUser] = useState("");
 
-  const [searchUser, setSearchUser] = useState("");
 
- 
+
+  const availableUser = useMemo(() => {
+    if (!users || users.length === 0) return [];
+    const assignedUserIds = selectedProject?.user_list?.map(u => u.id ?? u.user_id) || [];
+    return users.filter(u => !assignedUserIds.includes(u.id) && u.role === "user");
+  }, [users, selectedProject]);
+
+
+ const projectAssignedUsers = useMemo(()=>{
+  const assigned = selectedProject?.user_list || [];
+  // filterSearch è null-safe (String(item[key] ?? "")), evita crash su campi mancanti
+  return filterSearch(searchUser, assigned, ["email", "nome", "cognome", "first_name", "last_name"]);
+ },[searchUser,selectedProject])
+
+
+  
+
   useEffect(() => {
     if (!projectId) {
       clearSelectedProject();
       return;
     }
+
+    
 
     fetchProjectDetails(projectId);
     fetchChecklistsByProject(projectId);
@@ -74,6 +91,9 @@ const ProjectDetail = () => {
     };
   }, [projectId, isAdmin]);
 
+
+ 
+
   const handleRemoveAssignedUser = async () => {
     if (!projectId || !selectedProject || !removeUserTarget) return;
 
@@ -82,7 +102,6 @@ const ProjectDetail = () => {
         Number(projectId),
         Number(removeUserTarget.id ?? removeUserTarget.user_id),
       );
-      await fetchProjectDetails(Number(projectId));
       toast.success("Utente rimosso dal progetto");
       setRemoveUserTarget(null);
     } catch (error) {
@@ -99,7 +118,6 @@ const ProjectDetail = () => {
         Number(projectId),
         Number(selectedAssignUserId),
       );
-      await fetchProjectDetails(Number(projectId));
       toast.success("Utente assegnato al progetto");
       setSelectedAssignUserId("");
     } catch (error) {
@@ -207,7 +225,7 @@ const ProjectDetail = () => {
     // Per il conteggio della checklist, usiamo la lunghezza di checklistItems
     checklist: checklistItems.length,
     // Per il conteggio del team, usiamo la lunghezza di projectAssignedUsers
-    team: projectAssignedUsers.length,
+    team: projectAssignedUsers.length ,
     // Placeholder per attività, da sostituire con dati reali quando disponibili
     activities: 3,
   };
@@ -294,7 +312,7 @@ const ProjectDetail = () => {
             {isAdmin && activeSection === "team" ? (
               <ProjectTeamSection
                 selectedProject={selectedProject}
-                users={users}
+                users={availableUser}
                 projectAssignedUsers={projectAssignedUsers}
                 selectedAssignUserId={selectedAssignUserId}
                 setSelectedAssignUserId={setSelectedAssignUserId}
@@ -303,6 +321,8 @@ const ProjectDetail = () => {
                 fetchProjectDetails={fetchProjectDetails}
                 onRemoveUser={setRemoveUserTarget}
                 onAssignUser={handleAssignUser}
+                searchUser={searchUser}
+                setSearchUser={setSearchUser}
               />
             ) : null}
 

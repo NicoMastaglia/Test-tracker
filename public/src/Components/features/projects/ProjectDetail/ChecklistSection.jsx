@@ -40,10 +40,8 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
   }, [checklistItems, search]);
 
   // Conteggio checklist e task totali derivati dalle righe normalizzate del progetto
-  const checklistCount = new Set(
-    checklistItems.map((item) => item.checklist_id).filter(Boolean),
-  ).size;
-  const totalTasks = checklistItems.filter((item) => item.item_id != null).length;
+  const checklistCount = checklistItems.length;
+  const totalTasks = checklistItems.reduce((sum, cl) => sum + (cl.items?.length || 0), 0);
 
   const handleCreate = async () => {
     if (!projectId) return;
@@ -58,7 +56,7 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
     const base = isAdmin
       ? `/admin/projects/${projectId}/checklist`
       : `/user/projects/${projectId}/checklist`;
-    navigate(`${base}/${cl.id}`);
+    navigate(`${base}/${cl.checklist_id}`);
   };
 
   const handleOpenEditModal = (cl) => {
