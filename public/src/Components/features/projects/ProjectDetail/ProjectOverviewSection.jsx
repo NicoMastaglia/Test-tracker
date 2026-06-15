@@ -14,6 +14,8 @@ import { Badge } from "@/Components/ui/badge";
 import UserAvatar from "@/utils/components/UserAvatar";
 import { getFullName, getProjectStatusBadgeClass } from "@/utils/helpers/tableHelpers";
 import { NOT_AVAILABLE, NotAvailable } from "@/utils/components/Placeholder";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/Components/ui/tooltip";
+import {formatProjectDateTime,formatProjectDate} from "@/utils/helpers/tableHelpers";
 
 // COMPONENTE PER LA SEZIONE OVERVIEW DEL PROGETTO, MOSTRA INFORMAZIONI PRINCIPALI SUL PROGETTO
 
@@ -75,21 +77,41 @@ const PlaceholderCard = ({ title, icon, message, className = "" }) => {
 };
 
 // Card "Informazioni generali": dati anagrafici e di stato del progetto
-const GeneralInfoCard = ({ selectedProject, creator }) => (
+const GeneralInfoCard = ({ selectedProject, creator,responsabile }) => (
   <SectionCard title="Informazioni generali">
     <div>
       <InfoRow label="Descrizione">
         {selectedProject?.description || <NotAvailable />}
       </InfoRow>
       <InfoRow label="Creato da">
-        {creator ? getFullName(creator) : <NotAvailable />}
+        {creator ?  (
+          <Tooltip>
+            <TooltipTrigger>
+             
+                <UserAvatar user={creator} size="sm" />
+               
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{getFullName(creator)}</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <NotAvailable />
+        )}
       </InfoRow>
       <InfoRow label="Responsabile">
-        {creator ? (
-          <span className="flex items-center justify-end gap-2">
-            <UserAvatar user={creator} size="sm" />
-            {getFullName(creator)}
-          </span>
+        {responsabile ? (
+          <Tooltip>
+            <TooltipTrigger>
+        
+                <UserAvatar user={responsabile} size="sm" />
+                
+      
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{getFullName(responsabile)}</p>
+            </TooltipContent>
+          </Tooltip>
         ) : (
           <NotAvailable />
         )}
@@ -109,25 +131,39 @@ const TimelineCard = ({ projectInfoItems }) => (
   <SectionCard title="Timeline">
     <div>
       <InfoRow label="Creato il" icon={CalendarDays}>
+
         {projectInfoItems?.created_at === NOT_AVAILABLE ? (
           <NotAvailable />
         ) : (
-          projectInfoItems?.created_at
+          <span className="font-bold">
+          {formatProjectDateTime(projectInfoItems.created_at)}
+          </span>
         )}
       </InfoRow>
       <InfoRow label="Iniziato il" icon={PlayCircle}>
         {projectInfoItems?.started_at === NOT_AVAILABLE ? (
           <NotAvailable />
         ) : (
-          projectInfoItems?.started_at
+          <span className="font-bold">
+            {formatProjectDateTime(projectInfoItems.started_at)}
+          </span>
         )}
       </InfoRow>
       <InfoRow label="Deadline" icon={Calendar}>
         {projectInfoItems?.deadline === NOT_AVAILABLE ? (
           <NotAvailable />
         ) : (
-          <span className={projectInfoItems?.isDeadlineOverdue ? "text-red-600" : undefined}>
-            {projectInfoItems?.deadline}
+
+
+          // Se la deadline è scaduta, mostro il testo in rosso
+          // volendo potrei gestire una classica unica anziché una combinazione di classi per la deadline, 
+        
+          <span className={`font-bold ${projectInfoItems.isDeadlineOverdue ? "text-red-600" : "text-slate-700"}`}>
+            {(projectInfoItems?.deadline) } 
+            <span className={`ml-2 text-xs font-medium ${projectInfoItems.colorforDeadline}`}>
+            {projectInfoItems.daysToDeadline}
+            </span>
+
           </span>
         )}
       </InfoRow>
@@ -135,14 +171,19 @@ const TimelineCard = ({ projectInfoItems }) => (
         {projectInfoItems?.updated_at === NOT_AVAILABLE ? (
           <NotAvailable />
         ) : (
-          projectInfoItems?.updated_at
+        
+          <span className="font-bold">
+            {formatProjectDateTime(projectInfoItems?.updated_at)}
+          </span>
         )}
       </InfoRow>
       <InfoRow label="Completato il" icon={CheckCircle2}>
         {projectInfoItems?.completed_at === NOT_AVAILABLE ? (
           <NotAvailable />
         ) : (
-          projectInfoItems?.completed_at
+          <span className="font-bold">
+            {formatProjectDateTime(projectInfoItems?.completed_at)}
+          </span>
         )}
       </InfoRow>
     </div>
@@ -195,8 +236,11 @@ const SummaryCard = ({ checklistCount, totalTasks, testers }) => (
 const ProjectOverviewSection = ({ projectInfoItems, selectedProject, checklistItems = [] }) => {
   const creator = selectedProject?.created_by;
   const testers = selectedProject?.user_list;
+  const responsabile = selectedProject?.manager;
 
-  // Conteggio checklist e task totali derivati dalle checklist del progetto
+ 
+
+  // conto le le checklist uniche e i task totali (escludendo eventuali item senza task_id)
   const checklistCount = new Set(
     checklistItems.map((item) => item.checklist_id).filter(Boolean),
   ).size;
@@ -205,7 +249,7 @@ const ProjectOverviewSection = ({ projectInfoItems, selectedProject, checklistIt
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <GeneralInfoCard selectedProject={selectedProject} creator={creator} />
+        <GeneralInfoCard selectedProject={selectedProject} creator={creator} responsabile={responsabile} />
         <TimelineCard projectInfoItems={projectInfoItems} />
         <SummaryCard checklistCount={checklistCount} totalTasks={totalTasks} testers={testers} />
       </div>

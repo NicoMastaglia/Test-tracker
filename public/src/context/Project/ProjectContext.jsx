@@ -37,8 +37,10 @@ export const ProjectProvider = ({ children }) => {
             const token = getToken()
             const newProject = await createProject(token, projectData)
             dispatch({type:'ADD_PROJECT', payload: newProject})
+            return newProject
         } catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})
+            throw error
         }
 
     }

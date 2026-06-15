@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import AppLayout from "@/Components/layout/AppLayout";
 import { useProjectContext } from "@/context/Project/ProjectContext";
@@ -8,6 +8,7 @@ import { ArrowLeft, Flag, Pencil, Trash2 } from "lucide-react";
 import ModalForm from "@/utils/components/ModalForm";
 import { getProjectInfoItems } from "@/utils/helpers/projectInfoItems";
 import { projectEditFields } from "@/utils/fields/projectEditFields";
+import { toDateInputValue } from "@/utils/helpers/tableHelpers";
 import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
 import ProjectTeamSection from "./ProjectTeamSection";
@@ -47,11 +48,14 @@ const ProjectDetail = () => {
     location.state?.section ?? "overview",
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState({ name: "", description: "" });
+  const [editFormData, setEditFormData] = useState({ name: "", description: "", deadline: "" });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const projectAssignedUsers = selectedProject?.user_list || [];
 
+  const [searchUser, setSearchUser] = useState("");
+
+ 
   useEffect(() => {
     if (!projectId) {
       clearSelectedProject();
@@ -108,6 +112,8 @@ const ProjectDetail = () => {
     setEditFormData({
       name: selectedProject?.name ?? "",
       description: selectedProject?.description ?? "",
+      // il be vuole il formato "YYYY-MM-DD" (componenti locali per evitare lo slittamento di un giorno)
+      deadline: toDateInputValue(selectedProject?.deadline),
     });
     setEditModalOpen(true);
   };
@@ -115,10 +121,26 @@ const ProjectDetail = () => {
   const handleEditProject = async () => {
     if (!projectId || !selectedProject) return;
 
+    if(editFormData.name.trim() === "" || editFormData.description.trim() === "") {
+      toast.error("Nome e descrizione non possono essere vuoti");
+      return;
+    }
+
+    if(editFormData.deadline && isNaN(Date.parse(editFormData.deadline))) {
+      toast.error("La data di scadenza non è valida");
+      return;
+    }
+
+    if(editFormData.deadline && new Date(editFormData.deadline) < new Date()) {
+      toast.error("La deadline non può essere una data passata");
+      return;
+    }
+
     try {
       await updateProject(Number(projectId), {
         name: editFormData.name,
         description: editFormData.description,
+        deadline: editFormData.deadline || null,
       });
 
       await fetchProjectDetails(Number(projectId));
@@ -156,6 +178,28 @@ const ProjectDetail = () => {
       toast.error(message);
     }
   };
+
+  // abilita "Salva modifiche" solo se almeno un campo è cambiato rispetto al progetto
+  const hasProjectChanges =
+    editFormData.name.trim() !== (selectedProject?.name ?? "").trim() ||
+    editFormData.description.trim() !== (selectedProject?.description ?? "").trim() ||
+    editFormData.deadline !== toDateInputValue(selectedProject?.deadline);
+
+  const editModalFooter = (
+    <div className="flex items-center justify-end gap-2">
+      <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)} className="hover:bg-slate-100">
+        Annulla
+      </Button>
+      <Button
+        type="button"
+        onClick={handleEditProject}
+        disabled={!hasProjectChanges}
+        className="bg-emerald-500 text-white hover:bg-emerald-600"
+      >
+        Salva modifiche
+      </Button>
+    </div>
+  );
 
   const projectInfoItems = getProjectInfoItems(selectedProject);
 
@@ -293,7 +337,9 @@ const ProjectDetail = () => {
         modalOpen={editModalOpen}
         setModalOpen={setEditModalOpen}
         title="Modifica progetto"
-        infos="Aggiorna il nome e la descrizione del progetto."
+        infos="Aggiorna il nome e la descrizione del progetto o la scadenza. 
+        "
+        
         fields={projectEditFields}
         formData={editFormData}
         setFormData={setEditFormData}
@@ -302,6 +348,7 @@ const ProjectDetail = () => {
         cancelLabel="Annulla"
         titleIcon={Pencil}
         iconColor="text-emerald-500"
+        customFooter={editModalFooter}
       />
 
       <ModalForm

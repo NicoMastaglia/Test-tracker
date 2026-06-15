@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import ProjectRow from "./ProjectRow";
 import ModalForm from "@/utils/components/ModalForm";
-import { getRoundColorClass } from "@/utils/helpers/tableHelpers";
+import { getRoundColorClass, toDateInputValue } from "@/utils/helpers/tableHelpers";
 import { getAvailableProjectStatuses } from "@/utils/helpers/statusFlow";
 
 
@@ -30,22 +30,34 @@ const ProjectTable = ({ data, users = [] }) => {
   } = useProjectContext();
 
   const [editingProject, setEditingProject] = useState(null);
-  const [editForm, setEditForm] = useState({ name: "", description: "" });
+  const [editForm, setEditForm] = useState({ name: "", description: "",deadline: "" });
   const [statusProject, setStatusProject] = useState(null);
   const [statusValue, setStatusValue] = useState("");
   const [deleteProjectTarget, setDeleteProjectTarget] = useState(null);
 
   const isAdmin = user?.role !== "user";
   const isSuperadmin = user?.role === "superadmin";
-
+  
+ 
+  useEffect(() => {
+    if (editingProject) {
+      setEditForm({
+        name: editingProject.name ?? "",
+        description: editingProject.description ?? "",
+        deadline: toDateInputValue(editingProject.deadline),
+      });
+    }
+  }, [editingProject]);
+  
   const openEditDialog = (project) => {
     if (!isAdmin) return;
+    // editForm viene popolato dalla useEffect su editingProject
     setEditingProject(project);
-    setEditForm({ name: project.name ?? "", description: project.description ?? "" });
   };
 
 
   const handleUpdateProject = async () => {
+    console.log('aggiorno progetto')
     if (!isAdmin) {
       toast.error("Solo admin puo modificare un progetto");
       return;
@@ -55,10 +67,21 @@ const ProjectTable = ({ data, users = [] }) => {
       toast.error("Nome e descrizione non possono essere vuoti");
       return;
     }
+
+    if(editForm.deadline && isNaN(Date.parse(editForm.deadline))) {
+      toast.error("Deadline non è una data valida");
+      return;
+    }
+
+    if(editForm.deadline && new Date(editForm.deadline) < new Date()) {
+      toast.error("La deadline non può essere una data passata");
+      return;
+    }
     try {
       await updateProject(editingProject.id, {
         name: editForm.name.trim(),
         description: editForm.description.trim(),
+        deadline: editForm.deadline || null,
       });
       await fetchProjects();
       toast.success("Progetto aggiornato con successo");
@@ -125,10 +148,10 @@ const ProjectTable = ({ data, users = [] }) => {
     navigate(`/admin/projects/${projectId}`);
   };
 
-  const hasProjectChanges = 
-
+  const hasProjectChanges =
     editForm.name.trim() !== (editingProject?.name ?? "").trim() ||
-    editForm.description.trim() !== (editingProject?.description ?? "").trim();
+    editForm.description.trim() !== (editingProject?.description ?? "").trim() ||
+    editForm.deadline !== toDateInputValue(editingProject?.deadline);
 
 
   const customFooter = (
@@ -207,6 +230,7 @@ const ProjectTable = ({ data, users = [] }) => {
           [
           { name: "name", label: "Nome", type: "text" },
           { name: "description", label: "Descrizione", type: "textarea" },
+          { name: "deadline", label: "Deadline", type: "date" },
         ]}
         formData={editForm}
         setFormData={setEditForm}

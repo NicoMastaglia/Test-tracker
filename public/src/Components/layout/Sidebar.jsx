@@ -54,10 +54,10 @@ const menuItemsByRole = {
   ],
   admin: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
-    { text: "Sessions", path: "/admin/sessions", icon: Repeat },
+    // { text: "Sessions", path: "/admin/sessions", icon: Repeat },
     { text: "Projects", path: "/admin/projects", icon: Folder },
-    { text: "Team", path: "/admin/team", icon: Users },
-    { text: "Checklist", path: "/admin/checklists", icon: CheckCircle },
+    // { text: "Team", path: "/admin/team", icon: Users },
+    // { text: "Checklist", path: "/admin/checklists", icon: CheckCircle },
     { text: "Impostazioni", path: "/settings", icon: Settings },
   ],
   superadmin: [

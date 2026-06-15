@@ -17,4 +17,10 @@ export const projectEditFields = [
 		rows: 4,
 		placeholder: "Inserisci una descrizione del progetto",
 	},
+	{
+		name: "deadline",
+		label: "Scadenza",
+		type: "date",
+		placeholder: "Seleziona la data di scadenza (opzionale)",
+	},
 ];

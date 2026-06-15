@@ -177,3 +177,27 @@ export const formatProjectDate = (value) => {
     year: "numeric",
   }).format(parsedDate);
 };
+
+// converte un valore data (ISO/Date) nel formato "YYYY-MM-DD" atteso da <input type="date">
+// usando i componenti LOCALI, così la deadline non slitta di un giorno per via del fuso orario.
+export const toDateInputValue = (value) => {
+  if (!value) return "";
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "";
+
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, "0");
+  const day = String(parsed.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+export const formatProjectDateTime = (value) => {
+  if (!value) return "Non disponibile";
+  
+  const parsed = new Date(value);
+  
+  return isNaN(parsed) 
+    ? String(value) 
+    : new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeStyle: "short" }).format(parsed);
+};

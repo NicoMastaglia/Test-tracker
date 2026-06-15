@@ -30,6 +30,8 @@ const ProjectTeamSection = ({
   setSelectedAssignUserId,
   onAssignUser,
   onRemoveUser,
+  searchUser,
+  setSearchUser,
 }) => {
   const [sortOrder, setSortOrder] = useState("asc");
 
@@ -77,7 +79,12 @@ const ProjectTeamSection = ({
                 <Label className="text-sm font-semibold text-slate-900">Assegna tester</Label>
                 <p className="text-xs text-slate-500">Aggiungi un nuovo tester al progetto</p>
               </div>
+
+               
+             
             </div>
+             
+           
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Select value={selectedAssignUserId} onValueChange={setSelectedAssignUserId}>
@@ -103,6 +110,8 @@ const ProjectTeamSection = ({
           </div>
         </div>
 
+
+
         {/* Lista tester assegnati */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           <h4 className="text-sm font-semibold text-slate-900">
@@ -121,6 +130,25 @@ const ProjectTeamSection = ({
             </Select>
           </div>
         </div>
+
+        
+          {/*Cerca utente da assegnare*/}
+            <div className="mt-2 max-w-sm">
+              <Label htmlFor="searchUser" className="sr-only">
+                Cerca utente
+              </Label>
+              <input
+                id="searchUser"
+                type="text"
+                placeholder="Cerca utente..."
+                value={searchUser}
+                onChange={(e) => setSearchUser(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+               />
+
+
+
+            </div>
 
         <div className="mt-3 max-h-80 space-y-3 overflow-y-auto pr-1">
           {sortedAssignedUsers.length > 0 ? (

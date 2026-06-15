@@ -5,7 +5,7 @@ import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger} from "@/Components/ui/tooltip";
 import { Pencil, Trash2, Flag,Folder  } from "lucide-react";
-
+import {formatProjectDateTime} from "@/utils/helpers/tableHelpers";
 import {
   formatTableDate,
   getCreatorName,
@@ -17,7 +17,7 @@ import {  uppercaseFirstLetter  } from "@/utils/helpers/tableHelpers";
 
 const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowClick, openEditDialog, openStatusDialog, setDeleteProjectTarget,colorClass }) => {
   const canOpenProjectDetail = isAdmin || isSuperadmin;
-  const creator = project.created_by || users.find((user) => user.id === project.created_by);
+  const creator = project.manager
   const assignedUsers = Array.isArray(project.user_list) ? project.user_list : [];
   const visibleAssignees = assignedUsers.slice(0, 2);
   const extraAssignees = Math.max(assignedUsers.length - visibleAssignees.length, 0);
@@ -59,15 +59,15 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   {/* 3. CELLA: RESPONSABILE AVATAR (Centrato) */}
   <TableCell className="text-center px-4 py-3">
     <div className="flex items-center justify-center">
-      <Tooltip>
-        <UserAvatar 
-            user={creator} 
-            colorIndex={project.id}
-            // className={`${colorClass} font-semibold`} 
-            size="md" 
-          />
+      <Tooltip key={creator?.id ?? project.manager_id}>
+         <TooltipTrigger>
+          <div>
+            <UserAvatar user={creator}  colorIndex={project.id} size="md" />
+          </div>
+          </TooltipTrigger>
+    
         <TooltipContent className="px-3 py-2 text-xs font-medium">
-          <span className="whitespace-nowrap">Creato da: {creator ? getFullName(creator) : getCreatorName(project, users)}</span>
+          <span className="whitespace-nowrap">{creator ? getFullName(creator) : getCreatorName(project, users)} </span>
         </TooltipContent> 
       </Tooltip>
     </div>
@@ -121,8 +121,8 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   </TableCell>
 
   {/* 6. CELLA: ULTIMO AGGIORNAMENTO (Grigio Chiaro, Centrato) */}
-  <TableCell className="text-center px-4 py-3 text-xs text-slate-400 font-medium">
-    {project.last_updated ? formatTableDate(project.last_updated) : "—"}
+  <TableCell className="text-center px-4 py-3 text-sm text-slate-600 font-medium">
+    {project.updated_at ? formatProjectDateTime(project.updated_at) : "—"}
   </TableCell>
 
   {/* 7. CELLA: AZIONI OPERATIVE (Centrato) */}

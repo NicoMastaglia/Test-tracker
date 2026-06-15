@@ -475,7 +475,7 @@ router.put("/:id", checkAdmin, async (req, res) => {
         specific: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
       });
     }
-    let updateQuery = "UPDATE project SET name = ?, description = ?, deadline = ?";
+    let updateQuery = "UPDATE project SET name = ?, description = ?, deadline = ?, updated_at = NOW()";
     let queryParams = [trimmedName, trimmedDescription, finalDeadline];
 
     if (req.user.role === "superadmin") {
@@ -544,17 +544,17 @@ router.patch("/:id/status", checkAdmin, async (req, res) => {
     let result;
     if (trimmedStatus === "Attivo") {
       [result] = await db.execute(
-        "UPDATE project SET status = ?, started_at = IFNULL(started_at, NOW()) WHERE id = ?",
+        "UPDATE project SET status = ?, started_at = IFNULL(started_at, NOW()), updated_at = NOW() WHERE id = ?",
         [trimmedStatus, projectId]
       );
     } else if (trimmedStatus === "Completato") {
       [result] = await db.execute(
-        "UPDATE project SET status = ?, completed_at = NOW() WHERE id = ?",
+        "UPDATE project SET status = ?, completed_at = NOW(), updated_at = NOW() WHERE id = ?",
         [trimmedStatus, projectId]
       );
     } else {
       [result] = await db.execute(
-        "UPDATE project SET status = ? WHERE id = ?",
+        "UPDATE project SET status = ?, updated_at = NOW() WHERE id = ?",
         [trimmedStatus, projectId]
       );
     }
@@ -579,7 +579,10 @@ router.post("/:id/assign", checkAdmin, (req, res) => {
     "INSERT INTO project_assignment (project_id, user_id) VALUES (?, ?)",
     [projectId, userId],
   )
-    .then(([result]) => {
+    .then(() =>
+      db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId])
+    )
+    .then(() => {
       return res
         .status(200)
         .json({ message: "Utente assegnato al progetto con successo" });
@@ -620,10 +623,11 @@ router.delete("/:id/assign", checkAdmin, (req, res) => {
     "DELETE FROM project_assignment WHERE project_id = ? AND user_id = ?",
     [projectId, userId],
   )
-    .then(([result]) => {
+    .then(async ([result]) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: "Assegnazione non trovata" });
       }
+      await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
       return res
         .status(200)
         .json({ message: "Assegnazione utente rimossa con successo" });

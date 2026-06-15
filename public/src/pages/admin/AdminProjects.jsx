@@ -21,6 +21,7 @@ const AdminProjects = () => {
     name: "",
     description: "",
     responsabile: "",
+    deadline: "",
   });
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const AdminProjects = () => {
         name: "",
         description: "",
         responsabile: "",
+        deadline: "",
       });
     }
   }, [modalOpen]);
@@ -47,9 +49,9 @@ const AdminProjects = () => {
     const newProject = {
       name: formData.name,
       description: formData.description,
-      // DA INTEGRARE LATO BE
-      responsabile: formData.responsabile,
-    }; 
+      manager_id: formData.responsabile,
+      deadline: formData.deadline || null,
+    };
 
     try {
       await addProject(newProject);
@@ -60,6 +62,7 @@ const AdminProjects = () => {
       name: "",
       description: "",
       responsabile: "",
+      deadline: "",
     });
     setModalOpen(false);
   }
@@ -136,6 +139,7 @@ const AdminProjects = () => {
               name: "",
               description: "",
               responsabile: "",
+              deadline: "",
             })}
             title="Nuovo Progetto"
             infos="Inserisci le informazioni di base per il nuovo progetto."
