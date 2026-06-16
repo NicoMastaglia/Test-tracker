@@ -4,6 +4,7 @@ import { Folder, Users, PlayCircle, CheckCircle, ArrowUpRight, ArrowRight, Shiel
 import { Button } from "@/Components/ui/button";
 import { useUserContext } from "@/context/User/UserContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
+import { useSessionContext } from "@/context/Session/SessionContext";
 import {useAuthContext}  from "@/context/Auth/AuthContext";
 import {KpiCard} from "@/utils/components/KpiCard";
 import WelcomeCard from "./WelcomeCard";
@@ -12,35 +13,45 @@ import WelcomeCard from "./WelcomeCard";
 const SuperAdminDashboard = ({navigate}) => {
   const { fetchUsers, users } = useUserContext();
   const { fetchProjects, projects } = useProjectContext();
+  const { sessions, fetchSessions } = useSessionContext();
   const { user } = useAuthContext();
 
 
   useEffect(() => {
+    // il superadmin vede tutto: tutti i progetti, utenti e sessioni
     fetchUsers();
     fetchProjects();
+    fetchSessions();
   },[]);
+
+  const projectList = projects || [];
+  const sessionList = sessions || [];
+
+  const activeProjects = projectList.filter((p) => p.status === "Attivo").length;
+  const sessionsInProgress = sessionList.filter((s) => s.status === "In corso").length;
+  const sessionsDone = sessionList.filter((s) => s.status === "Completata").length;
 
   const kpiItems = [
     {
       title: "Progetti Attivi",
-      value: projects.filter(p => p.stato !== 'completed').length.toString(),
+      value: activeProjects.toString(),
       icon: Folder,
-      subtext: "progetti non completati",
+      subtext: "progetti con stato Attivo",
       iconClass: "bg-green-100 text-green-600",
 
     },
     {
       title: "Sessioni in Corso",
-      value: "0",
+      value: sessionsInProgress.toString(),
       icon: PlayCircle,
       subtext: "sessioni attive adesso",
       iconClass: "bg-emerald-100 text-emerald-600",
     },
     {
       title: "Sessioni finite",
-      value: "0",
+      value: sessionsDone.toString(),
       icon: CheckCircle,
-      subtext: "sessioni concluse oggi",
+      subtext: "sessioni concluse",
       iconClass: "bg-amber-100 text-amber-600",
     },
     {
@@ -58,22 +69,25 @@ const SuperAdminDashboard = ({navigate}) => {
       description: "Esplora e gestisci tutti i progetti attivi",
       icon: Folder,
       iconClass: "bg-green-100 text-green-600",
-      path: "/admin/projects"
-
+      path: "/admin/projects",
+      disabled: false,
     },
     {
       title: "Gestisci utenti",
       description: "Assegna ruoli e permessi agli amministratori",
       icon: Users,
       iconClass: "bg-emerald-100 text-emerald-600",
-      path: "/admin/users"
+      path: "/admin/users",
+      disabled: false,
     },
     {
+      // l'audit log non è ancora implementato (rotta /admin/audit-log assente, BE P4)
       title: "Controlla attività",
-      description: "Monitora le attività recenti",
+      description: "Monitora le attività recenti (disponibile a breve)",
       icon: ShieldAlert,
       iconClass: "bg-amber-100 text-amber-600",
-      path: "/admin/audit-log"
+      path: null,
+      disabled: true,
     },
   ];
 
@@ -127,8 +141,9 @@ const SuperAdminDashboard = ({navigate}) => {
                 <button
                   key={action.title}
                   type="button"
-                  className="cursor-pointer group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
-                  onClick={() => navigate(action.path)}
+                  disabled={action.disabled}
+                  className="cursor-pointer group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => action.path && navigate(action.path)}
 
                 >
                   <div className="flex min-w-0 items-start gap-3">

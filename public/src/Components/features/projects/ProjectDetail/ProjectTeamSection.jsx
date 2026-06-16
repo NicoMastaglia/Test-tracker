@@ -194,12 +194,6 @@ const ProjectTeamSection = ({
           <SummaryRow label="Responsabile">
             {selectedProject?.created_by ? getFullName(selectedProject.created_by) : <NotAvailable />}
           </SummaryRow>
-          <SummaryRow label="Task completati dal team">
-            <NotAvailable />
-          </SummaryRow>
-          <SummaryRow label="Ultima attività del team">
-            <NotAvailable />
-          </SummaryRow>
         </div>
       </div>
     </div>

@@ -179,6 +179,7 @@ const ProjectTable = ({ data, users = [] }) => {
       
       {/* Tutti gli altri centrati per bilanciare i badge e gli avatar */}
       <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Stato</TableHead>
+      <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Creatore</TableHead>
       <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Responsabile</TableHead>
       <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Team</TableHead>
       <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Deadline</TableHead>

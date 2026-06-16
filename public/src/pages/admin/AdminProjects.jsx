@@ -9,7 +9,8 @@ import { useUserContext } from "@/context/User/UserContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import {toast} from "sonner"
 import {getFullName} from "@/utils/helpers/tableHelpers"
-import {Plus} from "lucide-react"
+import {Plus, Folder, PlayCircle, PauseCircle, CheckCircle2} from "lucide-react"
+import StatsCardsRow from "@/utils/components/StatsCardsRow"
 const AdminProjects = () => {
   const { projects, addProject, fetchProjects } = useProjectContext();
   const { users, fetchUsers } = useUserContext();
@@ -46,6 +47,21 @@ const AdminProjects = () => {
   const handleAddProject = async () => {
     if (user?.role !== "admin" && user?.role !== "superadmin") return;
 
+    if (!formData.name || !formData.description || !formData.responsabile) {
+      toast.error("Per favore, compila tutti i campi obbligatori");
+      return;
+    }
+
+    if (formData.deadline && isNaN(Date.parse(formData.deadline))) {
+      toast.error("La data di scadenza non è valida");
+      return;
+    }
+
+    if (formData.deadline && new Date(formData.deadline) < new Date()) {
+      toast.error("La data di scadenza non può essere nel passato");
+      return;
+    }
+
     const newProject = {
       name: formData.name,
       description: formData.description,
@@ -77,6 +93,42 @@ const AdminProjects = () => {
   } 
 
     
+
+  // conteggi di stato dei progetti (admin: i suoi; superadmin: tutti)
+  const projectStats = useMemo(() => {
+    const list = projects || [];
+    const countByStatus = (status) => list.filter((p) => p.status === status).length;
+    return [
+      {
+        label: "Progetti totali",
+        value: list.length,
+        icon: Folder,
+        iconColor: "text-indigo-600",
+        bgIcon: "bg-indigo-100",
+      },
+      {
+        label: "Attivi",
+        value: countByStatus("Attivo"),
+        icon: PlayCircle,
+        iconColor: "text-emerald-600",
+        bgIcon: "bg-emerald-100",
+      },
+      {
+        label: "In pausa",
+        value: countByStatus("In pausa"),
+        icon: PauseCircle,
+        iconColor: "text-amber-600",
+        bgIcon: "bg-amber-100",
+      },
+      {
+        label: "Completati",
+        value: countByStatus("Completato"),
+        icon: CheckCircle2,
+        iconColor: "text-blue-600",
+        bgIcon: "bg-blue-100",
+      },
+    ];
+  }, [projects]);
 
   const filteredProjects = useMemo(() => {
     if (!search) return projects;
@@ -120,6 +172,9 @@ const AdminProjects = () => {
   return (
     <AppLayout page="projects">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+        {/* Box riepilogo stato progetti (admin: i suoi; superadmin: tutti) */}
+        <StatsCardsRow stats={projectStats} />
+
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar
             search={search}

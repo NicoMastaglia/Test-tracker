@@ -7,8 +7,6 @@ import {
   ClipboardList,
   ListChecks,
   Users,
-  Activity,
-  PieChart,
 } from "lucide-react";
 import { Badge } from "@/Components/ui/badge";
 import UserAvatar from "@/utils/components/UserAvatar";
@@ -61,20 +59,6 @@ const StatBox = ({ label, value, icon, iconColor, bgIcon }) => {
   );
 };
 
-// Card placeholder per le sezioni non ancora collegate al backend (audit log e progresso task)
-const PlaceholderCard = ({ title, icon, message, className = "" }) => {
-  const Icon = icon;
-
-  return (
-    <SectionCard title={title} className={className}>
-      <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center">
-        <Icon className="h-6 w-6 text-slate-300" />
-        <p className="text-sm font-medium text-slate-500">{message}</p>
-        <p className="text-xs text-slate-400">{NOT_AVAILABLE}</p>
-      </div>
-    </SectionCard>
-  );
-};
 
 // Card "Informazioni generali": dati anagrafici e di stato del progetto
 const GeneralInfoCard = ({ selectedProject, creator,responsabile }) => (
@@ -208,27 +192,16 @@ const SummaryCard = ({ checklistCount, totalTasks, testers }) => (
         iconColor="text-blue-600"
         bgIcon="bg-blue-100"
       />
-      <StatBox
-        label="Task completati"
-        value={<NotAvailable />}
-        icon={CheckCircle2}
-        iconColor="text-emerald-600"
-        bgIcon="bg-emerald-100"
-      />
-      <StatBox
-        label="Sessioni"
-        value={<NotAvailable />}
-        icon={PlayCircle}
-        iconColor="text-amber-600"
-        bgIcon="bg-amber-100"
-      />
-      <StatBox
-        label="Tester assegnati"
-        value={Array.isArray(testers) ? testers.length : <NotAvailable />}
-        icon={Users}
-        iconColor="text-violet-600"
-        bgIcon="bg-violet-100"
-      />
+      {/* "Tester assegnati" solo se il BE fornisce la lista (admin/superadmin); il tester non la riceve */}
+      {Array.isArray(testers) && (
+        <StatBox
+          label="Tester assegnati"
+          value={testers.length}
+          icon={Users}
+          iconColor="text-violet-600"
+          bgIcon="bg-violet-100"
+        />
+      )}
     </div>
   </SectionCard>
 );
@@ -250,19 +223,6 @@ const ProjectOverviewSection = ({ projectInfoItems, selectedProject, checklistIt
         <GeneralInfoCard selectedProject={selectedProject} creator={creator} responsabile={responsabile} />
         <TimelineCard projectInfoItems={projectInfoItems} />
         <SummaryCard checklistCount={checklistCount} totalTasks={totalTasks} testers={testers} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <PlaceholderCard
-          title="Attività recenti"
-          icon={Activity}
-          message="Il log delle attività recenti non è ancora collegato."
-        />
-        <PlaceholderCard
-          title="Progresso attività"
-          icon={PieChart}
-          message="I dati sull'avanzamento dei task non sono ancora disponibili."
-        />
       </div>
     </div>
   );

@@ -25,7 +25,8 @@ const UserProjectsTable = ({ data = [], handleProjectDetail }) => (
         <TableRow className="bg-slate-50/70 hover:bg-slate-50/70">
           <TableHead className="text-slate-700 font-semibold text-sm text-left px-4 py-3">Progetto</TableHead>
           <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Stato</TableHead>
-          <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Creato da</TableHead>
+          <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Creatore</TableHead>
+          <TableHead className="text-slate-700 font-semibold text-sm text-center px-4 py-3">Responsabile</TableHead>
           <TableHead className="text-slate-700 font-semibold text-sm text-left px-4 py-3">Descrizione</TableHead>
         </TableRow>
       </TableHeader>
@@ -75,7 +76,24 @@ const UserProjectsTable = ({ data = [], handleProjectDetail }) => (
                   </div>
                 </TableCell>
 
-                {/* 4. CELLA: DESCRIZIONE */}
+                {/* 4. CELLA: RESPONSABILE */}
+                <TableCell className="px-4 py-3">
+                  {project.manager ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <UserAvatar user={project.manager} colorIndex={project.id} size="md" />
+                      <div className="min-w-0 text-left">
+                        <p className="font-medium text-sm text-slate-900">
+                          {getFullName(project.manager)}
+                        </p>
+                        <p className="truncate text-xs text-slate-400">Responsabile</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-center text-xs text-slate-400 font-medium">—</p>
+                  )}
+                </TableCell>
+
+                {/* 5. CELLA: DESCRIZIONE */}
                 <TableCell className="max-w-140 px-4 py-3 text-left text-sm text-slate-500">
                   <p className="line-clamp-2">
                     {project.description || "Nessuna descrizione disponibile."}
@@ -86,7 +104,7 @@ const UserProjectsTable = ({ data = [], handleProjectDetail }) => (
           })
         ) : (
           <TableRow>
-            <TableCell colSpan={4} className="h-32 text-center text-slate-400 text-sm font-medium">
+            <TableCell colSpan={5} className="h-32 text-center text-slate-400 text-sm font-medium">
               Nessun progetto assegnato trovato.
             </TableCell>
           </TableRow>

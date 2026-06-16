@@ -50,6 +50,7 @@ const ProjectDetail = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({ name: "", description: "", deadline: "" });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [completeModalOpen, setCompleteModalOpen] = useState(false);
 
    const [searchUser, setSearchUser] = useState("");
 
@@ -170,10 +171,8 @@ const ProjectDetail = () => {
     }
   };
 
-  // cambio stato separato dalla modifica: parte dal dropdown "Cambia stato" nell'header
-  const handleChangeProjectStatus = async (status) => {
-    if (!projectId || !status || status === selectedProject?.status) return;
-
+  // esegue davvero il cambio di stato
+  const performStatusChange = async (status) => {
     try {
       await updateProjectStatus(Number(projectId), status);
       await fetchProjectDetails(Number(projectId));
@@ -182,6 +181,22 @@ const ProjectDetail = () => {
       const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante il cambio di stato del progetto";
       toast.error(message);
     }
+  };
+
+  // cambio stato separato dalla modifica: parte dal dropdown "Cambia stato" nell'header.
+  // Per "Completato" chiediamo conferma (è un'azione finale: non si torna indietro e disabilita le modifiche).
+  const handleChangeProjectStatus = (status) => {
+    if (!projectId || !status || status === selectedProject?.status) return;
+    if (status === "Completato") {
+      setCompleteModalOpen(true);
+      return;
+    }
+    performStatusChange(status);
+  };
+
+  const handleConfirmComplete = async () => {
+    await performStatusChange("Completato");
+    setCompleteModalOpen(false);
   };
 
   const handleDeleteProject = async () => {
@@ -297,7 +312,7 @@ const ProjectDetail = () => {
               onDeleteProject={() => setDeleteModalOpen(true)}
             />
 
-            {activeSection === "overview" ? (
+            {!isAdmin || activeSection === "overview" ? (
               <ProjectOverviewSection
                 projectInfoItems={projectInfoItems}
                 selectedProject={selectedProject}
@@ -305,7 +320,7 @@ const ProjectDetail = () => {
               />
             ) : null}
 
-            {activeSection === "checklist" ? (
+            {isAdmin && activeSection === "checklist" ? (
               <ChecklistSection projectId={projectId} isAdmin={isAdmin} />
             ) : null}
 
@@ -336,6 +351,26 @@ const ProjectDetail = () => {
           </div>
         )}
       </div>
+
+      <ModalForm
+        modalOpen={completeModalOpen}
+        setModalOpen={setCompleteModalOpen}
+        title="Completa progetto"
+        infos="Stai per impostare il progetto su “Completato”."
+        hasDescripion={true}
+        description={(
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            È un'azione finale: il progetto non sarà più modificabile e non si potrà tornare allo stato precedente. Confermi?
+          </div>
+        )}
+        onSubmit={handleConfirmComplete}
+        submitLabel="Completa progetto"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Flag}
+        iconColor="text-emerald-500"
+        submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
+      />
 
       <ModalForm
         modalOpen={!!removeUserTarget}

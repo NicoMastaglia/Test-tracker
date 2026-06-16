@@ -15,7 +15,7 @@ const ChecklistDetail = () => {
   const { id, checklistId } = useParams();
   const navigate = useNavigate();
 
-  const { checklistItems, selectedChecklist, fetchChecklistsByProject, clearChecklist, updateChecklist, removeChecklist, addChecklistItem } = useChecklistContext();
+  const { checklistItems, selectedChecklist, fetchChecklistsByProject, clearChecklist, updateChecklist, removeChecklist, addChecklistItem, updateChecklistItem, removeChecklistItem } = useChecklistContext();
   const { selectedProject, fetchProjectDetails, clearSelectedProject } = useProjectContext();
   const { user } = useAuthContext();
 
@@ -26,6 +26,9 @@ const ChecklistDetail = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
   const [addTaskFormData, setAddTaskFormData] = useState({ description: "" });
+  const [editTaskTarget, setEditTaskTarget] = useState(null);
+  const [editTaskFormData, setEditTaskFormData] = useState({ description: "" });
+  const [deleteTaskTarget, setDeleteTaskTarget] = useState(null);
 
   // il BE restituisce le checklist GIÀ raggruppate (con items): basta trovare quella giusta
   const checklist = useMemo(() => {
@@ -50,8 +53,9 @@ const ChecklistDetail = () => {
     };
   }, [id]);
 
-  const projectsPath = isAdmin ? "/admin/projects" : "/user/projects";
-  const projectPath  = isAdmin ? `/admin/projects/${id}` : `/user/projects/${id}`;
+  // Solo admin/superadmin raggiungono il dettaglio checklist: path sempre su /admin
+  const projectsPath = "/admin/projects";
+  const projectPath  = `/admin/projects/${id}`;
   const projectLabel = selectedProject?.name ?? `Progetto #${id}`;
 
   const goBackToChecklist = () =>
@@ -78,16 +82,37 @@ const ChecklistDetail = () => {
     }
   };
 
-  const handleViewTask = () => {
-    toast.info("Funzionalità di visualizzazione task non ancora disponibile.");
+  const handleOpenEditTaskModal = (task) => {
+    setEditTaskTarget(task);
+    setEditTaskFormData({ description: task?.description ?? "" });
   };
 
-  const handleEditTask = () => {
-    toast.info("Funzionalità di modifica task non ancora disponibile.");
+  const handleEditTask = async () => {
+    if (!editTaskTarget?.item_id) return;
+    if (editTaskFormData.description.trim() === "") {
+      toast.error("La descrizione del task non può essere vuota");
+      return;
+    }
+    try {
+      await updateChecklistItem(editTaskTarget.item_id, { description: editTaskFormData.description.trim() });
+      await fetchChecklistsByProject(id);
+      toast.success("Task modificato con successo");
+      setEditTaskTarget(null);
+    } catch {
+      toast.error("Errore durante la modifica del task");
+    }
   };
 
-  const handleDeleteTask = () => {
-    toast.info("Funzionalità di eliminazione task non ancora disponibile.");
+  const handleDeleteTask = async () => {
+    if (!deleteTaskTarget?.item_id) return;
+    try {
+      await removeChecklistItem(deleteTaskTarget.item_id);
+      await fetchChecklistsByProject(id);
+      toast.success("Task eliminato con successo");
+      setDeleteTaskTarget(null);
+    } catch {
+      toast.error("Errore durante l'eliminazione del task");
+    }
   };
 
   const handleOpenEditChecklistModal = () => {
@@ -105,11 +130,6 @@ const ChecklistDetail = () => {
     } catch {
       toast.error("Errore durante la modifica della checklist");
     }
-  };
-
-  // placeholder: il BE non espone ancora uno stato per le checklist
-  const handleChangeChecklistStatus = () => {
-    toast.info("Cambio stato non ancora disponibile: campo non presente nel backend.");
   };
 
   const handleDeleteChecklist = async () => {
@@ -167,11 +187,9 @@ const ChecklistDetail = () => {
             project={selectedProject}
             isAdmin={isAdmin}
             handleAdd={handleOpenAddTaskModal}
-            handleView={handleViewTask}
-            handleEdit={handleEditTask}
-            handleDelete={handleDeleteTask}
+            handleEdit={handleOpenEditTaskModal}
+            handleDelete={(task) => setDeleteTaskTarget(task)}
             onEditChecklist={handleOpenEditChecklistModal}
-            onChangeChecklistStatus={handleChangeChecklistStatus}
             onDeleteChecklist={() => setDeleteModalOpen(true)}
           />
         ) : (
@@ -196,6 +214,43 @@ const ChecklistDetail = () => {
         cancelLabel="Annulla"
         titleIcon={Pencil}
         iconColor="text-emerald-500"
+      />
+
+      <ModalForm
+        modalOpen={!!editTaskTarget}
+        setModalOpen={(open) => { if (!open) setEditTaskTarget(null); }}
+        title="Modifica task"
+        infos="Aggiorna la descrizione del task."
+        fields={[
+          { name: "description", label: "Descrizione task", type: "textarea", rows: 3, placeholder: "Descrivi il task da testare" },
+        ]}
+        formData={editTaskFormData}
+        setFormData={setEditTaskFormData}
+        onSubmit={handleEditTask}
+        submitLabel="Salva modifiche"
+        cancelLabel="Annulla"
+        titleIcon={Pencil}
+        iconColor="text-emerald-500"
+      />
+
+      <ModalForm
+        modalOpen={!!deleteTaskTarget}
+        setModalOpen={(open) => { if (!open) setDeleteTaskTarget(null); }}
+        title="Elimina task"
+        infos="Questa azione è irreversibile: il task verrà eliminato definitivamente."
+        hasDescripion={true}
+        description={(
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+            <p className="font-medium text-slate-900">{deleteTaskTarget?.description || "Task senza descrizione"}</p>
+          </div>
+        )}
+        onSubmit={handleDeleteTask}
+        submitLabel="Elimina task"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Trash2}
+        iconColor="text-red-500"
+        submitVariant="destructive"
       />
 
       <ModalForm

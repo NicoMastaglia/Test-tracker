@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, ListChecks, CheckCircle2, PieChart } from "lucide-react";
+import { ClipboardList, ListChecks } from "lucide-react";
 import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
 import ActionBar from "@/utils/components/ActionBar";
 import ModalForm from "@/utils/components/ModalForm";
 import ChecklistTable from "./ChecklistTable";
 import StatsCardsRow from "@/utils/components/StatsCardsRow";
-import { NotAvailable } from "@/utils/components/Placeholder";
 import { checklistFields } from "@/utils/fields/checklistFields";
 import { toast } from "sonner";
 
@@ -104,20 +103,6 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
       icon: ListChecks,
       iconColor: "text-blue-600",
       bgIcon: "bg-blue-100",
-    },
-    {
-      label: "Task completate",
-      value: <NotAvailable />,
-      icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      bgIcon: "bg-emerald-100",
-    },
-    {
-      label: "Completamento medio",
-      value: <NotAvailable />,
-      icon: PieChart,
-      iconColor: "text-amber-600",
-      bgIcon: "bg-amber-100",
     },
   ];
 

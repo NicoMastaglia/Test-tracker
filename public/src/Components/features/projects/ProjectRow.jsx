@@ -17,7 +17,8 @@ import {  uppercaseFirstLetter  } from "@/utils/helpers/tableHelpers";
 
 const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowClick, openEditDialog, openStatusDialog, setDeleteProjectTarget,colorClass }) => {
   const canOpenProjectDetail = isAdmin || isSuperadmin;
-  const creator = project.manager
+  const creator = project.created_by;   // chi ha creato il progetto
+  const responsabile = project.manager; // responsabile (può differire dal creatore)
   const assignedUsers = Array.isArray(project.user_list) ? project.user_list : [];
   const visibleAssignees = assignedUsers.slice(0, 2);
   const extraAssignees = Math.max(assignedUsers.length - visibleAssignees.length, 0);
@@ -56,20 +57,39 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
     </Badge>
   </TableCell>
 
-  {/* 3. CELLA: RESPONSABILE AVATAR (Centrato) */}
+  {/* 3a. CELLA: CREATORE AVATAR (Centrato) */}
   <TableCell className="text-center px-4 py-3">
     <div className="flex items-center justify-center">
-      <Tooltip key={creator?.id ?? project.manager_id}>
-         <TooltipTrigger>
+      <Tooltip key={`creator-${creator?.id ?? project.created_by}`}>
+        <TooltipTrigger>
           <div>
-            <UserAvatar user={creator}  colorIndex={project.id} size="md" />
+            <UserAvatar user={creator} colorIndex={project.id} size="md" />
           </div>
-          </TooltipTrigger>
-    
+        </TooltipTrigger>
         <TooltipContent className="px-3 py-2 text-xs font-medium">
-          <span className="whitespace-nowrap">{creator ? getFullName(creator) : getCreatorName(project, users)} </span>
-        </TooltipContent> 
+          <span className="whitespace-nowrap">{creator ? getFullName(creator) : getCreatorName(project, users)}</span>
+        </TooltipContent>
       </Tooltip>
+    </div>
+  </TableCell>
+
+  {/* 3b. CELLA: RESPONSABILE AVATAR (Centrato) */}
+  <TableCell className="text-center px-4 py-3">
+    <div className="flex items-center justify-center">
+      {responsabile ? (
+        <Tooltip key={`manager-${responsabile?.id ?? project.manager_id}`}>
+          <TooltipTrigger>
+            <div>
+              <UserAvatar user={responsabile} colorIndex={project.id} size="md" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="px-3 py-2 text-xs font-medium">
+            <span className="whitespace-nowrap">{getFullName(responsabile)}</span>
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <span className="text-xs text-slate-400 font-medium">—</span>
+      )}
     </div>
   </TableCell>
 

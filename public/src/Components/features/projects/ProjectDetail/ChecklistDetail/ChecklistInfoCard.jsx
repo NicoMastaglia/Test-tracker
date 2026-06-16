@@ -1,36 +1,16 @@
 import React from "react";
 import { Button } from "@/Components/ui/button";
-import { Badge } from "@/Components/ui/badge";
-import { ClipboardList, ClipboardCheck, Folder, CalendarPlus, User, Clock, Pencil, Trash2 } from "lucide-react";
+import { ClipboardList, ClipboardCheck, Folder, Pencil, Trash2 } from "lucide-react";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-import { getProjectStatusBadgeClass } from "@/utils/helpers/tableHelpers";
-import { NOT_AVAILABLE, NotAvailable } from "@/utils/components/Placeholder";
 import EntityHeaderCard from "@/utils/components/EntityHeaderCard";
-import StatusDropdown from "@/utils/components/StatusDropdown";
-import { CHECKLIST_STATUSES } from "@/utils/helpers/statusFlow";
 
-// Riga di metadati del template checklist: progetto, date e autore (placeholder finché il BE non li espone)
+// Riga di metadati del template checklist (solo i campi realmente disponibili)
 const ChecklistMetaRow = ({ checklist, selectedProject }) => {
   const items = [
     {
       icon: Folder,
       label: "Progetto",
       value: selectedProject?.name ?? `Progetto ${checklist.project_id}`,
-    },
-    {
-      icon: CalendarPlus,
-      label: "Creata il",
-      value: <NotAvailable />,
-    },
-    {
-      icon: User,
-      label: "Creata da",
-      value: <NotAvailable />,
-    },
-    {
-      icon: Clock,
-      label: "Ultimo aggiornamento",
-      value: <NotAvailable />,
     },
   ];
 
@@ -60,7 +40,6 @@ const ChecklistInfoCard = ({
   selectedProject,
   onCreateChecklist,
   onEditChecklist,
-  onChangeStatus,
   onDeleteChecklist,
 }) => {
   const { user } = useAuthContext();
@@ -105,25 +84,10 @@ const ChecklistInfoCard = ({
     <EntityHeaderCard
       icon={ClipboardCheck}
       title={activeChecklist.title}
-      badge={
-        <Badge
-          className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full flex items-center justify-center gap-1.5 ${getProjectStatusBadgeClass(activeChecklist.status ?? NOT_AVAILABLE)}`}
-        >
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-current" />
-          {activeChecklist.status ?? NOT_AVAILABLE}
-        </Badge>
-      }
       description={activeChecklist.description || "Nessuna descrizione"}
       actions={
         isAdmin ? (
           <>
-            {/* Cambio stato separato dalla modifica del titolo (placeholder finché il BE non espone lo stato) */}
-            <StatusDropdown
-              currentStatus={activeChecklist.status}
-              options={CHECKLIST_STATUSES}
-              onSelect={onChangeStatus}
-            />
-
             <Button
               onClick={onEditChecklist}
               className="h-9 gap-2 rounded-lg bg-emerald-500 text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow"

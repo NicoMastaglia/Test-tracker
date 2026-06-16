@@ -30,6 +30,9 @@ const ProjectHeaderCard = ({
   // Il menu "⋮" con l'opzione "Elimina progetto" è visibile solo agli super admin
   const showActions = activeSection === "overview" && isAdmin;
 
+  // un progetto completato non è più modificabile
+  const isCompleted = selectedProject.status === "Completato";
+
   // Solo le transizioni di stato consentite risultano selezionabili nel dropdown
   const allowedStatuses = getAvailableProjectStatuses(selectedProject.status);
   const statusOptions = PROJECT_STATUSES.map((status) => ({
@@ -77,7 +80,9 @@ const ProjectHeaderCard = ({
 
             <Button
               onClick={onEditProject}
-              className="h-9 gap-2 rounded-lg bg-emerald-500 text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow"
+              disabled={isCompleted}
+              title={isCompleted ? "Progetto completato: non modificabile" : undefined}
+              className="h-9 gap-2 rounded-lg bg-emerald-500 text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-emerald-500 disabled:hover:shadow-sm"
             >
               <Pencil className="h-4 w-4" />
               Modifica

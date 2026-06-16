@@ -35,7 +35,7 @@ const SettingsUserSummary = ({ user = {} }) => {
           </div>
           <div className="flex flex-col">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Membro da</p>
-            <p className="text-sm font-medium text-slate-900">{formatProjectDate(user.created_at)}</p>
+            <p className="text-sm font-medium text-slate-900">{formatProjectDate(user.created_at) + " - aggiornare la rotta"}</p>
           </div>
         </div>
       </div>

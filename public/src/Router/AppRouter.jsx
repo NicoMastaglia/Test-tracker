@@ -15,6 +15,8 @@ import ProjectDetail from "@/Components/features/projects/ProjectDetail/ProjectD
 
 import NotFound from "@/pages/auth/NotFound";
 import Settings from "@/pages/shared/Settings";
+
+import Sessions from "@/pages/user/Sessions";
 // import Sessions from "../pages/Sessions";
 // import AdminSessions from "../pages/AdminSessions";
 // import SessionsTests from "../pages/SessionsTests";
@@ -102,16 +104,6 @@ export default function AppRouter() {
           }
         />
 
-
-<Route
-          path="/user/projects/:id/checklist/:checklistId"
-          element={
-            <ProtectedRoute allowedRoles={["user"]}>
-              <ChecklistDetail />
-            </ProtectedRoute>
-          }
-        />
-
         {/* SUPERADMIN ONLY */}
         <Route
           path="/admin/users"
@@ -123,24 +115,17 @@ export default function AppRouter() {
         />
 
         {/* FUTURE SESSIONS */}
-        {/*
-        <Route
+        
+        {/* <Route
           path="/sessions/:id"
           element={
-            <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
+            <ProtectedRoute allowedRoles={["user"]}>
               <SessionsTests />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
-        <Route
-          path="/admin/sessions"
-          element={
-            <ProtectedRoute allowedRoles={["superadmin", "admin"]}>
-              <AdminSessions />
-            </ProtectedRoute>
-          }
-        />
+     
 
         <Route
           path="/sessions-test"
@@ -150,7 +135,7 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-        */}
+       
 
         {/* FALLBACK */}
         <Route path="*" element={<NotFound />} />

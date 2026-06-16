@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
-import { CheckCircle, Folder, PlayCircle, ArrowUpRight, FolderOpen, Clock3, CheckSquare, ChevronRight, Gauge } from "lucide-react";
+import { useSessionContext } from "@/context/Session/SessionContext";
+import { Folder, PlayCircle, FolderOpen, Clock3, ChevronRight, Gauge } from "lucide-react";
 import KpiCard from "@/utils/components/KpiCard";
 import WelcomeCard from "./WelcomeCard";
 
@@ -12,22 +13,17 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const { projects, fetchProjects } = useProjectContext();
+  const { sessions, fetchSessions } = useSessionContext();
 
   useEffect(() => {
+    // per il tester, GET /projects ritorna GIÀ solo i progetti assegnati;
+    // GET /test-sessions (senza projectId) ritorna le sue sessioni.
     fetchProjects();
-    
+    fetchSessions();
   }, []);
-  
 
-  const assignedProjects = useMemo(() => {
-    const currentUserId = Number(user?.id);
-    if (!currentUserId) return [];
-
-    return (projects || []).filter((project) => {
-      const userList = Array.isArray(project.user_list) ? project.user_list : [];
-      return userList.some((assignedUser) => Number(assignedUser.id ?? assignedUser.user_id) === currentUserId);
-    });
-  }, [projects, user?.id]);
+  // i progetti del tester sono già quelli assegnati (filtro lato BE)
+  const assignedProjects = projects || [];
 
   const kpiItems = [
     {
@@ -35,24 +31,12 @@ const UserDashboard = () => {
       value: assignedProjects.length.toString(),
       icon: Folder,
       iconClass: "bg-green-100 text-green-600",
-      // subtext: "Progetti attivi nel tuo workspace.",
-      // subtextColor: "text-muted-foreground",
     },
     {
-      title: "Sessioni",
-      value: "0",
+      title: "Le mie sessioni",
+      value: (sessions?.length ?? 0).toString(),
       icon: PlayCircle,
       iconClass: "bg-emerald-100 text-emerald-600",
-      subtext: "Placeholder: rotta non ancora disponibile.",
-      subtextColor: "text-amber-500",
-    },
-    {
-      title: "Checklist",
-      value: "0",
-      icon: CheckCircle,
-      iconClass: "bg-amber-100 text-amber-600",
-      subtext: "Placeholder: rotta non ancora disponibile.",
-      subtextColor: "text-amber-500",
     },
   ];
 
@@ -66,19 +50,11 @@ const UserDashboard = () => {
       disabled: false,
     },
     {
-      title: "Sessioni in arrivo",
-      description: "Funzionalità disponibile a breve",
+      title: "I miei lavori",
+      description: "Le tue sessioni di test (disponibile a breve)",
       icon: Clock3,
       onClick: null,
       iconClass: "bg-emerald-100 text-emerald-600",
-      disabled: true,
-    },
-    {
-      title: "Checklist in arrivo",
-      description: "Funzionalità disponibile a breve",
-      icon: CheckSquare,
-      onClick: null,
-      iconClass: "bg-amber-100 text-amber-600",
       disabled: true,
     },
   ];

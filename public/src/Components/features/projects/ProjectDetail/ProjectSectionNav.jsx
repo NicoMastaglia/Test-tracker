@@ -15,11 +15,12 @@ const ProjectSectionNav = ({
   counts = {},
   isAdmin,
 }) => {
+  // Il tester vede solo la Panoramica: le checklist/task le consulta dentro le sue sessioni
+  // ("I miei lavori"), non qui.
   const visibleSections = isAdmin
     ? sectionLabels
     : {
         overview: "Panoramica",
-        checklist: "Checklist",
       };
 
   return (

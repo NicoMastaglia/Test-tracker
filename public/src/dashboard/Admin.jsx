@@ -1,61 +1,60 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
-import { Users, Folder, PlayCircle, CheckCircle, ArrowUpRight, ArrowRight, Zap } from "lucide-react";
+import { Folder, PlayCircle, CheckCircle, ArrowRight, Zap } from "lucide-react";
 import { useAuthContext } from "@/context/Auth/AuthContext";
+import { useProjectContext } from "@/context/Project/ProjectContext";
+import { useSessionContext } from "@/context/Session/SessionContext";
 import WelcomeCard from "./WelcomeCard";
 
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
     const { user } = useAuthContext();
+    const { projects, fetchProjects } = useProjectContext();
+    const { sessions, fetchSessions } = useSessionContext();
+
+    useEffect(() => {
+      // per l'admin: GET /projects ritorna i progetti che ha creato,
+      // GET /test-sessions le sessioni di quei progetti.
+      fetchProjects();
+      fetchSessions();
+    }, []);
+
+    const projectList = projects || [];
+    const sessionList = sessions || [];
+
+    const activeProjects = projectList.filter((p) => p.status === "Attivo").length;
+    const sessionsInProgress = sessionList.filter((s) => s.status === "In corso").length;
+
     const statCards = [
       {
         title: "Progetti Attivi",
-        value: "3",
-        trend: "es +2 mese precedente",
+        value: String(activeProjects),
         icon: Folder,
         iconClass: "bg-green-100 text-green-600",
       },
       {
         title: "Sessioni in Corso",
-        value: "5",
-        trend: "numero user attivi atm",
+        value: String(sessionsInProgress),
         icon: PlayCircle,
         iconClass: "bg-emerald-100 text-emerald-600",
       },
       {
-        title: "Checklist aggiornate",
-        value: "4",
-        trend: "...",
+        title: "Sessioni Totali",
+        value: String(sessionList.length),
         icon: CheckCircle,
         iconClass: "bg-amber-100 text-amber-600",
       },
-      // {
-      //   title: "Team Attivo",
-      //   value: "4",
-      //   trend: "non vede tutti quelli del sistema",
-      //   icon: Users,
-      //   iconClass: "bg-violet-100 text-violet-700",
-      // },
     ];
 
     const quickActions = [
       {
         title: "Gestisci Progetti",
-        description: "Visualizza e gestisci tutti i progetti e i relativi tester",
+        description: "Visualizza e gestisci i tuoi progetti e i relativi tester",
         icon: Folder,
         iconClass: "bg-green-100 text-green-600",
-      },
-      {
-        title: "Apri Sessioni",
-        description: "Gestisci le sessioni di testing in corso",
-        icon: PlayCircle,
-        iconClass: "bg-emerald-100 text-emerald-600",
-      },
-      {
-        title: "Apri Checklist Progetto",
-        description: "Accedi alle checklist dei progetti e gestisci le task",
-        icon: CheckCircle,
-        iconClass: "bg-amber-100 text-amber-600",
+        onClick: () => navigate("/admin/projects"),
       },
     ];
 
@@ -67,8 +66,7 @@ const AdminDashboard = () => {
               user={user}
               subtitle="Gestisci progetti, checklist e sessioni del team."
             />
-           
-          
+
              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                {statCards.map((card) => {
                  const Icon = card.icon;
@@ -81,24 +79,17 @@ const AdminDashboard = () => {
                        </div>
 
                        <div className="min-w-0 flex flex-col items-start text-left gap-3">
-
                          <p className="mt-1 text-sm text-slate-500">{card.title}</p>
-                           <p className="text-[30px] leading-none text-slate-900">{card.value}</p>
-                         <p className="mt-2 flex items-center gap-1 text-xs text-green-600">
-                           <ArrowUpRight className="h-3.5 w-3.5" />
-                           {card.trend}
-                         </p>
+                         <p className="text-[30px] leading-none text-slate-900">{card.value}</p>
                        </div>
                      </CardContent>
                    </Card>
                  );
                })}
              </div>
-       
-             {/* Sezione Attività Recente o Progetti Prioritari */}
+
+             {/* Azioni rapide */}
              <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7 mt-6">
-                
-                
                  <Card className="col-span-full border-slate-200 bg-white shadow-sm">
                    <CardHeader className="pb-4">
                      <CardTitle className="flex items-center gap-2 text-slate-900">
@@ -114,6 +105,7 @@ const AdminDashboard = () => {
                          <button
                            key={action.title}
                            type="button"
+                           onClick={action.onClick}
                            className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
                          >
                            <div className="flex min-w-0 items-start gap-3">
@@ -135,10 +127,8 @@ const AdminDashboard = () => {
                 </Card>
              </div>
            </div>
-              
+
     )
 }
 
 export default AdminDashboard;
-
-
