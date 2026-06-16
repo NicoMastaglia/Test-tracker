@@ -85,8 +85,9 @@ router.get("/", checkUser, (req, res) => {
        LEFT JOIN user mu ON p.manager_id = mu.id
        LEFT JOIN project_assignment pa ON p.id = pa.project_id
        LEFT JOIN user tu ON pa.user_id = tu.id
-       WHERE p.created_by = ?`,
-        [req.user.id],
+       WHERE p.created_by = ? OR p.manager_id = ?`,
+        [req.user.id, req.user.id],
+       
       )
       .then(([results]) => {
         const projectMap = new Map();
@@ -336,8 +337,8 @@ router.get("/:id", checkUser, (req, res) => {
        LEFT JOIN user mu ON p.manager_id = mu.id
        LEFT JOIN project_assignment pa ON p.id = pa.project_id
        LEFT JOIN user tu ON pa.user_id = tu.id
-       WHERE p.id = ? AND p.created_by = ?`,
-        [projectId, req.user.id],
+       WHERE p.created_by = ? OR p.manager_id = ?`,
+        [req.user.id, req.user.id],
       )
       .then(([results]) => {
         const projectMap = new Map();
@@ -490,8 +491,8 @@ router.put("/:id", checkAdmin, async (req, res) => {
       updateQuery += " WHERE id = ?";
       queryParams.push(projectId);
     } else {
-      updateQuery += " WHERE id = ? AND created_by = ?";
-      queryParams.push(projectId, req.user.id);
+      updateQuery += " WHERE id = ? AND (created_by = ? OR manager_id = ?)";
+      queryParams.push(projectId, req.user.id, req.user.id);
     }
     const [result] = await db.execute(updateQuery, queryParams);
 
@@ -530,9 +531,14 @@ router.patch("/:id/status", checkAdmin, async (req, res) => {
   };
 
   try {
-    const [rows] = await db.execute("SELECT status FROM project WHERE id = ?", [projectId]);
+    const [rows] = await db.execute("SELECT status, created_by, manager_id FROM project WHERE id = ?", [projectId]);
     if (rows.length === 0) {
       return res.status(404).json({ error: "Progetto non trovato" });
+    }
+    // admin può agire solo sui progetti creati da lui o di cui è responsabile; superadmin su tutti
+    if (req.user.role !== "superadmin" &&
+        rows[0].created_by !== req.user.id && rows[0].manager_id !== req.user.id) {
+      return res.status(403).json({ error: "Permessi insufficienti" });
     }
     const currentStatus = rows[0].status;
     if (!ALLOWED[currentStatus] || !ALLOWED[currentStatus].includes(trimmedStatus)) {
@@ -567,7 +573,7 @@ router.patch("/:id/status", checkAdmin, async (req, res) => {
   }
 });
 
-router.post("/:id/assign", checkAdmin, (req, res) => {
+router.post("/:id/assign", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
   const { userId } = req.body;
 
@@ -575,23 +581,23 @@ router.post("/:id/assign", checkAdmin, (req, res) => {
     return res.status(400).json({ error: "Richiesta non valida", message: "L'ID utente è obbligatorio" });
   }
 
-  db.execute(
-    "INSERT INTO project_assignment (project_id, user_id) VALUES (?, ?)",
-    [projectId, userId],
-  )
-    .then(() =>
-      db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId])
-    )
-    .then(() => {
-      return res
-        .status(200)
-        .json({ message: "Utente assegnato al progetto con successo" });
-    })
-    .catch((err) => {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", specific: err.message });
-    });
+  try {
+    const [proj] = await db.execute("SELECT created_by, manager_id FROM project WHERE id = ?", [projectId]);
+    if (!proj.length) {
+      return res.status(404).json({ error: "Progetto non trovato" });
+    }
+    // admin solo sui progetti creati da lui o di cui è responsabile; superadmin su tutti
+    if (req.user.role !== "superadmin" &&
+        proj[0].created_by !== req.user.id && proj[0].manager_id !== req.user.id) {
+      return res.status(403).json({ error: "Permessi insufficienti" });
+    }
+
+    await db.execute("INSERT INTO project_assignment (project_id, user_id) VALUES (?, ?)", [projectId, userId]);
+    await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
+    return res.status(200).json({ message: "Utente assegnato al progetto con successo" });
+  } catch (err) {
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
+  }
 });
 
 router.get("/:id/assign", checkAdmin, (req, res) => {
@@ -611,7 +617,7 @@ router.get("/:id/assign", checkAdmin, (req, res) => {
     });
 });
 
-router.delete("/:id/assign", checkAdmin, (req, res) => {
+router.delete("/:id/assign", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
   const { userId } = req.body;
 
@@ -619,24 +625,29 @@ router.delete("/:id/assign", checkAdmin, (req, res) => {
     return res.status(400).json({ error: "Richiesta non valida", message: "L'ID utente è obbligatorio" });
   }
 
-  db.execute(
-    "DELETE FROM project_assignment WHERE project_id = ? AND user_id = ?",
-    [projectId, userId],
-  )
-    .then(async ([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Assegnazione non trovata" });
-      }
-      await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
-      return res
-        .status(200)
-        .json({ message: "Assegnazione utente rimossa con successo" });
-    })
-    .catch((err) => {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", specific: err.message });
-    });
+  try {
+    const [proj] = await db.execute("SELECT created_by, manager_id FROM project WHERE id = ?", [projectId]);
+    if (!proj.length) {
+      return res.status(404).json({ error: "Progetto non trovato" });
+    }
+    // admin solo sui progetti creati da lui o di cui è responsabile; superadmin su tutti
+    if (req.user.role !== "superadmin" &&
+        proj[0].created_by !== req.user.id && proj[0].manager_id !== req.user.id) {
+      return res.status(403).json({ error: "Permessi insufficienti" });
+    }
+
+    const [result] = await db.execute(
+      "DELETE FROM project_assignment WHERE project_id = ? AND user_id = ?",
+      [projectId, userId],
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Assegnazione non trovata" });
+    }
+    await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
+    return res.status(200).json({ message: "Assegnazione utente rimossa con successo" });
+  } catch (err) {
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
+  }
 });
 
 router.delete("/:id", checkSuperadmin, (req, res) => {
