@@ -337,8 +337,8 @@ router.get("/:id", checkUser, (req, res) => {
        LEFT JOIN user mu ON p.manager_id = mu.id
        LEFT JOIN project_assignment pa ON p.id = pa.project_id
        LEFT JOIN user tu ON pa.user_id = tu.id
-       WHERE p.created_by = ? OR p.manager_id = ?`,
-        [req.user.id, req.user.id],
+       WHERE p.id = ? AND (p.created_by = ? OR p.manager_id = ?)`,
+        [projectId, req.user.id, req.user.id],
       )
       .then(([results]) => {
         const projectMap = new Map();
