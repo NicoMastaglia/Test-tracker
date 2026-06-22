@@ -7,16 +7,27 @@ const db = require("../database/db");
 const { route } = require("express/lib/application");
 
 router.post("/", checkAdmin, async (req, res) => {
-  const { title, project_id } = req.body;
+  const { title, project_id, description } = req.body;
   const createdBy = req.user.id;
 
   const trimmedTitle = title ? title.trim() : "";
+  const trimmedDescription = description ? description.trim() : "";
 
   if (!trimmedTitle) {
-    return res.status(400).json({ error: "Richiesta non valida", message: "Il titolo della checklist non può essere vuoto." });
+    return res
+      .status(400)
+      .json({
+        error: "Richiesta non valida",
+        message: "Il titolo della checklist non può essere vuoto.",
+      });
   }
   if (!project_id) {
-    return res.status(400).json({ error: "Richiesta non valida", message: "Il progetto di riferimento è obbligatorio." });
+    return res
+      .status(400)
+      .json({
+        error: "Richiesta non valida",
+        message: "Il progetto di riferimento è obbligatorio.",
+      });
   }
 
   try {
@@ -25,20 +36,23 @@ router.post("/", checkAdmin, async (req, res) => {
         "SELECT id FROM project WHERE id = ? AND created_by = ?",
         [project_id, createdBy],
       );
+
       if (results.length === 0) {
-        return res.status(403).json({ error: "Accesso negato o progetto non trovato" });
+        return res.status(403).json({ error: "Progetto non trovato" });
       }
     }
 
     const [result] = await db.execute(
-      "INSERT INTO checklist_template (title, project_id) VALUES (?, ?)",
-      [trimmedTitle, project_id],
+      "INSERT INTO checklist_template (title, project_id,createdBy,description) VALUES (?,?,?,?)",
+      [trimmedTitle, project_id, createdBy, trimmedDescription],
     );
 
     res.status(201).json({
       id: result.insertId,
       title: trimmedTitle,
       project_id,
+      createdBy,
+      description: trimmedDescription,
     });
   } catch (err) {
     res.status(500).json({ error: "Errore del server", specific: err.message });
@@ -47,11 +61,16 @@ router.post("/", checkAdmin, async (req, res) => {
 
 router.put("/:id", checkAdmin, async (req, res) => {
   const checklistId = req.params.id;
-  const { title } = req.body;
+  const { title, description } = req.body;
 
   const trimmedTitle = title ? title.trim() : "";
   if (!trimmedTitle) {
-    return res.status(400).json({ error: "Richiesta non valida", message: "Il titolo è obbligatorio e non può essere vuoto." });
+    return res
+      .status(400)
+      .json({
+        error: "Richiesta non valida",
+        message: "Il titolo è obbligatorio e non può essere vuoto.",
+      });
   }
 
   try {
@@ -137,26 +156,37 @@ router.get("/:projectId", checkUser, (req, res) => {
           title: row.title,
           project_id: row.project_id,
           last_updated: row.last_updated,
+          description: row.checklist_description,
+          created_by: row.created_by,
+          creator: row.created_by
+            ? { nome: row.creator_nome, cognome: row.creator_cognome }
+            : null,
           items: [],
         });
       }
+      // Se c'è un item associato alla checklist, lo aggiungiamo all'array degli items della checklist
+      // (item_description è un alias per description dell'item, così da evitare conflitti con la description della checklist)
       if (row.item_id) {
         checklistMap.get(row.checklist_id).items.push({
           id: row.item_id,
           item_id: row.item_id,
-          description: row.description,
+          description: row.item_description,
           position: row.position,
         });
       }
     });
 
     return Array.from(checklistMap.values());
-  };
+  }; 
 
+ 
+  
+
+  
   if (req.user.role === "superadmin") {
     return db
       .execute(
-        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated, ci.id AS item_id, ci.description, ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id WHERE ct.project_id = ? ",
+        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated, ct.description AS checklist_description,ct.created_by,u.nome AS creator_nome,u.cognome AS creator_cognome,ci.id AS item_id,ci.description AS item_description,ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id  left join user u ON  ct.created_by = u.id WHERE ct.project_id = ? ",
         [projectId],
       )
       .then(([results]) => {
@@ -209,14 +239,19 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
   const trimmedDescription = description ? description.trim() : "";
 
   if (!trimmedDescription) {
-    return res.status(400).json({ error: "Richiesta non valida", message: "La descrizione è obbligatoria e non può essere vuota." });
+    return res
+      .status(400)
+      .json({
+        error: "Richiesta non valida",
+        message: "La descrizione è obbligatoria e non può essere vuota.",
+      });
   }
 
   const [templateResults] = await db.execute(
     "SELECT ct.id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND (p.created_by = ? OR ?)",
     [templateId, req.user.id, req.user.role === "superadmin"],
   );
-
+  
   if (templateResults.length === 0) {
     return res
       .status(403)
@@ -227,6 +262,11 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
     const [result] = await db.execute(
       "INSERT INTO checklist_item (template_id, description) VALUES (?, ?)",
       [templateId, trimmedDescription],
+    );
+
+    await db.execute(
+      "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
+      [templateId],
     );
 
     return res.status(201).json({
@@ -248,7 +288,12 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
   const trimmedDescription = description ? description.trim() : "";
 
   if (!trimmedDescription) {
-    return res.status(400).json({ error: "Richiesta non valida", message: "La nuova descrizione non può essere vuota." });
+    return res
+      .status(400)
+      .json({
+        error: "Richiesta non valida",
+        message: "La nuova descrizione non può essere vuota.",
+      });
   }
 
   try {
@@ -257,18 +302,79 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
       [trimmedDescription, itemId],
     );
 
+    await db.execute(
+  "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
+  [templateId]
+);
+
     if (result.affectedRows > 0) {
-      return res.status(200).json({ message: "Elemento della checklist aggiornato con successo", description: trimmedDescription });
+      return res
+        .status(200)
+        .json({
+          message: "Elemento della checklist aggiornato con successo",
+          description: trimmedDescription,
+        });
     } else {
-      return res.status(404).json({ error: "Elemento della checklist non trovato" });
+      return res
+        .status(404)
+        .json({ error: "Elemento della checklist non trovato" });
     }
   } catch (err) {
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    return res
+      .status(500)
+      .json({ error: "Errore del server", specific: err.message });
   }
 });
 
 router.delete("/item/:id", checkAdmin, async (req, res) => {
   const itemId = req.params.id;
+
+  const [itemResults] = await db.execute(
+  "SELECT ci.id, ct.id AS template_id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
+  [itemId, req.user.id, req.user.role === "superadmin"],
+);
+
+  if (itemResults.length === 0) {
+    return res
+      .status(403)
+      .json({ error: "Accesso negato o elemento della checklist non trovato" });
+  }
+
+  try {
+  const [result] = await db.execute("DELETE FROM checklist_item WHERE id = ?", [itemId]);
+
+    if (result.affectedRows > 0) {
+      await db.execute(
+    "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
+    [itemResults[0].template_id]   // letto prima di cancellare l'item, così da avere il template_id corretto
+  );
+      return res
+        .status(200)
+        .json({ message: "Elemento della checklist eliminato con successo" });
+    } else {
+      return res
+        .status(404)
+        .json({ error: "Elemento della checklist non trovato" });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      error: "Errore del server",
+      specific: err.message,
+    });
+  }
+});
+
+// nuove rotte qui sott0
+
+// assegnazione di una task ad un utente (del team del progetto)
+router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
+  // prendo il parametro id dell'item da assegnare
+  const itemId = req.params.itemId;
+
+  // prendo l'id dell'utente a cui assegnare l'item dal body della richiesta
+  const { userId } = req.body;
+
+  // verifico che l'item esista e che l'utente abbia i permessi per modificarlo (superadmin o admin del progetto)
 
   const [itemResults] = await db.execute(
     "SELECT ci.id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
@@ -281,24 +387,35 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
       .json({ error: "Accesso negato o elemento della checklist non trovato" });
   }
 
+  // verifico che l'utente a cui assegnare l'item esista
+  const [userResults] = await db.execute("SELECT id FROM user WHERE id = ?", [
+    userId,
+  ]);
+
+  if (userResults.length === 0) {
+    return res.status(404).json({ error: "Utente non trovato" });
+  }
+
   try {
+    // aggiorno l'item assegnandolo all'utente
     const [result] = await db.execute(
-      "DELETE FROM checklist_item WHERE id = ?",
-      [itemId],
+      "UPDATE checklist_item SET assigned_to = ? WHERE id = ?",
+      [userId, itemId],
     );
 
     if (result.affectedRows > 0) {
       return res
         .status(200)
-        .json({ message: "Elemento della checklist eliminato con successo" });
+        .json({ message: "Elemento della checklist assegnato con successo" });
     } else {
-      return res.status(404).json({ error: "Elemento della checklist non trovato" });
+      return res
+        .status(404)
+        .json({ error: "Elemento della checklist non trovato" });
     }
   } catch (err) {
-    return res.status(500).json({
-      error: "Errore del server",
-      specific: err.message,
-    });
+    return res
+      .status(500)
+      .json({ error: "Errore del server", specific: err.message });
   }
 });
 

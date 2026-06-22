@@ -11,8 +11,9 @@ import {toast} from "sonner"
 import {getFullName} from "@/utils/helpers/tableHelpers"
 import {Plus, Folder, PlayCircle, PauseCircle, CheckCircle2} from "lucide-react"
 import StatsCardsRow from "@/utils/components/StatsCardsRow"
+import Loader from "@/utils/components/Loader"
 const AdminProjects = () => {
-  const { projects, addProject, fetchProjects } = useProjectContext();
+  const { projects, addProject, fetchProjects, loading } = useProjectContext();
   const { users, fetchUsers } = useUserContext();
   const { user } = useAuthContext();
   const [search, setSearch] = useState("");
@@ -185,7 +186,11 @@ const AdminProjects = () => {
             buttonVariant="emerald"
           />
 
-          <ProjectTable data={filteredProjects} users={users} />
+          {loading && projects.length === 0 ? (
+            <Loader label="Caricamento progetti..." />
+          ) : (
+            <ProjectTable data={filteredProjects} users={users} />
+          )}
 
           <ModalForm
             modalOpen={modalOpen}

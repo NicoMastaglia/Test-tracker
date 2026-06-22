@@ -9,6 +9,7 @@ import ModalForm from "@/utils/components/ModalForm";
 import { getProjectInfoItems } from "@/utils/helpers/projectInfoItems";
 import { projectEditFields } from "@/utils/fields/projectEditFields";
 import { toDateInputValue } from "@/utils/helpers/tableHelpers";
+import Loader from "@/utils/components/Loader";
 import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
 import ProjectTeamSection from "./ProjectTeamSection";
@@ -295,9 +296,7 @@ const ProjectDetail = () => {
         </div>
 
         {loading && !selectedProject ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-            Caricamento dettagli progetto...
-          </div>
+          <Loader label="Caricamento dettagli progetto..." />
         ) : selectedProject ? (
           <div className="flex w-full flex-col gap-6 ">
             <ProjectHeaderCard

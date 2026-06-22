@@ -1,4 +1,4 @@
-import React, { useState,useEffect,useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Shield, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { PswRequirements, PswValidator } from "./PasswordRequirements";
 
@@ -65,9 +65,6 @@ const SettingsSecurity = ({ handleUpdatePassword, handleChange, securityData = {
     validation.hasNumber && 
     validation.hasUppercase && 
     validation.passwordsMatch;
-    useEffect(() => {
-      console.log("Validation State:", validation);
-    }, [validation]);
 
   const isInvalid = !isValid;
 

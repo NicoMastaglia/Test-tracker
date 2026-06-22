@@ -43,9 +43,6 @@ export const UserProvider = ({ children }) => {
     try {
       const token = getToken()
       const data = await updateCurrentUser(token, userData)
-      console.log("Dati aggiornati ricevuti dal server:", data)
-      // syncCurrentUser(data)
-       
 
       // in atessa che la res di login passi con i campi in ita
       const userToSync ={
@@ -58,7 +55,6 @@ export const UserProvider = ({ children }) => {
     
      
       await fetchUsers()
-  console.log("Utente sincronizzato:", userToSync)
       syncCurrentUser(userToSync)
       return data
     } catch (error) {

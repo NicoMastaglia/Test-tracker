@@ -1,4 +1,4 @@
-import React,{useEffect}from "react";
+import React from "react";
 import { User, Save } from "lucide-react";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { getRoleInfo } from "@/utils/helpers/tableHelpers";
@@ -37,15 +37,8 @@ const SettingsProfile = ({ profileData = {}, handleSave, handleChange}) => {
   const { user } = useAuthContext();
   const isUnchanged = 
     profileData.nome === user.name &&
-    profileData.cognome === user.surname && 
+    profileData.cognome === user.surname &&
     profileData.email === user.email;
-
-    useEffect(() => {
-
-console.log("Profile Data:", profileData);
-console.log("User Data:", user);
-    },[])
-  
 
   return (
     <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col justify-between w-full max-w-xl h-full">

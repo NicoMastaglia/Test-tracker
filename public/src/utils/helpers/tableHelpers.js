@@ -201,3 +201,30 @@ export const formatProjectDateTime = (value) => {
     ? String(value) 
     : new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeStyle: "short" }).format(parsed);
 };
+
+
+// confrontiamo la data corrente con quella di modifica
+// per dare un dato aggiornato es 1 min fa,2 ore fa,ora etcc
+
+export const getRelativeTime = (date) => {
+  const now = new Date();
+  const past = new Date(date);
+  const diffInSeconds = Math.floor((now - past) / 1000);
+
+  if (diffInSeconds < 60) {
+    return "Ora";
+  }
+  if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `${minutes} min fa`;
+  }
+  if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `${hours} ore fa`;
+  }
+  const days = Math.floor(diffInSeconds / 86400);
+  return `${days} giorni fa`;
+  
+
+
+}

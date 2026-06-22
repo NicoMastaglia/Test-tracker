@@ -10,6 +10,7 @@ import { isEmailValid } from "@/utils/helpers/validators";
 import ModalForm from "@/utils/components/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
 import KpiCard from "@/utils/components/KpiCard";
+import Loader from "@/utils/components/Loader";
 import { UserPlus, Users as UsersIcon, ShieldCheck, ShieldAlert, User } from "lucide-react"
 
 const Users = () => {
@@ -22,7 +23,7 @@ const Users = () => {
   };
 
   const [token] = useState(localStorage.getItem("auth_token"));
-  const { users, fetchUsers } = useUserContext();
+  const { users, fetchUsers, loading } = useUserContext();
   const [newUserData, setNewUserData] = useState(emptyNewUserData);
   const [modal, setModal] = useState(false);
   const [search, setSearch] = useState("");
@@ -117,7 +118,11 @@ const Users = () => {
             buttonVariant="emerald"
           />
 
-          <ManageUsers data={filterUsers} />
+          {loading && users.length === 0 ? (
+            <Loader label="Caricamento utenti..." />
+          ) : (
+            <ManageUsers data={filterUsers} />
+          )}
 
           <ModalForm
             modalOpen={modal}

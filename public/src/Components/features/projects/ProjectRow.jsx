@@ -14,6 +14,7 @@ import {
 } from "@/utils/helpers/tableHelpers";
 import UserAvatar from "@/utils/components/UserAvatar";
 import {  uppercaseFirstLetter  } from "@/utils/helpers/tableHelpers";
+import   {getRelativeTime}  from "@/utils/helpers/tableHelpers";
 
 const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowClick, openEditDialog, openStatusDialog, setDeleteProjectTarget,colorClass }) => {
   const canOpenProjectDetail = isAdmin || isSuperadmin;
@@ -142,7 +143,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
 
   {/* 6. CELLA: ULTIMO AGGIORNAMENTO (Grigio Chiaro, Centrato) */}
   <TableCell className="text-center px-4 py-3 text-sm text-slate-600 font-medium">
-    {project.updated_at ? formatProjectDateTime(project.updated_at) : "—"}
+    {project.updated_at ?  getRelativeTime(project.updated_at) : "nessun aggiornamento"}
   </TableCell>
 
   {/* 7. CELLA: AZIONI OPERATIVE (Centrato) */}

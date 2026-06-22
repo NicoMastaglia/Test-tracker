@@ -57,7 +57,6 @@ const ProjectTable = ({ data, users = [] }) => {
 
 
   const handleUpdateProject = async () => {
-    console.log('aggiorno progetto')
     if (!isAdmin) {
       toast.error("Solo admin puo modificare un progetto");
       return;

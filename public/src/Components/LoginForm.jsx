@@ -33,12 +33,9 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
           {/* Campo Password */}
           <div className="grid gap-2">
             <div className="flex items-center justify-between ml-1">
-              <Label htmlFor="password" university className="text-sm font-medium text-slate-900">
+              <Label htmlFor="password" className="text-sm font-medium text-slate-900">
                 Password
               </Label>
-              <a href="#" className="text-xs text-emerald-600 hover:underline">
-                Password dimenticata?
-              </a>
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

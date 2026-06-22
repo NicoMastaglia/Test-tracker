@@ -19,23 +19,23 @@ const SettingsUserSummary = ({ user = {} }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 p-6">
+        <div className="flex items-center gap-4 p-6">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
             <Mail size={18} />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1.5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Email</p>
             <p className="text-sm font-medium text-slate-900">{user.email ?? "—"}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 p-6">
+        <div className="flex items-center gap-4 p-6">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
             <CalendarDays size={18} />
           </div>
-          <div className="flex flex-col">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Membro da</p>
-            <p className="text-sm font-medium text-slate-900">{formatProjectDate(user.created_at) + " - aggiornare la rotta"}</p>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Membro dal</p>
+            <p className="text-sm font-medium text-slate-900">{formatProjectDate(user.created_at) }</p>
           </div>
         </div>
       </div>

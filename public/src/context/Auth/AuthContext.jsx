@@ -22,12 +22,8 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem("auth_token",response.token);
 
             dispatch({type:'LOGIN_SUCCESS', payload: response})
-          
-            console.log("Login effettuato con successo:", response);
-            // toast.success("Login effettuato con successo!");
 
-            //    return true;
-               return {success:true, message:"Login effettuato con successo!"}
+            return {success:true, message:"Login effettuato con successo!"}
         }
         catch(error){
 
@@ -60,8 +56,6 @@ export const AuthProvider = ({ children }) => {
         break;
       case 500:
         alertMessage = "Errore del server. Riprova più tardi.";
-        console.log(2)
-        
         break;
       default:
         // Se il server non risponde o c'è un errore di rete

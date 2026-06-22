@@ -8,7 +8,6 @@ import {
   LogOut,
   CheckCircle,
   Terminal, // Icona per l'ambiente User
-  ShieldAlert, // Icona per l'ambiente Superadmin
   Briefcase,
   Settings, // Icona per l'ambiente Admin standard
 } from "lucide-react";
@@ -47,9 +46,8 @@ const userConfig = ({ user }) => {
 const menuItemsByRole = {
   user: [
     { text: "Dashboard", path: "/dashboard", icon: Home },
-    { text: "My Sessions", path: "/sessions-test", icon: CheckCircle },
-    { text: "My Projects", path: "/user/projects", icon: Folder },
-    { text: "Checklist", path: "/user/checklists", icon: CheckCircle },
+    { text: "I miei lavori", path: "/sessions-test", icon: CheckCircle },
+    { text: "I miei progetti", path: "/user/projects", icon: Folder },
     { text: "Impostazioni", path: "/settings", icon: Settings },
   ],
   admin: [
@@ -64,8 +62,7 @@ const menuItemsByRole = {
     { text: "Dashboard", path: "/dashboard", icon: Home },
     { text: "Projects", path: "/admin/projects", icon: Folder },
     { text: "Users", path: "/admin/users", icon: Users },
-    { text: "Audit Log", path: "/admin/audit-log", icon: ShieldAlert },
-    { text: "Impostazioni  ", path: "/settings", icon: Settings },
+    { text: "Impostazioni", path: "/settings", icon: Settings },
   ],
 };
 

@@ -82,6 +82,8 @@ router.post("/login", async (req, res) => {
       surname: user.cognome,
       email: user.email,
       role: user.role,
+      created_at: user.created_at,
+
     };
 
     const token = generateAccessToken(userWithoutPassword);

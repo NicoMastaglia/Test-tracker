@@ -667,4 +667,88 @@ router.delete("/:id", checkSuperadmin, (req, res) => {
     });
 });
 
+
+
+// rotte aggiunte
+
+
+//  superadmin ottiene le stats di tutti i progetti;
+// admin otttiene le stats solo dei progetti creati da lui o di cui è responsabile;
+// per il momento user non ottiene stats sui progetti, ma in futuro potrà ottenere le stats dei progetti a cui è assegnato
+router.get('/:id/stats', checkAdmin, async (req, res) => {
+  const projectId = req.params.id;
+
+
+  if(isNaN(projectId) || parseInt(projectId) <= 0  ) {
+    return res.status(400).json({ error: "ID progetto non valido" });
+  }
+
+  if(!projectId) {
+    return res.status(400).json({ error: "ID progetto mancante" });
+  }
+
+  if (db.execute("SELECT id FROM project WHERE id = ?", [projectId]).then(([rows]) => rows.length === 0)) {
+    return res.status(404).json({ error: "Progetto non trovato" });
+  }
+
+   
+
+  if (req.user.role !== "superadmin" && req.user.role !== "admin") {
+    return res.status(403).json({ error: "Accesso negato" });
+  }
+  
+
+  // admin ha stats solo sui progetti creati da lui o di cui è responsabile; superadmin su tutti
+  if (req.user.role === "admin") {
+    const [proj] = await db.execute("SELECT created_by, manager_id FROM project WHERE id = ? AND (created_by = ? OR manager_id = ?)", [projectId, req.user.id, req.user.id]);
+    if (!proj.length) {
+      return res.status(404).json({ error: "Progetto non trovato" });
+    }
+
+    if (proj[0].created_by !== req.user.id && proj[0].manager_id !== req.user.id) {
+      return res.status(403).json({ error: "Permessi insufficienti" });
+    }
+
+  }
+   
+
+  
+  const [t] = await db.execute(
+  `SELECT COUNT(ci.id) AS totalTasks,
+          SUM(ci.status IN ('Completata','Archiviata')) AS completedTasks
+   FROM checklist_template ct
+   JOIN checklist_item ci ON ci.template_id = ct.id
+   WHERE ct.project_id = ?`,
+  [projectId]
+);
+
+
+const [s] = await db.execute(
+  `SELECT COUNT(*) AS totalSessions,
+          MAX(COALESCE(completed_at, started_at)) AS lastActivity
+   FROM test_session
+   WHERE project_id = ?`,
+  [projectId]
+);
+
+try {
+  const taskCompletionRate = t[0].totalTasks > 0 ? (t[0].completedTasks / t[0].totalTasks) * 100 : 0;
+  return res.status(200).json({
+    totalTasks: t[0].totalTasks,
+    completedTasks: t[0].completedTasks,
+    taskCompletionRate: taskCompletionRate.toFixed(2) + '%',
+    totalSessions: s[0].totalSessions,
+    lastActivity: s[0].lastActivity
+  });
+}
+catch (err) {  return res.status(500).json({ error: "Errore del server", specific: err.message });
+
+}
+
+
+
+
+
+})
+
 module.exports = router;
