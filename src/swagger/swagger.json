@@ -1201,6 +1201,242 @@
         }
       }
     },
+    "/api/checklists/task/assigned": {
+      "get": {
+        "tags": ["Checklists"],
+        "summary": "Task assegnate al tester loggato",
+        "description": "Restituisce le task (item della checklist) assegnate all'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token. Solo ruolo user (tester).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task assegnate restituite correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer" },
+                      "template_id": { "type": "integer" },
+                      "description": { "type": "string" },
+                      "position": { "type": "integer" },
+                      "assigned_to": { "type": "integer" },
+                      "status": {
+                        "type": "string",
+                        "enum": ["TODO", "In corso", "Completata", "Bloccata", "Archiviata"]
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": 5,
+                    "template_id": 1,
+                    "description": "Verifica login con credenziali corrette",
+                    "position": 1,
+                    "assigned_to": 3,
+                    "status": "TODO"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato (solo ruolo user)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/checklists/item/{itemId}/status": {
+      "patch": {
+        "tags": ["Checklists"],
+        "summary": "Aggiorna manualmente lo stato di una task",
+        "description": "Imposta uno stato manuale su una task: Bloccata (tester assegnato o admin/superadmin), oppure Archiviata e relativa riapertura a Completata (solo admin/superadmin). Gli stati TODO/In corso/Completata (normale) sono derivati dalle sessioni e non si impostano da questa rotta. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dell'item della checklist",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["Bloccata", "Archiviata", "Completata"],
+                    "description": "Completata qui significa esclusivamente riapertura da Archiviata."
+                  }
+                },
+                "required": ["status"]
+              },
+              "example": {
+                "status": "Bloccata"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stato aggiornato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "status": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "message": "Stato aggiornato a \"Bloccata\"",
+                  "status": "Bloccata"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stato non valido per questa rotta, o transizione non consentita",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "invalidStatus": {
+                    "value": {
+                      "error": "Richiesta non valida",
+                      "message": "Stato non valido per questa rotta (solo Bloccata, Archiviata, o riapertura a Completata)."
+                    }
+                  },
+                  "invalidArchiveTransition": {
+                    "value": {
+                      "error": "Transizione di stato non consentita",
+                      "message": "Non puoi archiviare una task in stato \"In corso\"."
+                    }
+                  },
+                  "invalidReopenTransition": {
+                    "value": {
+                      "error": "Transizione di stato non consentita",
+                      "message": "La riapertura è valida solo da Archiviata. Stato corrente: \"Completata\"."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato (non sei il tester assegnato né admin/superadmin del progetto, oppure stai tentando Archiviata/riapertura senza essere admin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elemento della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Elemento della checklist non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/checklists/{projectId}": {
       "get": {
         "tags": ["Checklists"],

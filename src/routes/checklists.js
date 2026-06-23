@@ -367,6 +367,7 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
 // nuove rotte qui sott0
 
 // assegnazione di una task ad un utente (del team del progetto)
+
 router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
   // prendo il parametro id dell'item da assegnare
   const itemId = req.params.itemId;
@@ -418,5 +419,135 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
       .json({ error: "Errore del server", specific: err.message });
   }
 });
+
+
+
+// restituisce le task assegnate  al tester logggato 
+
+router.get('/task/assigned', checkUser, async (req, res) => {
+
+  if(!req.user || req.user.role !== 'user') {
+    return res.status(403).json({ error: "Accesso negato" });
+  }
+  
+  
+  try {
+    const [tasks] = await db.execute(
+      "SELECT * FROM checklist_item WHERE assigned_to = ?",
+      [req.user.id]
+    );
+    return res.status(200).json(tasks);
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "Errore del server", specific: err.message });
+  }
+});
+
+
+
+// aggiorna lo stato di una task assegnata 
+router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
+  const itemID = req.params.itemId
+
+  const {status:nextStatus} = req.body 
+   
+   // se viene passato uno stato non valido, restituisco errore
+   if (!["Bloccata", "Archiviata", "Completata"].includes(nextStatus)) {
+     return res.status(400).json({
+       error: "Richiesta non valida",
+       message:
+         "Stato non valido per questa rotta (solo Bloccata, Archiviata, o riapertura a Completata).",
+     });
+   }
+
+
+   const [rows] = await db.execute(
+    `SELECT ci.id,ci.status as currentStatus,
+    ci.assigned_to,ct.id AS template_id,p.created_by,p.manager_id
+    from checklist_item ci
+    join checklist_template ct on ci.template_id = ct.id
+    join project p on ct.project_id = p.id
+    where ci.id = ?`,
+    [itemID]
+   )
+
+
+    
+   if(!rows || rows.length === 0){
+    return res.status(404).json({error:"Elemento della checklist non trovato"})
+   }
+   
+
+   // prendo la task
+   const task = rows[0];
+   
+
+   // superadmin può fare tutto,admin controlla le task del progetto creato o assegnato
+   const isOwnerAdmin = 
+   req.user.role === 'superadmin' || 
+   (req.user.role === 'admin' && (task.created_by === req.user.id || task.manager_id === req.user.id));
+
+
+   const isAssignedTester = req.user.role === 'user' && task.assigned_to === req.user.id;
+
+   if(!isOwnerAdmin && !isAssignedTester){
+    return res.status(403).json({error:"Accesso negato"})
+   }
+
+   
+   
+
+   // Archiviata e riapertura sono azioni riservate ad admin/superadmin (Bloccata invece resta anche al tester)
+   if (nextStatus !== "Bloccata" && !isOwnerAdmin) {
+    return res.status(403).json({ error: "Accesso negato" })
+   }
+
+   if(nextStatus === "Archiviata" && task.currentStatus !== "Completata") {
+    return res.status(400).json({
+      error: 'Transizione di stato non consentita',
+      message : `Non puoi archiviare una task in stato "${task.currentStatus}".`
+    })
+   }
+
+   if(nextStatus === "Completata" && task.currentStatus !== "Archiviata") {
+    return res.status(400).json({
+      error: 'Transizione di stato non consentita',
+      message : `La riapertura è valida solo da Archiviata. Stato corrente: "${task.currentStatus}".`
+    })
+   }
+
+
+   try {
+    const [result] = await db.execute(
+       `
+        UPDATE checklist_item
+        SET status = ?
+        WHERE id = ?
+       `,
+       [nextStatus, itemID]
+    )
+
+    if(result.affectedRows === 0){
+      return res.status(404).json({error: "Elemento della checklist non trovato"})
+    }
+
+    await db.execute(
+      "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
+      [task.template_id]
+    )
+
+    return res.status(200).json({message: `Stato aggiornato a "${nextStatus}"`,status: nextStatus})
+
+
+   }catch(err){
+    return res.status(500).json({error: "Errore del server", specific: err.message})
+   }
+
+
+
+
+
+})
 
 module.exports = router;
