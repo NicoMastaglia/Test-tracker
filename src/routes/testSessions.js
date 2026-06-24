@@ -318,7 +318,7 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
   // }
 
   try{
-    const [session]  = await db.execute(
+    const [result]  = await db.execute(
       `
 
       UPDATE session_task st
@@ -341,7 +341,7 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
         set ci.status = 'Completata'
         where ci.id = ? and ci.status = 'In corso'
         `,[itemId]
-      ), 
+      )
     await db.execute(
       `
       UPDATE test_session ts
@@ -367,26 +367,74 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
   const {sessionId} = req.params
   const userId = req.user.id 
 
-  if(!sessionsId || isNaN(sessionId)){
+  if(!sessionId || isNaN(sessionId)){
     return res.status(404).json({error:"ID sessione non valido"})
   }
 
   try{
-    const [session] = await db.execute(
+    let session; 
+
+    if(req.user.role === 'superadmin'){
+
+      const [rows] = await db.execute(
 
       `
-      select ts.id,ts.project_id,ts.stats,ts.started_at,ts.completed_at 
+      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at 
+      from test_session ts 
+      where ts.id = ? 
+    
+      `,[sessionId]
+    )
+    session = rows;
+    }
+    else if (req.user.role === 'admin'){
+      const [rows] = await db.execute(
+
+       `
+      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at 
+      from test_session ts 
+      join project p on ts.project_id = p.id
+      where ts.id = ? AND  (p.created_by = ? OR p.manager_id = ?)`
+      ,
+      [sessionId,req.user.id,req.user.id]
+      )
+      session = rows
+
+    }else{
+
+    
+    const [rows] = await db.execute(
+
+      `
+      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at 
       from test_session ts 
       where ts.id = ? and ts.user_id = ?
     
       `,[sessionId,userId]
     )
+    session = rows
+    }
 
-    if(session.affectedRows ===0){
+    if(session.length ===0){
       return res.status(400).json({
         error  : ` Sessione ${sessionId} non trovata o non appartiente all'utente loggato`
       })
     }
+
+    const [tasks] = await db.execute(
+      `
+      select st.checklist_item_id,st.outcome,st.note,ci.status as task_status,
+      ci.description
+      from session_task st 
+      join checklist_item ci on st.checklist_item_id = ci.id
+      where st.session_id = ?
+      `,[sessionId]
+    )
+
+    return res.status(200).json({
+      session:session[0],
+      tasks:tasks
+    })
 
   }catch(error){
     return res.status(500).json({error:"Errore del server",details:error.message})

@@ -35,16 +35,14 @@
     {
       "name": "test-sessions",
       "description": "Creazione e gestione delle sessioni di test"
-    },
-    {
-      "name": "test-results",
-      "description": "Lettura e aggiornamento dei risultati delle sessioni di test"
     }
   ],
   "paths": {
     "/": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Messaggio di benvenuto",
         "description": "Endpoint pubblico principale dell'applicazione.",
         "security": [],
@@ -67,7 +65,9 @@
     },
     "/login": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to login page",
         "description": "Redirects the request to the frontend login page.",
         "security": [],
@@ -77,7 +77,9 @@
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -86,97 +88,147 @@
     },
     "/dashboard": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to dashboard",
         "description": "Protected: redirects authenticated users to the dashboard.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "302": {
             "description": "Redirect to /dashboard",
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" }
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/user/projects": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to user projects",
         "description": "Protected: redirects authenticated users to their projects list.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "302": {
             "description": "Redirect to /user/projects",
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" }
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/user/checklists": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to user checklists",
         "description": "Protected: redirects authenticated users to their checklists.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "302": {
             "description": "Redirect to /user/checklists",
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" }
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/admin/projects": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to admin projects",
         "description": "Admin protected: redirects admins to the admin projects page.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "302": {
             "description": "Redirect to /admin/projects",
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
         }
       }
     },
     "/admin/projects/{id}": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to admin project detail",
         "description": "Admin protected: redirects to a specific admin project page.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" },
+            "schema": {
+              "type": "integer"
+            },
             "description": "Project ID"
           }
         ],
@@ -186,27 +238,41 @@
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
         }
       }
     },
     "/admin/projects/{id}/checklist": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to admin project checklist",
         "description": "Admin protected: redirects to the checklist view for a specific project.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer" },
+            "schema": {
+              "type": "integer"
+            },
             "description": "Project ID"
           }
         ],
@@ -216,39 +282,59 @@
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
         }
       }
     },
     "/admin/users": {
       "get": {
-        "tags": ["Main"],
+        "tags": [
+          "Main"
+        ],
         "summary": "Redirect to admin users",
         "description": "Superadmin protected: redirects to the admin users management page.",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "302": {
             "description": "Redirect to /admin/users",
             "headers": {
               "Location": {
                 "description": "URL to redirect to",
-                "schema": { "type": "string" }
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "403": { "description": "Forbidden" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
         }
       }
     },
     "/api/auth/register": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Registra un nuovo utente",
         "description": "Crea un nuovo utente con nome, cognome, email, password e ruolo. Questa route è documentata come protetta da token JWT.",
         "security": [
@@ -328,7 +414,9 @@
     },
     "/api/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Autentica un utente",
         "description": "Verifica email e password e restituisce un token JWT insieme ai dati utente. Questa route è pubblica e non richiede token in ingresso.",
         "security": [],
@@ -426,7 +514,9 @@
     },
     "/api/auth/logout": {
       "post": {
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "summary": "Effettua il logout",
         "description": "Logout documentato come operazione protetta da token JWT.",
         "security": [
@@ -453,7 +543,9 @@
     },
     "/api/checklists": {
       "post": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Crea una nuova checklist",
         "description": "Crea un template checklist associato a un progetto. Richiede il token JWT nell'header Authorization come Bearer token. Gli admin possono creare checklist solo per i progetti che hanno creato, mentre i superadmin possono usare qualsiasi progetto esistente.",
         "security": [
@@ -477,7 +569,10 @@
                     "example": 1
                   }
                 },
-                "required": ["title", "project_id"]
+                "required": [
+                  "title",
+                  "project_id"
+                ]
               },
               "example": {
                 "title": "Smoke test checklist",
@@ -494,9 +589,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": { "type": "integer" },
-                    "title": { "type": "string" },
-                    "project_id": { "type": "integer" }
+                    "id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "project_id": {
+                      "type": "integer"
+                    }
                   }
                 },
                 "example": {
@@ -574,7 +675,9 @@
     },
     "/api/checklists/{id}": {
       "put": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Aggiorna una checklist esistente",
         "description": "Aggiorna il titolo di una checklist specifica. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -606,7 +709,9 @@
                     "example": "Smoke test checklist aggiornata"
                   }
                 },
-                "required": ["title"]
+                "required": [
+                  "title"
+                ]
               },
               "example": {
                 "title": "Smoke test checklist aggiornata"
@@ -684,7 +789,9 @@
         }
       },
       "delete": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Elimina una checklist esistente",
         "description": "Elimina una checklist specifica. Richiede il token JWT nell'header Authorization come Bearer token. Gli admin possono eliminare solo le checklist dei progetti che hanno creato.",
         "security": [
@@ -763,7 +870,9 @@
     },
     "/api/checklists/{templateId}/item": {
       "post": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Aggiunge un item a un template checklist",
         "description": "Aggiunge un nuovo item a un template checklist specifico tramite ID template. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -795,7 +904,9 @@
                     "example": "Verificare il login"
                   }
                 },
-                "required": ["description"]
+                "required": [
+                  "description"
+                ]
               },
               "example": {
                 "description": "Verificare il login"
@@ -876,7 +987,9 @@
     },
     "/api/checklists/item/{id}": {
       "put": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Aggiorna un item della checklist",
         "description": "Aggiorna la descrizione di un item specifico della checklist tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -908,7 +1021,9 @@
                     "example": "Verificare il logout"
                   }
                 },
-                "required": ["description"]
+                "required": [
+                  "description"
+                ]
               },
               "example": {
                 "description": "Verificare il logout"
@@ -943,19 +1058,6 @@
               }
             }
           },
-          "403": {
-            "description": "Accesso negato o elemento della checklist non trovato",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Accesso negato o elemento della checklist non trovato"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Token mancante o non valido",
             "content": {
@@ -965,6 +1067,19 @@
                 },
                 "example": {
                   "error": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato o elemento della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato o elemento della checklist non trovato"
                 }
               }
             }
@@ -999,7 +1114,9 @@
         }
       },
       "delete": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Elimina un item della checklist",
         "description": "Elimina un item specifico della checklist tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1091,7 +1208,9 @@
     },
     "/api/checklists/item/{itemId}/assign": {
       "patch": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Assegna un item della checklist a un utente",
         "description": "Assegna un task (item della checklist) a un utente. Richiede il token JWT nell'header Authorization come Bearer token. Solo admin/superadmin; l'admin può assegnare solo gli item dei progetti che ha creato.",
         "security": [
@@ -1123,7 +1242,9 @@
                     "example": 2
                   }
                 },
-                "required": ["userId"]
+                "required": [
+                  "userId"
+                ]
               },
               "example": {
                 "userId": 2
@@ -1203,7 +1324,9 @@
     },
     "/api/checklists/task/assigned": {
       "get": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Task assegnate al tester loggato",
         "description": "Restituisce le task (item della checklist) assegnate all'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token. Solo ruolo user (tester).",
         "security": [
@@ -1221,14 +1344,30 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": { "type": "integer" },
-                      "template_id": { "type": "integer" },
-                      "description": { "type": "string" },
-                      "position": { "type": "integer" },
-                      "assigned_to": { "type": "integer" },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "template_id": {
+                        "type": "integer"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "position": {
+                        "type": "integer"
+                      },
+                      "assigned_to": {
+                        "type": "integer"
+                      },
                       "status": {
                         "type": "string",
-                        "enum": ["TODO", "In corso", "Completata", "Bloccata", "Archiviata"]
+                        "enum": [
+                          "TODO",
+                          "In corso",
+                          "Completata",
+                          "Bloccata",
+                          "Archiviata"
+                        ]
                       }
                     }
                   }
@@ -1291,7 +1430,9 @@
     },
     "/api/checklists/item/{itemId}/status": {
       "patch": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Aggiorna manualmente lo stato di una task",
         "description": "Imposta uno stato manuale su una task: Bloccata (tester assegnato o admin/superadmin), oppure Archiviata e relativa riapertura a Completata (solo admin/superadmin). Gli stati TODO/In corso/Completata (normale) sono derivati dalle sessioni e non si impostano da questa rotta. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1320,11 +1461,17 @@
                 "properties": {
                   "status": {
                     "type": "string",
-                    "enum": ["Bloccata", "Archiviata", "Completata"],
+                    "enum": [
+                      "Bloccata",
+                      "Archiviata",
+                      "Completata"
+                    ],
                     "description": "Completata qui significa esclusivamente riapertura da Archiviata."
                   }
                 },
-                "required": ["status"]
+                "required": [
+                  "status"
+                ]
               },
               "example": {
                 "status": "Bloccata"
@@ -1340,8 +1487,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "status": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
                   }
                 },
                 "example": {
@@ -1439,7 +1590,9 @@
     },
     "/api/checklists/{projectId}": {
       "get": {
-        "tags": ["Checklists"],
+        "tags": [
+          "Checklists"
+        ],
         "summary": "Ottieni checklist per progetto",
         "description": "Restituisce le checklist (con i relativi item) associate al progetto indicato. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1469,20 +1622,39 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": { "type": "integer" },
-                      "checklist_id": { "type": "integer" },
-                      "title": { "type": "string" },
-                      "project_id": { "type": "integer" },
-                      "last_updated": { "type": "string", "format": "date-time" },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "checklist_id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "project_id": {
+                        "type": "integer"
+                      },
+                      "last_updated": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
                       "items": {
                         "type": "array",
                         "items": {
                           "type": "object",
                           "properties": {
-                            "id": { "type": "integer" },
-                            "item_id": { "type": "integer" },
-                            "description": { "type": "string" },
-                            "position": { "type": "integer" }
+                            "id": {
+                              "type": "integer"
+                            },
+                            "item_id": {
+                              "type": "integer"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "position": {
+                              "type": "integer"
+                            }
                           }
                         }
                       }
@@ -1547,7 +1719,9 @@
     },
     "/api/users": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Elenco utenti",
         "description": "Restituisce la lista utenti. Per accedere è necessario inviare il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1574,7 +1748,9 @@
     },
     "/api/users/me": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Profilo utente autenticato",
         "description": "Restituisce i dati dell'utente autenticato tramite token JWT inviato nell'header Authorization come Bearer token.",
         "security": [
@@ -1645,7 +1821,9 @@
         }
       },
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Aggiorna profilo utente autenticato",
         "description": "Aggiorna i dati dell'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1674,7 +1852,11 @@
                     "example": "mario.rossi@example.com"
                   }
                 },
-                "required": ["nome", "cognome", "email"]
+                "required": [
+                  "nome",
+                  "cognome",
+                  "email"
+                ]
               },
               "example": {
                 "nome": "Mario",
@@ -1765,7 +1947,9 @@
     },
     "/api/users/me/password": {
       "patch": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Aggiorna password utente autenticato",
         "description": "Aggiorna la password dell'utente autenticato. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1791,7 +1975,10 @@
                     "example": "PasswordNuova123!"
                   }
                 },
-                "required": ["Oldpassword", "Newpassword"]
+                "required": [
+                  "Oldpassword",
+                  "Newpassword"
+                ]
               },
               "example": {
                 "Oldpassword": "PasswordVecchia123!",
@@ -1881,7 +2068,9 @@
     },
     "/api/users/{id}": {
       "get": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Ottieni dati utente per ID",
         "description": "Restituisce i dati di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -1971,7 +2160,9 @@
         }
       },
       "put": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Aggiorna dati utente per ID",
         "description": "Aggiorna i dati di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2012,7 +2203,11 @@
                     "example": "mario.rossi@example.com"
                   }
                 },
-                "required": ["name", "surname", "email"]
+                "required": [
+                  "name",
+                  "surname",
+                  "email"
+                ]
               },
               "example": {
                 "name": "Mario",
@@ -2101,7 +2296,9 @@
         }
       },
       "delete": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Elimina un utente per ID",
         "description": "Elimina un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2189,7 +2386,9 @@
     },
     "/api/users/{id}/role": {
       "patch": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Aggiorna ruolo utente per ID",
         "description": "Aggiorna il ruolo di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2218,11 +2417,17 @@
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": ["user", "admin", "superadmin"],
+                    "enum": [
+                      "user",
+                      "admin",
+                      "superadmin"
+                    ],
                     "example": "admin"
                   }
                 },
-                "required": ["role"]
+                "required": [
+                  "role"
+                ]
               },
               "example": {
                 "role": "admin"
@@ -2311,7 +2516,9 @@
     },
     "/api/users/{id}/password": {
       "patch": {
-        "tags": ["Users"],
+        "tags": [
+          "Users"
+        ],
         "summary": "Aggiorna password utente per ID",
         "description": "Aggiorna la password di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2344,7 +2551,9 @@
                     "example": "PasswordNuova123!"
                   }
                 },
-                "required": ["Newpassword"]
+                "required": [
+                  "Newpassword"
+                ]
               },
               "example": {
                 "Newpassword": "PasswordNuova123!"
@@ -2437,7 +2646,9 @@
     },
     "/api/projects/": {
       "get": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Elenco progetti",
         "description": "Restituisce la lista dei progetti. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2452,7 +2663,9 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/ProjectDetailedResponse" }
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectDetailedResponse"
+                  }
                 }
               }
             }
@@ -2473,7 +2686,9 @@
         }
       },
       "post": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Crea un nuovo progetto",
         "description": "Crea un nuovo progetto. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2504,12 +2719,25 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": { "type": "integer" },
-                    "name": { "type": "string" },
-                    "description": { "type": "string" },
-                    "status": { "type": "string" },
-                    "created_by": { "type": "integer" },
-                    "manager_id": { "type": "integer", "nullable": true }
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "created_by": {
+                      "type": "integer"
+                    },
+                    "manager_id": {
+                      "type": "integer",
+                      "nullable": true
+                    }
                   }
                 }
               }
@@ -2589,7 +2817,9 @@
     },
     "/api/projects/{id}": {
       "get": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Ottieni dettagli progetto per ID",
         "description": "Restituisce i dettagli di un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2614,7 +2844,9 @@
             "description": "Dettagli progetto restituiti correttamente",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ProjectDetailedResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetailedResponse"
+                }
               }
             }
           },
@@ -2670,7 +2902,9 @@
         }
       },
       "put": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Aggiorna progetto per ID",
         "description": "Aggiorna i dati di un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2697,12 +2931,28 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": { "type": "string", "example": "Progetto Alpha Aggiornato" },
-                  "description": { "type": "string", "example": "Descrizione aggiornata" },
-                  "manager_id": { "type": "integer", "example": 2 },
-                  "deadline": { "type": "string", "format": "date", "example": "2026-12-31" }
+                  "name": {
+                    "type": "string",
+                    "example": "Progetto Alpha Aggiornato"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Descrizione aggiornata"
+                  },
+                  "manager_id": {
+                    "type": "integer",
+                    "example": 2
+                  },
+                  "deadline": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-12-31"
+                  }
                 },
-                "required": ["name", "description"]
+                "required": [
+                  "name",
+                  "description"
+                ]
               },
               "example": {
                 "name": "Progetto Alpha Aggiornato",
@@ -2815,7 +3065,9 @@
         }
       },
       "delete": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Elimina progetto per ID",
         "description": "Elimina un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2894,7 +3146,9 @@
     },
     "/api/projects/{id}/status": {
       "patch": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Aggiorna stato progetto per ID",
         "description": "Aggiorna lo stato di un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -2921,13 +3175,20 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                 "status": {
+                  "status": {
                     "type": "string",
-                    "enum": ["Non iniziato", "Attivo", "In pausa", "Completato"],
+                    "enum": [
+                      "Non iniziato",
+                      "Attivo",
+                      "In pausa",
+                      "Completato"
+                    ],
                     "example": "Attivo"
                   }
                 },
-                "required": ["status"]
+                "required": [
+                  "status"
+                ]
               },
               "example": {
                 "status": "Attivo"
@@ -2943,8 +3204,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "status": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
                   }
                 },
                 "example": {
@@ -3045,7 +3310,9 @@
     },
     "/api/projects/{id}/stats": {
       "get": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Statistiche aggregate di un progetto",
         "description": "Restituisce i numeri aggregati di un progetto (task totali/completate, percentuale di completamento, sessioni totali, ultima attività). Richiede il token JWT nell'header Authorization come Bearer token. Solo admin e superadmin.",
         "security": [
@@ -3073,11 +3340,23 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "totalTasks": { "type": "integer" },
-                    "completedTasks": { "type": "integer" },
-                    "taskCompletionRate": { "type": "string" },
-                    "totalSessions": { "type": "integer" },
-                    "lastActivity": { "type": "string", "format": "date-time", "nullable": true }
+                    "totalTasks": {
+                      "type": "integer"
+                    },
+                    "completedTasks": {
+                      "type": "integer"
+                    },
+                    "taskCompletionRate": {
+                      "type": "string"
+                    },
+                    "totalSessions": {
+                      "type": "integer"
+                    },
+                    "lastActivity": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    }
                   }
                 },
                 "example": {
@@ -3161,7 +3440,9 @@
     },
     "/api/projects/{id}/assign": {
       "get": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Elenca gli utenti assegnati a un progetto",
         "description": "Restituisce gli utenti assegnati a un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -3259,7 +3540,9 @@
         }
       },
       "post": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Assegna un utente al progetto",
         "description": "Assegna uno o più utenti a un progetto specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -3291,7 +3574,9 @@
                     "example": 2
                   }
                 },
-                "required": ["userId"]
+                "required": [
+                  "userId"
+                ]
               },
               "example": {
                 "userId": 2
@@ -3369,7 +3654,9 @@
         }
       },
       "delete": {
-        "tags": ["Projects"],
+        "tags": [
+          "Projects"
+        ],
         "summary": "Rimuove l'assegnazione di un utente da un progetto",
         "description": "Rimuove l'assegnazione di un utente da un progetto specifico tramite ID del progetto. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -3401,7 +3688,9 @@
                     "example": 2
                   }
                 },
-                "required": ["userId"]
+                "required": [
+                  "userId"
+                ]
               },
               "example": {
                 "userId": 2
@@ -3481,7 +3770,9 @@
     },
     "/api/test-sessions/": {
       "get": {
-        "tags": ["test-sessions"],
+        "tags": [
+          "test-sessions"
+        ],
         "summary": "Elenca le sessioni di test",
         "description": "Restituisce l'elenco delle sessioni di test. Richiede il token JWT nell'header Authorization come Bearer token. Il parametro projectId è opzionale e filtra le sessioni per progetto.",
         "security": [
@@ -3511,14 +3802,32 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                    "id": { "type": "integer" },
-                    "name": { "type": "string" },
-                    "description": { "type": "string" },
-                    "status": { "type": "string", "example": "Non iniziato" },
-                    "created_by": { "type": "integer" },
-                    "manager_id": { "type": "integer", "nullable": true },
-                    "deadline": { "type": "string", "format": "date", "nullable": true }
-                  }
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string",
+                        "example": "Non iniziato"
+                      },
+                      "created_by": {
+                        "type": "integer"
+                      },
+                      "manager_id": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "deadline": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                      }
+                    }
                   }
                 },
                 "example": [
@@ -3590,9 +3899,11 @@
         }
       },
       "post": {
-        "tags": ["test-sessions"],
-        "summary": "Crea una nuova sessione di test",
-        "description": "Crea una nuova sessione di test per un progetto e prepara i risultati iniziali degli item della checklist. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "tags": [
+          "test-sessions"
+        ],
+        "summary": "Crea una nuova sessione di test su una o più task",
+        "description": "Crea una sessione di test a partire da un elenco di task (checklist item) assegnate al tester loggato. Tutte le task devono essere assegnate a chi chiama, appartenere allo stesso progetto, ed essere lavorabili (non Archiviata/Completata). Richiede il token JWT nell'header Authorization come Bearer token. Solo ruolo user (tester).",
         "security": [
           {
             "bearerAuth": []
@@ -3605,15 +3916,28 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "projectId": {
-                    "type": "integer",
-                    "example": 1
+                  "checklistItemIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "example": [
+                      5,
+                      9,
+                      12
+                    ]
                   }
                 },
-                "required": ["projectId"]
+                "required": [
+                  "checklistItemIds"
+                ]
               },
               "example": {
-                "projectId": 1
+                "checklistItemIds": [
+                  5,
+                  9,
+                  12
+                ]
               }
             }
           }
@@ -3626,31 +3950,53 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
                     "message": {
                       "type": "string"
+                    },
+                    "sessionId": {
+                      "type": "integer"
                     }
                   },
-                  "required": ["id", "message"]
+                  "required": [
+                    "message",
+                    "sessionId"
+                  ]
                 },
                 "example": {
-                  "id": 1,
-                  "message": "Sessione di test creata con successo"
+                  "message": "Sessione di test creata con successo",
+                  "sessionId": 1
                 }
               }
             }
           },
           "400": {
-            "description": "Progetto non valido",
+            "description": "Elenco task mancante/vuoto, task inesistenti, task di progetti diversi, o task non lavorabili",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorMessage"
                 },
-                "example": {
-                  "error": "Progetto non valido"
+                "examples": {
+                  "missingItems": {
+                    "value": {
+                      "error": "Nessun elemento della checklist fornito"
+                    }
+                  },
+                  "itemsNotFound": {
+                    "value": {
+                      "error": "Una o più task non esistono"
+                    }
+                  },
+                  "differentProjects": {
+                    "value": {
+                      "error": "Gli elementi della checklist devono appartenere allo stesso progetto"
+                    }
+                  },
+                  "notWorkable": {
+                    "value": {
+                      "error": "Non puoi creare sessioni su task completate o archiviate"
+                    }
+                  }
                 }
               }
             }
@@ -3669,27 +4015,14 @@
             }
           },
           "403": {
-            "description": "Accesso non consentito",
+            "description": "Una o più task non sono assegnate al tester loggato",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorMessage"
                 },
                 "example": {
-                  "error": "Accesso non consentito"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Progetto non trovato",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Progetto non trovato"
+                  "error": "Puoi creare sessioni solo sulle tue task assegnate"
                 }
               }
             }
@@ -3702,7 +4035,8 @@
                   "$ref": "#/components/schemas/ErrorMessage"
                 },
                 "example": {
-                  "error": "Errore interno del server"
+                  "error": "Errore del server",
+                  "details": "Internal error"
                 }
               }
             }
@@ -3711,8 +4045,162 @@
       }
     },
     "/api/test-sessions/{id}": {
+      "get": {
+        "tags": [
+          "test-sessions"
+        ],
+        "summary": "Dettaglio di una sessione di test",
+        "description": "Restituisce la sessione di test con l'elenco delle sue task (esito/nota già salvati). Tester: solo le proprie sessioni. Admin: sessioni dei progetti che ha creato o di cui è responsabile. Superadmin: tutte. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della sessione di test",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessione e task restituite correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "project_id": {
+                          "type": "integer"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "In corso",
+                            "Completata"
+                          ]
+                        },
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "completed_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        }
+                      }
+                    },
+                    "tasks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "checklist_item_id": {
+                            "type": "integer"
+                          },
+                          "outcome": {
+                            "type": "string",
+                            "enum": [
+                              "Positivo",
+                              "Negativo"
+                            ],
+                            "nullable": true
+                          },
+                          "note": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "task_status": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "session": {
+                    "id": 1,
+                    "project_id": 1,
+                    "status": "In corso",
+                    "started_at": "2026-06-10T14:32:00Z",
+                    "completed_at": null
+                  },
+                  "tasks": [
+                    {
+                      "checklist_item_id": 5,
+                      "outcome": null,
+                      "note": null,
+                      "description": "Verifica login con credenziali corrette",
+                      "task_status": "In corso"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ID non valido, o sessione non trovata/permessi insufficienti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Sessione 1 non trovata o non appartiente all'utente loggato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Errore del server",
+                  "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
-        "tags": ["test-sessions"],
+        "tags": [
+          "test-sessions"
+        ],
         "summary": "Elimina una sessione di test",
         "description": "Elimina una sessione di test specifica tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -3815,11 +4303,13 @@
         }
       }
     },
-    "/api/test-sessions/{id}/complete": {
+    "/api/test-sessions/{sessionId}/task/{itemId}": {
       "patch": {
-        "tags": ["test-sessions"],
-        "summary": "Completa una sessione di test",
-        "description": "Imposta una sessione di test come completata tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "tags": [
+          "test-sessions"
+        ],
+        "summary": "Registra esito e nota di una task dentro una sessione",
+        "description": "Aggiorna outcome/note della task all'interno della sessione (tabella ponte session_task). Se l'esito viene impostato, la task passa a Completata; se tutte le task della sessione hanno un esito, la sessione si chiude da sola. Richiede il token JWT nell'header Authorization come Bearer token. Solo il tester proprietario della sessione, e solo mentre è In corso.",
         "security": [
           {
             "bearerAuth": []
@@ -3827,7 +4317,7 @@
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "sessionId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3835,31 +4325,80 @@
             },
             "description": "ID della sessione di test",
             "example": 1
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della task (checklist item)",
+            "example": 5
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "outcome": {
+                    "type": "string",
+                    "enum": [
+                      "Positivo",
+                      "Negativo"
+                    ]
+                  },
+                  "note": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "outcome"
+                ]
+              },
+              "example": {
+                "outcome": "Positivo",
+                "note": "Login con credenziali corrette riuscito"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Sessione di test completata con successo",
+            "description": "Esito registrato con successo",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SuccessMessage"
                 },
                 "example": {
-                  "message": "Sessione di test completata con successo"
+                  "message": "Risultato della task aggiornato con successo"
                 }
               }
             }
           },
           "400": {
-            "description": "ID sessione non valido",
+            "description": "ID mancanti o esito non valido",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorMessage"
                 },
-                "example": {
-                  "error": "ID sessione non valido"
+                "examples": {
+                  "missingIds": {
+                    "value": {
+                      "error": "ID sessione o task non valido"
+                    }
+                  },
+                  "invalidOutcome": {
+                    "value": {
+                      "error": "Outcome non valido, deve essere Positivo o Negativo"
+                    }
+                  }
                 }
               }
             }
@@ -3877,28 +4416,15 @@
               }
             }
           },
-          "403": {
-            "description": "Accesso non consentito",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Accesso non consentito"
-                }
-              }
-            }
-          },
           "404": {
-            "description": "Sessione di test non trovata o permessi insufficienti",
+            "description": "Task non trovata nella sessione, o sessione non attiva/non tua",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorMessage"
                 },
                 "example": {
-                  "error": "Sessione di test non trovata o permessi insufficienti"
+                  "error": "Task non trovata nella sessione, o sessione non attiva/non tua"
                 }
               }
             }
@@ -3911,7 +4437,7 @@
                   "$ref": "#/components/schemas/ErrorMessage"
                 },
                 "example": {
-                  "error": "Errore interno del server",
+                  "error": "Errore del server",
                   "details": "Internal error"
                 }
               }
@@ -3922,7 +4448,9 @@
     },
     "/api/test-sessions/{id}/reopen": {
       "patch": {
-        "tags": ["test-sessions"],
+        "tags": [
+          "test-sessions"
+        ],
         "summary": "Riapre una sessione di test",
         "description": "Imposta una sessione di test come riaperta tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
@@ -4024,305 +4552,6 @@
           }
         }
       }
-    },
-    "/api/test-results/session/{sessionId}": {
-      "get": {
-        "tags": ["test-results"],
-        "summary": "Ottieni risultati e item di una sessione",
-        "description": "Restituisce la sessione di test e tutti gli item della checklist con il relativo stato salvato in test_result. Richiede il token JWT nell'header Authorization come Bearer token.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "sessionId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID della sessione di test",
-            "example": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sessione e risultati restituiti correttamente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "session": {
-                      "type": "object",
-                      "additionalProperties": true
-                    },
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                      }
-                    }
-                  },
-                  "required": ["session", "items"]
-                },
-                "example": {
-                  "session": {
-                    "id": 1,
-                    "project_id": 1,
-                    "user_id": 2,
-                    "status": "In corso",
-                    "started_at": "2026-05-28T10:00:00Z",
-                    "completed_at": null
-                  },
-                  "items": [
-                    {
-                      "checklist_item_id": 10,
-                      "template_id": 3,
-                      "description": "Verificare login",
-                      "position": 1,
-                      "test_result_id": 55,
-                      "is_tested": 1,
-                      "outcome": "Positivo",
-                      "note": "Tutto ok"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token mancante o non valido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "message": "Token mancante o formato non valido"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Accesso non consentito",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Accesso non consentito"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Sessione di test non trovata o permessi insufficienti",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Sessione di test non trovata o permessi insufficienti"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Errore del server",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Errore interno del server",
-                  "details": "Internal error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/test-results/session/{sessionId}/item/{itemId}": {
-      "patch": {
-        "tags": ["test-results"],
-        "summary": "Aggiorna il risultato di un item della sessione",
-        "description": "Aggiorna lo stato di test, l'esito e la nota di un singolo item all'interno di una sessione di test. Richiede il token JWT nell'header Authorization come Bearer token.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "sessionId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID della sessione di test",
-            "example": 1
-          },
-          {
-            "name": "itemId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID dell'item della checklist",
-            "example": 10
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "is_tested": {
-                    "type": ["boolean", "integer", "string"],
-                    "example": true
-                  },
-                  "outcome": {
-                    "type": "string",
-                    "enum": ["Positivo", "Negativo"],
-                    "example": "Positivo"
-                  },
-                  "note": {
-                    "type": "string",
-                    "example": "Verifica completata correttamente"
-                  }
-                }
-              },
-              "example": {
-                "is_tested": true,
-                "outcome": "Positivo",
-                "note": "Verifica completata correttamente"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Risultato aggiornato correttamente",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "example": {
-                  "id": 55,
-                  "session_id": 1,
-                  "checklist_item_id": 10,
-                  "is_tested": 1,
-                  "outcome": "Positivo",
-                  "note": "Verifica completata correttamente"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Dati mancanti o non validi",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "examples": {
-                  "missingData": {
-                    "value": {
-                      "error": "Nessun dato da aggiornare"
-                    }
-                  },
-                  "invalidOutcome": {
-                    "value": {
-                      "error": "Esito non valido"
-                    }
-                  },
-                  "invalidUpdate": {
-                    "value": {
-                      "error": "Nessun dato valido da aggiornare"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token mancante o non valido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "message": "Token mancante o formato non valido"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Accesso non consentito",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Accesso non consentito"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Sessione o item non trovati",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "examples": {
-                  "session": {
-                    "value": {
-                      "error": "Sessione di test non trovata o permessi insufficienti"
-                    }
-                  },
-                  "item": {
-                    "value": {
-                      "error": "Item della checklist non trovato nella sessione"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Errore del server",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "error": "Errore interno del server",
-                  "details": "Internal error"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -4343,7 +4572,9 @@
             "example": "Benvenuto!"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "SuccessMessage": {
         "type": "object",
@@ -4352,7 +4583,9 @@
             "type": "string"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "ErrorMessage": {
         "type": "object",
@@ -4361,7 +4594,9 @@
             "type": "string"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "ErrorWithDetail": {
         "type": "object",
@@ -4373,7 +4608,9 @@
             "type": "string"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "RegisterRequest": {
         "type": "object",
@@ -4398,11 +4635,21 @@
           },
           "role": {
             "type": "string",
-            "enum": ["user", "admin", "superadmin"],
+            "enum": [
+              "user",
+              "admin",
+              "superadmin"
+            ],
             "example": "user"
           }
         },
-        "required": ["name", "surname", "email", "password", "role"]
+        "required": [
+          "name",
+          "surname",
+          "email",
+          "password",
+          "role"
+        ]
       },
       "LoginRequest": {
         "type": "object",
@@ -4418,18 +4665,43 @@
             "example": "Password123!"
           }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "User": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "example": 1 },
-          "nome": { "type": "string", "example": "Mario" },
-          "cognome": { "type": "string", "example": "Rossi" },
-          "email": { "type": "string", "format": "email", "example": "mario.rossi@example.com" },
-          "role": { "type": "string", "example": "user" }
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "nome": {
+            "type": "string",
+            "example": "Mario"
+          },
+          "cognome": {
+            "type": "string",
+            "example": "Rossi"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "mario.rossi@example.com"
+          },
+          "role": {
+            "type": "string",
+            "example": "user"
+          }
         },
-        "required": ["id", "nome", "cognome", "email", "role"]
+        "required": [
+          "id",
+          "nome",
+          "cognome",
+          "email",
+          "role"
+        ]
       },
       "LoginResponse": {
         "type": "object",
@@ -4447,47 +4719,118 @@
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           }
         },
-        "required": ["message", "user", "token"]
+        "required": [
+          "message",
+          "user",
+          "token"
+        ]
       },
       "ProjectCreateRequest": {
         "type": "object",
         "properties": {
-          "name": { "type": "string", "example": "Progetto Alpha" },
-          "description": { "type": "string", "example": "Descrizione del progetto Alpha" },
-          "manager_id": { "type": "integer", "description": "Obbligatorio per i superadmin", "example": 2 },
-          "deadline": { "type": "string", "format": "date", "description": "Scadenza opzionale (YYYY-MM-DD)", "example": "2026-12-31" }
+          "name": {
+            "type": "string",
+            "example": "Progetto Alpha"
+          },
+          "description": {
+            "type": "string",
+            "example": "Descrizione del progetto Alpha"
+          },
+          "manager_id": {
+            "type": "integer",
+            "description": "Obbligatorio per i superadmin",
+            "example": 2
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date",
+            "description": "Scadenza opzionale (YYYY-MM-DD)",
+            "example": "2026-12-31"
+          }
         },
-        "required": ["name", "description"]
+        "required": [
+          "name",
+          "description"
+        ]
       },
       "ProjectDetailedResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "example": 1 },
-          "name": { "type": "string", "example": "Progetto Alpha" },
-          "description": { "type": "string", "example": "Descrizione" },
-          "status": { "type": "string", "example": "Non iniziato" },
-          "created_at": { "type": "string", "format": "date-time", "example": "2026-06-14T10:00:00Z" },
-          "updated_at": { "type": "string", "format": "date-time", "nullable": true },
-          "started_at": { "type": "string", "format": "date-time", "nullable": true },
-          "deadline": { "type": "string", "format": "date", "nullable": true, "example": "2026-12-31" },
-          "completed_at": { "type": "string", "format": "date-time", "nullable": true },
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Progetto Alpha"
+          },
+          "description": {
+            "type": "string",
+            "example": "Descrizione"
+          },
+          "status": {
+            "type": "string",
+            "example": "Non iniziato"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-14T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2026-12-31"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "created_by": {
             "type": "object",
             "properties": {
-              "id": { "type": "integer" },
-              "nome": { "type": "string" },
-              "cognome": { "type": "string" },
-              "email": { "type": "string" }
+              "id": {
+                "type": "integer"
+              },
+              "nome": {
+                "type": "string"
+              },
+              "cognome": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
             }
           },
           "manager": {
             "type": "object",
             "nullable": true,
             "properties": {
-              "id": { "type": "integer" },
-              "nome": { "type": "string" },
-              "cognome": { "type": "string" },
-              "email": { "type": "string" }
+              "id": {
+                "type": "integer"
+              },
+              "nome": {
+                "type": "string"
+              },
+              "cognome": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
             }
           },
           "user_list": {
@@ -4495,10 +4838,18 @@
             "items": {
               "type": "object",
               "properties": {
-                "id": { "type": "integer" },
-                "nome": { "type": "string" },
-                "cognome": { "type": "string" },
-                "email": { "type": "string" }
+                "id": {
+                  "type": "integer"
+                },
+                "nome": {
+                  "type": "string"
+                },
+                "cognome": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -4520,7 +4871,10 @@
             "example": "Descrizione del progetto Alpha"
           }
         },
-        "required": ["id", "name"]
+        "required": [
+          "id",
+          "name"
+        ]
       }
     }
   }
