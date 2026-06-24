@@ -43,7 +43,7 @@ router.post("/", checkAdmin, async (req, res) => {
     }
 
     const [result] = await db.execute(
-      "INSERT INTO checklist_template (title, project_id,createdBy,description) VALUES (?,?,?,?)",
+      "INSERT INTO checklist_template (title, project_id,createdBy,description,last_updated) VALUES (?,?,?,?,NOW())",
       [trimmedTitle, project_id, createdBy, trimmedDescription],
     );
 
@@ -88,7 +88,7 @@ router.put("/:id", checkAdmin, async (req, res) => {
     }
 
     const [result] = await db.execute(
-      "UPDATE checklist_template SET title = ? WHERE id = ?",
+      "UPDATE checklist_template SET title = ?, last_updated = NOW() WHERE id = ?",
       [trimmedTitle, checklistId],
     );
 

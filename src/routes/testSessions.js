@@ -5,43 +5,68 @@ const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
 
+
+
 router.post("/", checkUser, async (req, res) => {
   const testerId = req.user.id;
-  const { projectId } = req.body;
+  const { checklistItemIds } = req.body;
 
-  if (!projectId) {
-    return res.status(400).json({ error: "Progetto non valido" });
+  if (!Array.isArray(checklistItemIds) || checklistItemIds.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Nessun elemento della checklist fornito" });
   }
 
-  const [projectResults] = await db.execute(
-    "SELECT id FROM project WHERE id = ?",
-    [projectId],
+  const [items] = await db.query(
+    `
+    SELECT ci.id,ci.assigned_to,ci.status,ct.project_id
+    FROM checklist_item ci 
+    JOIN checklist_template ct ON ci.template_id = ct.id 
+    WHERE ci.id in (?)
+
+    `,
+    [checklistItemIds],
   );
 
-  if (!projectResults.length) {
-    return res.status(404).json({ error: "Progetto non trovato" });
+  // Verifica che tutti gli elementi della checklist esistano
+  if (items.length !== checklistItemIds.length) {
+    return res.status(400).json({ error: "Una o più task non esistono" });
   }
 
-  if (req.user.role === "user") {
-    const [membershipResults] = await db.execute(
-      "SELECT user_id FROM project_assignment WHERE project_id = ? AND user_id = ?",
-      [projectId, testerId],
-    );
+  const notAssignedItems = items.filter(
+    (item) => item.assigned_to !== testerId,
+  );
 
-    if (!membershipResults.length) {
-      return res.status(403).json({ error: "Accesso negato" });
-    }
+  // Verifica che tutti gli elementi della checklist siano assegnati al tester loggato
+  if (notAssignedItems.length > 0) {
+    return res
+      .status(403)
+      .json({ error: "Puoi creare sessioni solo sulle tue task assegnate" });
   }
 
-  if (req.user.role === "admin") {
-    const [adminResults] = await db.execute(
-      "SELECT id FROM project WHERE id = ? AND created_by = ?",
-      [projectId, testerId],
-    );
+  // Verifica che tutti gli elementi della checklist appartengano allo stesso progetto
+  //  mi ritorna un array di project_id unici, se la lunghezza è maggiore di 1 allora gli elementi appartengono a progetti diversi
+  const projectIds = [...new Set(items.map((item) => item.project_id))];
 
-    if (!adminResults.length) {
-      return res.status(403).json({ error: "Accesso negato" });
-    }
+  if (projectIds.length > 1) {
+    return res
+      .status(400)
+      .json({
+        error:
+          "Gli elementi della checklist devono appartenere allo stesso progetto",
+      });
+  }
+
+  const notWorkable = items.filter(
+    (item) => item.status === "Archiviata" || item.status === "Completata",
+  );
+
+  if (notWorkable.length > 0) {
+    return res
+      .status(400)
+      .json({
+        error: "Non puoi creare sessioni su task completate o archiviate",
+      });
   }
 
   let connection;
@@ -52,40 +77,50 @@ router.post("/", checkUser, async (req, res) => {
     await connection.beginTransaction();
 
     const [result] = await connection.execute(
-      "INSERT INTO test_session (project_id, user_id) VALUES (?, ?)",
-      [projectId, testerId],
+      "INSERT INTO test_session (project_id, user_id, status, started_at) VALUES (?, ?, 'In corso', NOW())",
+      [projectIds[0], testerId],
     );
 
+    // prendo l'id della sessione appena creata per inserirlo nella tabella session_task
     const sessionId = result.insertId;
 
-    const [items] = await connection.execute(
-      "SELECT ci.id FROM checklist_template ct JOIN checklist_item ci ON ci.template_id = ct.id WHERE ct.project_id = ? ORDER BY ct.id, ci.position, ci.id",
-      [projectId],
+    // creo un array di valori da inserire nella tabella session_task
+    // es [sessionId, itemId1, null, null], [sessionId, itemId2, null, null], ...]
+    const values = checklistItemIds.map((itemId) => [
+      sessionId,
+      itemId,
+      null,
+    ]);
+
+    // inserisco i valori nella tabella session_task
+    await connection.query(
+      "INSERT INTO session_task (session_id, checklist_item_id,outcome) VALUES ?",
+      [values],
     );
 
-    if (items.length > 0) {
-      const values = items.map((item) => [sessionId, item.id, 0, null, null]);
-      await connection.query(
-        "INSERT INTO test_result (session_id, checklist_item_id, is_tested, outcome, note) VALUES ?",
-        [values],
-      );
-    }
+    // aggiorno lo status degli elementi della checklist a "In corso" solo se lo status attuale è "TODO"
+    await connection.query(
+      "UPDATE checklist_item SET status = 'In corso' WHERE id IN (?) AND status = 'TODO'",
+      [checklistItemIds],
+    );
 
     await connection.commit();
-
-    return res.status(201).json({
-      id: sessionId,
-      message: "Sessione di test creata con successo",
-    });
+    return res
+      .status(201)
+      .json({ message: "Sessione di test creata con successo", sessionId });
   } catch (error) {
     if (typeof connection !== "undefined") {
+      // Rollback della transazione in caso di errore
+      // per evitare che la sessione venga creata senza i risultati dei test o viceversa
       await connection.rollback();
     }
+
     return res
       .status(500)
       .json({ error: "Errore del server", details: error.message });
   } finally {
-    if (typeof connection !== "undefined") {
+    if (connection) {
+      // Rilascia la connessione al pool
       connection.release();
     }
   }
@@ -150,88 +185,7 @@ router.get("/", checkUser, async (req, res) => {
   return res.status(403).json({ error: "Accesso negato" });
 });
 
-router.patch("/:id/complete", checkUser, async (req, res) => {
-  const sessionId = req.params.id;
 
-  if (!sessionId) {
-    return res.status(400).json({ error: "ID sessione non valido" });
-  }
-
-  if (req.user.role === "user") {
-    try {
-      const [session] = await db.execute(
-        "SELECT * FROM test_session WHERE id = ? AND user_id = ?",
-        [sessionId, req.user.id],
-      );
-      if (!session.length) {
-        return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
-        });
-      }
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", details: error.message });
-    }
-  }
-
-  if (req.user.role === "admin") {
-    try {
-      const [session] = await db.execute(
-        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND p.created_by = ?",
-        [sessionId, req.user.id],
-      );
-      if (!session.length) {
-        return res.status(404).json({
-          error: "Sessione di test non trovata o permessi insufficienti",
-        });
-      }
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", details: error.message });
-    }
-  }
-
-  try {
-    const [progress] = await db.execute(
-      "SELECT COUNT(*) AS total_items, SUM(CASE WHEN is_tested = 1 THEN 1 ELSE 0 END) AS tested_items FROM test_result WHERE session_id = ?",
-      [sessionId],
-    );
-
-    const totalItems = Number(progress[0]?.total_items || 0);
-    const testedItems = Number(progress[0]?.tested_items || 0);
-
-    if (totalItems > 0 && testedItems < totalItems) {
-      return res.status(400).json({
-        error: "Non tutti gli elementi sono stati testati",
-      });
-    }
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ error: "Errore del server", details: error.message });
-  }
-
-  try {
-    const [result] = await db.execute(
-      "UPDATE test_session SET status = 'Completata', completed_at = NOW() WHERE id = ?",
-      [sessionId],
-    );
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        error: "Sessione di test non trovata o permessi insufficienti",
-      });
-    }
-    return res
-      .status(200)
-      .json({ message: "Sessione di test completata con successo" });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ error: "Errore del server", details: error.message });
-  }
-});
 
 router.delete("/:id", checkAdmin, async (req, res) => {
   const sessionId = req.params.id;
@@ -265,7 +219,7 @@ router.delete("/:id", checkAdmin, async (req, res) => {
 
     await connection.beginTransaction();
 
-    await connection.execute("DELETE FROM test_result WHERE session_id = ?", [
+    await connection.execute("DELETE FROM session_task WHERE session_id = ?", [
       sessionId,
     ]);
 
@@ -342,5 +296,102 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
       .json({ error: "Errore del server", details: error.message });
   }
 });
+
+
+// Aggiorna l'outcome e la nota di una task in una sessione di test
+router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
+  const userId = req.user.id;
+  const {sessionId,itemId} = req.params;
+  const {outcome,note} = req.body;
+
+  if(!sessionId || !itemId){
+    return res.status(400).json({error:"ID sessione o task non valido"});
+  }
+
+  if(!outcome || !['Positivo','Negativo'].includes(outcome)){
+    return res.status(400).json({error:"Outcome non valido, deve essere Positivo o Negativo"});
+
+  }
+
+  // if(!note){
+  //   return res.status(400).json({error:"Nota non valida"});
+  // }
+
+  try{
+    const [session]  = await db.execute(
+      `
+
+      UPDATE session_task st
+      set st.outcome = ?, st.note = ?
+      where st.session_id = ? and st.checklist_item_id = ? and st.session_id in (select ts.id from test_session ts where ts.user_id = ? and ts.status = 'In corso')
+   `,[outcome,note,sessionId,itemId,userId]
+
+   
+
+    )
+
+
+     if (result.affectedRows === 0) {
+    return res.status(404).json({ error: "Task non trovata nella sessione, o sessione non attiva/non tua" });
+  }
+ 
+      await db.execute(
+        `
+        UPDATE checklist_item ci
+        set ci.status = 'Completata'
+        where ci.id = ? and ci.status = 'In corso'
+        `,[itemId]
+      ), 
+    await db.execute(
+      `
+      UPDATE test_session ts
+      set ts.status = 'Completata', ts.completed_at = NOW()
+      where ts.id = ? and ts.status = 'In corso' and not exists (select 1 from session_task st where st.session_id = ts.id and st.outcome is null)
+      `,[sessionId]
+    )
+    
+
+    return res.status(200).json({message:"Risultato della task aggiornato con successo"})
+
+  }catch(error){
+    return res.status(500).json({error:"Errore del server",details:error.message})
+  }
+
+
+
+
+
+})
+
+router.get('/:sessionId',checkUser,async (req,res)=>{
+  const {sessionId} = req.params
+  const userId = req.user.id 
+
+  if(!sessionsId || isNaN(sessionId)){
+    return res.status(404).json({error:"ID sessione non valido"})
+  }
+
+  try{
+    const [session] = await db.execute(
+
+      `
+      select ts.id,ts.project_id,ts.stats,ts.started_at,ts.completed_at 
+      from test_session ts 
+      where ts.id = ? and ts.user_id = ?
+    
+      `,[sessionId,userId]
+    )
+
+    if(session.affectedRows ===0){
+      return res.status(400).json({
+        error  : ` Sessione ${sessionId} non trovata o non appartiente all'utente loggato`
+      })
+    }
+
+  }catch(error){
+    return res.status(500).json({error:"Errore del server",details:error.message})
+  }
+})
+
 
 module.exports = router;
