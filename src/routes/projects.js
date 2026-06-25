@@ -5,6 +5,7 @@ const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
 const { route } = require("express/lib/application");
+const logActivity = require("../utils/logActivity");
 
 router.get("/", checkUser, (req, res) => {
   if (req.user.role === "superadmin") {
@@ -238,7 +239,12 @@ router.post("/", checkAdmin, async (req, res) => {
       "INSERT INTO project (name, description, created_by, manager_id, deadline) VALUES (?, ?, ?, ?, ?)",
       [trimmedName, trimmedDescription, createdBy, finalManagerId, finalDeadline]
     );
+  
+   
 
+   await  logActivity(req.user.id,result.insertId,"project.created",{name : trimmedName})
+
+    
     return res.status(201).json({
       id: result.insertId,
       name: trimmedName,
@@ -502,7 +508,8 @@ router.put("/:id", checkAdmin, async (req, res) => {
         specific: "Progetto non trovato o permessi insufficienti." 
       });
     }
-
+    
+    await logActivity(req.user.id,projectId,"project.updated",{name : trimmedName })
     return res.status(200).json({ message: "Progetto aggiornato con successo" });
 
   } catch (err) {
@@ -567,6 +574,7 @@ router.patch("/:id/status", checkAdmin, async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Progetto non trovato" });
     }
+    await logActivity(req.user.id, projectId, "project.status_changed", { from: currentStatus, to: trimmedStatus });
     return res.status(200).json({ message: "Stato del progetto aggiornato con successo", status: trimmedStatus });
   } catch (err) {
     return res.status(500).json({ error: "Errore del server", specific: err.message });
@@ -594,6 +602,7 @@ router.post("/:id/assign", checkAdmin, async (req, res) => {
 
     await db.execute("INSERT INTO project_assignment (project_id, user_id) VALUES (?, ?)", [projectId, userId]);
     await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
+    await logActivity(req.user.id, projectId, "project.member_assigned", { userId: userId });
     return res.status(200).json({ message: "Utente assegnato al progetto con successo" });
   } catch (err) {
     return res.status(500).json({ error: "Errore del server", specific: err.message });
@@ -644,6 +653,7 @@ router.delete("/:id/assign", checkAdmin, async (req, res) => {
       return res.status(404).json({ error: "Assegnazione non trovata" });
     }
     await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
+    await logActivity(req.user.id, projectId, "project.member_unassigned", { userId: userId });
     return res.status(200).json({ message: "Assegnazione utente rimossa con successo" });
   } catch (err) {
     return res.status(500).json({ error: "Errore del server", specific: err.message });
@@ -654,10 +664,12 @@ router.delete("/:id", checkSuperadmin, (req, res) => {
   const projectId = req.params.id;
 
   db.execute("DELETE FROM project WHERE id = ?", [projectId])
-    .then(([result]) => {
+    .then(async ([result]) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: "Progetto non trovato" });
       }
+
+      await logActivity(req.user.id,null, "project.deleted",{deletedProjectId: projectId});
       return res.status(200).json({ message: "Progetto eliminato con successo" });
     })
     .catch((err) => {
@@ -687,9 +699,10 @@ router.get('/:id/stats', checkAdmin, async (req, res) => {
     return res.status(400).json({ error: "ID progetto mancante" });
   }
 
-  if (db.execute("SELECT id FROM project WHERE id = ?", [projectId]).then(([rows]) => rows.length === 0)) {
-    return res.status(404).json({ error: "Progetto non trovato" });
-  }
+ const [existingProject] = await db.execute("SELECT id FROM project WHERE id = ?", [projectId]);
+if (existingProject.length === 0) {
+  return res.status(404).json({ error: "Progetto non trovato" });
+}
 
    
 
@@ -712,7 +725,7 @@ router.get('/:id/stats', checkAdmin, async (req, res) => {
   }
    
 
-  
+  try {
   const [t] = await db.execute(
   `SELECT COUNT(ci.id) AS totalTasks,
           SUM(ci.status IN ('Completata','Archiviata')) AS completedTasks
@@ -731,7 +744,7 @@ const [s] = await db.execute(
   [projectId]
 );
 
-try {
+
   const taskCompletionRate = t[0].totalTasks > 0 ? (t[0].completedTasks / t[0].totalTasks) * 100 : 0;
   return res.status(200).json({
     totalTasks: t[0].totalTasks,
@@ -750,5 +763,97 @@ catch (err) {  return res.status(500).json({ error: "Errore del server", specifi
 
 
 })
+
+
+
+router.get('/:id/activities',checkUser, async (req,res)=>{
+  const {id : project_id} = req.params
+  const  {id : user_id,role}  = req.user
+  
+
+  if(isNaN(project_id) || parseInt(project_id) <0){
+    return res.status(400).json({
+      error : 'ID progetto non valido o non trovato'
+    })
+  }
+
+
+     try {
+
+
+  const [existingProject] = await db.execute(
+    'select id from project where id = ?'
+    ,[project_id]
+  ) 
+
+  if(existingProject.length === 0){
+   
+    return res.status(404).json({ error: "Progetto non trovato" });
+  }
+
+
+   if(role === 'user'){
+    const [proj] = await db.execute(
+     'select pa.user_id from project p join project_assignment pa on pa.project_id = p.id  where  p.id = ?   and  pa.user_id = ?' 
+    ,[project_id, user_id])
+
+    if(proj.length === 0){
+      return res.status(403).json({ error: "Permessi insufficenti" });
+    }
+
+   }
+
+   if(role === 'admin'){
+    const [proj] = await db.execute(
+      'select p.created_by, p.manager_id from project p where p.id = ? and (p.created_by = ? or p.manager_id = ?)',
+      [project_id, user_id, user_id])
+
+    
+
+    if(proj.length ===0){
+      return res.status(403).json({ error: "Permessi insufficenti" });
+    }
+
+  }
+
+  
+
+    const limit = Math.min(Number(req.query.limit) || 50, 200);
+    
+
+    const filterByUser = role === "user"; 
+
+    const [activities] = await db.execute(
+       `SELECT a.id, a.action, a.details, a.timestamp, u.nome, u.cognome
+   FROM audit_log a
+   LEFT JOIN user u ON a.user_id = u.id
+   WHERE a.project_id = ?  ${filterByUser ? 'AND a.user_id = ?' : ''}
+   ORDER BY a.timestamp DESC
+   LIMIT ?`,
+   filterByUser ? [project_id, user_id, String(limit)] : [project_id, String(limit)]  
+
+
+    )
+    
+    // non attività trovate non vuol dire errore 404 
+    // ma che non ci sono attività per questo progetto
+    if(activities.length ===0){
+     return res.status(200).json({message : "Nessuna attività trovata per questo progetto", activities : []})
+ 
+    }
+
+    return res.status(200).json({activities : activities})
+
+  }catch (err) {
+
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
+
+  }
+
+  
+
+})
+
+
 
 module.exports = router;

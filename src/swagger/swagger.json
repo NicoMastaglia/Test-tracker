@@ -35,6 +35,10 @@
     {
       "name": "test-sessions",
       "description": "Creazione e gestione delle sessioni di test"
+    },
+    {
+      "name": "Audit Log",
+      "description": "Consultazione dello storico delle attività (globale, solo superadmin)"
     }
   ],
   "paths": {
@@ -567,6 +571,10 @@
                   "project_id": {
                     "type": "integer",
                     "example": 1
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Checklist di smoke test per la release"
                   }
                 },
                 "required": [
@@ -576,7 +584,8 @@
               },
               "example": {
                 "title": "Smoke test checklist",
-                "project_id": 1
+                "project_id": 1,
+                "description": "Checklist di smoke test per la release"
               }
             }
           }
@@ -597,13 +606,21 @@
                     },
                     "project_id": {
                       "type": "integer"
+                    },
+                    "createdBy": {
+                      "type": "integer"
+                    },
+                    "description": {
+                      "type": "string"
                     }
                   }
                 },
                 "example": {
                   "id": 12,
                   "title": "Smoke test checklist",
-                  "project_id": 1
+                  "project_id": 1,
+                  "createdBy": 3,
+                  "description": "Checklist di smoke test per la release"
                 }
               }
             }
@@ -679,7 +696,7 @@
           "Checklists"
         ],
         "summary": "Aggiorna una checklist esistente",
-        "description": "Aggiorna il titolo di una checklist specifica. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "description": "Aggiorna titolo e descrizione di una checklist specifica. Richiede il token JWT nell'header Authorization come Bearer token.",
         "security": [
           {
             "bearerAuth": []
@@ -707,6 +724,10 @@
                   "title": {
                     "type": "string",
                     "example": "Smoke test checklist aggiornata"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Descrizione aggiornata della checklist"
                   }
                 },
                 "required": [
@@ -714,7 +735,8 @@
                 ]
               },
               "example": {
-                "title": "Smoke test checklist aggiornata"
+                "title": "Smoke test checklist aggiornata",
+                "description": "Descrizione aggiornata della checklist"
               }
             }
           }
@@ -1638,6 +1660,22 @@
                         "type": "string",
                         "format": "date-time"
                       },
+                      "description": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "created_by": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "creator": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "nome": { "type": "string" },
+                          "cognome": { "type": "string" }
+                        }
+                      },
                       "items": {
                         "type": "array",
                         "items": {
@@ -1668,6 +1706,9 @@
                     "title": "Checklist Login",
                     "project_id": 1,
                     "last_updated": "2026-06-14T18:00:00Z",
+                    "description": "Checklist di smoke test per la release",
+                    "created_by": 3,
+                    "creator": { "nome": "Mario", "cognome": "Rossi" },
                     "items": [
                       {
                         "id": 10,
@@ -3438,6 +3479,148 @@
         }
       }
     },
+    "/api/projects/{id}/activities": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "Audit log di un progetto",
+        "description": "Restituisce gli eventi dell'audit log relativi a un singolo progetto. Superadmin e admin (se creatore/responsabile) vedono tutti gli eventi del progetto; il tester vede solo gli eventi che lo riguardano direttamente. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del progetto",
+            "example": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200
+            },
+            "description": "Numero massimo di eventi da restituire (default 50, tetto massimo 200)",
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attività restituite correttamente (array vuoto se non ce ne sono)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "activities": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "action": { "type": "string" },
+                          "details": { "type": "string", "nullable": true },
+                          "timestamp": { "type": "string", "format": "date-time" },
+                          "nome": { "type": "string", "nullable": true },
+                          "cognome": { "type": "string", "nullable": true }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "activities": [
+                    {
+                      "id": 12,
+                      "action": "project.status_changed",
+                      "details": "{\"from\":\"Attivo\",\"to\":\"In pausa\"}",
+                      "timestamp": "2026-06-25T14:32:00Z",
+                      "nome": "Mario",
+                      "cognome": "Rossi"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID progetto non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "ID progetto non valido o non trovato"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permessi insufficienti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Permessi insufficenti"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Progetto non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Progetto non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/projects/{id}/assign": {
       "get": {
         "tags": [
@@ -4546,6 +4729,114 @@
                 "example": {
                   "error": "Errore interno del server",
                   "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/audit-log": {
+      "get": {
+        "tags": ["Audit Log"],
+        "summary": "Audit log globale",
+        "description": "Restituisce lo storico globale di tutte le attività registrate nel sistema, di tutti i progetti. Richiede il token JWT nell'header Authorization come Bearer token. Solo superadmin.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200
+            },
+            "description": "Numero massimo di eventi da restituire (default 50, tetto massimo 200)",
+            "example": 20
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attività restituite correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "activities": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "action": { "type": "string" },
+                          "details": { "type": "string", "nullable": true },
+                          "timestamp": { "type": "string", "format": "date-time" },
+                          "project_id": { "type": "integer", "nullable": true },
+                          "nome": { "type": "string", "nullable": true },
+                          "cognome": { "type": "string", "nullable": true }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "activities": [
+                    {
+                      "id": 42,
+                      "action": "user.registered",
+                      "details": "{\"email\":\"mario.rossi@example.com\",\"role\":\"user\"}",
+                      "timestamp": "2026-06-25T20:05:55Z",
+                      "project_id": null,
+                      "nome": "Mario",
+                      "cognome": "Rossi"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato (solo superadmin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore del server",
+                  "specific": "Internal error"
                 }
               }
             }

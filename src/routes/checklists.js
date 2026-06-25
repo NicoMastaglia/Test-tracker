@@ -4,6 +4,9 @@ const checkSuperadmin = require("../middleware/checkSuperadmin");
 const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
+const logActivity = require("../utils/logActivity");
+
+
 const { route } = require("express/lib/application");
 
 router.post("/", checkAdmin, async (req, res) => {
@@ -46,7 +49,11 @@ router.post("/", checkAdmin, async (req, res) => {
       "INSERT INTO checklist_template (title, project_id,createdBy,description,last_updated) VALUES (?,?,?,?,NOW())",
       [trimmedTitle, project_id, createdBy, trimmedDescription],
     );
-
+    
+    await logActivity(req.user.id, project_id, "checklist.created", {
+      checklistId: result.insertId,
+      title: trimmedTitle,
+    });
     res.status(201).json({
       id: result.insertId,
       title: trimmedTitle,
@@ -64,6 +71,7 @@ router.put("/:id", checkAdmin, async (req, res) => {
   const { title, description } = req.body;
 
   const trimmedTitle = title ? title.trim() : "";
+  const trimmedDescription = description ? description.trim() : "";
   if (!trimmedTitle) {
     return res
       .status(400)
@@ -74,25 +82,44 @@ router.put("/:id", checkAdmin, async (req, res) => {
   }
 
   try {
+
+     const [results] = await db.execute(
+      "SELECT ct.id, ct.project_id FROM checklist_template ct WHERE ct.id = ?",
+      [checklistId],
+    );
+
+    if(!results.length){
+      return res.status(404).json({ error: "Checklist non trovata" });
+    }
+
+    const project_id = results.length > 0 ? results[0].project_id : null;
+
+    
+
     if (req.user.role === "admin") {
-      const [results] = await db.execute(
-        "SELECT ct.id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND p.created_by = ?",
+      const [owned] = await db.execute(
+        "SELECT ct.id,ct.project_id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND p.created_by = ?",
         [checklistId, req.user.id],
       );
 
-      if (results.length === 0) {
+      if (!owned.length) {
         return res
           .status(403)
           .json({ error: "Accesso negato o checklist non trovata" });
       }
+
     }
 
     const [result] = await db.execute(
-      "UPDATE checklist_template SET title = ?, last_updated = NOW() WHERE id = ?",
-      [trimmedTitle, checklistId],
+      "UPDATE checklist_template SET title = ?, description = ?, last_updated = NOW() WHERE id = ?",
+      [trimmedTitle, trimmedDescription, checklistId],
     );
 
     if (result.affectedRows === 1) {
+      await logActivity(req.user.id, project_id, "checklist.updated", {
+        checklistId: checklistId,
+        title: trimmedTitle,
+      });
       return res
         .status(200)
         .json({ message: "Checklist aggiornata con successo" });
@@ -110,18 +137,32 @@ router.put("/:id", checkAdmin, async (req, res) => {
 router.delete("/:id", checkAdmin, async (req, res) => {
   const checklistId = req.params.id;
 
-  try {
+  try {  
+
+
+    const [results] = await db.execute(
+      "SELECT ct.id, ct.project_id FROM checklist_template ct WHERE ct.id = ?",
+      [checklistId],
+    );
+
+    if(!results.length){
+      return res.status(404).json({ error: "Checklist non trovata" });
+    }
+
+    const project_id = results.length > 0 ? results[0].project_id : null;
+   
     if (req.user.role === "admin") {
-      const [results] = await db.execute(
-        "SELECT ct.id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND p.created_by = ?",
+      const [owned] = await db.execute(
+        "SELECT ct.id,ct.project_id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND p.created_by = ?",
         [checklistId, req.user.id],
       );
 
-      if (results.length === 0) {
+      if (!owned.length) {
         return res
           .status(403)
           .json({ error: "Accesso negato o checklist non trovata" });
       }
+  
     }
 
     const [result] = await db.execute(
@@ -130,6 +171,9 @@ router.delete("/:id", checkAdmin, async (req, res) => {
     );
 
     if (result.affectedRows > 0) {
+      await logActivity(req.user.id, project_id, "checklist.deleted", {
+        checklistId: checklistId,
+      });
       return res
         .status(200)
         .json({ message: "Checklist eliminata con successo" });
@@ -186,7 +230,14 @@ router.get("/:projectId", checkUser, (req, res) => {
   if (req.user.role === "superadmin") {
     return db
       .execute(
-        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated, ct.description AS checklist_description,ct.created_by,u.nome AS creator_nome,u.cognome AS creator_cognome,ci.id AS item_id,ci.description AS item_description,ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id  left join user u ON  ct.created_by = u.id WHERE ct.project_id = ? ",
+        `SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated,
+                ct.description AS checklist_description, ct.created_by,
+                u.nome AS creator_nome, u.cognome AS creator_cognome,
+                ci.id AS item_id, ci.description AS item_description, ci.position
+         FROM checklist_template ct
+         LEFT JOIN checklist_item ci ON ct.id = ci.template_id
+         LEFT JOIN user u ON ct.created_by = u.id
+         WHERE ct.project_id = ?`,
         [projectId],
       )
       .then(([results]) => {
@@ -201,7 +252,15 @@ router.get("/:projectId", checkUser, (req, res) => {
   } else if (req.user.role === "admin") {
     return db
       .execute(
-        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated, ci.id AS item_id, ci.description, ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id JOIN project p ON ct.project_id = p.id WHERE ct.project_id = ? AND p.created_by = ?",
+        `SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated,
+                ct.description AS checklist_description, ct.created_by,
+                u.nome AS creator_nome, u.cognome AS creator_cognome,
+                ci.id AS item_id, ci.description AS item_description, ci.position
+         FROM checklist_template ct
+         LEFT JOIN checklist_item ci ON ct.id = ci.template_id
+         JOIN project p ON ct.project_id = p.id
+         LEFT JOIN user u ON ct.created_by = u.id
+         WHERE ct.project_id = ? AND p.created_by = ?`,
         [projectId, req.user.id],
       )
       .then(([results]) => {
@@ -216,7 +275,16 @@ router.get("/:projectId", checkUser, (req, res) => {
   } else if (req.user.role === "user") {
     return db
       .execute(
-        "SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated, ci.id AS item_id, ci.description, ci.position FROM checklist_template ct LEFT JOIN checklist_item ci ON ct.id = ci.template_id JOIN project p ON ct.project_id = p.id JOIN project_assignment pa ON p.id = pa.project_id WHERE ct.project_id = ? AND pa.user_id = ?",
+        `SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated,
+                ct.description AS checklist_description, ct.created_by,
+                u.nome AS creator_nome, u.cognome AS creator_cognome,
+                ci.id AS item_id, ci.description AS item_description, ci.position
+         FROM checklist_template ct
+         LEFT JOIN checklist_item ci ON ct.id = ci.template_id
+         JOIN project p ON ct.project_id = p.id
+         JOIN project_assignment pa ON p.id = pa.project_id
+         LEFT JOIN user u ON ct.created_by = u.id
+         WHERE ct.project_id = ? AND pa.user_id = ?`,
         [projectId, req.user.id],
       )
       .then(([results]) => {
@@ -248,10 +316,10 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
   }
 
   const [templateResults] = await db.execute(
-    "SELECT ct.id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND (p.created_by = ? OR ?)",
+    "SELECT ct.id, ct.project_id FROM checklist_template ct JOIN project p ON ct.project_id = p.id WHERE ct.id = ? AND (p.created_by = ? OR ?)",
     [templateId, req.user.id, req.user.role === "superadmin"],
   );
-  
+
   if (templateResults.length === 0) {
     return res
       .status(403)
@@ -268,6 +336,12 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
       "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
       [templateId],
     );
+
+    await logActivity(req.user.id, templateResults[0].project_id, "task.created", {
+      itemId: result.insertId,
+      templateId,
+      description: trimmedDescription,
+    });
 
     return res.status(201).json({
       message: "Elemento della checklist aggiunto con successo",
@@ -288,12 +362,10 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
   const trimmedDescription = description ? description.trim() : "";
 
   if (!trimmedDescription) {
-    return res
-      .status(400)
-      .json({
-        error: "Richiesta non valida",
-        message: "La nuova descrizione non può essere vuota.",
-      });
+    return res.status(400).json({
+      error: "Richiesta non valida",
+      message: "La nuova descrizione non può essere vuota.",
+    });
   }
 
   try {
@@ -302,18 +374,31 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
       [trimmedDescription, itemId],
     );
 
-    await db.execute(
-  "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
-  [templateId]
-);
-
     if (result.affectedRows > 0) {
-      return res
-        .status(200)
-        .json({
-          message: "Elemento della checklist aggiornato con successo",
-          description: trimmedDescription,
-        });
+      const [templateResults] = await db.execute(
+        `SELECT ci.template_id, ct.project_id
+         FROM checklist_item ci
+         JOIN checklist_template ct ON ci.template_id = ct.id
+         WHERE ci.id = ?`,
+        [itemId],
+      );
+      const templateId = templateResults[0].template_id;
+      const projectId = templateResults[0].project_id;
+
+      await db.execute(
+        "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
+        [templateId],
+      );
+
+      await logActivity(req.user.id, projectId, "task.updated", {
+        itemId: itemId,
+        templateId: templateId,
+        newDescription: trimmedDescription,
+      });
+      return res.status(200).json({
+        message: "Elemento della checklist aggiornato con successo",
+        description: trimmedDescription,
+      });
     } else {
       return res
         .status(404)
@@ -330,7 +415,7 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
   const itemId = req.params.id;
 
   const [itemResults] = await db.execute(
-  "SELECT ci.id, ct.id AS template_id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
+  "SELECT ci.id, ct.id AS template_id,p.id as project_id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
   [itemId, req.user.id, req.user.role === "superadmin"],
 );
 
@@ -340,6 +425,8 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
       .json({ error: "Accesso negato o elemento della checklist non trovato" });
   }
 
+  const projectId = itemResults[0].project_id;
+
   try {
   const [result] = await db.execute("DELETE FROM checklist_item WHERE id = ?", [itemId]);
 
@@ -348,6 +435,11 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
     "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
     [itemResults[0].template_id]   // letto prima di cancellare l'item, così da avere il template_id corretto
   );
+
+  await logActivity(req.user.id, projectId, "task.deleted", {
+    itemId: itemId,
+    templateId: itemResults[0].template_id,
+  });
       return res
         .status(200)
         .json({ message: "Elemento della checklist eliminato con successo" });
@@ -378,7 +470,7 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
   // verifico che l'item esista e che l'utente abbia i permessi per modificarlo (superadmin o admin del progetto)
 
   const [itemResults] = await db.execute(
-    "SELECT ci.id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
+    "SELECT ci.id,p.id as project_id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR ?)",
     [itemId, req.user.id, req.user.role === "superadmin"],
   );
 
@@ -387,6 +479,8 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
       .status(403)
       .json({ error: "Accesso negato o elemento della checklist non trovato" });
   }
+
+  const projectId = itemResults[0].project_id;
 
   // verifico che l'utente a cui assegnare l'item esista
   const [userResults] = await db.execute("SELECT id FROM user WHERE id = ?", [
@@ -405,6 +499,12 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
     );
 
     if (result.affectedRows > 0) {
+    await logActivity(req.user.id, projectId, "task.assigned", {
+      itemId: itemId,
+      assignedTo: userId,
+    });
+
+    
       return res
         .status(200)
         .json({ message: "Elemento della checklist assegnato con successo" });
@@ -463,7 +563,7 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
 
 
    const [rows] = await db.execute(
-    `SELECT ci.id,ci.status as currentStatus,
+    `SELECT p.id as project_id , ci.id,ci.status as currentStatus,
     ci.assigned_to,ct.id AS template_id,p.created_by,p.manager_id
     from checklist_item ci
     join checklist_template ct on ci.template_id = ct.id
@@ -477,10 +577,13 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
    if(!rows || rows.length === 0){
     return res.status(404).json({error:"Elemento della checklist non trovato"})
    }
+
+  
    
 
    // prendo la task
    const task = rows[0];
+   const projectId = task.project_id;
    
 
    // superadmin può fare tutto,admin controlla le task del progetto creato o assegnato
@@ -536,6 +639,17 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
       "UPDATE checklist_template SET last_updated = NOW() WHERE id = ?",
       [task.template_id]
     )
+    
+    const mapStatusToAction = {
+      "Bloccata": "task.status_blocked",
+      "Archiviata": "task.status_archived",
+      "Completata": "task.unarchived"
+    }
+    await logActivity(req.user.id, projectId, mapStatusToAction[nextStatus] || "task.status_updated", {
+      itemId: itemID,
+      from : task.currentStatus,
+      to: nextStatus,
+    })
 
     return res.status(200).json({message: `Stato aggiornato a "${nextStatus}"`,status: nextStatus})
 

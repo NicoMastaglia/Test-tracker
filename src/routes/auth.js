@@ -4,7 +4,7 @@ const { generateAccessToken } = require("../auth/generateToken");
 const checkSuperadmin = require("../middleware/checkSuperadmin");
 const checkUser = require("../middleware/checkUser");
 const { hashPassword, comparePassword } = require("../auth/hash");
-
+const logActivity = require("../utils/logActivity");
 const router = express.Router();
 
 router.post("/register", async (req, res) => {
@@ -41,10 +41,17 @@ router.post("/register", async (req, res) => {
     }
     const passwordHash = await hashPassword(trimmedPassword);
 
-    await db.execute(
+
+
+     const [result] =  await db.execute(
       "INSERT INTO user (nome, cognome, email, password_hash, role) VALUES (?, ?, ?, ?, ?)",
-      [trimmedName, trimmedSurname, trimmedEmail, passwordHash, trimmedRole.toLowerCase()],
-    );
+      [trimmedName, trimmedSurname, trimmedEmail, passwordHash, trimmedRole.toLowerCase()]
+
+     )
+
+     await logActivity(result.insertId,null,'user.registered',{email : trimmedEmail,role : trimmedRole})
+   
+    
     
     return res.status(201).json({ message: "Utente registrato con successo" });
   } catch (err) {
@@ -88,6 +95,8 @@ router.post("/login", async (req, res) => {
 
     const token = generateAccessToken(userWithoutPassword);
 
+    await logActivity(user.id,null,'auth.login',{email : email})
+
     res.status(200).json({
       message: "Login effettuato con successo",
       user: userWithoutPassword,
@@ -102,7 +111,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/logout", checkUser, (req, res) => {
+router.post("/logout", checkUser, async (req, res) => {
+  await logActivity(req.user.id, null, 'auth.logout', { email: req.user.email });
   return res.status(200).json({ message: "Logout effettuato con successo" });
 });
 

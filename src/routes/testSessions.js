@@ -4,6 +4,7 @@ const checkSuperadmin = require("../middleware/checkSuperadmin");
 const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
+const logActivity = require("../utils/logActivity");
 
 
 
@@ -105,6 +106,11 @@ router.post("/", checkUser, async (req, res) => {
     );
 
     await connection.commit();
+
+    await logActivity(testerId, projectIds[0], "session.created", {
+      sessionId: sessionId,
+      checklistItemIds: checklistItemIds,
+    });
     return res
       .status(201)
       .json({ message: "Sessione di test creata con successo", sessionId });
@@ -235,6 +241,10 @@ router.delete("/:id", checkAdmin, async (req, res) => {
         error: "Sessione di test non trovata",
       });
     }
+
+    await logActivity(req.user.id, null, "session.deleted", {
+      sessionId: sessionId,
+    });
     return res
       .status(200)
       .json({ message: "Sessione di test eliminata con successo" });
@@ -252,12 +262,31 @@ router.delete("/:id", checkAdmin, async (req, res) => {
   }
 });
 
+
+// Riapre una sessione di test completata
 router.patch("/:id/reopen", checkAdmin, async (req, res) => {
   const sessionId = req.params.id;
 
   if (!sessionId) {
     return res.status(400).json({ error: "ID sessione non valido" });
   }
+  
+
+  const [session] = await db.execute(
+  'select p.id as project_id, ts.status from test_session ts join project p on ts.project_id = p.id where ts.id = ?',
+  [sessionId]
+  ) 
+
+  if(session.length === 0){
+    return res.status(404).json({error:"Sessione di test non trovata"})
+  }
+
+  if(session[0].status !== 'Completata'){
+    return res.status(400).json({error:"Sessione di test non completata, impossibile riaprirla"})
+  }
+
+  const projectId = session[0].project_id;
+
 
   if (req.user.role === "admin") {
     try {
@@ -287,6 +316,11 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
         error: "Sessione di test non trovata",
       });
     }
+
+    await logActivity(req.user.id, projectId, "session.reopened", {
+      sessionId: sessionId,
+      
+    });
     return res
       .status(200)
       .json({ message: "Sessione di test riaperta con successo" });
@@ -318,6 +352,26 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
   // }
 
   try{
+
+    const [session] = await db.execute(
+
+    'select p.id as project_id, ts.status from test_session ts join project p on ts.project_id = p.id where ts.id = ? and ts.user_id = ? and ts.status = "In corso"',
+    [sessionId,userId]
+
+
+    )
+
+    if(session.length === 0){
+      return res.status(404).json({error:"Sessione di test non trovata, non tua o non attiva"})
+    }
+
+    const projectId = session[0].project_id;
+
+
+ 
+
+
+
     const [result]  = await db.execute(
       `
 
@@ -334,6 +388,8 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
      if (result.affectedRows === 0) {
     return res.status(404).json({ error: "Task non trovata nella sessione, o sessione non attiva/non tua" });
   }
+
+    
  
       await db.execute(
         `
@@ -342,13 +398,23 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
         where ci.id = ? and ci.status = 'In corso'
         `,[itemId]
       )
-    await db.execute(
+    const [sessionCloseResult] = await db.execute(
       `
       UPDATE test_session ts
       set ts.status = 'Completata', ts.completed_at = NOW()
       where ts.id = ? and ts.status = 'In corso' and not exists (select 1 from session_task st where st.session_id = ts.id and st.outcome is null)
       `,[sessionId]
+    
     )
+
+     await logActivity(userId,projectId,'task.status_changed',{sessionId:sessionId,itemId:itemId,outcome:outcome,note:note})
+
+    if(sessionCloseResult.affectedRows > 0){
+      await logActivity(userId,projectId,'session.completed',{sessionId:sessionId})
+
+
+    }
+    
     
 
     return res.status(200).json({message:"Risultato della task aggiornato con successo"})
