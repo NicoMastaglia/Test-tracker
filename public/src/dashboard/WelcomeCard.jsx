@@ -25,7 +25,7 @@ const getTodayLabel = () => {
 
 // Card di benvenuto condivisa dalle dashboard (Admin, SuperAdmin, User)
 const WelcomeCard = ({ user, subtitle }) => {
-  const roleBadge = getRoleInfo(user?.role);
+  const roleInfo = getRoleInfo(user?.role);
   const fullName = getFullName(user) || user?.name || "utente";
 
   return (
@@ -43,8 +43,9 @@ const WelcomeCard = ({ user, subtitle }) => {
               <h2 className="text-2xl font-bold text-slate-900">
                 {getGreeting()}, {fullName} 
               </h2>
-              <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full ${roleBadge.className}`}>
-                {roleBadge.label}
+              <Badge className={`border-none px-3 py-1 text-xs  ${roleInfo.className}`}>
+                <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+                {roleInfo.label}
               </Badge>
             </div>
 

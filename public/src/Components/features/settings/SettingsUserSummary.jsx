@@ -13,11 +13,14 @@ const SettingsUserSummary = ({ user = {} }) => {
           <UserAvatar user={user} colorIndex={user.id} size="lg" />
           <div className="flex flex-col gap-1.5">
             <p className="text-sm font-bold text-slate-900">{getFullName(user)}</p>
-            <Badge className={`w-fit border-none px-2 py-0.5 text-[11px] ${roleInfo.className}`}>
+            <Badge className={`border-none px-3 py-1 text-xs  ${roleInfo.className}`}>
+                <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
               {roleInfo.label}
             </Badge>
           </div>
         </div>
+
+        
 
         <div className="flex items-center gap-4 p-6">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">

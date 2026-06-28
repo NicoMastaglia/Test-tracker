@@ -244,6 +244,12 @@ router.patch("/:id/role", checkSuperadmin, async (req, res) => {
 router.patch("/:id/password", checkSuperadmin, async (req, res) => {
   const userId = req.params.id;
   const { Newpassword } = req.body;
+
+  const trimmedNew = Newpassword ? Newpassword.trim() : "";
+
+  if (!trimmedNew) {
+    return res.status(400).json({ message: "La nuova password non può essere vuota." });
+  }
   try {
     const [rows] = await db.execute("SELECT id FROM user WHERE id = ?", [
       userId,

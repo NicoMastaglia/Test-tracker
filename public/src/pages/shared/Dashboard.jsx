@@ -4,10 +4,10 @@ import AppLayout from "@/Components/layout/AppLayout";
 import AdminDashboard from "@/dashboard/Admin";
 import SuperAdminDashboard from "@/dashboard/SuperAdmin";
 import UserDashboard from "@/dashboard/User";
-
 const Dashboard = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
+  
 
   const dashboardRules = {
     user: <UserDashboard />,

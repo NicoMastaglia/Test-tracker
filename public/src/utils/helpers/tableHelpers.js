@@ -72,15 +72,15 @@ export const getRoleInfo = (role) => {
   const roleMap = {
     user: {
       // label: "Utente",
-      label: "User",
+      label: "USER",
       className: "bg-green-100 text-green-800",
     },
     admin: {
-      label: "Admin",
+      label: "ADMIN",
       className: "bg-blue-100 text-blue-700",
     },
     superadmin: {
-      label: "Super Admin",
+      label: "SUPER ADMIN",
       className: "bg-pink-100 text-pink-700",
     },
   };

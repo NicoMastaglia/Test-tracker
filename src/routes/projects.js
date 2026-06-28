@@ -609,21 +609,52 @@ router.post("/:id/assign", checkAdmin, async (req, res) => {
   }
 });
 
-router.get("/:id/assign", checkAdmin, (req, res) => {
+router.get("/:id/assign", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
+  const userId = req.user.id;
+  const userRole = req.user.role;
 
-  db.execute(
-    "SELECT u.id, u.nome, u.email FROM user u JOIN project_assignment pa ON u.id = pa.user_id WHERE pa.project_id = ?",
-    [projectId],
+  if(userRole !== "superadmin" && userRole !== "admin") {
+    return res.status(403).json({ error: "Accesso negato" });
+  }
+  
+
+  try {
+  const [result] = await db.execute(
+    `
+
+    SELECT p.id FROM project p WHERE p.id = ? AND (p.created_by = ? OR p.manager_id = ?)`,
+[projectId, userId, userId]
+
   )
-    .then(([results]) => {
-      return res.status(200).json(results);
-    })
-    .catch((err) => {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", specific: err.message });
-    });
+
+  if(result.length === 0) {
+    return res.status(403).json({ error: "Permessi insufficienti" });
+
+
+ 
+  }
+
+   const [assignments] = await db.execute(
+    ` select u.id,u.nome,u.cognome
+from project p 
+join project_assignment pa 
+ON pa.project_id = p.id 
+join user u 
+on u.id = pa.user_id
+where p.id = ? 
+
+`,[projectId]
+
+   )
+
+   return res.status(200).json(assignments);
+  } catch (err) {
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
+  }
+  
+
+
 });
 
 router.delete("/:id/assign", checkAdmin, async (req, res) => {
@@ -660,23 +691,46 @@ router.delete("/:id/assign", checkAdmin, async (req, res) => {
   }
 });
 
-router.delete("/:id", checkSuperadmin, (req, res) => {
+router.delete("/:id", checkSuperadmin, async (req, res) => {
   const projectId = req.params.id;
 
-  db.execute("DELETE FROM project WHERE id = ?", [projectId])
-    .then(async ([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: "Progetto non trovato" });
-      }
+  try {
+    const [result]  = await db.execute("SELECT id,name FROM project WHERE id = ?", [projectId]);
+      
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Progetto non trovato" });
+    }
 
-      await logActivity(req.user.id,null, "project.deleted",{deletedProjectId: projectId});
-      return res.status(200).json({ message: "Progetto eliminato con successo" });
-    })
-    .catch((err) => {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", specific: err.message });
-    });
+     await db.execute("DELETE FROM project WHERE id = ?", [projectId])
+
+     await logActivity(req.user.id,null,"project.deleted",{deletedProject: result[0].name})
+     return res.status(200).json({ message: "Progetto eliminato con successo" });
+
+
+  
+  
+  
+  } catch (err) {
+
+
+
+
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
+  }
+  // db.execute("DELETE FROM project WHERE id = ?", [projectId])
+  //   .then(async ([result]) => {
+  //     if (result.affectedRows === 0) {
+  //       return res.status(404).json({ error: "Progetto non trovato" });
+  //     }
+
+  //     await logActivity(req.user.id,null, "project.deleted",{deletedProjectId: projectId});
+  //     return res.status(200).json({ message: "Progetto eliminato con successo" });
+  //   })
+  //   .catch((err) => {
+  //     return res
+  //       .status(500)
+  //       .json({ error: "Errore del server", specific: err.message });
+  //   });
 });
 
 

@@ -7,7 +7,8 @@ import { ProjectProvider } from './context/Project/ProjectContext';
 import { UserProvider } from './context/User/UserContext';
 import { ChecklistProvider } from './context/Checklist/ChecklistContext';
 import { SessionProvider } from './context/Session/SessionContext';
-
+import { TaskProvider } from './context/Task/TaskContext';
+import { AuditProvider } from './context/Audit/AuditContext';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
@@ -15,7 +16,11 @@ createRoot(document.getElementById('root')).render(
         <UserProvider>
           <ChecklistProvider>
             <SessionProvider>
-              <App/>
+              <AuditProvider>
+                <TaskProvider>
+                <App/>
+                </TaskProvider>
+              </AuditProvider>
             </SessionProvider>
           </ChecklistProvider>
         </UserProvider>

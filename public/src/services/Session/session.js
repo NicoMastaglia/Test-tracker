@@ -14,17 +14,12 @@ export const getSessions = async (token, projectId) => {
 };
 
 // creo una nuova sessione di test 
-export const createSession = async (token, projectId) => {
-    const res = await axios.post(`${baseUrl}/api/test-sessions`, { projectId }, authConfig(token));
+export const createSession = async (token, checklistItemIds) => {
+    const res = await axios.post(`${baseUrl}/api/test-sessions`, { checklistItemIds }, authConfig(token));
     return res.data;
 };
 
-// imposto lo stato di una sessione di test a completata
-export const completeSession = async (token, sessionId) => {
-    // PATCH senza body: axios.patch(url, data, config) -> data = {}, config = authConfig
-    const res = await axios.patch(`${baseUrl}/api/test-sessions/${sessionId}/complete`, {}, authConfig(token));
-    return res.data;
-};
+
 
 // riapro una sessione di test completata, tornando allo stato "in corso"
 export const reopenSession = async (token, sessionId) => {
@@ -37,3 +32,31 @@ export const deleteSession = async (token, sessionId) => {
     const res = await axios.delete(`${baseUrl}/api/test-sessions/${sessionId}`, authConfig(token));
     return res.data;
 };
+
+
+
+// aggiorno un task di una sessione di test outconme o note 
+export const updateSessionTask = async (token,sessionId,itemId,sessionData) =>{
+
+    const res = await axios.patch(`${baseUrl}/api/test-sessions/${sessionId}/task/${itemId}`, sessionData, authConfig(token))
+
+    return res.data 
+
+
+}
+
+
+export const getSessionDetail = async (token,sessionId) =>{
+
+
+     const res = await axios.get(`${baseUrl}/api/test-sessions/${sessionId}`, authConfig(token))
+
+    return res.data 
+
+
+
+
+
+
+}
+

@@ -26,7 +26,7 @@ const StandardTable = ({
       <div className="overflow-x-auto">
         <Table>
           <TableHeader className="bg-slate-50">
-            <TableRow className="bg-slate-50 hover:bg-slate-50 text-center">
+            <TableRow className="bg-slate-50 hover:bg-slate-50 center">
               {headers.map((h, idx) => (
                 <TableHead key={h.key ?? idx} className={`${h.className ?? "font-semibold text-slate-900"}`}>
                   {h.label}

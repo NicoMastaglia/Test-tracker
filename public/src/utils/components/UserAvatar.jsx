@@ -6,9 +6,13 @@ const SIZE_CLASSES = {
   lg: "h-12 w-12 text-sm",
 };
 
+
+
 const UserAvatar = ({ user, colorIndex = 0, size = "sm", className = "", ...props }) => (
   <div
-    className={`flex shrink-0 items-center justify-center rounded-full font-semibold shadow-sm ${SIZE_CLASSES[size]} ${getRoundColorClass(colorIndex)} ${className}`}
+    className={`flex shrink-0 items-center justify-center rounded-full font-semibold shadow-sm ${SIZE_CLASSES[size]}
+     ${getRoundColorClass(colorIndex)} 
+     ${className}`}
     {...props}
   >
     {getInitials(user)}

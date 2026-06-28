@@ -38,14 +38,14 @@ const normalizeChecklistRow = (checklist) => ({
     try {
         const token = getToken()
         const data = await getChecklistsByProject(token,projectId)
-        const normalized = Array.isArray(data) ? data.map(normalizeChecklistRow) : []
+        // const normalized = Array.isArray(data) ? data.map(normalizeChecklistRow) : []
 
-        if (latestProjectRequestRef.current !== requestId) {
-            return normalized;
-        }
+        // if (latestProjectRequestRef.current !== requestId) {
+        //     return normalized;
+        // }
 
-        dispatch({type:'SET_CHECKLIST_ITEMS',payload:normalized})
-        return normalized
+        dispatch({type:'SET_CHECKLIST_ITEMS',payload:data})
+        return  data
     }
     catch(error){
         if (latestProjectRequestRef.current !== requestId) {
@@ -101,6 +101,7 @@ const addChecklist = async (checklistData) => {
     try {
         const token = getToken()
         const newChecklist = await createChecklist(token,checklistData)
+        console.log("Nuova checklist creata:", newChecklist); // Log della nuova checklist
         await fetchProjects()
         dispatch({type:'ADD_CHECKLIST',payload:newChecklist})
     }

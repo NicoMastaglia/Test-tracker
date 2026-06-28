@@ -429,6 +429,9 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
 
 })
 
+
+
+
 router.get('/:sessionId',checkUser,async (req,res)=>{
   const {sessionId} = req.params
   const userId = req.user.id 

@@ -8,7 +8,8 @@ export const authConfig = (token) =>({
 })
 
 export const getToken = () =>{
-    // Auth token is stored as a plain string under 'auth_token'
+    // quando l'utente logga conservo il suo token nel local storage
     const token = localStorage.getItem('auth_token') || null;
     return token;
 }
+

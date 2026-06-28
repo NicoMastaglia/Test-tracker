@@ -13,9 +13,6 @@ router.post("/", checkAdmin, async (req, res) => {
   const { title, project_id, description } = req.body;
   const createdBy = req.user.id;
 
-
- 
-  
   const trimmedTitle = title ? title.trim() : "";
   const trimmedDescription = description ? description.trim() : "";
 
@@ -49,7 +46,7 @@ router.post("/", checkAdmin, async (req, res) => {
     }
 
     const [result] = await db.execute(
-      "INSERT INTO checklist_template (title, project_id,created_by,description,last_updated) VALUES (?,?,?,?,NOW())",
+      "INSERT INTO checklist_template (title, project_id,createdBy,description,last_updated) VALUES (?,?,?,?,NOW())",
       [trimmedTitle, project_id, createdBy, trimmedDescription],
     );
     

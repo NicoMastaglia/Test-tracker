@@ -14,7 +14,7 @@ router.get('/',checkSuperadmin,async (req,res)=>{
 
     try{
         const [activities] = await db.execute(
-      `SELECT a.id, a.action, a.details, a.timestamp, a.project_id, u.nome, u.cognome
+      `SELECT u.id as user_id ,a.id, a.action, a.details, a.timestamp, a.project_id, u.nome, u.cognome
        FROM audit_log a
        LEFT JOIN user u ON a.user_id = u.id
        ORDER BY a.timestamp DESC

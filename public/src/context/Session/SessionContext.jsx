@@ -2,29 +2,66 @@ import { createContext, useContext, useReducer } from "react";
 import { initialState, sessionReducer } from "./SessionReducer";
 import { getToken } from "@/services/config";
 import {
-    getSessions,
+    getSessions as getSessionsApi,
     createSession as createSessionApi,
-    completeSession as completeSessionApi,
+  
     reopenSession as reopenSessionApi,
     deleteSession as deleteSessionApi,
+    updateSessionTask as updateSessionTaskApi,
+    getSessionDetail as getSessionDetailApi,
 } from "@/services/Session/session";
-import {
-    getSessionResults,
-    updateResultItem as updateResultItemApi,
-} from "@/services/Session/testResult";
+
 
 const SessionContext = createContext();
 
 export const SessionProvider = ({ children }) => {
     const [state, dispatch] = useReducer(sessionReducer, initialState);
 
-    // lista "i miei lavori". Il BE risponde 404 quando non ci sono sessioni:
-    // lo trattiamo come lista vuota, non come errore.
+
+    // dettaglio sessione di test 
+    const fetchSessionsDetail = async (sessionId) => {
+        dispatch({type:'SET_LOADING'})
+
+        try{
+            const token = getToken()
+
+            const sessionDetail = await getSessionDetailApi(token,sessionId)
+            dispatch({type:'SET_SELECTED_SESSION',payload : sessionDetail})
+        }catch(error){
+            
+
+
+            dispatch({type:'SET_ERROR',payload:error.message  })
+
+        }
+
+    }
+
+     const updateSessionTask = async (sessionId,itemId,status) => {
+        dispatch({type:'SET_LOADING'})
+
+        try{
+            const token = getToken()
+
+            const updatedTask = await updateSessionTaskApi(token,sessionId,itemId,status)
+            await fetchSessionsDetail(sessionId)
+            return updatedTask
+        }catch(error){
+            dispatch({type:'SET_ERROR',payload:error.message  })
+            throw error
+        }
+
+    }
+
+
+
+   
+    
     const fetchSessions = async (projectId) => {
         dispatch({ type: 'SET_LOADING' });
         try {
             const token = getToken();
-            const sessions = await getSessions(token, projectId);
+            const sessions = await getSessionsApi(token, projectId);
             dispatch({ type: 'SET_SESSIONS', payload: sessions });
         } catch (error) {
             if (error.response?.status === 404) {
@@ -35,11 +72,11 @@ export const SessionProvider = ({ children }) => {
         }
     };
 
-    const createSession = async (projectId) => {
+    const createSession = async (checklistitemsId) => {
         dispatch({ type: 'SET_LOADING' });
         try {
             const token = getToken();
-            const created = await createSessionApi(token, projectId);
+            const created = await createSessionApi(token, checklistitemsId);
             await fetchSessions();
             return created;
         } catch (error) {
@@ -48,17 +85,17 @@ export const SessionProvider = ({ children }) => {
         }
     };
 
-    const completeSession = async (sessionId) => {
-        dispatch({ type: 'SET_LOADING' });
-        try {
-            const token = getToken();
-            await completeSessionApi(token, sessionId);
-            dispatch({ type: 'UPDATE_SESSION_STATUS', payload: { id: sessionId, status: 'Completata' } });
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
-    };
+    // const completeSession = async (sessionId) => {
+    //     dispatch({ type: 'SET_LOADING' });
+    //     try {
+    //         const token = getToken();
+    //         await completeSessionApi(token, sessionId);
+    //         dispatch({ type: 'UPDATE_SESSION_STATUS', payload: { id: sessionId, status: 'Completata' } });
+    //     } catch (error) {
+    //         dispatch({ type: 'SET_ERROR', payload: error.message });
+    //         throw error;
+    //     }
+    // };
 
     const reopenSession = async (sessionId) => {
         dispatch({ type: 'SET_LOADING' });
@@ -84,49 +121,28 @@ export const SessionProvider = ({ children }) => {
         }
     };
 
-    // dettaglio sessione: { session, items }
-    const fetchSessionResults = async (sessionId) => {
-        dispatch({ type: 'SET_LOADING' });
-        try {
-            const token = getToken();
-            const data = await getSessionResults(token, sessionId);
-            dispatch({
-                type: 'SET_SELECTED_SESSION',
-                payload: { session: data.session, items: data.items ?? [] },
-            });
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-        }
-    };
-
-    const updateResultItem = async (sessionId, itemId, data) => {
-        try {
-            const token = getToken();
-            const updated = await updateResultItemApi(token, sessionId, itemId, data);
-            dispatch({ type: 'UPDATE_RESULT_ITEM', payload: updated });
-            return updated;
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
-    };
+  
 
     const clearSelectedSession = () => dispatch({ type: 'CLEAR_SELECTED_SESSION' });
 
     return (
         <SessionContext.Provider value={{
             sessions: state.sessions,
+            sessionTask: state.sessionTask,
             selectedSession: state.selectedSession,
-            sessionItems: state.sessionItems,
+      
             loading: state.loading,
             error: state.error,
             fetchSessions,
             createSession,
-            completeSession,
+            updateSessionTask,
+            fetchSessionsDetail,
+
+       
             reopenSession,
             deleteSession,
-            fetchSessionResults,
-            updateResultItem,
+            fetchSessionsDetail,
+          
             clearSelectedSession,
         }}>
             {children}

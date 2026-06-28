@@ -12,7 +12,7 @@ import { toast } from "sonner";
 const ChecklistSection = ({ projectId, isAdmin }) => {
   const [search, setSearch]     = useState("");
   const [modal, setModal]       = useState(false);
-  const [formData, setFormData] = useState({ title: "" });
+  const [formData, setFormData] = useState({ title: "", description: "" });
   const [modalForEdit, setModalForEdit] = useState(false);
   const [editingId, setEditingId] = useState(null);
   
@@ -29,6 +29,7 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
 
   useEffect(() => {
     if (projectId) fetchChecklistsByProject(projectId);
+    console.log(checklistItems)
   }, [projectId]);
 
   const filtered = useMemo(() => {
@@ -44,10 +45,21 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
 
   const handleCreate = async () => {
     if (!projectId) return;
-    await addChecklist({ title: formData.title, project_id: Number(projectId) });
+
+
+    try{
+    await addChecklist({title: formData.title,project_id: Number(projectId),description: formData.description} );
     await fetchChecklistsByProject(projectId);
-    setFormData({ title: "" });
+    setFormData({ title: "", description: "" });
+    toast.success("Checklist creata con successo");
     setModal(false);
+
+    }catch(error){
+      console.error("Errore durante la creazione della checklist:", error);
+      toast.error("Errore durante la creazione della checklist");
+    }
+    
+    
   };
 
   const handleOpen = (cl) => {
@@ -60,17 +72,17 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
 
   const handleOpenEditModal = (cl) => {
     setEditingId(cl.checklist_id);
-    setFormData({ title: cl.title }); 
+    setFormData({ title: cl.title, description: cl.description || "" }); 
     setModalForEdit(true);
   };
 
   const handleEdit = async () => {
     if (!editingId) return;
     try {
-      await updateChecklist(editingId, { title: formData.title });
+      await updateChecklist(editingId, { title: formData.title, description: formData.description });
       await fetchChecklistsByProject(projectId); 
       toast.success("Checklist modificata con successo");
-      setFormData({ title: "" });
+      setFormData({ title: "", description: "" });
       setEditingId(null);
       setModalForEdit(false);
     } catch {

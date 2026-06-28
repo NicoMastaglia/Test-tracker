@@ -1,9 +1,33 @@
+
+/*
+es elenco sessioni test 
+[{
+id:,
+project_id:,
+user_id,
+status:,
+started_at:,
+completed_at:,
+
+}, 
+
+]
+
+ 
+ */
+
+
+
+
 export const initialState = {
 
+    // guarrdo tutte le sessioni per un progetto 
+    sessions: [],    
+    // dettaglio di una sessione selezionata, con i suoi item e i risultati dei test    
+    selectedSession: null, 
     
-    sessions: [],        // lista "i miei lavori" (le mie sessioni)
-    selectedSession: null, // sessione aperta nel dettaglio
-    sessionItems: [],    // item + esiti della sessione aperta (test_result)
+    // elenco dei task di una sessione selezionata, con i risultati dei test
+    sessionTask : [],
     loading: false,
     error: null,
 };
@@ -36,15 +60,17 @@ export const sessionReducer = (state, action) => {
             return {
                 ...state,
                 selectedSession: action.payload.session,
-                sessionItems: action.payload.items,
+                sessionTask: action.payload.tasks,
                 loading: false,
             };
 
         case 'CLEAR_SELECTED_SESSION':
-            return { ...state, selectedSession: null, sessionItems: [], loading: false };
+            return { ...state, selectedSession: null, sessionTask: [], loading: false };
+
+               
 
         case 'UPDATE_SESSION_STATUS':
-            // payload: { id, status } -> aggiorna stato in lista e nel dettaglio
+            
             return {
                 ...state,
                 sessions: state.sessions.map((s) =>
@@ -57,17 +83,17 @@ export const sessionReducer = (state, action) => {
                 loading: false,
             };
 
-        case 'UPDATE_RESULT_ITEM':
-            // payload: il test_result aggiornato (id, session_id, checklist_item_id, is_tested, outcome, note)
-            return {
-                ...state,
-                sessionItems: state.sessionItems.map((item) =>
-                    item.checklist_item_id === action.payload.checklist_item_id
-                        ? { ...item, ...action.payload }
-                        : item,
-                ),
-                loading: false,
-            };
+        // case 'UPDATE_RESULT_ITEM':
+           
+        //     return {
+        //         ...state,
+        //         sessionItems: state.sessionItems.map((item) =>
+        //             item.checklist_item_id === action.payload.checklist_item_id
+        //                 ? { ...item, ...action.payload }
+        //                 : item,
+        //         ),
+        //         loading: false,
+        //     };
 
         default:
             return state;

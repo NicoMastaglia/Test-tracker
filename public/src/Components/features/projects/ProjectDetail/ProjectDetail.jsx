@@ -79,7 +79,7 @@ const ProjectDetail = () => {
       return;
     }
 
-    
+    console.log(projectId)
 
     fetchProjectDetails(projectId);
     fetchChecklistsByProject(projectId);

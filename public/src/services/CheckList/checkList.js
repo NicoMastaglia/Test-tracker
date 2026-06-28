@@ -4,7 +4,7 @@ import { baseUrl, authConfig } from "../config";
 export const createChecklist = async (token, checklistData) => {
 	const res = await axios.post(
 		`${baseUrl}/api/checklists`,
-		checklistData,
+		 checklistData,
 		authConfig(token),
 	);
 	return res.data;

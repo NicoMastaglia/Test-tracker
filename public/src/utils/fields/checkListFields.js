@@ -10,4 +10,14 @@
 		autoComplete: "new-checklist-title",
 		required: true,
 	},
-];
+	{
+		name: "description",
+		label: "Descrizione",
+		placeholder: "Inserisci una descrizione per la checklist",
+		type: "textarea",
+		autoComplete: "new-checklist-description",
+		required: false,
+	},
+
+ ]
+	

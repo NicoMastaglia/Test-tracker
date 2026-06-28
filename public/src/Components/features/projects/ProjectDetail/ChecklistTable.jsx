@@ -85,6 +85,8 @@ const ChecklistTable = ({
               </div>
             </TableCell>
 
+            
+
             {/* 2. CELLA: TASK */}
             <TableCell className="text-center font-semibold text-slate-800 text-sm px-4 py-3">
               {totalTasks}
