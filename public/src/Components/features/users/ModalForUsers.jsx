@@ -3,11 +3,12 @@ import React, { useState } from "react";
 
 import { Button } from "@/Components/ui/button";
 
-import { User, Mail, ShieldCheck, Trash2, AlertTriangle,ShieldAlert } from "lucide-react";
+import { User, Mail, ShieldCheck, Trash2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { isEmailValid } from "@/utils/helpers/validators";
 import ModalForm from "@/utils/components/ModalForm";
+import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { userFields } from "@/utils/fields/userFields";
 import { getFullName } from "@/utils/helpers/tableHelpers";
 
@@ -172,27 +173,13 @@ const ModalForUsers = () => {
 
   
 
-      <ModalForm 
+      <DeleteConfirmModal
       modalOpen={deleteConfirmOpen}
       setModalOpen={setDeleteConfirmOpen}
-      title="Conferma eliminazione"
-      infos={<span className="text-base text-slate-500">
-      Stai per eliminare definitivamente l'utente{" "}
-      <strong className="font-semibold text-slate-900 underline decoration-red-500/40 decoration-2 underline-offset-2">
-        {getFullName(selectedUser)}
-      </strong>.
-
-       Questa azione è irreversibile.
-    </span>}
-      onSubmit={handleDeleteUser}
-      onClose={setDeleteConfirmOpen}
-      submitLabel='Elimina'
-      cancelLabel="Annulla"
-      dialogClassName="sm:max-w-90"
-      submitClassName="hover:text-red-700 hover:bg-red-50"
-      submitVariant="destructive"
-      titleIcon={AlertTriangle}
-      iconColor="text-red-500"
+      itemPhrase="l'utente"
+      itemName={getFullName(selectedUser)}
+      onConfirm={handleDeleteUser}
+      confirmLabel="Sì, Elimina utente"
       />
 
   

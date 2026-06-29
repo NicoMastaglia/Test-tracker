@@ -39,7 +39,7 @@ const StandardTable = ({
             {data && data.length > 0 ? (
               data.map((item, idx) => renderRow ? renderRow(item, idx) : null)
             ) : (
-              <TableRow>
+              <TableRow > 
                 <TableCell colSpan={Math.max(headers.length, 1)} className="h-24 text-center text-slate-500">
                   {emptyMessage}
                 </TableCell>

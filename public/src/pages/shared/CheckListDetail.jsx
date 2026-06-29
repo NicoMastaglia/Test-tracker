@@ -7,35 +7,82 @@ import { useAuthContext } from "@/context/Auth/AuthContext";
 import ChecklistDetailView from "@/Components/features/projects/ProjectDetail/ChecklistDetail/ChecklistDetailView";
 import { Button } from "@/Components/ui/button";
 import ModalForm from "@/utils/components/ModalForm";
+import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { checklistFields } from "@/utils/fields/checklistFields";
-import { ArrowLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Pencil, User2,UserMinus} from "lucide-react";
 import { toast } from "sonner";
+import { getFullName } from "@/utils/helpers/tableHelpers";
+import {useTaskContext} from "@/context/Task/TaskContext"
+
 
 const ChecklistDetail = () => {
   const { id, checklistId } = useParams();
   const navigate = useNavigate();
 
-  const { checklistItems, selectedChecklist, fetchChecklistsByProject, clearChecklist, updateChecklist, removeChecklist, addChecklistItem, updateChecklistItem, removeChecklistItem } = useChecklistContext();
-  const { selectedProject, fetchProjectDetails, clearSelectedProject } = useProjectContext();
+  const { checklistItems, selectedChecklist, fetchChecklistsByProject,
+     clearChecklist, updateChecklist, 
+     removeChecklist, addChecklistItem, 
+     updateChecklistItem, removeChecklistItem } = useChecklistContext();
+  const { selectedProject, fetchProjectDetails, clearSelectedProject,
+    getProjectUsers
+   } = useProjectContext();
   const { user } = useAuthContext();
+  const {assignTaskToUser,unassignTask,updateTask} = useTaskContext()
 
   const isAdmin = user?.role !== "user";
+    // Solo admin/superadmin raggiungono il dettaglio checklist: path sempre su /admin
+  const projectsPath = "/admin/projects";
+  const projectPath  = `/admin/projects/${id}`;
+  const projectLabel = selectedProject?.name ?? `Progetto #${id}`;
 
+ useEffect(() => {
+    console.log(selectedProject,'progetto')
+    console.log(projectLabel)
+  
+ },[])
+ 
+    const [usersList, setUsersList] = useState([]);
+
+// STATO MODALI 
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState({ title: "" });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
-  const [addTaskFormData, setAddTaskFormData] = useState({ description: "" });
-  const [editTaskTarget, setEditTaskTarget] = useState(null);
-  const [editTaskFormData, setEditTaskFormData] = useState({ description: "" });
-  const [deleteTaskTarget, setDeleteTaskTarget] = useState(null);
+  const [assignTaskModalOpen, setAssignTaskModalOpen] = useState(false);
+  const[unassignTaskModalOpen,setUnassignTaskModalOpen] = useState(false)
+  
 
-  // il BE restituisce le checklist GIÀ raggruppate (con items): basta trovare quella giusta
+  // STATO TASK MODALI
+
+
+  // nota ora ne usi 3 potresti usarne una per tutti 3 i metodi 
+  const [editTaskTarget, setEditTaskTarget] = useState(null);
+  const [deleteTaskTarget, setDeleteTaskTarget] = useState(null);
+  const [currentTask,setCurrentTask] = useState(null)
+  
+
+  // FORM DATA 
+
+  // PER CHECKLIST
+  const [editFormData, setEditFormData] = useState({ title: "",description: "" });
+
+
+  // PER TASK 
+  const [editTaskFormData, setEditTaskFormData] = useState({ description: "" });
+  const [addTaskFormData, setAddTaskFormData] = useState({ description: "" });
+  const [assignTaskFormData, setAssignTaskFormData] = useState({ user: "" });
+  const [unassignTaskFormData, setUnassignTaskFormData] = useState({ user: "" });
+ 
+
+
+  
   const checklist = useMemo(() => {
+    // Cerca la checklist corrispondente all'ID fornito nei parametri
     const found = checklistItems.find(
       (cl) => String(cl.checklist_id) === String(checklistId),
     );
+    // Se non viene trovata, verifica se la checklist selezionata nel contesto corrisponde all'ID fornito
     if (found) return found;
+    // Se la checklist selezionata corrisponde all'ID fornito, restituiscila
     if (selectedChecklist && String(selectedChecklist.checklist_id) === String(checklistId)) {
       return selectedChecklist;
     }
@@ -44,28 +91,93 @@ const ChecklistDetail = () => {
 
   useEffect(() => {
     if (id) {
+      // 
       if (!checklistItems.length) fetchChecklistsByProject(id);
       if (!selectedProject) fetchProjectDetails(id);
     }
+    // Cosi all Unmount il contesto viene pulito e non rimangono dati della checklist precedente
     return () => {
       clearSelectedProject();
       clearChecklist();
     };
   }, [id]);
 
-  // Solo admin/superadmin raggiungono il dettaglio checklist: path sempre su /admin
-  const projectsPath = "/admin/projects";
-  const projectPath  = `/admin/projects/${id}`;
-  const projectLabel = selectedProject?.name ?? `Progetto #${id}`;
+  useEffect(() => {
+    console.log(currentTask,'currenttask')
+    console.log(checklist)
 
+
+  },[currentTask])
+
+  useEffect(() => {
+    handleUsersList();
+    console.log(usersList,'usersList')
+  }, [id]);
+  
+
+  
+
+  
+
+
+  {/* NAVIGA A PROJECTDETAIL*/}
   const goBackToChecklist = () =>
     navigate(projectPath, { state: { section: "checklist" } });
+   
+  {/* HANDLE PER MODALI  */}
 
+  {/* APRE MODAl ADD TASK */}
   const handleOpenAddTaskModal = () => {
     setAddTaskFormData({ description: "" });
     setAddTaskModalOpen(true);
   };
+  
+  {/* APRE MODAl EDIT TASK */}
+  const handleOpenEditTaskModal = (task) => {
+    setEditTaskTarget(task);
+    setEditTaskFormData({ description: task?.description ?? "" });
+  };
+  
+  {/* APRE MODAl EDIT CHECKLIST */}
+  const handleOpenEditChecklistModal = () => {
+    setEditFormData({ title: checklist?.title ?? "" });
+    setEditModalOpen(true);
+  };
+  
+  {/* APRE MODAl ASSIGN TASK */}
+  const handleOpenAssignTaskModal = (task) => {
+    setCurrentTask(task)
+    setAssignTaskModalOpen(true);
+     setAssignTaskFormData({ user: task?.assigned_to ?? "" });
+  }
 
+  const handleOpenUnassignTaskModal = (task) => {
+    setCurrentTask(task)
+    setUnassignTaskModalOpen(true);
+    setUnassignTaskFormData({ user: task?.assigned_to ?? "" });
+
+    console.log(task,'task')
+    console.log(unassignTaskFormData,'unassignTaskFormData')
+  }
+
+   {/* CHIAMATE API */}
+
+
+   {/* Aggiorna la lista degli utenti del progetto per popolare il select della modale di assegnazione task */}
+   const handleUsersList = async () => {
+    if (!id) return;
+
+    try {
+      const users = await getProjectUsers(id);
+      setUsersList(users);
+    } catch (error) {
+      console.error("Errore durante il recupero della lista utenti:", error);
+    }
+
+
+  }
+  
+  {/* HANDLE PER AGGIUNGERE UNA TASK*/}
   const handleAddTask = async () => {
     if (!checklist?.checklist_id) return;
     if (addTaskFormData.description.trim() === "") {
@@ -82,11 +194,7 @@ const ChecklistDetail = () => {
     }
   };
 
-  const handleOpenEditTaskModal = (task) => {
-    setEditTaskTarget(task);
-    setEditTaskFormData({ description: task?.description ?? "" });
-  };
-
+ {/* HANDLE PER MODIFICARE UNA TASK*/}
   const handleEditTask = async () => {
     if (!editTaskTarget?.item_id) return;
     if (editTaskFormData.description.trim() === "") {
@@ -102,7 +210,8 @@ const ChecklistDetail = () => {
       toast.error("Errore durante la modifica del task");
     }
   };
-
+  
+  {/* HANDLE PER ELIMINARE UNA TASK*/}
   const handleDeleteTask = async () => {
     if (!deleteTaskTarget?.item_id) return;
     try {
@@ -115,15 +224,100 @@ const ChecklistDetail = () => {
     }
   };
 
-  const handleOpenEditChecklistModal = () => {
-    setEditFormData({ title: checklist?.title ?? "" });
-    setEditModalOpen(true);
+ {/*HANDLE PER ASSEGNARE UN TASK*/}
+  const handleAssignTask = async () => {
+    if (!currentTask?.id) return;
+    if(assignTaskFormData.user.trim() === "") {
+      toast.error("Seleziona un utente a cui assegnare il task");
+      return;
+    }
+
+    const userId = Number(assignTaskFormData.user);
+
+    try {
+      await  assignTaskToUser (currentTask.id,userId)
+      await fetchChecklistsByProject(id);
+      toast.success("Task assegnato con successo");
+      setAssignTaskModalOpen(false);
+    }catch (error) {
+      console.error("Errore durante l'assegnazione del task:", error);
+      toast.error("Errore durante l'assegnazione del task");
+    }
+
+
+
+  
+  }
+
+  {/* HANDLE PER RIMUOVERE L'ASSEGNAZIONE DI UN TASK*/}
+
+  const handleUnassignTask = async  () =>{
+
+  
+
+    if(!currentTask?.id){
+      toast.error("Task non valido");
+      return;
+    }
+
+    try {
+      await  unassignTask(currentTask.id)
+      await fetchChecklistsByProject(id);
+      toast.success("Assegnazione rimossa con successo");
+      setUnassignTaskModalOpen(false);
+    }catch (error) {
+      console.error("Errore durante la rimozione dell'assegnazione del task:", error);
+      toast.error("Errore durante la rimozione dell'assegnazione del task");
+    }
+
+    
+
+
+  }
+
+
+  
+
+  const handleBlock = async (task) => {
+  try {
+    await updateTask(task.id, "Bloccata");
+    await fetchChecklistsByProject(id);
+    toast.success("Task bloccata");
+  } catch {
+    toast.error("Errore durante il blocco della task");
+  }
   };
 
+  const handleArchive = async (task) => {
+  try {
+    await updateTask(task.id, "Archiviata");
+    await fetchChecklistsByProject(id);
+    toast.success("Task archiviata");
+  } catch {
+    toast.error("Errore durante l'archiviazione della task");
+  }
+
+}
+const handleReopen = async (task) => {
+  try {
+    await updateTask(task.id, "Completata");
+    await fetchChecklistsByProject(id);
+    toast.success("Task riaperta");
+  } catch {
+    toast.error("Errore durante la riapertura della task");
+  }
+}
+
+
+
+
+  {/* CHECKLIST HANDLERS */}
+  
+  {/* HANDLE PER  MODIFICARE UNA CHECKLIST*/}
   const handleEditChecklist = async () => {
     if (!checklist?.checklist_id) return;
     try {
-      await updateChecklist(checklist.checklist_id, { title: editFormData.title });
+      await updateChecklist(checklist.checklist_id, { title: editFormData.title, description: editFormData.description });
       await fetchChecklistsByProject(id);
       toast.success("Checklist modificata con successo");
       setEditModalOpen(false);
@@ -131,7 +325,8 @@ const ChecklistDetail = () => {
       toast.error("Errore durante la modifica della checklist");
     }
   };
-
+  
+  {/* HANDLE PER ELIMINARE UNA CHECKLIST*/}
   const handleDeleteChecklist = async () => {
     if (!checklist?.checklist_id) return;
     try {
@@ -141,14 +336,8 @@ const ChecklistDetail = () => {
     } catch {
       toast.error("Errore durante l'eliminazione della checklist");
     }
-  };
-
-  const deleteChecklistDescription = (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-      <p className="font-medium text-slate-900">{checklist?.title}</p>
-      <p className="mt-1 text-xs text-slate-500">{checklist?.description || "Nessuna descrizione"}</p>
-    </div>
-  );
+  }; 
+  
 
   return (
     <AppLayout page="checklists">
@@ -158,7 +347,7 @@ const ChecklistDetail = () => {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <nav className="flex items-center gap-1.5 text-sm text-slate-500">
             <button onClick={() => navigate(projectsPath)} className="hover:text-slate-900 transition-colors">
-              Progetti
+              Progetti 
             </button>
             <ChevronRight className="h-3.5 w-3.5" />
             <button onClick={() => navigate(projectPath)} className="hover:text-slate-900 transition-colors">
@@ -191,6 +380,12 @@ const ChecklistDetail = () => {
             handleDelete={(task) => setDeleteTaskTarget(task)}
             onEditChecklist={handleOpenEditChecklistModal}
             onDeleteChecklist={() => setDeleteModalOpen(true)}
+            handleAssign={handleOpenAssignTaskModal}
+            teamMembers={usersList}
+            handleUnassign={handleOpenUnassignTaskModal}
+            handleArchive={handleArchive}
+            handleReopen={handleReopen}
+            handleBlock={handleBlock}
           />
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
@@ -198,7 +393,9 @@ const ChecklistDetail = () => {
           </div>
         )}
       </div>
+      {/* MODALI */}
 
+      {/* MODALE PER AGGIUNGERE UNA NUOVA TASK */}
       <ModalForm
         modalOpen={addTaskModalOpen}
         setModalOpen={setAddTaskModalOpen}
@@ -216,6 +413,8 @@ const ChecklistDetail = () => {
         iconColor="text-emerald-500"
       />
 
+
+      {/* MODALE PER MODIFICARE UN TASK ESISTENTE  */}
       <ModalForm
         modalOpen={!!editTaskTarget}
         setModalOpen={(open) => { if (!open) setEditTaskTarget(null); }}
@@ -232,27 +431,79 @@ const ChecklistDetail = () => {
         titleIcon={Pencil}
         iconColor="text-emerald-500"
       />
-
-      <ModalForm
+      {/* MODALE PER ELIMINARE UN TASK ESISTENTE  */}
+      <DeleteConfirmModal
         modalOpen={!!deleteTaskTarget}
         setModalOpen={(open) => { if (!open) setDeleteTaskTarget(null); }}
         title="Elimina task"
-        infos="Questa azione è irreversibile: il task verrà eliminato definitivamente."
+        itemPhrase="il task"
+        itemName={deleteTaskTarget?.description || "Task senza descrizione"}
+        warningText="Questa azione è irreversibile: il task verrà eliminato definitivamente."
+        onConfirm={handleDeleteTask}
+        confirmLabel="Sì, Elimina task"
+      />
+
+
+      {/* MODALE PER ASSEGNARE UN TASK */}
+      <ModalForm
+        modalOpen={!!assignTaskModalOpen}
+        setModalOpen={(open)=> { if (!open) setAssignTaskModalOpen(null) }}
+        title="Assegna Task ffffff"
+        infos="Assegna un task alla checklist selezionata."
+        fields={[
+          { name: "user", 
+            label: "Seleziona un utente", 
+            type: "select", 
+            key : "user",
+            placeholder: "Seleziona un utente a cui assegnare il task",
+            info: "Seleziona un utente dalla lista per assegnare il task.",
+            required: true,
+           options: usersList.map(user => ({ value: String(user.id), label: getFullName(user) })) },
+        ]}
+        formData={assignTaskFormData}
+        setFormData={setAssignTaskFormData}
         hasDescripion={true}
-        description={(
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-            <p className="font-medium text-slate-900">{deleteTaskTarget?.description || "Task senza descrizione"}</p>
-          </div>
-        )}
-        onSubmit={handleDeleteTask}
-        submitLabel="Elimina task"
+        // description={'ddd'}
+        onSubmit={handleAssignTask}
+        submitLabel="Assegna Task"
         cancelLabel="Annulla"
         dialogClassName="sm:max-w-105"
-        titleIcon={Trash2}
-        iconColor="text-red-500"
+        titleIcon={User2}
+        iconColor="text-blue-500"
+      />
+
+      <ModalForm
+        modalOpen={!!unassignTaskModalOpen}
+        setModalOpen={(open)=> {if (!open) setUnassignTaskModalOpen(null); }}
+        title="Rimuovi assegnazione task"
+        infos={
+          `
+          
+          Questa azione rimuoverà l'assegnazione della task-
+          `
+        }
+        hasDescripion={true} 
+        description={(
+    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 text-sm text-center">
+  <p className="text-amber-800">
+    Rimuovere il tester <span className="font-semibold text-amber-950">{usersList.find((u) => u.id === unassignTaskFormData.user) ? getFullName(usersList.find((u) => u.id === unassignTaskFormData.user)) : "Utente non specificato"}</span> dalla task <span className="font-semibold text-amber-950">"{currentTask?.description || "Task senza descrizione"}"</span>?
+  </p>
+</div>
+        )}
+        onSubmit={handleUnassignTask}
+        formData={unassignTaskFormData}
+        setFormData={setUnassignTaskFormData}
+        submitLabel="Rimuovi assegnazione"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={UserMinus}
+        iconColor="text-amber-500"
         submitVariant="destructive"
       />
 
+
+      {/* MODALE PER MODIFICARE LA CHECKLIST */}
+    
       <ModalForm
         modalOpen={editModalOpen}
         setModalOpen={setEditModalOpen}
@@ -267,24 +518,29 @@ const ChecklistDetail = () => {
         titleIcon={Pencil}
         iconColor="text-emerald-500"
       />
-
-      <ModalForm
+      
+      {/* MODALE PER ELIMINARE LA CHECKLIST */}
+      <DeleteConfirmModal
         modalOpen={deleteModalOpen}
         setModalOpen={setDeleteModalOpen}
         title="Elimina checklist"
-        infos="Questa azione è irreversibile: la checklist e tutti i task collegati verranno eliminati definitivamente."
-        hasDescripion={true}
-        description={deleteChecklistDescription}
-        onSubmit={handleDeleteChecklist}
-        submitLabel="Elimina checklist"
-        cancelLabel="Annulla"
-        dialogClassName="sm:max-w-105"
-        titleIcon={Trash2}
-        iconColor="text-red-500"
-        submitVariant="destructive"
+        itemPhrase="la checklist"
+        itemName={checklist?.title}
+        extraInfo={checklist?.description || "Nessuna descrizione"}
+        warningText="Questa azione è irreversibile: la checklist e tutti i task collegati verranno eliminati definitivamente."
+        onConfirm={handleDeleteChecklist}
+        confirmLabel="Sì, Elimina checklist"
       />
+
+      
     </AppLayout>
   );
-};
+}
+
+
+      
+
+
+ 
 
 export default ChecklistDetail;

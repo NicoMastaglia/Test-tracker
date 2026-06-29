@@ -219,6 +219,8 @@ router.get("/:projectId", checkUser, (req, res) => {
           item_id: row.item_id,
           description: row.item_description,
           position: row.position,
+          assigned_to: row.assigned_to,
+          status: row.status,
         });
       }
     });
@@ -236,7 +238,8 @@ router.get("/:projectId", checkUser, (req, res) => {
         `SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated,
                 ct.description AS checklist_description, ct.created_by,
                 u.nome AS creator_nome, u.cognome AS creator_cognome,
-                ci.id AS item_id, ci.description AS item_description, ci.position
+                ci.id AS item_id, ci.description AS item_description, ci.position,
+                ci.assigned_to, ci.status
          FROM checklist_template ct
          LEFT JOIN checklist_item ci ON ct.id = ci.template_id
          LEFT JOIN user u ON ct.created_by = u.id
@@ -258,7 +261,8 @@ router.get("/:projectId", checkUser, (req, res) => {
         `SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated,
                 ct.description AS checklist_description, ct.created_by,
                 u.nome AS creator_nome, u.cognome AS creator_cognome,
-                ci.id AS item_id, ci.description AS item_description, ci.position
+                ci.id AS item_id, ci.description AS item_description, ci.position,
+                ci.assigned_to, ci.status
          FROM checklist_template ct
          LEFT JOIN checklist_item ci ON ct.id = ci.template_id
          JOIN project p ON ct.project_id = p.id
@@ -281,7 +285,8 @@ router.get("/:projectId", checkUser, (req, res) => {
         `SELECT ct.id AS checklist_id, ct.title, ct.project_id, ct.last_updated,
                 ct.description AS checklist_description, ct.created_by,
                 u.nome AS creator_nome, u.cognome AS creator_cognome,
-                ci.id AS item_id, ci.description AS item_description, ci.position
+                ci.id AS item_id, ci.description AS item_description, ci.position,
+                ci.assigned_to, ci.status
          FROM checklist_template ct
          LEFT JOIN checklist_item ci ON ct.id = ci.template_id
          JOIN project p ON ct.project_id = p.id
@@ -683,5 +688,44 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
 
 
 })
+
+
+router.patch('/item/:itemId/unassign', checkAdmin, async (req, res) => {
+  const itemId = req.params.itemId;
+
+  try {
+    const [itemResults] = await db.execute(
+      "SELECT ci.assigned_to, p.id AS project_id FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
+      [itemId, req.user.id, req.user.id, req.user.role === "superadmin"],
+    );
+
+    if (itemResults.length === 0) {
+      return res.status(403).json({ error: "Accesso negato o elemento della checklist non trovato" });
+    }
+
+    const { assigned_to: previousAssignee, project_id: projectId } = itemResults[0];
+
+    const [result] = await db.execute(
+      "UPDATE checklist_item SET assigned_to = NULL WHERE id = ?",
+      [itemId],
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Elemento della checklist non trovato" });
+    }
+
+    await logActivity(req.user.id, projectId, "task.unassigned", {
+      itemId,
+      unassignedFrom: previousAssignee,
+    });
+
+    return res.status(200).json({ message: "Assegnazione rimossa con successo" });
+  } catch (err) {
+    return res.status(500).json({ error: "Errore del server", specific: err.message });
+  }
+});
+
+
+
 
 module.exports = router;

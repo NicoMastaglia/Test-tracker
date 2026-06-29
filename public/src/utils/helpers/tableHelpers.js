@@ -109,6 +109,67 @@ export const getStatusBadgeClass = (status) => {
 };
 
 
+// per ottenere le classi di stile in base allo stato del task
+export const getTaskStatusBadgeClass = (status) => {
+  const normalizedStatus = normalizeText(status);
+
+
+  if (normalizedStatus === "todo") {
+    return "font-bold bg-amber-100 text-amber-700 hover:bg-amber-100 border-none";
+
+
+  }
+  if (normalizedStatus === "in corso") {
+    return "font-bold bg-blue-100 text-blue-700 hover:bg-blue-100 border-none";
+
+
+
+  }
+  if (normalizedStatus === "completata") {
+    return "font-bold bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none";
+
+
+  }
+
+  if (normalizedStatus === "archiviata") {
+    return "font-bold bg-slate-100 text-blue-600 hover:bg-slate-100 border-none";
+  }
+
+  if (normalizedStatus === "bloccata") {
+    return "font-bold bg-red-100 text-red-700 hover:bg-red-100 border-none";
+
+  }
+
+  return "font-bold bg-slate-100 text-slate-600 hover:bg-slate-100 border-none";
+
+
+
+
+}
+
+export const getChecklistStatusBadgeClass = (status) => {
+  const normalizedStatus = normalizeText(status);
+
+  // STATO: Non iniziata (Neutro / Grigio)
+  if (normalizedStatus === "non iniziata" || normalizedStatus === "todo") {
+    return "font-semibold bg-slate-100 text-slate-700 hover:bg-slate-100/80 border-none";
+  }
+
+  // STATO: In corso (Indigo)
+  if (normalizedStatus === "in corso") {
+    return "font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-100/80 border-none";
+  }
+
+  // STATO: Completata (Emerald)
+  if (normalizedStatus === "completata") {
+    return "font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80 border-none";
+  }
+  
+
+  // FALLBACK
+  return "font-semibold bg-zinc-100 text-zinc-600 hover:bg-zinc-100 border-none";
+}
+
 // per ottenere il nome del creatore di un progetto
 export const getCreatorName = (project = {}, users = []) => {
   const creator = users.find((user) => Number(user.id) === Number(project.created_by));

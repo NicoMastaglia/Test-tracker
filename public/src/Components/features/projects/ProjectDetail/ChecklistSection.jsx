@@ -15,6 +15,7 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
   const [formData, setFormData] = useState({ title: "", description: "" });
   const [modalForEdit, setModalForEdit] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [modalForAssign, setModalForAssign] = useState(false);
   
   const navigate = useNavigate();
 
@@ -101,6 +102,8 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
     }
   };
 
+
+
   const checklistStats = [
     {
       label: "Checklist totali",
@@ -179,6 +182,10 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
         submitLabel="Crea Checklist"
         cancelLabel="Annulla"
       />
+
+      
+     
+
     </div>
   );
 };

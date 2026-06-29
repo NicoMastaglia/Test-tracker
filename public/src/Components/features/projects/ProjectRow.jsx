@@ -149,21 +149,21 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   {/* 7. CELLA: AZIONI OPERATIVE (Centrato) */}
   <TableCell className="text-center px-4 py-3" onClick={(e) => e.stopPropagation()}>
     <div className="flex items-center justify-center gap-1">
-      {isAdmin || isSuperadmin ? (
+      {(isAdmin || isSuperadmin) && project.status !== "Completato" ? (
         <>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100/80" onClick={() => openEditDialog(project)}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600 hover:text-slate-600 hover:bg-slate-100/80" onClick={() => openEditDialog(project)}>
             <Pencil className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-amber-600 hover:bg-amber-50/50" onClick={() => openStatusDialog(project)}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-600 hover:text-amber-600 hover:bg-amber-50/50" onClick={() => openStatusDialog(project)}>
             <Flag className="h-4 w-4" />
           </Button>
         </>
-      ) : (
+      ) : (isAdmin || isSuperadmin) ? null : (
         <span className="text-xs text-slate-400 font-medium">—</span>
       )}
-      
+
       {isSuperadmin && (
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50/50" onClick={() => setDeleteProjectTarget(project)}>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-600 hover:bg-red-50/50" onClick={() => setDeleteProjectTarget(project)}>
           <Trash2 className="h-4 w-4" />
         </Button>
       )}

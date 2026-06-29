@@ -4,7 +4,7 @@ const sectionLabels = {
   overview: "Panoramica",
   checklist: "Checklist",
   team: "Team",
-  // "Attività" (audit) nascosto finché il BE non espone il log
+  activities: "Attività",
 };
 
 

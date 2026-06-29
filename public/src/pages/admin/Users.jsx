@@ -9,7 +9,7 @@ import { filterSearch } from "@/utils/helpers/filterSearch";
 import { isEmailValid } from "@/utils/helpers/validators";
 import ModalForm from "@/utils/components/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
-import KpiCard from "@/utils/components/KpiCard";
+import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import Loader from "@/utils/components/Loader";
 import { UserPlus, Users as UsersIcon, ShieldCheck, ShieldAlert, User } from "lucide-react"
 
@@ -75,38 +75,42 @@ const Users = () => {
     const admins = users.filter((u) => u.role === "admin").length;
     const superadmins = users.filter((u) => u.role === "superadmin").length;
     const standard = total - admins - superadmins;
-    return { total, admins, superadmins, standard };
+    return [
+      {
+        label: "Total Users",
+        value: total,
+        icon: UsersIcon,
+        iconColor: "text-emerald-600",
+        bgIcon: "bg-emerald-100",
+      },
+      {
+        label: "Admins",
+        value: admins,
+        icon: ShieldCheck,
+        iconColor: "text-violet-600",
+        bgIcon: "bg-violet-100",
+      },
+      {
+        label: "Super Admins",
+        value: superadmins,
+        icon: ShieldAlert,
+        iconColor: "text-pink-700",
+        bgIcon: "bg-pink-100",
+      },
+      {
+        label: "Standard Users",
+        value: standard,
+        icon: User,
+        iconColor: "text-green-700",
+        bgIcon: "bg-green-100",
+      },
+    ];
   }, [users]);
 
   return (
     <AppLayout page="users">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <KpiCard
-            title="Total Users"
-            value={userStats.total.toString()}
-            icon={UsersIcon}
-            iconClass="bg-emerald-100 text-emerald-600"
-          />
-          <KpiCard
-            title="Admins"
-            value={userStats.admins.toString()}
-            icon={ShieldCheck}
-            iconClass="bg-violet-100 text-violet-600"
-          />
-          <KpiCard
-            title="Super Admins"
-            value={userStats.superadmins.toString()}
-            icon={ShieldAlert}
-            iconClass="bg-pink-100 text-pink-700"
-          />
-          <KpiCard
-            title="Standard Users"
-            value={userStats.standard.toString()}
-            icon={User}
-            iconClass="bg-green-100 text-green-700"
-          />
-        </div>
+        <StatsCardsRow stats={userStats} />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar

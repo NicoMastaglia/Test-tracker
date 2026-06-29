@@ -6,8 +6,9 @@ import { getProjects,createProject,
     getProjectById,updateProject as updateProjectApi,deleteProject as
      deleteProjectApi,updateProjectStatus as
       updateProjectStatusApi,assignUserToProject as 
-    assignUserToProjectApi,unAssingUserAssignment as unAssingUserAssignmentApi
- } from "@/services/Project/project";
+    assignUserToProjectApi,unAssingUserAssignment as unAssingUserAssignmentApi,
+  getProjectUsers as getProjectUsersApi }
+ from "@/services/Project/project";
 
 const ProjectContext = createContext();
 
@@ -138,6 +139,19 @@ export const ProjectProvider = ({ children }) => {
         }
     }
 
+
+    const getProjectUsers = async (projectId) => {
+        dispatch({type:'SET_LOADING'})
+        try {
+            const token = getToken()
+            const users = await getProjectUsersApi(token, projectId)
+            return users
+        } catch (error) {
+            dispatch({type:'SET_ERROR', payload: error.message})
+            throw error
+        }
+    }
+
     const clearSelectedProject = () => {
      dispatch({
       type:'CLEAR_SELECTED_PROJECT'
@@ -159,7 +173,8 @@ export const ProjectProvider = ({ children }) => {
             updateProjectStatus:updateProjectStatus,
             assignUserToProject:assignUserToProject,
             unAssingUserAssignment:unAssingUserAssignment,
-            clearSelectedProject:clearSelectedProject
+            clearSelectedProject:clearSelectedProject,
+            getProjectUsers:getProjectUsers
 
 
 

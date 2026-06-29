@@ -623,8 +623,8 @@ router.get("/:id/assign", checkAdmin, async (req, res) => {
   const [result] = await db.execute(
     `
 
-    SELECT p.id FROM project p WHERE p.id = ? AND (p.created_by = ? OR p.manager_id = ?)`,
-[projectId, userId, userId]
+    SELECT p.id FROM project p WHERE p.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)`,
+[projectId, userId, userId,req.user.role === "superadmin"]
 
   )
 
@@ -878,9 +878,17 @@ router.get('/:id/activities',checkUser, async (req,res)=>{
     const filterByUser = role === "user"; 
 
     const [activities] = await db.execute(
-       `SELECT a.id, a.action, a.details, a.timestamp, u.nome, u.cognome
+       `SELECT a.id, a.action, a.details, a.timestamp, u.id AS user_id, u.nome, u.cognome,
+          p.name AS project_name, ct.title AS checklist_name
    FROM audit_log a
    LEFT JOIN user u ON a.user_id = u.id
+   LEFT JOIN project p ON p.id = a.project_id
+   LEFT JOIN checklist_item ci ON ci.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.itemId')) AS UNSIGNED)
+   LEFT JOIN checklist_template ct ON ct.id = COALESCE(
+     CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.checklistId')) AS UNSIGNED),
+     CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.templateId')) AS UNSIGNED),
+     ci.template_id
+   )
    WHERE a.project_id = ?  ${filterByUser ? 'AND a.user_id = ?' : ''}
    ORDER BY a.timestamp DESC
    LIMIT ?`,

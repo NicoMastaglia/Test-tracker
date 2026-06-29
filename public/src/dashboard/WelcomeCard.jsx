@@ -45,7 +45,7 @@ const WelcomeCard = ({ user, subtitle }) => {
               </h2>
               <Badge className={`border-none px-3 py-1 text-xs  ${roleInfo.className}`}>
                 <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
-                {roleInfo.label}
+                {roleInfo.label} 
               </Badge>
             </div>
 

@@ -1344,6 +1344,100 @@
         }
       }
     },
+    "/api/checklists/item/{itemId}/unassign": {
+      "patch": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Rimuove l'assegnazione di un item della checklist",
+        "description": "Svincola un task dal tester attualmente assegnato (assigned_to torna a null). Richiede il token JWT nell'header Authorization come Bearer token. Solo admin/superadmin; l'admin solo sui task dei progetti che ha creato o di cui è responsabile.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dell'item della checklist",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assegnazione rimossa con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Assegnazione rimossa con successo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato o item della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato o elemento della checklist non trovato"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Elemento della checklist non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Elemento della checklist non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "error": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/checklists/task/assigned": {
       "get": {
         "tags": [
@@ -1692,6 +1786,15 @@
                             },
                             "position": {
                               "type": "integer"
+                            },
+                            "assigned_to": {
+                              "type": "integer",
+                              "nullable": true,
+                              "description": "Id del tester assegnato, null se nessuno"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": ["TODO", "In corso", "Completata", "Bloccata", "Archiviata"]
                             }
                           }
                         }
@@ -1714,13 +1817,17 @@
                         "id": 10,
                         "item_id": 10,
                         "description": "Verifica login con credenziali corrette",
-                        "position": 1
+                        "position": 1,
+                        "assigned_to": 5,
+                        "status": "In corso"
                       },
                       {
                         "id": 11,
                         "item_id": 11,
                         "description": "Verifica messaggio errore password errata",
-                        "position": 2
+                        "position": 2,
+                        "assigned_to": null,
+                        "status": "TODO"
                       }
                     ]
                   }
@@ -3530,8 +3637,11 @@
                           "action": { "type": "string" },
                           "details": { "type": "string", "nullable": true },
                           "timestamp": { "type": "string", "format": "date-time" },
+                          "user_id": { "type": "integer", "nullable": true },
                           "nome": { "type": "string", "nullable": true },
-                          "cognome": { "type": "string", "nullable": true }
+                          "cognome": { "type": "string", "nullable": true },
+                          "project_name": { "type": "string", "nullable": true, "description": "Nome del progetto associato all'evento" },
+                          "checklist_name": { "type": "string", "nullable": true, "description": "Titolo della checklist associata all'evento, se ricavabile da details.checklistId/templateId/itemId" }
                         }
                       }
                     }
@@ -3544,8 +3654,11 @@
                       "action": "project.status_changed",
                       "details": "{\"from\":\"Attivo\",\"to\":\"In pausa\"}",
                       "timestamp": "2026-06-25T14:32:00Z",
+                      "user_id": 3,
                       "nome": "Mario",
-                      "cognome": "Rossi"
+                      "cognome": "Rossi",
+                      "project_name": "Sito e-commerce",
+                      "checklist_name": null
                     }
                   ]
                 }
@@ -4778,8 +4891,11 @@
                           "details": { "type": "string", "nullable": true },
                           "timestamp": { "type": "string", "format": "date-time" },
                           "project_id": { "type": "integer", "nullable": true },
+                          "user_id": { "type": "integer", "nullable": true },
                           "nome": { "type": "string", "nullable": true },
-                          "cognome": { "type": "string", "nullable": true }
+                          "cognome": { "type": "string", "nullable": true },
+                          "project_name": { "type": "string", "nullable": true, "description": "Nome del progetto associato all'evento, se presente" },
+                          "checklist_name": { "type": "string", "nullable": true, "description": "Titolo della checklist associata all'evento, se ricavabile da details.checklistId/templateId/itemId" }
                         }
                       }
                     }
@@ -4789,12 +4905,15 @@
                   "activities": [
                     {
                       "id": 42,
-                      "action": "user.registered",
-                      "details": "{\"email\":\"mario.rossi@example.com\",\"role\":\"user\"}",
+                      "action": "task.created",
+                      "details": "{\"itemId\":19,\"templateId\":38,\"description\":\"Verifica login\"}",
                       "timestamp": "2026-06-25T20:05:55Z",
-                      "project_id": null,
+                      "project_id": 3,
+                      "user_id": 7,
                       "nome": "Mario",
-                      "cognome": "Rossi"
+                      "cognome": "Rossi",
+                      "project_name": "Sito e-commerce",
+                      "checklist_name": "Checklist regressione"
                     }
                   ]
                 }

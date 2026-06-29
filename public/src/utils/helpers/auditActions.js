@@ -42,6 +42,7 @@ export const auditActions = {
   "user.registered": {
     label: "USER REGISTRATO",
     color: " text-emerald-700",
+    bgColor: "bg-emerald-50",
     icon: UserPlus,
   },
   "user.updated": {
@@ -76,17 +77,19 @@ export const auditActions = {
   },
   "project.member_assigned": {
     label: "PROJECT MEMBRO ASSEGNATO",
-    color: "border-teal-200 bg-teal-50 text-teal-700",
+    color: "text-teal-700",
+    bgColor: "bg-teal-50",
     icon: UserCheck,
   },
   "project.member_unassigned": {
     label: "PROJECT MEMBRO RIMOSSO",
-    color: "border-orange-200 bg-orange-50 text-orange-700",
+    color: "text-orange-700",
+    bgColor: "bg-orange-50",
     icon: UserX,
   },
   "project.deleted": {
     label: "PROJECT ELIMINATO",
-    color: " text-red-700",
+    color: "text-red-700",
     bgColor: "bg-red-50",
     icon: Trash2,
   },
@@ -94,81 +97,96 @@ export const auditActions = {
   // ---------------- CHECKLIST ----------------
   "checklist.created": {
     label: "CHECKLIST CREATA",
-    color: "border-purple-200 bg-purple-50 text-purple-700",
+    color: "text-purple-700",
+    bgColor: "bg-purple-50",
     icon: ClipboardPlus,
   },
   "checklist.updated": {
     label: "CHECKLIST AGGIORNATA",
-    color: "border-purple-200 bg-purple-50 text-purple-700",
+    color: "text-purple-700",
+    bgColor: "bg-purple-50",
     icon: ClipboardPen,
   },
   "checklist.deleted": {
     label: "CHECKLIST ELIMINATA",
-    color: "border-red-200 bg-red-50 text-red-700",
+    color: "text-red-700",
+    bgColor: "bg-red-50",
     icon: ClipboardX,
   },
 
   // ---------------- TASK ----------------
   "task.created": {
     label: "TASK CREATA",
-    color: "border-amber-200 bg-amber-50 text-amber-700",
+    color: "text-amber-700",
+    bgColor: "bg-amber-50",
     icon: SquarePlus,
   },
   "task.updated": {
     label: "TASK AGGIORNATA",
-    color: "border-yellow-200 bg-yellow-50 text-yellow-700",
+    color: "text-yellow-700",
+    bgColor: "bg-yellow-50",
     icon: SquarePen,
   },
   "task.deleted": {
     label: "TASK ELIMINATA",
-    color: "border-red-200 bg-red-50 text-red-700",
+    color: "text-red-700",
+    bgColor: "bg-red-50",
     icon: SquareX,
   },
   "task.assigned": {
     label: "TASK ASSEGNATA",
-    color: "border-teal-200 bg-teal-50 text-teal-700",
+    color: "text-teal-700",
+    bgColor: "bg-teal-50",
     icon: UserCheck,
   },
   "task.status_blocked": {
     label: "TASK BLOCCATA",
-    color: "border-orange-200 bg-orange-50 text-orange-700",
+    color: "text-orange-700",
+    bgColor: "bg-orange-50",
     icon: CircleSlash,
   },
   "task.status_archived": {
     label: "TASK ARCHIVIATA",
-    color: "border-slate-200 bg-slate-100 text-slate-700",
+    color: "text-slate-700",
+    bgColor: "bg-slate-100",
     icon: Archive,
   },
   "task.unarchived": {
     label: "TASK RIPRISTINATA",
-    color: "border-lime-200 bg-lime-50 text-lime-700",
+    color: "text-lime-700",
+    bgColor: "bg-lime-50",
     icon: RotateCcw,
   },
   "task.status_changed": {
     label: "TASK STATO MODIFICATO",
-    color: "border-indigo-200 bg-indigo-50 text-indigo-700",
+    color: "text-indigo-700",
+    bgColor: "bg-indigo-50",
     icon: CheckCircle2,
   },
 
   // ---------------- SESSIONS ----------------
   "session.created": {
     label: "Session Creata",
-    color: "border-rose-200 bg-rose-50 text-rose-700",
+    color: "text-rose-700",
+    bgColor: "bg-rose-50",
     icon: PlayCircle,
   },
   "session.completed": {
     label: "Session Completata",
-    color: "border-green-200 bg-green-50 text-green-700",
+    color: "text-green-700",
+    bgColor: "bg-green-50",
     icon: CheckCircle2,
   },
   "session.reopened": {
     label: "Session Riaperta",
-    color: "border-orange-200 bg-orange-50 text-orange-700",
+    color: "text-orange-700",
+    bgColor: "bg-orange-50",
     icon: RotateCcw,
   },
   "session.deleted": {
     label: "Session Eliminata",
-    color: "border-red-200 bg-red-50 text-red-700",
+    color: "text-red-700",
+    bgColor: "bg-red-50",
     icon: SquareX,
   },
 };
@@ -184,10 +202,8 @@ export const detailFieldMap = {
   from: { label: "Da" },
   to: { label: "A" },
   userId: { label: "Utente" },
-  checklistId: { label: "Checklist" },
   title: { label: "Titolo" },
   itemId: { label: "Task" },
-  templateId: { label: "Checklist" },
   description: { label: "Descrizione" },
   newDescription: { label: "Nuova descrizione" },
   assignedTo: { label: "Assegnata a" },

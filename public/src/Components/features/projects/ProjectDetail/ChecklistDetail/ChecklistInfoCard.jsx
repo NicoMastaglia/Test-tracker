@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { Button } from "@/Components/ui/button";
 import { ClipboardList, ClipboardCheck, Folder, Pencil, Trash2 } from "lucide-react";
 import { useAuthContext } from "@/context/Auth/AuthContext";
@@ -25,7 +25,7 @@ const ChecklistMetaRow = ({ checklist, selectedProject }) => {
               <Icon className="h-4 w-4 text-slate-400" />
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
-                <p className="text-sm font-medium text-slate-900">{item.value}</p>
+                <p className="text-sm font-medium text-slate-900 uppercase">{item.value}</p>
               </div>
             </div>
           </div>
@@ -46,6 +46,12 @@ const ChecklistInfoCard = ({
   const activeChecklist = checklist ?? null;
   const isAdmin = user?.role !== "user";
 
+
+  useEffect(() => {
+    console.log(selectedProject)
+
+
+  },[])
   // se non c'è una checklist attiva, mostro un messaggio informativo
   if (!activeChecklist) {
     return (

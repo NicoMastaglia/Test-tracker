@@ -1,10 +1,12 @@
-import { Pencil, Trash2, ExternalLink, ClipboardCheck,ListTodo } from 'lucide-react';
+import { Pencil, Trash2, ListTodo } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import StandardTable from "@/utils/components/StandardTable";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { getRoundColorClass } from "@/utils/helpers/tableHelpers";
 import { NOT_AVAILABLE } from "@/utils/components/Placeholder";
 import TableActionButton from "@/utils/components/TableActionButton";
+import { Badge } from "@/Components/ui/badge";
+import {getChecklistStatusBadgeClass} from "@/utils/helpers/tableHelpers";
 import React from 'react';
 
 const HEADERS = [
@@ -17,6 +19,11 @@ const HEADERS = [
     key: "task",
     label: "Task",
     className: "text-center font-semibold text-slate-900 px-4 py-3.5 w-24",
+  },
+  {
+    key: 'status',
+    label: 'Stato',
+    className: 'text-center font-semibold text-slate-900 px-4 py-3.5 w-24',
   },
   {
     key: "ultimo_aggiornamento",
@@ -61,12 +68,22 @@ const ChecklistTable = ({
       containerClass="border border-slate-200/80 rounded-xl shadow-sm overflow-hidden bg-white"
       renderRow={(cl) => {
         const totalTasks = cl.items?.length || 0;
+        const getChecklistStatus = (items = []) => {
+  if (items.length === 0 || items.every((t) => t.status === "TODO")) return "Non Iniziata";
+  if (items.every((t) => t.status === "Completata" || t.status === "Archiviata")) return "Completata";
+  return "In Corso";
+ };
+const checklistStatus = getChecklistStatus(cl.items);
         const colorClass = getRoundColorClass(cl.checklist_id);
         // chiedere a musti x inserire un campo "icon_name" nella checklist, se non c'è usare un'icona di default (es. ListTodo)
         const IconComponent = Icons[cl.icon_name] || Icons['ListTodo'] || ListTodo;
 
         return (
-          <TableRow key={cl.checklist_id} className="group transition-colors hover:bg-slate-50/50">
+          <TableRow
+            key={cl.checklist_id}
+            className="group transition-colors hover:bg-slate-50 cursor-pointer"
+            onClick={() => onOpen(cl)}
+          >
             
             {/* 1. CELLA: INFO CHECKLIST (Usa la variabile colorClass per lo sfondo e l'icona) */}
             <TableCell className="text-left px-5 py-3.5">
@@ -84,13 +101,21 @@ const ChecklistTable = ({
                 </div>
               </div>
             </TableCell>
-
-            
-
             {/* 2. CELLA: TASK */}
             <TableCell className="text-center font-semibold text-slate-800 text-sm px-4 py-3">
               {totalTasks}
             </TableCell>
+
+            {/* 3. CELLA: STATO */}
+            <TableCell className="text-center font-semibold text-slate-800 text-sm px-4 py-3">
+             <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center 
+              ${getChecklistStatusBadgeClass(checklistStatus)}`}>
+      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+      {checklistStatus ?? "Unknown"}
+    </Badge>
+            </TableCell>
+
+            
 
             {/* 3. CELLA: ULTIMO AGGIORNAMENTO */}
             <TableCell className="text-center px-4 py-3 text-xs text-slate-400 font-medium">
@@ -100,23 +125,17 @@ const ChecklistTable = ({
             {/* 6. CELLA: AZIONI OPERATIVE */}
             <TableCell className="text-center px-6 py-3" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-center gap-0.5">
-                <TableActionButton
-                  onClick={() => onOpen(cl)}
-                  icon={ExternalLink}
-                  color="hover:text-slate-600 hover:bg-slate-100"
-                />
-
                 {isAdmin && (
                   <>
                     <TableActionButton
-                      onClick={() => handleEdit(cl)}
+                      onClick={(e) => { e.stopPropagation(); handleEdit(cl); }}
                       icon={Pencil}
-                      color="hover:text-emerald-600 hover:bg-emerald-50/50"
+                      color="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50"
                     />
                     <TableActionButton
-                      onClick={() => handleDelete(cl.checklist_id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(cl.checklist_id); }}
                       icon={Trash2}
-                      color="hover:text-red-600 hover:bg-red-50/50"
+                      color="text-red-600 hover:text-red-700 hover:bg-red-50/50"
                     />
                   </>
                 )}

@@ -4,8 +4,9 @@ import AppLayout from "@/Components/layout/AppLayout";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { Button } from "@/Components/ui/button";
-import { ArrowLeft, Flag, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Flag, Pencil } from "lucide-react";
 import ModalForm from "@/utils/components/ModalForm";
+import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { getProjectInfoItems } from "@/utils/helpers/projectInfoItems";
 import { projectEditFields } from "@/utils/fields/projectEditFields";
 import { toDateInputValue } from "@/utils/helpers/tableHelpers";
@@ -17,6 +18,7 @@ import ProjectActivitiesSection from "./ProjectActivitiesSection";
 import ChecklistSection from "@/Components/features/projects/ProjectDetail/ChecklistSection";
 import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
 import {useAuthContext} from "@/context/Auth/AuthContext";
+import { useAuditContext } from "@/context/Audit/AuditContext";
 import { toast } from "sonner";
 import {filterSearch}  from '@/utils/helpers/filterSearch'
 
@@ -55,6 +57,10 @@ const ProjectDetail = () => {
 
    const [searchUser, setSearchUser] = useState("");
 
+  const { fetchProjectAudit } = useAuditContext();
+  const [activities, setActivities] = useState([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+
 
 
   const availableUser = useMemo(() => {
@@ -92,6 +98,16 @@ const ProjectDetail = () => {
       clearSelectedProject();
     };
   }, [projectId, isAdmin]);
+
+  useEffect(() => {
+    if (!projectId || !isAdmin || activeSection !== "activities") return;
+
+    setActivitiesLoading(true);
+    fetchProjectAudit(projectId, 10)
+      .then((data) => setActivities(data?.activities ?? []))
+      .catch(() => setActivities([]))
+      .finally(() => setActivitiesLoading(false));
+  }, [projectId, isAdmin, activeSection]);
 
 
  
@@ -269,13 +285,6 @@ const ProjectDetail = () => {
     </div>
   );
 
-  const deleteProjectFormDescription = (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-      <p className="font-medium text-slate-900">{selectedProject?.name}</p>
-      <p className="mt-1 text-xs text-slate-500">Codice progetto #{selectedProject?.id}</p>
-    </div>
-  );
-
   // user ritorna ai suoi progetti
   const backRoute =
     user?.role === "user" ? "/user/projects" : "/admin/projects";
@@ -341,7 +350,7 @@ const ProjectDetail = () => {
             ) : null}
 
             {isAdmin && activeSection === "activities" ? (
-              <ProjectActivitiesSection />
+              <ProjectActivitiesSection activities={activities} loading={activitiesLoading} currentUserId={user?.id} />
             ) : null}
           </div>
         ) : (
@@ -405,20 +414,16 @@ const ProjectDetail = () => {
         customFooter={editModalFooter}
       />
 
-      <ModalForm
+      <DeleteConfirmModal
         modalOpen={deleteModalOpen}
         setModalOpen={setDeleteModalOpen}
         title="Elimina progetto"
-        infos="Questa azione è irreversibile: il progetto e tutti i dati collegati verranno eliminati definitivamente."
-        hasDescripion={true}
-        description={deleteProjectFormDescription}
-        onSubmit={handleDeleteProject}
-        submitLabel="Elimina progetto"
-        cancelLabel="Annulla"
-        dialogClassName="sm:max-w-105"
-        titleIcon={Trash2}
-        iconColor="text-red-500"
-        submitVariant="destructive"
+        itemPhrase="il progetto"
+        itemName={selectedProject?.name}
+        extraInfo={`Codice progetto #${selectedProject?.id}`}
+        warningText="Questa azione è irreversibile: il progetto e tutti i dati collegati verranno eliminati definitivamente."
+        onConfirm={handleDeleteProject}
+        confirmLabel="Sì, Elimina progetto"
       />
     </AppLayout>
   );

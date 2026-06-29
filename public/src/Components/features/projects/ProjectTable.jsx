@@ -9,12 +9,13 @@ import {
 } from "@/Components/ui/table";
 import {Button} from "@/Components/ui/button"
 import { toast } from "sonner";
-import {User, Trash2, Edit, AlertTriangle} from "lucide-react"
+import {Edit} from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import ProjectRow from "./ProjectRow";
 import ModalForm from "@/utils/components/ModalForm";
+import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { getRoundColorClass, toDateInputValue } from "@/utils/helpers/tableHelpers";
 import { getAvailableProjectStatuses } from "@/utils/helpers/statusFlow";
 
@@ -266,28 +267,14 @@ const ProjectTable = ({ data, users = [] }) => {
         iconColor="text-emerald-600"
       />
 
-      <ModalForm
+      <DeleteConfirmModal
         modalOpen={!!deleteProjectTarget}
         setModalOpen={setDeleteProjectTarget}
-        title="Conferma eliminazione"
-        infos={ <span className="text-base text-slate-500">
-              Stai per eliminare definitivamente il progetto{" "}
-              <strong className="font-semibold text-slate-900 underline decoration-red-500/40 decoration-2 underline-offset-2">
-                {deleteProjectTarget?.name}
-              </strong>.
-
-               Questa azione è irreversibile.
-            </span>}
-
-        formData={{}}
-        setFormData={() => {}}
-        onSubmit={handleDeleteProject}
-        submitLabel="Elimina progetto"
-        dialogClassName="sm:max-w-105"
-        submitClassName="bg-red-600 hover:bg-red-700 text-white"
-        titleIcon={AlertTriangle}
-        iconColor="text-red-500"
-        />
+        itemPhrase="il progetto"
+        itemName={deleteProjectTarget?.name}
+        onConfirm={handleDeleteProject}
+        confirmLabel="Sì, Elimina progetto"
+      />
 
 
        

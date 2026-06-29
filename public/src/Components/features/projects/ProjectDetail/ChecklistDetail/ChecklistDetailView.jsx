@@ -10,9 +10,17 @@ const ChecklistDetailView = ({
   handleAdd,
   handleEdit,
   handleDelete,
+  handleAssign,
+  handleUnassign,
+  handleArchive,
+  handleReopen,
+  handleBlock,
+
   isAdmin,
   onEditChecklist,
   onDeleteChecklist,
+  teamMembers = [],
+
 }) => {
   const [search, setSearch] = useState("");
 
@@ -47,7 +55,13 @@ const ChecklistDetailView = ({
           buttonVariant="emerald"
         />
 
-        <TaskTable tasks={filteredTasks} handleEdit={handleEdit} handleDelete={handleDelete} isAdmin={isAdmin} />
+        <TaskTable  teamMembers={teamMembers} tasks={filteredTasks} handleAssign={handleAssign} 
+        handleUnassign={handleUnassign}
+        handleEdit={handleEdit} handleDelete={handleDelete} isAdmin={isAdmin}
+        handleArchive={handleArchive}
+        handleReopen={handleReopen}
+        handleBlock={handleBlock}
+         />
       </div>
     </div>
   );

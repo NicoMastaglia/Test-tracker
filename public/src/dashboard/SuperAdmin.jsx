@@ -27,7 +27,7 @@ const SuperAdminDashboard = ({navigate}) => {
 const { fetchGlobalAudit } = useAuditContext();
 
 useEffect(() => {
-  fetchGlobalAudit(10).then((auditData) => {
+  fetchGlobalAudit(5).then((auditData) => {
     console.log("Dati ricevuti da Swagger:", auditData);
     
     // Accedi direttamente alla proprietà .activities del JSON di Swagger
@@ -168,7 +168,13 @@ useEffect(() => {
               
               
               {
-                 const details = item.details ? JSON.parse(item.details) : {}
+                 const rawDetails = item.details ? JSON.parse(item.details) : {}
+                 // checklistId/templateId sono id grezzi ridondanti: il nome leggibile
+                 // arriva già pronto dal BE in item.checklist_name / item.project_name.
+                 const details = Object.fromEntries(
+                   Object.entries(rawDetails).filter(([key]) => key !== "checklistId" && key !== "templateId"),
+                 );
+                 const context = [item.project_name, item.checklist_name].filter(Boolean).join(" · ");
                  const Icon = auditActions[item.action]?.icon || ArrowUpRight;
      
                 
@@ -222,9 +228,12 @@ useEffect(() => {
 </div>
                  </TableCell>
                  <TableCell className="px-4 py-2  text-s">
+                   {context && (
+                     <p className="mb-1 text-xs font-medium text-slate-500">{context}</p>
+                   )}
                    {
-                   
-                   
+
+
                   Object.entries(details).length >0 ?   Object.entries(details).map(([key, value]) => {
                      const field = detailFieldMap[key] ?? { label: key };
                    
