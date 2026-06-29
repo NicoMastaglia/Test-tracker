@@ -49,7 +49,7 @@ const ChecklistSection = ({ projectId, isAdmin }) => {
 
 
     try{
-    await addChecklist({title: formData.title,project_id: Number(projectId),description: formData.description} );
+    await addChecklist({title: formData.title,project_id: Number(projectId),description: formData.description});
     await fetchChecklistsByProject(projectId);
     setFormData({ title: "", description: "" });
     toast.success("Checklist creata con successo");
