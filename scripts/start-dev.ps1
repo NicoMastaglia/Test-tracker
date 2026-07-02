@@ -21,8 +21,8 @@ if (-not (Test-Path (Join-Path $root 'package.json'))) {
   Write-Error "package.json not found in repository root: $root"
   exit 1
 }
-if (-not (Test-Path (Join-Path $root 'public'))) {
-  Write-Error "Frontend folder 'public' not found under repository root: $root"
+if (-not (Test-Path (Join-Path $root 'frontend'))) {
+  Write-Error "Frontend folder 'frontend' not found under repository root: $root"
   exit 1
 }
 
@@ -35,11 +35,11 @@ function Start-TerminalProcess($cwd, $command) {
 if ($NoNewWindow) {
   Write-Host "Starting backend and frontend as background jobs in current window..."
   Start-Job -ScriptBlock { cd $using:root; npm run start } | Out-Null
-  Start-Job -ScriptBlock { cd (Join-Path $using:root 'public'); npm run dev } | Out-Null
+  Start-Job -ScriptBlock { cd (Join-Path $using:root 'frontend'); npm run dev } | Out-Null
   Write-Host "Started jobs. Use Get-Job to inspect and Receive-Job to view output."
 } else {
   Write-Host "Opening two PowerShell windows: backend and frontend"
   Start-TerminalProcess $root "npm run start"
-  Start-TerminalProcess (Join-Path $root 'public') "npm run dev"
+  Start-TerminalProcess (Join-Path $root 'frontend') "npm run dev"
   Write-Host "Launched both processes in new windows."
 }

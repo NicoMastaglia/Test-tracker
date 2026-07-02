@@ -1,0 +1,139 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AppLayout from "@/Components/layout/AppLayout";
+import { useSessionContext } from "@/context/Session/SessionContext";
+import { useAuthContext } from "@/context/Auth/AuthContext";
+import { PlayCircle, CheckCircle2, ListChecks, FileSpreadsheet, FileText } from "lucide-react";
+import StandardTable from "@/utils/components/StandardTable";
+import StatsCardsRow from "@/utils/components/StatsCardsRow";
+import ActionBar from "@/utils/components/ActionBar";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
+import AdminSessionRow from "./AdminSessionRow";
+import { getFullName } from "@/utils/helpers/tableHelpers";
+import { exportSessionsToExcel, exportSessionsToPdf } from "@/utils/helpers/exportSessionsList";
+
+const headers = [
+  { label: "#", key: "id" },
+  { label: "Progetto", key: "project_name" },
+  { label: "Tester", key: "tester" },
+  { label: "Inizio", key: "started_at" },
+  { label: "Fine", key: "completed_at" },
+  { label: "Stato", key: "status" },
+];
+
+// elenco di sola consultazione di tutte le sessioni di test (superadmin: tutte;
+// admin: solo quelle dei progetti che gestisce/ha creato, già filtrate dal BE)
+const AdminSessions = () => {
+  const { sessions, fetchSessions } = useSessionContext();
+  const { user } = useAuthContext();
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [filterTester, setFilterTester] = useState("");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  const isSuperAdmin = user?.role === "superadmin";
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const filteredSessions = useMemo(() => {
+    let result = sessions;
+
+    if (search.trim()) {
+      const query = search.toLowerCase();
+      result = result.filter((s) => (s.project_name ?? "").toLowerCase().includes(query));
+    }
+
+    if (filterTester.trim()) {
+      const query = filterTester.toLowerCase();
+      result = result.filter((s) =>
+        getFullName({ nome: s.tester_nome, cognome: s.tester_cognome }).toLowerCase().includes(query)
+      );
+    }
+
+    if (filterDateFrom) {
+      result = result.filter((s) => s.started_at && s.started_at.slice(0, 10) >= filterDateFrom);
+    }
+
+    return filterStatus === "all" ? result : result.filter((s) => s.status === filterStatus);
+  }, [sessions, search, filterTester, filterDateFrom, filterStatus]);
+
+  const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
+
+  const sessionStats = useMemo(
+    () => [
+      { label: "Sessioni totali", value: sessions.length, icon: ListChecks, iconColor: "text-slate-600", bgIcon: "bg-slate-100", onClick: () => setFilterStatus("all"), active: filterStatus === "all" },
+      { label: "In corso", value: sessions.filter((s) => s.status === "In corso").length, icon: PlayCircle, iconColor: "text-indigo-600", bgIcon: "bg-indigo-100", onClick: () => toggle("In corso"), active: filterStatus === "In corso", activeClass: "border-indigo-400 ring-2 ring-indigo-200 ring-offset-1" },
+      { label: "Completate", value: sessions.filter((s) => s.status === "Completata").length, icon: CheckCircle2, iconColor: "text-emerald-600", bgIcon: "bg-emerald-100", onClick: () => toggle("Completata"), active: filterStatus === "Completata", activeClass: "border-emerald-400 ring-2 ring-emerald-200 ring-offset-1" },
+    ],
+    [sessions, filterStatus],
+  );
+
+  return (
+    <AppLayout page="admin-sessions" title="Sessioni">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+        <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-3" />
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <ActionBar search={search} setSearch={setSearch} placeholder="Cerca per progetto...">
+            <Input
+              placeholder="Cerca per tester..."
+              value={filterTester}
+              onChange={(e) => setFilterTester(e.target.value)}
+              className="h-10 w-full sm:w-48 border-slate-200 focus-visible:ring-emerald-500"
+            />
+            <Input
+              type="date"
+              value={filterDateFrom}
+              onChange={(e) => setFilterDateFrom(e.target.value)}
+              className="h-10 w-full sm:w-40 border-slate-200 focus-visible:ring-emerald-500"
+              title="Data inizio (da)"
+            />
+
+            {isSuperAdmin && filteredSessions.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => exportSessionsToExcel(filteredSessions)}
+                >
+                  <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+                  Excel
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => exportSessionsToPdf(filteredSessions)}
+                >
+                  <FileText className="h-4 w-4 text-red-500" />
+                  PDF
+                </Button>
+              </div>
+            )}
+          </ActionBar>
+
+          <StandardTable
+            headers={headers}
+            data={filteredSessions}
+            emptyMessage="Nessuna sessione trovata."
+            emptyIcon={PlayCircle}
+            renderRow={(s, index) => (
+              <AdminSessionRow
+                session={s}
+                index={index + 1}
+                onView={(id) => navigate(`/sessions/${id}`)}
+              />
+            )}
+          />
+        </div>
+      </div>
+    </AppLayout>
+  );
+};
+
+export default AdminSessions;

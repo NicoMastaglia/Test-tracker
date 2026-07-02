@@ -14,18 +14,18 @@ const corsOptions = {
 };
 
 const swaggerUi = require("swagger-ui-express");
-const swaggerPath = path.join(__dirname, "src", "swagger", "swagger.json");
+const swaggerPath = path.join(__dirname, "backend", "swagger", "swagger.json");
 function loadSwaggerDocument() {
   return JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
 }
 
-const mainRoutes = require("./src/routes/main");
-const authRoutes = require("./src/routes/auth");
-const userRoutes = require("./src/routes/users");
-const projectRoutes = require("./src/routes/projects");
-const checklistRoutes = require("./src/routes/checklists");
-const testSessionRoutes = require("./src/routes/testSessions");
-const auditLogRoutes = require("./src/routes/auditLog");
+const mainRoutes = require("./backend/routes/main");
+const authRoutes = require("./backend/routes/auth");
+const userRoutes = require("./backend/routes/users");
+const projectRoutes = require("./backend/routes/projects");
+const checklistRoutes = require("./backend/routes/checklists");
+const testSessionRoutes = require("./backend/routes/testSessions");
+const auditLogRoutes = require("./backend/routes/auditLog");
 
 
 app.use(express.json());

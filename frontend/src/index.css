@@ -1,0 +1,312 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+
+
+:root {
+  /* --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px; */
+
+  /* --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  } */
+
+  --background: #F8FAFC;
+
+  --foreground: #0F172A;
+
+  --card: #FFFFFF;
+
+  --card-foreground: #0F172A;
+
+  --popover: #FFFFFF;
+
+  --popover-foreground: #0F172A;
+
+  --primary: #10B981;
+
+  --primary-foreground: #FFFFFF;
+
+  --secondary: #F1F5F9;
+
+  --secondary-foreground: #0F172A;
+
+  --muted: #F1F5F9;
+
+  --muted-foreground: #64748B;
+
+  --accent: #F1F5F9;
+
+  --accent-foreground: #0F172A;
+
+  --destructive: #EF4444;
+
+  --border: #E2E8F0;
+
+  --input: #E2E8F0;
+
+  --ring: #10B981;
+
+  --chart-1: oklch(0.87 0 0);
+
+  --chart-2: oklch(0.556 0 0);
+
+  --chart-3: oklch(0.439 0 0);
+
+  --chart-4: oklch(0.371 0 0);
+
+  --chart-5: oklch(0.269 0 0);
+
+  --radius: 0.5rem;
+
+  --sidebar: #0F172A;
+
+  --sidebar-foreground: #FFFFFF;
+
+  --sidebar-primary: #10B981;
+
+  --sidebar-primary-foreground: #FFFFFF;
+
+  --sidebar-accent: #1E293B;
+
+  --sidebar-accent-foreground: #FFFFFF;
+
+  --sidebar-border: #1E293B;
+
+  --sidebar-ring: #10B981;
+
+  /* Brand & state reference tokens (literal values mirrored by Tailwind classes in JSX) */
+  --primary-hover: #059669;
+
+  --success: #22C55E;
+
+  --warning: #F59E0B;
+
+  --danger: #EF4444;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+} */
+
+
+/* il font-family viene da html { @apply font-sans } sotto (Geist Variable, già
+   importato in cima al file) — niente override qui, altrimenti si torna al
+   sans-serif generico del sistema */
+
+#root {
+ 
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+ 
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+}
+
+
+
+@theme inline {
+
+  --font-heading: var(--font-sans);
+
+  --font-sans: 'Geist Variable', sans-serif;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-sidebar-border: var(--sidebar-border);
+
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+
+  --color-sidebar-accent: var(--sidebar-accent);
+
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+
+  --color-sidebar-primary: var(--sidebar-primary);
+
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-sidebar: var(--sidebar);
+
+  --color-chart-5: var(--chart-5);
+
+  --color-chart-4: var(--chart-4);
+
+  --color-chart-3: var(--chart-3);
+
+  --color-chart-2: var(--chart-2);
+
+  --color-chart-1: var(--chart-1);
+
+  --color-ring: var(--ring);
+
+  --color-input: var(--input);
+
+  --color-border: var(--border);
+
+  --color-destructive: var(--destructive);
+
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-accent: var(--accent);
+
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-muted: var(--muted);
+
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-secondary: var(--secondary);
+
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-primary: var(--primary);
+
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-popover: var(--popover);
+
+  --color-card-foreground: var(--card-foreground);
+
+  --color-card: var(--card);
+
+  --color-foreground: var(--foreground);
+
+  --color-background: var(--background);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+
+  --radius-md: calc(var(--radius) * 0.8);
+
+  --radius-lg: var(--radius);
+
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  --radius-2xl: calc(var(--radius) * 1.8);
+
+  --radius-3xl: calc(var(--radius) * 2.2);
+
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* DEPRECATED: previous dark navy/emerald theme, no longer applied (no .dark class on <html>).
+   Kept for reference only.
+.dark {
+
+  --background: #07142B;
+
+  --foreground: #F5F7FA;
+
+  --card: #0B1F45;
+
+  --card-foreground: #F5F7FA;
+
+  --popover: #0B1F45;
+
+  --popover-foreground: #F5F7FA;
+
+  --primary: #10B981;
+
+  --primary-foreground: #F5F7FA;
+
+  --secondary: #0E3B52;
+
+  --secondary-foreground: #F5F7FA;
+
+  --muted: #0E3B52;
+
+  --muted-foreground: #94A3B8;
+
+  --accent: #0E3B52;
+
+  --accent-foreground: #F5F7FA;
+
+  --destructive: oklch(0.704 0.191 22.216);
+
+  --border: oklch(1 0 0 / 10%);
+
+  --input: oklch(1 0 0 / 15%);
+
+  --ring: #10B981;
+
+  --chart-1: oklch(0.87 0 0);
+
+  --chart-2: oklch(0.556 0 0);
+
+  --chart-3: oklch(0.439 0 0);
+
+  --chart-4: oklch(0.371 0 0);
+
+  --chart-5: oklch(0.269 0 0);
+
+  --sidebar: #07142B;
+
+  --sidebar-foreground: #F5F7FA;
+
+  --sidebar-primary: #10B981;
+
+  --sidebar-primary-foreground: #07142B;
+
+  --sidebar-accent: #0E3B52;
+
+  --sidebar-accent-foreground: #F5F7FA;
+
+  --sidebar-border: oklch(1 0 0 / 10%);
+
+  --sidebar-ring: #10B981;
+}
+*/
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;}
+  body {
+    @apply bg-background text-foreground;}
+  html {
+    @apply font-sans;}}

@@ -1,0 +1,64 @@
+# Frontend — Test Tracker
+
+React 19 + Vite 8, Tailwind CSS v4, shadcn/ui (su radix-ui). Applicazione separata dal backend, con proprio `package.json` — vedi [`../README.md`](../README.md) per il quadro d'insieme del repository.
+
+## Installazione
+
+```bash
+npm install
+```
+
+## Configurazione
+
+Il frontend legge l'URL del backend da una variabile d'ambiente Vite. Creare un file `.env` in questa cartella (`frontend/.env`, **non** nella root del repo):
+
+```env
+VITE_BACKEND_URL=http://localhost:3000
+```
+
+Se non impostata, di default punta a `http://localhost:3000` (vedi `src/services/config.js`).
+
+## Avvio
+
+```bash
+npm run dev       # dev server Vite, con hot reload
+npm run build     # build di produzione in dist/
+npm run preview   # serve la build di produzione in locale
+npm run lint      # ESLint su src/
+```
+
+Il backend va avviato separatamente (vedi [`../README.md`](../README.md)) — il frontend da solo non fa nulla senza un'API a cui parlare.
+
+## Struttura
+
+```
+src/
+├── pages/                # una pagina per rotta (admin/, user/, shared/, auth/)
+├── Components/
+│   ├── features/          # componenti legati a un dominio (projects, users, audit, settings, ...)
+│   ├── layout/             # AppLayout, Sidebar, Header
+│   └── ui/                  # primitive shadcn/ui (Button, Dialog, Select, ...) — generate, non modificare a mano
+├── context/               # un Context+Provider per dominio (Auth, User, Project, Checklist, Session, Task, Audit)
+├── services/               # chiamate axios verso il backend, un file per dominio
+├── utils/
+│   ├── components/          # componenti generici riusabili (StandardTable, ModalForm, StatsCardsRow, ...)
+│   ├── helpers/              # funzioni pure (formattazione, validazione, badge di stato, export Excel/PDF)
+│   └── fields/                # definizioni dei campi per i form generici (ModalForm)
+├── Router/                 # AppRouter (route pubbliche/protette) + ProtectedRoute
+├── dashboard/               # le 3 dashboard per ruolo (SuperAdmin, Admin, User)
+└── hooks/                   # hook custom (es. useIsMobile)
+```
+
+## Pattern architetturali
+
+- **Context per dominio**: ogni Context espone sia il `Provider` sia un hook `useXContext()` dallo stesso file. È il motivo per cui ESLint segnala `react-refresh/only-export-components` su tutti i file di `context/` — pattern intenzionale e uniforme in tutta l'app, non un errore isolato da correggere file per file.
+- **Reducer + dispatch**: ogni context usa `useReducer` con azioni tipizzate per stringa (`SET_LOADING`, `SET_ERROR`, ecc.), niente librerie esterne di state management.
+- **`ModalForm`** (`utils/components/ModalForm.jsx`): form generico guidato da un array di `fields` (vedi `utils/fields/`) — usato per la maggior parte delle create/edit modal. Per flussi con logica non riconducibile a un campo per form (es. selezione progetto → task multiple nella creazione sessione) si preferisce un componente dedicato invece di forzare `ModalForm`.
+- **`StandardTable`** (`utils/components/StandardTable.jsx`): tabella paginata riusabile, con una `*Row.jsx` dedicata per ogni dominio (es. `AdminSessionRow.jsx`, `ProjectRow.jsx`).
+- **Naming ita/eng misto**: l'oggetto utente ha due forme che convivono nell'app — quello restituito dal login (`AuthContext`, campi inglesi `name`/`surname`) e quello delle liste utenti (`UserContext`, campi italiani `nome`/`cognome`, che rispecchiano le colonne DB). Gli helper `getFullName`/`getInitials` in `utils/helpers/tableHelpers.js` gestiscono entrambe le forme con fallback — usarli invece di leggere `user.nome`/`user.name` direttamente.
+- **Export dati**: `xlsx` e `jspdf`/`jspdf-autotable` per l'export di sessioni/report in Excel e PDF, generato interamente lato client (vedi `utils/helpers/exportSessionReport.js` e `exportSessionsList.js`).
+
+## Cose note, non ancora affrontate
+
+- Nessun interceptor Axios centralizzato: ogni file in `services/` fa la propria chiamata `axios.get/post` con l'header `Authorization` passato a mano. Se il JWT scade (6 ore, vedi README backend) mentre l'utente è operativo, la richiesta fallisce con un errore generico gestito dal singolo `catch` locale — nessun redirect automatico al login.
+- 8 `useEffect` in giro per l'app impostano stato sincrono nel corpo dell'effect (pattern "reset form alla chiusura del modal"/"fetch al mount") — ESLint li segnala (`react-hooks/set-state-in-effect`) come non ottimali per il rendering, ma funzionano correttamente oggi; da rifattorizzare come task a parte, non un bug.
