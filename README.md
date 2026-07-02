@@ -94,9 +94,8 @@ Test-tracker/
 ├── package.json           # dipendenze e script del backend
 ├── backend/                # logica applicativa del backend (routes, middleware, auth, utils, swagger)
 ├── frontend/               # applicazione React + Vite (progetto separato)
-├── scripts/
-│   └── start-dev.ps1       # avvia backend + frontend in due finestre (Windows)
-└── plans/                  # documenti di progettazione/roadmap interni
+└── scripts/
+    └── start-dev.ps1       # avvia backend + frontend in due finestre (Windows)
 ```
 
 Per i dettagli su singole cartelle, rotte disponibili e convenzioni di ciascuna parte, vedi:

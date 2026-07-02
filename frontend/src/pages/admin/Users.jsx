@@ -2,7 +2,7 @@ import AppLayout from "@/Components/layout/AppLayout";
 import ManageUsers from "@/Components/features/users/ManageUsers";
 import ActionBar from "@/utils/components/ActionBar";
 import React, { useState, useEffect, useMemo } from "react";
-import { register } from "@/services/api";
+import { register } from "@/services/Auth/auth";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { filterSearch } from "@/utils/helpers/filterSearch";

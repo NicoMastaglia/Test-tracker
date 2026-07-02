@@ -24,19 +24,19 @@ router.get("/user/checklists", checkUser, (req, res) => {
   res.status(302).redirect("/user/checklists");
 });
 
-router.get("/admin/projects ", checkAdmin, (req, res) => {
+router.get("/admin/projects", checkAdmin, (req, res) => {
   res.status(302).redirect("/admin/projects");
 });
 
-router.get("/admin/projects/:id ", checkAdmin, (req, res) => {
+router.get("/admin/projects/:id", checkAdmin, (req, res) => {
   res.status(302).redirect(`/admin/projects/${req.params.id}`);
 });
 
-router.get("/admin/projects/:id/checklist ", checkAdmin, (req, res) => {
+router.get("/admin/projects/:id/checklist", checkAdmin, (req, res) => {
   res.status(302).redirect(`/admin/projects/${req.params.id}/checklist`);
 });
 
-router.get("/admin/users ", checkSuperadmin, (req, res) => {
+router.get("/admin/users", checkSuperadmin, (req, res) => {
   res.status(302).redirect("/admin/users");
 });
 
