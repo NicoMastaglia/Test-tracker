@@ -13,12 +13,12 @@ export const StatCard = ({ icon, iconColor = "text-blue-600", bgIcon = "bg-blue-
         ${className}`}
     >
       {Icon && (
-        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${bgIcon}`}>
-          <Icon className={`h-5 w-5 ${iconColor}`} />
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${bgIcon}`}>
+          <Icon className={`h-6 w-6 ${iconColor}`} />
         </div>
       )}
       <div className="min-w-0">
-        <div className="text-xl leading-tight font-bold text-slate-900">{value}</div>
+        <div className="text-2xl leading-tight font-bold text-slate-900">{value}</div>
         <p className="truncate text-xs text-slate-500">{label}</p>
       </div>
     </div>
@@ -39,13 +39,13 @@ export const CompletionStatCard = ({ icon, iconColor = "text-emerald-600", bgIco
     >
       <div className="flex items-center gap-3">
         {Icon && (
-          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${bgIcon}`}>
-            <Icon className={`h-5 w-5 ${iconColor}`} />
-          
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${bgIcon}`}>
+            <Icon className={`h-6 w-6 ${iconColor}`} />
+
           </div>
         )}
         <div className="min-w-0">
-          <div className="text-xl leading-tight font-bold text-slate-900">{value}</div>
+          <div className="text-2xl leading-tight font-bold text-slate-900">{value}</div>
           <p className="truncate text-xs text-slate-500">{label}</p>
         </div>
       </div>

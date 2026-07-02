@@ -44,6 +44,12 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
 
   const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
 
+  const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterStatus("all");
+  };
+
   const filtered = useMemo(() => {
     const bySearch = search.trim()
       ? checklistItems.filter((cl) => cl.title?.toLowerCase().includes(search.toLowerCase()))
@@ -177,6 +183,8 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
           buttonText={isAdmin && !isCompleted && !isPaused ? "Crea Checklist" : null}
           onButtonClick={() => setModal(true)}
           buttonVariant="emerald"
+          onReset={resetFilters}
+          hasActiveFilters={hasActiveFilters}
         />
 
 

@@ -1,16 +1,21 @@
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
-import { ClipboardCheck } from "lucide-react";
+import { ClipboardCheck, RotateCcw } from "lucide-react";
 import TableActionButton from "@/utils/components/TableActionButton";
 import { getTaskStatusBadgeClass, getOutcomeBadgeClass } from "@/utils/helpers/tableHelpers";
 
-const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId }) => {
+const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId, onReopen }) => {
   // un admin può bloccare la task o rimuoverne l'assegnazione mentre la sessione
   // è ancora aperta: in entrambi i casi la task resta visibile (non sparisce, per
   // non confondere il tester) ma non è più completabile da qui.
   const isBlocked = task.task_status === "Bloccata";
   const isUnassigned = task.assigned_to !== currentUserId;
   const cannotEdit = isBlocked || isUnassigned;
+  // un esito già inviato resta bloccato 
+  //  "Aggiorna esito" e
+  // "Riapri esito" sono mutuamente esclusivi in base al solo task.outcome, così
+  // riaprire una task non sblocca anche le altre della stessa sessione
+  const hasOutcome = task.outcome != null;
 
   return (
     <TableRow className="text-center group transition-colors hover:bg-slate-50/50">
@@ -44,6 +49,13 @@ const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId }) => {
             <span className="text-xs text-slate-400">
               {isBlocked ? "Task bloccata" : "Non più assegnata a te"}
             </span>
+          ) : hasOutcome ? (
+            <TableActionButton
+              onClick={() => onReopen?.(task)}
+              icon={RotateCcw}
+              color="text-amber-600 hover:text-amber-600 hover:bg-amber-50/50"
+              action="Riapri esito"
+            />
           ) : (
             <TableActionButton
               onClick={() => onEdit?.(task)}

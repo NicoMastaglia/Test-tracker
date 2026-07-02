@@ -1,5 +1,4 @@
 import { Pencil, Trash2, ListTodo } from 'lucide-react';
-import * as Icons from 'lucide-react';
 import StandardTable from "@/utils/components/StandardTable";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { NOT_AVAILABLE } from "@/utils/components/Placeholder";
@@ -12,12 +11,12 @@ const HEADERS = [
   {
     key: "checklist",
     label: "Checklist",
-    className: "text-center font-semibold text-slate-900 px-5 py-3.5",
+    className: "text-center font-semibold text-slate-900 px-5 py-3.5 w-2/5",
   },
   {
     key: "task",
     label: "Task",
-    className: "text-center font-semibold text-slate-900 px-4 py-3.5 w-24",
+    className: "text-center font-semibold text-slate-900 px-4 py-3.5 w-28",
   },
   {
     key: 'status',
@@ -36,7 +35,7 @@ const HEADERS = [
   },
 ];
 
-// stato derivato di una checklist dai suoi item — usato qui e da ChecklistSection per il filtro
+// stato derivato di una checklist dai suoi item 
 export const getChecklistStatus = (items = []) => {
   if (items.length === 0 || items.every((t) => t.status === "TODO")) return "Non Iniziata";
   if (items.every((t) => t.status === "Completata" || t.status === "Archiviata")) return "Completata";
@@ -75,9 +74,8 @@ const ChecklistTable = ({
       containerClass="border border-slate-200/80 rounded-xl shadow-sm overflow-hidden bg-white"
       renderRow={(cl) => {
         const totalTasks = cl.items?.length || 0;
+        const completedTasks = cl.items?.filter((t) => t.status === "Completata" || t.status === "Archiviata").length || 0;
         const checklistStatus = getChecklistStatus(cl.items);
-        // chiedere a musti x inserire un campo "icon_name" nella checklist, se non c'è usare un'icona di default (es. ListTodo)
-        const IconComponent = Icons[cl.icon_name] || Icons['ListTodo'] || ListTodo;
 
         return (
           <TableRow
@@ -85,26 +83,21 @@ const ChecklistTable = ({
             className="group transition-colors hover:bg-slate-50 cursor-pointer"
             onClick={() => onOpen(cl)}
           >
-            
-            {/* 1. CELLA: INFO CHECKLIST (Usa la variabile colorClass per lo sfondo e l'icona) */}
+
+            {/* 1. CELLA: INFO CHECKLIST (solo nome e descrizione, niente icona) */}
             <TableCell className="text-center px-5 py-3.5">
-              <div className="flex items-center justify-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border bg-slate-100 text-slate-500">
-                  <IconComponent className="h-4 w-4 text-current" />
-                </div>
-                <div className="flex flex-col text-left min-w-0">
-                  <span className="font-semibold text-slate-900 text-sm leading-tight">
-                    {uppercaseFirstLetter(cl.title)}
-                  </span>
-                  <span className="text-xs text-slate-400 mt-0.5 truncate max-w-md">
-                    {uppercaseFirstLetter(cl.description) || 'Nessuna descrizione'}
-                  </span>
-                </div>
+              <div className="flex flex-col text-left min-w-0">
+                <span className="font-semibold text-slate-900 text-sm leading-tight">
+                  {uppercaseFirstLetter(cl.title)}
+                </span>
+                <span className="text-xs text-slate-400 mt-0.5 truncate max-w-md">
+                  {uppercaseFirstLetter(cl.description) || 'Nessuna descrizione'}
+                </span>
               </div>
             </TableCell>
-            {/* 2. CELLA: TASK */}
+            {/* 2. CELLA: TASK — completate/totali, per capire subito l'impatto della checklist sul progetto */}
             <TableCell className="text-center font-semibold text-slate-800 text-sm px-4 py-3">
-              {totalTasks}
+              {completedTasks}/{totalTasks}
             </TableCell>
 
             {/* 3. CELLA: STATO */}

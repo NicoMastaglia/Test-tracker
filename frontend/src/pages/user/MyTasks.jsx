@@ -26,6 +26,12 @@ const MyTasks = () => {
 
   const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
 
+  const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterStatus("all");
+  };
+
   const taskStats = useMemo(() => [
     { label: "Task totali", value: assignedTasks.length, icon: ListChecks, iconColor: "text-slate-600", bgIcon: "bg-slate-100", onClick: () => setFilterStatus("all"), active: filterStatus === "all" },
     { label: "TODO", value: assignedTasks.filter((t) => t.status === "TODO").length, icon: ClipboardList, iconColor: "text-amber-600", bgIcon: "bg-amber-100", onClick: () => toggle("TODO"), active: filterStatus === "TODO", activeClass: "border-amber-400 ring-2 ring-amber-200 ring-offset-1" },
@@ -62,6 +68,8 @@ const MyTasks = () => {
             search={search}
             setSearch={setSearch}
             placeholder="Cerca per progetto o descrizione..."
+            onReset={resetFilters}
+            hasActiveFilters={hasActiveFilters}
           />
           <StandardTable
             headers={headers}

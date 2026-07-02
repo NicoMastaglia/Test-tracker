@@ -27,7 +27,7 @@ backend/
 │   ├── logActivity.js      # scrive una riga in audit_log (usato da quasi tutte le routes)
 │   ├── mailer.js            # wrapper nodemailer (transport SMTP)
 │   ├── sendEmail.js         # sendProjectEmail(user, type, options) — sceglie il template e invia
-│   ├── emailTemplates.js    # HTML delle email (layout condiviso + 4 varianti)
+│   ├── emailTemplates.js    # HTML delle email (layout condiviso + 5 varianti)
 │   └── setupToken.js        # genera/hasha i token di setup/reset password
 └── swagger/
     └── swagger.json         # documentazione OpenAPI, manuale — vedi nota sotto
@@ -61,6 +61,7 @@ Il JWT di accesso (`generateAccessToken`) scade dopo **6 ore fisse**, nessun ref
 | `resetPassword`  | "Password dimenticata" da un account che ha già una password |
 | `projectAssignment` | Utente assegnato a un progetto |
 | `taskAssignment` | Task assegnata a un utente |
+| `sessionReopened` | Admin/superadmin riapre una sessione di test completata (`PATCH /:id/reopen`) |
 
 Tutti i template condividono lo stesso layout HTML (`emailLayout` in `emailTemplates.js`) per coerenza visiva; cambia solo colore accento, titolo e corpo.
 

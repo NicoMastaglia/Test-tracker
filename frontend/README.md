@@ -58,7 +58,4 @@ src/
 - **Naming ita/eng misto**: l'oggetto utente ha due forme che convivono nell'app — quello restituito dal login (`AuthContext`, campi inglesi `name`/`surname`) e quello delle liste utenti (`UserContext`, campi italiani `nome`/`cognome`, che rispecchiano le colonne DB). Gli helper `getFullName`/`getInitials` in `utils/helpers/tableHelpers.js` gestiscono entrambe le forme con fallback — usarli invece di leggere `user.nome`/`user.name` direttamente.
 - **Export dati**: `xlsx` e `jspdf`/`jspdf-autotable` per l'export di sessioni/report in Excel e PDF, generato interamente lato client (vedi `utils/helpers/exportSessionReport.js` e `exportSessionsList.js`).
 
-## Cose note, non ancora affrontate
 
-- Nessun interceptor Axios centralizzato: ogni file in `services/` fa la propria chiamata `axios.get/post` con l'header `Authorization` passato a mano. Se il JWT scade (6 ore, vedi README backend) mentre l'utente è operativo, la richiesta fallisce con un errore generico gestito dal singolo `catch` locale — nessun redirect automatico al login.
-- 8 `useEffect` in giro per l'app impostano stato sincrono nel corpo dell'effect (pattern "reset form alla chiusura del modal"/"fetch al mount") — ESLint li segnala (`react-hooks/set-state-in-effect`) come non ottimali per il rendering, ma funzionano correttamente oggi; da rifattorizzare come task a parte, non un bug.

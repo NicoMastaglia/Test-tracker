@@ -55,8 +55,8 @@ const StandardTable = ({
               paginatedData.map((item, idx) => renderRow ? renderRow(item, pageStart + idx) : null)
             ) : (
               <TableRow >
-                <TableCell colSpan={Math.max(headers.length, 1)} className="py-12 text-center">
-                  <div className="flex flex-col items-center gap-3">
+                <TableCell colSpan={Math.max(headers.length, 1)} className="p-0 text-center">
+                  <div className="flex min-h-64 flex-col items-center justify-center gap-3">
                     {EmptyIcon && (
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                         <EmptyIcon className="h-6 w-6" />

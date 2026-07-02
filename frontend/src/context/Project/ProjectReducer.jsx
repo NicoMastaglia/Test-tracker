@@ -11,13 +11,13 @@ export const initialState = {
 export const projectReducer = (state,action) =>{
     switch(action.type){
         case 'SET_SELECTED_PROJECT':
-            // per project details page, when user clicks on a project, we set that project as selectedProject in the state
+          
             return {
                 ...state,
                 selectedProject: action.payload,
                 loading:false
             }
-            // when user clicks back to projects list, we clear the selectedProject from the state
+           
         case 'CLEAR_SELECTED_PROJECT': 
             return {
                 ...state,

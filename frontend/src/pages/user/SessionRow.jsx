@@ -1,6 +1,7 @@
+import { CircleSlash } from "lucide-react";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
-import { getSessionStatusBadgeClass } from "@/utils/helpers/tableHelpers";
+import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass } from "@/utils/helpers/tableHelpers";
 
 const formatDate = (date) => {
   if (!date) return "Non disponibile";
@@ -15,7 +16,7 @@ const formatDate = (date) => {
 };
 
 const SessionRow = ({ session, onView, index }) => {
-  // testo data completamento: stessa tonalità del badge di stato per coerenza visiva
+
   const dateColorClass = session.status === "Completata" ? "text-emerald-700" : "text-indigo-600";
 
   return (
@@ -44,10 +45,18 @@ const SessionRow = ({ session, onView, index }) => {
     </TableCell>
 
     <TableCell>
-      <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center ${getSessionStatusBadgeClass(session.status)}`}>
-        <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
-        {session.status || "N/D"}
-      </Badge>
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center ${getSessionStatusBadgeClass(session.status)}`}>
+          <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+          {session.status || "N/D"}
+        </Badge>
+        {session.has_blocked_task ? (
+          <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center ${blockedIndicatorBadgeClass}`}>
+            <CircleSlash className="mr-1 h-3 w-3" />
+            Task bloccata
+          </Badge>
+        ) : null}
+      </div>
     </TableCell>
   </TableRow>
   );

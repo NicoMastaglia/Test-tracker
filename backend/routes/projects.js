@@ -935,7 +935,7 @@ router.get('/:id/activities',checkUser, async (req,res)=>{
    )
    LEFT JOIN test_session rs ON rs.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.sessionId')) AS UNSIGNED)
    WHERE a.project_id = ?  ${filterByUser ? 'AND a.user_id = ?' : ''} ${dateWhereSQL}
-   ORDER BY a.timestamp DESC
+   ORDER BY a.timestamp DESC, a.id DESC
    LIMIT ?`,
    [...baseParams, ...dateParams, String(limit)]
 

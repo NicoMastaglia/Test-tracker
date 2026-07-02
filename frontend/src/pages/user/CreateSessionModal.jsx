@@ -27,8 +27,8 @@ import {
 } from "@/Components/ui/command";
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
-// Modale dedicata (non ModalForm): il combobox multi-select con Command+checkbox
-// è un tipo di campo che serve solo qui, non ha senso farne un case generico.
+// Modale dedicata (non ModalForm): per multi-select con Command+checkbox
+
 // tasksByProject arriva già raggruppato dal genitore (Sessions.jsx): [{ projectId, projectName, tasks }]
 const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSubmit }) => {
   const [selectedProjectId, setSelectedProjectId] = useState("");

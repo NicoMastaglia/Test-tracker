@@ -1,4 +1,5 @@
 import { Button } from "@/Components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/Components/ui/tooltip";
 
 // Pulsante icona riutilizzabile per le colonne "Azioni" delle tabelle.
 // NOTA: `color` deve includere anche l'hover:text-* esplicito (es. "text-blue-600 hover:text-blue-700 hover:bg-blue-100"):
@@ -8,17 +9,21 @@ import { Button } from "@/Components/ui/button";
 const TableActionButton = ({ onClick, icon, color,action,...props }) => {
   const Icon = icon;
   return (
-    <Button
-      size="icon"
-      variant="ghost"
-      onClick={onClick}
-      title={action}
-      aria-label={action}
-      className={`h-8 w-8 rounded-lg transition-colors cursor-pointer ${color}`}
-      {...props}
-    >
-      <Icon className="h-4 w-4" />
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={onClick}
+          aria-label={action}
+          className={`h-9 w-9 rounded-lg transition-colors duration-150 cursor-pointer ${color}`}
+          {...props}
+        >
+          <Icon className="h-4 w-4" />
+        </Button>
+      </TooltipTrigger>
+      {action && <TooltipContent>{action}</TooltipContent>}
+    </Tooltip>
   );
 };
 

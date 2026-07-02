@@ -103,6 +103,12 @@ const AdminProjects = () => {
 
   const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
 
+  const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterStatus("all");
+  };
+
   // conteggi di stato dei progetti (admin: i suoi; superadmin: tutti)
   const projectStats = useMemo(() => {
     const list = projects || [];
@@ -169,6 +175,8 @@ const AdminProjects = () => {
             buttonText={user?.role === "admin" || user?.role === "superadmin" ? "Add Project" : null}
             onButtonClick={user?.role === "admin" || user?.role === "superadmin" ? () => setModalOpen(true) : undefined}
             buttonVariant="emerald"
+            onReset={resetFilters}
+            hasActiveFilters={hasActiveFilters}
           />
 
           {loading && projects.length === 0 ? (

@@ -13,7 +13,7 @@ Il repository contiene due parti:
 
 - Node.js v18+ (richiesto da Vite 8 e dalle dipendenze del frontend)
 - MySQL/MariaDB in esecuzione, con un database già creato
-- Un account SMTP per l'invio email (Mailtrap in sviluppo, Gmail/altro provider in produzione)
+- Un account SMTP per l'invio email — il progetto usa Gmail come provider (vedi sotto per la configurazione), ma qualunque provider SMTP standard funziona (`mailer.js` usa `nodemailer` con host/porta/credenziali generici)
 
 ## Installazione
 
@@ -42,15 +42,19 @@ DB_NAME=your_db_name
 # Auth
 JWT_SECRET=una_chiave_lunga_e_segreta
 
-# Email (setup account, reset password, notifiche assegnazione)
-SMTP_HOST=sandbox.smtp.mailtrap.io
-SMTP_PORT=2525
-SMTP_USER=your_smtp_user
-SMTP_PASS=your_smtp_pass
-MAIL_FROM="Test Tracker <noreply@test-tracker.local>"
+# Email (setup account, reset password, notifiche assegnazione, riapertura sessione)
+# Provider: Gmail SMTP
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=tuo_account@gmail.com
+SMTP_PASS=tua_app_password
+MAIL_FROM="Test Tracker <tuo_account@gmail.com>"
 ```
 
 `FRONTEND_URL` è usato sia per la configurazione CORS sia per costruire i link nelle email (setup account, reset password) — deve puntare all'URL su cui gira il frontend (es. `http://localhost:5173` in sviluppo).
+
+**Gmail richiede una "App Password"**, non la password normale dell'account: va generata da [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) (richiede la verifica in due passaggi attiva sull'account Google). `SMTP_USER` è l'indirizzo Gmail completo, `SMTP_PASS` è la App Password a 16 caratteri generata (senza spazi). Il transport (`backend/utils/mailer.js`) è comunque generico — qualunque altro provider SMTP standard funziona sostituendo `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`.
 
 Il frontend legge l'URL del backend da una variabile propria; vedi [`frontend/README.md`](frontend/README.md) per i dettagli (di default punta a `http://localhost:3000` se non configurata).
 

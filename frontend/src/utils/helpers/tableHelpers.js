@@ -48,15 +48,15 @@ export const getRoleInfo = (role) => {
     user: {
       // label: "Utente",
       label: "USER",
-      className: "bg-green-100 text-green-800",
+      className: "bg-green-100 text-green-900",
     },
     admin: {
       label: "ADMIN",
-      className: "bg-blue-100 text-blue-700",
+      className: "bg-blue-100 text-blue-800",
     },
     superadmin: {
       label: "SUPER ADMIN",
-      className: "bg-pink-100 text-pink-700",
+      className: "bg-pink-100 text-pink-800",
     },
   };
 
@@ -69,18 +69,18 @@ export const getStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
   if (normalizedStatus === "attivo" || normalizedStatus === "active") {
-    return "font-bold bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none";
+    return "font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none";
   }
 
   if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-    return "font-bold bg-blue-100 text-blue-700 hover:bg-blue-100 border-none";
+    return "font-bold bg-blue-100 text-blue-800 hover:bg-blue-100 border-none";
   }
 
   if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold") {
-    return "font-bold bg-amber-100 text-amber-700 hover:bg-amber-100 border-none";
+    return "font-bold bg-amber-100 text-amber-800 hover:bg-amber-100 border-none";
   }
 
-  return "font-bold bg-slate-100 text-slate-600 hover:bg-slate-100 border-none";
+  return "font-bold bg-slate-100 text-slate-700 hover:bg-slate-100 border-none";
 };
 
 
@@ -90,32 +90,32 @@ export const getTaskStatusBadgeClass = (status) => {
 
 
   if (normalizedStatus === "todo") {
-    return "font-bold bg-amber-100 text-amber-700 hover:bg-amber-100 border-none";
+    return "font-bold bg-amber-100 text-amber-800 hover:bg-amber-100 border-none";
 
 
   }
   if (normalizedStatus === "in corso") {
-    return "font-bold bg-blue-100 text-blue-700 hover:bg-blue-100 border-none";
+    return "font-bold bg-blue-100 text-blue-800 hover:bg-blue-100 border-none";
 
 
 
   }
   if (normalizedStatus === "completata") {
-    return "font-bold bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none";
+    return "font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none";
 
 
   }
 
   if (normalizedStatus === "archiviata") {
-    return "font-bold bg-slate-100 text-blue-600 hover:bg-slate-100 border-none";
+    return "font-bold bg-slate-100 text-blue-700 hover:bg-slate-100 border-none";
   }
 
   if (normalizedStatus === "bloccata") {
-    return "font-bold bg-red-100 text-red-700 hover:bg-red-100 border-none";
+    return "font-bold bg-red-100 text-red-800 hover:bg-red-100 border-none";
 
   }
 
-  return "font-bold bg-slate-100 text-slate-600 hover:bg-slate-100 border-none";
+  return "font-bold bg-slate-100 text-slate-700 hover:bg-slate-100 border-none";
 
 
 
@@ -127,22 +127,22 @@ export const getChecklistStatusBadgeClass = (status) => {
 
   // STATO: Non iniziata (Neutro / Grigio)
   if (normalizedStatus === "non iniziata" || normalizedStatus === "todo") {
-    return "font-semibold bg-slate-100 text-slate-700 hover:bg-slate-100/80 border-none";
+    return "font-semibold bg-slate-100 text-slate-800 hover:bg-slate-100/80 border-none";
   }
 
   // STATO: In corso (Indigo)
   if (normalizedStatus === "in corso") {
-    return "font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-100/80 border-none";
+    return "font-semibold bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80 border-none";
   }
 
   // STATO: Completata (Emerald)
   if (normalizedStatus === "completata") {
-    return "font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80 border-none";
+    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none";
   }
-  
+
 
   // FALLBACK
-  return "font-semibold bg-zinc-100 text-zinc-600 hover:bg-zinc-100 border-none";
+  return "font-semibold bg-zinc-100 text-zinc-700 hover:bg-zinc-100 border-none";
 }
 
 // per ottenere le classi di stile in base allo stato della sessione (solo 2 stati: In corso/Completata)
@@ -150,27 +150,31 @@ export const getSessionStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
   if (normalizedStatus === "completata") {
-    return "font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80 border-none";
+    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none";
   }
 
   // FALLBACK: "in corso" e qualunque altro valore inatteso
-  return "font-semibold bg-indigo-100 text-indigo-700 hover:bg-indigo-100/80 border-none";
+  return "font-semibold bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80 border-none";
 }
+
+// badge aggiuntivo (non sostituisce lo stato sessione): segnala che almeno una
+// task della sessione è "Bloccata", indipendentemente da In corso/Completata
+export const blockedIndicatorBadgeClass = "font-semibold bg-red-100 text-red-800 hover:bg-red-100/80 border-none";
 
 // per ottenere le classi di stile in base all'esito di una task in sessione (Positivo/Negativo/non ancora valutato)
 export const getOutcomeBadgeClass = (outcome) => {
   const normalizedOutcome = normalizeText(outcome);
 
   if (normalizedOutcome === "positivo") {
-    return "font-semibold bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80 border-none";
+    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none";
   }
 
   if (normalizedOutcome === "negativo") {
-    return "font-semibold bg-red-100 text-red-700 hover:bg-red-100/80 border-none";
+    return "font-semibold bg-red-100 text-red-800 hover:bg-red-100/80 border-none";
   }
 
   // FALLBACK: outcome non ancora impostato
-  return "font-semibold bg-slate-100 text-slate-600 hover:bg-slate-100/80 border-none";
+  return "font-semibold bg-slate-100 text-slate-700 hover:bg-slate-100/80 border-none";
 }
 
 // per ottenere il nome del creatore di un progetto
@@ -190,25 +194,25 @@ export const getProjectStatusBadgeClass = (status) => {
 
   // Attivo / Active = "In Progress" -> blue
   if (normalizedStatus === "attivo" || normalizedStatus === "active" || normalizedStatus === "in progress" || normalizedStatus === "in_progress") {
-    return "font-bold bg-blue-100 text-blue-700";
+    return "font-bold bg-blue-100 text-blue-800";
   }
 
   // Completato / Completed -> emerald
   if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-    return "font-bold bg-emerald-100 text-emerald-700";
+    return "font-bold bg-emerald-100 text-emerald-800";
   }
 
   // In pausa / Non iniziato / Pending -> amber
   if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold" || normalizedStatus === "non iniziato" || normalizedStatus === "pending") {
-    return "font-bold bg-amber-100 text-amber-700";
+    return "font-bold bg-amber-100 text-amber-800";
   }
 
   // Bloccato / Blocked -> red
   if (normalizedStatus === "bloccato" || normalizedStatus === "blocked") {
-    return "font-bold bg-red-100 text-red-700";
+    return "font-bold bg-red-100 text-red-800";
   }
 
-  return "font-bold bg-slate-100 text-slate-600";
+  return "font-bold bg-slate-100 text-slate-700";
 };
 
 

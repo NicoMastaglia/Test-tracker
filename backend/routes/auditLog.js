@@ -38,7 +38,7 @@ router.get('/',checkSuperadmin,async (req,res)=>{
        )
        LEFT JOIN test_session rs ON rs.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.sessionId')) AS UNSIGNED)
        ${whereSQL}
-       ORDER BY a.timestamp DESC
+       ORDER BY a.timestamp DESC, a.id DESC
        LIMIT ?`,
       [...queryParams, String(limit)]
     );

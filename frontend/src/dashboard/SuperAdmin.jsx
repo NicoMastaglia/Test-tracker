@@ -26,6 +26,7 @@ const SuperAdminDashboard = ({ navigate }) => {
 
   useEffect(() => {
     // anteprima in dashboard: solo le ultime 5, l'elenco completo sta in /admin/audit-log
+    // si può modificare 
     fetchGlobalAudit(5).then((auditData) => {
       setAudit(auditData?.activities ?? []);
     }).catch(() => setAudit([]));

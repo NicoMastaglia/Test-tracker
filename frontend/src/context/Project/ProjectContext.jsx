@@ -104,8 +104,7 @@ export const ProjectProvider = ({ children }) => {
             const token = getToken()
             await assignUserToProjectApi(token, projectId, userId)
 
-            // rinfresco la lista progetti e, se è quello aperto, i suoi dettagli
-            // (che includono user_list, la fonte unica degli assegnati)
+            //  aggiorno la lista progetti e, se è quello aperto, i suoi dettagli
             await fetchProjects()
             if (state.selectedProject && Number(state.selectedProject.id) === Number(projectId)) {
                 await fetchProjectDetails(projectId)

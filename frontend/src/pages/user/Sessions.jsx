@@ -2,7 +2,7 @@ import AppLayout from "@/Components/layout/AppLayout";
 import { useSessionContext } from "@/context/Session/SessionContext";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { PlayCircle, CheckCircle2, ListChecks } from "lucide-react";
+import { PlayCircle, CheckCircle2, ListChecks, CircleSlash } from "lucide-react";
 import StandardTable from "@/utils/components/StandardTable";
 import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import SessionRow from "./SessionRow";
@@ -37,22 +37,35 @@ const Sessions = () => {
     const bySearch = search
       ? sessions.filter((s) => (s.project_name ?? "").toLowerCase().includes(search.toLowerCase()))
       : sessions;
+    if (filterStatus === "blocked") {
+      return bySearch.filter((s) => s.has_blocked_task);
+    }
     return filterStatus === "all" ? bySearch : bySearch.filter((s) => s.status === filterStatus);
   }, [sessions, search, filterStatus]);
 
+  // "blocked" è un filtro sintetico (deriva da has_blocked_task, non da un vero status),
+  // quindi ha un toggle dedicato invece di riusare quello generico sullo status letterale
   const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
+  const toggleBlocked = () => setFilterStatus((prev) => (prev === "blocked" ? "all" : "blocked"));
+
+  const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterStatus("all");
+  };
 
   // stessa convenzione cromatica del badge di stato sessione (getSessionStatusBadgeClass)
   const sessionStats = useMemo(() => [
     { label: "Sessioni totali", value: sessions.length, icon: ListChecks, iconColor: "text-slate-600", bgIcon: "bg-slate-100", onClick: () => setFilterStatus("all"), active: filterStatus === "all" },
     { label: "In corso", value: sessions.filter((s) => s.status === "In corso").length, icon: PlayCircle, iconColor: "text-indigo-600", bgIcon: "bg-indigo-100", onClick: () => toggle("In corso"), active: filterStatus === "In corso", activeClass: "border-indigo-400 ring-2 ring-indigo-200 ring-offset-1" },
     { label: "Completate", value: sessions.filter((s) => s.status === "Completata").length, icon: CheckCircle2, iconColor: "text-emerald-600", bgIcon: "bg-emerald-100", onClick: () => toggle("Completata"), active: filterStatus === "Completata", activeClass: "border-emerald-400 ring-2 ring-emerald-200 ring-offset-1" },
+    { label: "Bloccate", value: sessions.filter((s) => s.has_blocked_task).length, icon: CircleSlash, iconColor: "text-red-600", bgIcon: "bg-red-100", onClick: toggleBlocked, active: filterStatus === "blocked", activeClass: "border-red-400 ring-2 ring-red-200 ring-offset-1" },
   ], [sessions, filterStatus]);
 
   // Raggruppa le task assegnate (lavorabili) per progetto: alimenta sia il select
-  // progetto che la lista task della modale di creazione sessione.
+  // progetto che la lista task della modale di creazione sessione 
   // Completata/Archiviata/Bloccata non sono "lavorabili" (stessa regola del BE,
-  // POST /api/test-sessions le rifiuta comunque, qui evitiamo solo il giro a vuoto).
+  
   // Un progetto "Completato" o "In pausa" non può essere il punto di partenza di una nuova sessione.
   const tasksByProject = useMemo(() => {
     const workable = assignedTasks.filter(
@@ -92,7 +105,7 @@ const Sessions = () => {
   return (
     <AppLayout page="sessions" title="Sessioni">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
-        <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-3" />
+        <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-4" />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar
@@ -102,6 +115,8 @@ const Sessions = () => {
             buttonText="Add Session"
             onButtonClick={() => setAddSessionOpen(true)}
             buttonVariant="emerald"
+            onReset={resetFilters}
+            hasActiveFilters={hasActiveFilters}
           />
           <StandardTable
             headers={headers} 

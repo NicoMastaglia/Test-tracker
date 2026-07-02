@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "@/Components/layout/AppLayout";
 import { useSessionContext } from "@/context/Session/SessionContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-import { PlayCircle, CheckCircle2, ListChecks, FileSpreadsheet, FileText } from "lucide-react";
+import { PlayCircle, CheckCircle2, ListChecks, CircleSlash, FileSpreadsheet, FileText } from "lucide-react";
 import StandardTable from "@/utils/components/StandardTable";
 import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import ActionBar from "@/utils/components/ActionBar";
@@ -58,16 +58,31 @@ const AdminSessions = () => {
       result = result.filter((s) => s.started_at && s.started_at.slice(0, 10) >= filterDateFrom);
     }
 
+    if (filterStatus === "blocked") {
+      return result.filter((s) => s.has_blocked_task);
+    }
     return filterStatus === "all" ? result : result.filter((s) => s.status === filterStatus);
   }, [sessions, search, filterTester, filterDateFrom, filterStatus]);
 
+  // "blocked" è un filtro sintetico (deriva da has_blocked_task, non da un vero status),
+  // quindi ha un toggle dedicato invece di riusare quello generico sullo status letterale
   const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
+  const toggleBlocked = () => setFilterStatus((prev) => (prev === "blocked" ? "all" : "blocked"));
+
+  const hasActiveFilters = Boolean(search.trim() || filterTester.trim() || filterDateFrom || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterTester("");
+    setFilterDateFrom("");
+    setFilterStatus("all");
+  };
 
   const sessionStats = useMemo(
     () => [
       { label: "Sessioni totali", value: sessions.length, icon: ListChecks, iconColor: "text-slate-600", bgIcon: "bg-slate-100", onClick: () => setFilterStatus("all"), active: filterStatus === "all" },
       { label: "In corso", value: sessions.filter((s) => s.status === "In corso").length, icon: PlayCircle, iconColor: "text-indigo-600", bgIcon: "bg-indigo-100", onClick: () => toggle("In corso"), active: filterStatus === "In corso", activeClass: "border-indigo-400 ring-2 ring-indigo-200 ring-offset-1" },
       { label: "Completate", value: sessions.filter((s) => s.status === "Completata").length, icon: CheckCircle2, iconColor: "text-emerald-600", bgIcon: "bg-emerald-100", onClick: () => toggle("Completata"), active: filterStatus === "Completata", activeClass: "border-emerald-400 ring-2 ring-emerald-200 ring-offset-1" },
+      { label: "Bloccate", value: sessions.filter((s) => s.has_blocked_task).length, icon: CircleSlash, iconColor: "text-red-600", bgIcon: "bg-red-100", onClick: toggleBlocked, active: filterStatus === "blocked", activeClass: "border-red-400 ring-2 ring-red-200 ring-offset-1" },
     ],
     [sessions, filterStatus],
   );
@@ -75,10 +90,10 @@ const AdminSessions = () => {
   return (
     <AppLayout page="admin-sessions" title="Sessioni">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
-        <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-3" />
+        <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-4" />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <ActionBar search={search} setSearch={setSearch} placeholder="Cerca per progetto...">
+          <ActionBar search={search} setSearch={setSearch} placeholder="Cerca per progetto..." onReset={resetFilters} hasActiveFilters={hasActiveFilters}>
             <Input
               placeholder="Cerca per tester..."
               value={filterTester}

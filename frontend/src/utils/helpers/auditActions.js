@@ -94,18 +94,6 @@ export const auditActions = {
     bgColor: "bg-orange-50",
     icon: UserX,
   },
-  "project.tester_assigned": {
-    label: "PROGETTO: TESTER ASSEGNATO",
-    color: "text-teal-700",
-    bgColor: "bg-teal-50",
-    icon: UserCheck,
-  },
-  "project.tester_unassigned": {
-    label: "PROGETTO: TESTER RIMOSSO",
-    color: "text-orange-700",
-    bgColor: "bg-orange-50",
-    icon: UserX,
-  },
   "project.deleted": {
     label: "PROGETTO ELIMINATO",
     color: "text-red-700",
@@ -187,6 +175,12 @@ export const auditActions = {
     color: "text-indigo-700",
     bgColor: "bg-indigo-50",
     icon: CheckCircle2,
+  },
+  "task.outcome_reopened": {
+    label: "ESITO TASK RIAPERTO",
+    color: "text-amber-700",
+    bgColor: "bg-amber-50",
+    icon: RotateCcw,
   },
 
   // ---------------- SESSIONS ----------------

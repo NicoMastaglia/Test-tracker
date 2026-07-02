@@ -45,7 +45,7 @@ export const UserProvider = ({ children }) => {
       const token = getToken()
       const data = await updateCurrentUser(token, userData)
 
-      // in atessa che la res di login passi con i campi in ita
+      // la response passa i nomi in eng 
       const userToSync ={
         id: currentAuthUser?.id,
         name: userData.name || userData.nome,
