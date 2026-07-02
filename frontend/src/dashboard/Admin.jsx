@@ -5,6 +5,7 @@ import { Folder, PlayCircle, CheckCircle, ArrowRight, Zap } from "lucide-react";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useSessionContext } from "@/context/Session/SessionContext";
+import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import WelcomeCard from "./WelcomeCard";
 
 
@@ -29,22 +30,25 @@ const AdminDashboard = () => {
 
     const statCards = [
       {
-        title: "Progetti Attivi",
+        label: "Progetti Attivi",
         value: String(activeProjects),
         icon: Folder,
-        iconClass: "bg-green-100 text-green-600",
+        iconColor: "text-green-600",
+        bgIcon: "bg-green-100",
       },
       {
-        title: "Sessioni in Corso",
+        label: "Sessioni in Corso",
         value: String(sessionsInProgress),
         icon: PlayCircle,
-        iconClass: "bg-blue-100 text-blue-600",
+        iconColor: "text-blue-600",
+        bgIcon: "bg-blue-100",
       },
       {
-        title: "Sessioni Totali",
+        label: "Sessioni Totali",
         value: String(sessionList.length),
         icon: CheckCircle,
-        iconClass: "bg-blue-100 text-blue-600",
+        iconColor: "text-blue-600",
+        bgIcon: "bg-blue-100",
       },
     ];
 
@@ -74,31 +78,12 @@ const AdminDashboard = () => {
               subtitle="Gestisci progetti, checklist e sessioni del team."
             />
 
-             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-               {statCards.map((card) => {
-                 const Icon = card.icon;
-
-                 return (
-                   <Card key={card.title} className="border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-                     <CardContent className="flex items-start gap-4 pt-2">
-                       <div className={`flex h-14 w-14 shrink-0 items-start justify-center rounded-2xl pt-3 ${card.iconClass}`}>
-                         <Icon className="h-6 w-6" />
-                       </div>
-
-                       <div className="min-w-0 flex flex-col items-start text-left gap-3">
-                         <p className="mt-1 text-sm text-slate-500">{card.title}</p>
-                         <p className="text-[30px] leading-none text-slate-900">{card.value}</p>
-                       </div>
-                     </CardContent>
-                   </Card>
-                 );
-               })}
-             </div>
+             <StatsCardsRow stats={statCards} className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" />
 
              {/* Azioni rapide */}
              <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7 mt-6">
                  <Card className="col-span-full border-slate-200 bg-white shadow-sm">
-                   <CardHeader className="pb-4">
+                   <CardHeader>
                      <CardTitle className="flex items-center gap-2 text-slate-900">
                        <Zap className="h-4 w-4 text-slate-400" />
                        Azioni rapide

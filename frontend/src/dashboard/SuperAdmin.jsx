@@ -6,7 +6,7 @@ import { useUserContext } from "@/context/User/UserContext";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useSessionContext } from "@/context/Session/SessionContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-import { KpiCard } from "@/utils/components/KpiCard";
+import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import WelcomeCard from "./WelcomeCard";
 import { useAuditContext } from "@/context/Audit/AuditContext";
 import StandardTable from "@/utils/components/StandardTable";
@@ -45,33 +45,33 @@ const SuperAdminDashboard = ({ navigate }) => {
 
   const kpiItems = [
     {
-      title: "Progetti Attivi",
+      label: "Progetti Attivi",
       value: activeProjects.toString(),
       icon: Folder,
-      subtext: "progetti con stato Attivo",
-      iconClass: "bg-green-100 text-green-600",
+      iconColor: "text-green-600",
+      bgIcon: "bg-green-100",
     },
     {
-      title: "Sessioni in Corso",
+      label: "Sessioni in Corso",
       value: sessionsInProgress.toString(),
       icon: PlayCircle,
-      subtext: "sessioni attive adesso",
-      iconClass: "bg-blue-100 text-blue-600",
+      iconColor: "text-blue-600",
+      bgIcon: "bg-blue-100",
     },
     {
-      title: "Sessioni finite",
+      label: "Sessioni finite",
       value: sessionsDone.toString(),
       icon: CheckCircle,
-      subtext: "sessioni concluse",
-      iconClass: "bg-blue-100 text-blue-600",
+      iconColor: "text-blue-600",
+      bgIcon: "bg-blue-100",
     },
     {
-      title: "Utenti Totali",
+      label: "Utenti Totali",
       value: users.length.toString(),
       icon: Users,
-      subtext: "utenti registrati nel sistema",
       // viola: distinto da "Progetti Attivi" (verde) e non l'arancione già usato per le task
-      iconClass: "bg-violet-100 text-violet-600",
+      iconColor: "text-violet-600",
+      bgIcon: "bg-violet-100",
     },
   ];
 
@@ -110,22 +110,11 @@ const SuperAdminDashboard = ({ navigate }) => {
       />
 
       {/* KPI row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpiItems.map((kpi, idx) => (
-          <KpiCard
-            key={idx}
-            title={kpi.title}
-            value={kpi.value}
-            subtext={kpi.subtext}
-            icon={kpi.icon}
-            iconClass={kpi.iconClass}
-          />
-        ))}
-      </div>
+      <StatsCardsRow stats={kpiItems} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" />
 
       {/* Azioni rapide, sopra le tabelle: priorità più alta dell'audit/sessioni */}
       <Card className="border-slate-200 bg-white shadow-sm">
-        <CardHeader className="pb-3">
+        <CardHeader>
           <CardTitle className="text-sm font-semibold text-slate-900">Azioni rapide</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">

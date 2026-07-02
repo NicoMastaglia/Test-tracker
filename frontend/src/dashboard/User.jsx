@@ -6,7 +6,7 @@ import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useSessionContext } from "@/context/Session/SessionContext";
 import { useTaskContext } from "@/context/Task/TaskContext";
 import { Folder, PlayCircle, FolderOpen, Clock3, ChevronRight, Gauge, CheckCircle, ListChecks } from "lucide-react";
-import KpiCard from "@/utils/components/KpiCard";
+import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import WelcomeCard from "./WelcomeCard";
 
 
@@ -32,28 +32,32 @@ const UserDashboard = () => {
 
   const kpiItems = [
     {
-      title: "Progetti Assegnati",
+      label: "Progetti Assegnati",
       value: assignedProjects.length.toString(),
       icon: Folder,
-      iconClass: "bg-green-100 text-green-600",
+      iconColor: "text-green-600",
+      bgIcon: "bg-green-100",
     },
     {
-      title: "Le mie sessioni",
+      label: "Le mie sessioni",
       value: sessionList.length.toString(),
       icon: PlayCircle,
-      iconClass: "bg-blue-100 text-blue-600",
+      iconColor: "text-blue-600",
+      bgIcon: "bg-blue-100",
     },
     {
-      title: "Sessioni concluse",
+      label: "Sessioni concluse",
       value: sessionList.filter((s) => s.status === "Completata").length.toString(),
       icon: CheckCircle,
-      iconClass: "bg-blue-100 text-blue-600",
+      iconColor: "text-blue-600",
+      bgIcon: "bg-blue-100",
     },
     {
-      title: "Task completate",
+      label: "Task completate",
       value: taskList.filter((t) => t.status === "Completata").length.toString(),
       icon: ListChecks,
-      iconClass: "bg-amber-100 text-amber-600",
+      iconColor: "text-amber-600",
+      bgIcon: "bg-amber-100",
     },
   ];
 
@@ -92,22 +96,10 @@ const UserDashboard = () => {
         subtitle="Visualizza i tuoi progetti, checklist e sessioni di test."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpiItems.map((kpi) => (
-          <KpiCard
-            key={kpi.title}
-            title={kpi.title}
-            value={kpi.value}
-            subtext={kpi.subtext}
-            icon={kpi.icon}
-            iconClass={kpi.iconClass}
-            subtextColor={kpi.subtextColor}
-          />
-        ))}
-      </div>
+      <StatsCardsRow stats={kpiItems} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" />
 
       <Card className="border-slate-200 bg-white shadow-sm">
-        <CardHeader className="pb-4">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2 text-slate-900">
             <Gauge className="h-4 w-4 text-slate-400" />
             Azioni rapide
