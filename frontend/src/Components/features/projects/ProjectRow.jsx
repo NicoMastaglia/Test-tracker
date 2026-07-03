@@ -8,6 +8,7 @@ import {
   getCreatorName,
   getFullName,
   getProjectStatusBadgeClass,
+  getClickableRowProps,
 } from "@/utils/helpers/tableHelpers";
 import UserAvatar from "@/utils/components/UserAvatar";
 import TableActionButton from "@/utils/components/TableActionButton";
@@ -29,6 +30,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   key={project.id}
   className={`group transition-colors hover:bg-slate-50/60 ${canOpenProjectDetail ? "cursor-pointer" : ""}`}
   onClick={() => handleProjectRowClick(project.id)}
+  {...(canOpenProjectDetail ? getClickableRowProps(() => handleProjectRowClick(project.id)) : {})}
 >
   {/* 1. CELLA: INFO PROGETTO (Centrata) */}
   <TableCell className="text-center px-4 py-3">

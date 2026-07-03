@@ -13,7 +13,7 @@ import StandardTable from "@/utils/components/StandardTable";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Button } from "@/Components/ui/button";
 import UserAvatar from "@/utils/components/UserAvatar";
-import { getRelativeTime, getFullName, getSessionStatusBadgeClass } from "@/utils/helpers/tableHelpers";
+import { getRelativeTime, getFullName, getSessionStatusBadgeClass, getClickableRowProps } from "@/utils/helpers/tableHelpers";
 import AuditLogTable from "@/Components/features/audit/AuditLogTable";
 
 const SuperAdminDashboard = ({ navigate }) => {
@@ -187,6 +187,7 @@ const SuperAdminDashboard = ({ navigate }) => {
                     key={session.id}
                     className="cursor-pointer hover:bg-slate-50/60"
                     onClick={() => navigate(`/sessions/${session.id}`)}
+                    {...getClickableRowProps(() => navigate(`/sessions/${session.id}`))}
                   >
                     <TableCell className="px-4 py-2.5 font-medium text-slate-900">
                       {session.project_name ?? "—"}

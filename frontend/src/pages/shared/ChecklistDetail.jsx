@@ -9,6 +9,7 @@ import { Button } from "@/Components/ui/button";
 import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import ProjectCompletedBanner from "@/utils/components/ProjectCompletedBanner";
+import Loader from "@/utils/components/Loader";
 import { ArrowLeft, ChevronRight, Pencil, User2,UserMinus} from "lucide-react";
 import { toast } from "sonner";
 import { getFullName, toDateInputValue } from "@/utils/helpers/tableHelpers";
@@ -303,7 +304,7 @@ const handleReopen = async (task) => {
 
   return (
     <AppLayout page="checklists">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
 
         {/* breadcrumb + back button */}
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -351,8 +352,8 @@ const handleReopen = async (task) => {
             handleUnblock={handleUnblock}
           />
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
-            Caricamento checklist...
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+            <Loader label="Caricamento checklist..." />
           </div>
         )}
       </div>

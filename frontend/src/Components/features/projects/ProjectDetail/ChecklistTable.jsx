@@ -4,7 +4,7 @@ import { TableCell, TableRow } from "@/Components/ui/table";
 import { NOT_AVAILABLE } from "@/utils/components/Placeholder";
 import TableActionButton from "@/utils/components/TableActionButton";
 import { Badge } from "@/Components/ui/badge";
-import {getChecklistStatusBadgeClass, uppercaseFirstLetter} from "@/utils/helpers/tableHelpers";
+import {getChecklistStatusBadgeClass, uppercaseFirstLetter, getClickableRowProps} from "@/utils/helpers/tableHelpers";
 import React from 'react';
 
 const HEADERS = [
@@ -82,6 +82,7 @@ const ChecklistTable = ({
             key={cl.checklist_id}
             className="group transition-colors hover:bg-slate-50 cursor-pointer"
             onClick={() => onOpen(cl)}
+            {...getClickableRowProps(() => onOpen(cl))}
           >
 
             {/* 1. CELLA: INFO CHECKLIST (solo nome e descrizione, niente icona) */}

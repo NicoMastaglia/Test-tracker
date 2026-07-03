@@ -1,7 +1,7 @@
 import { CircleSlash } from "lucide-react";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
-import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass, getFullName, formatProjectDateTime } from "@/utils/helpers/tableHelpers";
+import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass, getFullName, formatProjectDateTime, getClickableRowProps } from "@/utils/helpers/tableHelpers";
 import UserAvatar from "@/utils/components/UserAvatar";
 
 const AdminSessionRow = ({ session, index, onView }) => {
@@ -11,6 +11,7 @@ const AdminSessionRow = ({ session, index, onView }) => {
     <TableRow
       className={`text-center transition-colors hover:bg-slate-50/50 ${onView ? "cursor-pointer" : ""}`}
       onClick={() => onView?.(session.id)}
+      {...(onView ? getClickableRowProps(() => onView(session.id)) : {})}
     >
       <TableCell className="font-mono text-slate-400">{index}</TableCell>
 

@@ -110,7 +110,8 @@ const ModalForm = ({
 	infos,
 	fields = [],
 	formData = {},
-	
+	errors = {},
+
     hasDescripion = false,
 	description = null,
 	setFormData ,
@@ -173,7 +174,11 @@ const ModalForm = ({
 								</Label>
 
 								{renderField(field, formData[field.name], updateField)}
-								{field.helperText ? <p className="text-xs text-slate-500">{field.helperText}</p> : null}
+								{errors[field.name] ? (
+									<p className="text-xs text-red-600">{errors[field.name]}</p>
+								) : field.helperText ? (
+									<p className="text-xs text-slate-500">{field.helperText}</p>
+								) : null}
 							</div>
 						))}
 					</div>

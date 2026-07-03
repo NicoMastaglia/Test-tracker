@@ -22,6 +22,7 @@ import {
   PlayCircle,
   Trash2,
   KeyRound,
+  ShieldPlus,
 } from "lucide-react";
 
 export const auditActions = {
@@ -43,6 +44,12 @@ export const auditActions = {
     color: " text-amber-700",
     bgColor: "bg-amber-50",
     icon: KeyRound,
+  },
+  "auth.bootstrap": {
+    label: "SUPERADMIN BOOTSTRAP",
+    color: "text-violet-700",
+    bgColor: "bg-violet-50",
+    icon: ShieldPlus,
   },
 
   // ---------------- USERS ----------------

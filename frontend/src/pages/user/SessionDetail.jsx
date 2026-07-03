@@ -98,7 +98,7 @@ const SessionDetail = () => {
 
   return (
     <AppLayout page="sessions">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
         {/* breadcrumb + back button */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <nav className="flex items-center gap-1.5 text-sm text-slate-500">

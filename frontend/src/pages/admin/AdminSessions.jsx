@@ -10,6 +10,7 @@ import ActionBar from "@/utils/components/ActionBar";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import AdminSessionRow from "./AdminSessionRow";
+import Loader from "@/utils/components/Loader";
 import { getFullName } from "@/utils/helpers/tableHelpers";
 import { exportSessionsToExcel, exportSessionsToPdf } from "@/utils/helpers/exportSessionsList";
 
@@ -25,7 +26,7 @@ const headers = [
 // elenco di sola consultazione di tutte le sessioni di test (superadmin: tutte;
 // admin: solo quelle dei progetti che gestisce/ha creato, già filtrate dal BE)
 const AdminSessions = () => {
-  const { sessions, fetchSessions } = useSessionContext();
+  const { sessions, fetchSessions, loading } = useSessionContext();
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -89,7 +90,7 @@ const AdminSessions = () => {
 
   return (
     <AppLayout page="admin-sessions" title="Sessioni">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-4" />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -132,19 +133,23 @@ const AdminSessions = () => {
             )}
           </ActionBar>
 
-          <StandardTable
-            headers={headers}
-            data={filteredSessions}
-            emptyMessage="Nessuna sessione trovata."
-            emptyIcon={PlayCircle}
-            renderRow={(s, index) => (
-              <AdminSessionRow
-                session={s}
-                index={index + 1}
-                onView={(id) => navigate(`/sessions/${id}`)}
-              />
-            )}
-          />
+          {loading && sessions.length === 0 ? (
+            <Loader label="Caricamento sessioni..." />
+          ) : (
+            <StandardTable
+              headers={headers}
+              data={filteredSessions}
+              emptyMessage="Nessuna sessione trovata."
+              emptyIcon={PlayCircle}
+              renderRow={(s, index) => (
+                <AdminSessionRow
+                  session={s}
+                  index={index + 1}
+                  onView={(id) => navigate(`/sessions/${id}`)}
+                />
+              )}
+            />
+          )}
         </div>
       </div>
     </AppLayout>

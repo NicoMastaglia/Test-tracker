@@ -8,6 +8,7 @@ import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import SessionRow from "./SessionRow";
 import CreateSessionModal from "./CreateSessionModal";
 import ActionBar from "@/utils/components/ActionBar";
+import Loader from "@/utils/components/Loader";
 import { useTaskContext } from "@/context/Task/TaskContext";
 import { toast } from "sonner";
 
@@ -21,7 +22,7 @@ const headers = [
 
 const Sessions = () => {
   const navigate = useNavigate();
-  const { sessions, fetchSessions, createSession } = useSessionContext();
+  const { sessions, fetchSessions, createSession, loading } = useSessionContext();
   const { fetchAssignedTasks, assignedTasks } = useTaskContext();
 
   const [search, setSearch] = useState("");
@@ -104,7 +105,7 @@ const Sessions = () => {
 
   return (
     <AppLayout page="sessions" title="Sessioni">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-4" />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -118,19 +119,23 @@ const Sessions = () => {
             onReset={resetFilters}
             hasActiveFilters={hasActiveFilters}
           />
-          <StandardTable
-            headers={headers} 
-            data={filteredSessions}
-            emptyMessage="Nessuna sessione trovata..."
-            emptyIcon={PlayCircle}
-            renderRow={(s, index) => (
-              <SessionRow
-                session={s}
-                index={index + 1}
-                onView={(sessionId) => navigate(`/sessions/${sessionId}`)}
-              />
-            )}
-          />
+          {loading && sessions.length === 0 ? (
+            <Loader label="Caricamento sessioni..." />
+          ) : (
+            <StandardTable
+              headers={headers}
+              data={filteredSessions}
+              emptyMessage="Nessuna sessione trovata..."
+              emptyIcon={PlayCircle}
+              renderRow={(s, index) => (
+                <SessionRow
+                  session={s}
+                  index={index + 1}
+                  onView={(sessionId) => navigate(`/sessions/${sessionId}`)}
+                />
+              )}
+            />
+          )}
 
           <CreateSessionModal
             modalOpen={addSessionOpen}

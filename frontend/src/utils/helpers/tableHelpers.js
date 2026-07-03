@@ -1,8 +1,19 @@
-// funzioni helper per estrarre e formattare le tabelle 
+// funzioni helper per estrarre e formattare le tabelle
 
 
 // Normalizza il testo per confronti (tutto minuscolo, senza spazi)
 const normalizeText = (value) => (value ?? "").toString().trim().toLowerCase();
+
+export const getClickableRowProps = (onClick) => ({
+  tabIndex: 0,
+  role: "button",
+  onKeyDown: (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  },
+});
 
 
 // estrare le iniziali di un utente
