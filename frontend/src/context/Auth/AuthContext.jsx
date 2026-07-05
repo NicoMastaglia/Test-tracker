@@ -46,13 +46,7 @@ export const AuthProvider = ({ children }) => {
         
         break;
       case 401:
-        alertMessage = "Password non valida. Riprova."
-        
-        
-        break;
-      case 404:
-        alertMessage = "Utente non trovato. Controlla l'email.";
-        
+        alertMessage = msgFromServer || "Credenziali non valide. Riprova.";
         break;
       case 500:
         alertMessage = "Errore del server. Riprova più tardi.";
@@ -78,13 +72,14 @@ export const AuthProvider = ({ children }) => {
     const logoutUser = async (token) => {
         try {
             await logout(token);
+        } catch (error) {
+            console.error("Logout failed:", error.response?.data || error.message);
+        } finally {
+            // anche se la chiamata fallisce (es. token già scaduto) la sessione
+            // locale va comunque chiusa, altrimenti l'utente resta bloccato
             dispatch({type:'LOGOUT'})
             localStorage.removeItem("current_user");
             localStorage.removeItem("auth_token");
-            // toast.success("Logout effettuato con successo!");
-        } catch (error) {
-            console.error("Logout failed:", error.response?.data || error.message);
-            // toast.error("Si è verificato un errore durante il logout. Riprova.");
         }
     }
 

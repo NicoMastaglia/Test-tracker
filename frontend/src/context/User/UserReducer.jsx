@@ -34,6 +34,12 @@ export const userReducer = (state,action) =>{
                 error: null
             };
 
+        case 'CLEAR_LOADING':
+            return {
+                ...state,
+                loading: false
+            };
+
         case 'SET_USERS':
             return {
                 ...state,

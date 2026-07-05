@@ -67,7 +67,7 @@ router.post("/", checkAdmin, async (req, res) => {
       );
 
       if (results.length === 0) {
-        return res.status(403).json({ error: "Progetto non trovato" });
+        return res.status(404).json({ error: "Progetto non trovato o permessi insufficienti" });
       }
     }
 
@@ -102,7 +102,8 @@ router.post("/", checkAdmin, async (req, res) => {
       description: trimmedDescription,
     });
   } catch (err) {
-    res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -172,10 +173,8 @@ router.put("/:id", checkAdmin, async (req, res) => {
       return res.status(404).json({ error: "Checklist non trovata" });
     }
   } catch (err) {
-    return res.status(500).json({
-      error: "Errore del server",
-      specific: err.message,
-    });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -232,10 +231,8 @@ router.delete("/:id", checkAdmin, async (req, res) => {
       return res.status(404).json({ error: "Checklist non trovata" });
     }
   } catch (err) {
-    return res.status(500).json({
-      error: "Errore del server",
-      specific: err.message,
-    });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -310,10 +307,8 @@ router.get("/:projectId", checkUser, (req, res) => {
         res.status(200).json(formatChecklists(results));
       })
       .catch((err) => {
-        res.status(500).json({
-          error: "Errore del server",
-          specific: err.message,
-        });
+        console.error(err);
+        res.status(500).json({ error: "Errore del server" });
       });
   } else if (req.user.role === "admin") {
     return db
@@ -342,10 +337,8 @@ router.get("/:projectId", checkUser, (req, res) => {
         res.status(200).json(formatChecklists(results));
       })
       .catch((err) => {
-        res.status(500).json({
-          error: "Errore del server",
-          specific: err.message,
-        });
+        console.error(err);
+        res.status(500).json({ error: "Errore del server" });
       });
   } else if (req.user.role === "user") {
     return db
@@ -375,10 +368,8 @@ router.get("/:projectId", checkUser, (req, res) => {
         res.status(200).json(formatChecklists(results));
       })
       .catch((err) => {
-        res.status(500).json({
-          error: "Errore del server",
-          specific: err.message,
-        });
+        console.error(err);
+        res.status(500).json({ error: "Errore del server" });
       });
   }
 
@@ -444,10 +435,8 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
       id: result.insertId,
     });
   } catch (err) {
-    return res.status(500).json({
-      error: "Errore del server",
-      specific: err.message,
-    });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -520,9 +509,8 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
         .json({ error: "Elemento della checklist non trovato" });
     }
   } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -573,10 +561,8 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
         .json({ error: "Elemento della checklist non trovato" });
     }
   } catch (err) {
-    return res.status(500).json({
-      error: "Errore del server",
-      specific: err.message,
-    });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -591,35 +577,48 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
   // prendo l'id dell'utente a cui assegnare l'item dal body della richiesta
   const { userId } = req.body;
 
-  // verifico che l'item esista e che l'utente abbia i permessi per modificarlo (superadmin o admin del progetto)
-
-  const [itemResults] = await db.execute(
-    "SELECT ci.id, ci.description, p.id as project_id, p.name AS project_name, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
-    [itemId, req.user.id, req.user.id, req.user.role === "superadmin"],
-  );
-
-  if (itemResults.length === 0) {
-    return res
-      .status(403)
-      .json({ error: "Accesso negato o elemento della checklist non trovato" });
-  }
-
-  if (itemResults[0].project_status === "Completato") {
-    return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
-  }
-
-  const projectId = itemResults[0].project_id;
-
-  // verifico che l'utente a cui assegnare l'item esista
-  const [userResults] = await db.execute("SELECT id, nome, email FROM user WHERE id = ?", [
-    userId,
-  ]);
-
-  if (userResults.length === 0) {
-    return res.status(404).json({ error: "Utente non trovato" });
-  }
-
   try {
+    // verifico che l'item esista e che l'utente abbia i permessi per modificarlo (superadmin o admin del progetto)
+    const [itemResults] = await db.execute(
+      "SELECT ci.id, ci.description, p.id as project_id, p.name AS project_name, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
+      [itemId, req.user.id, req.user.id, req.user.role === "superadmin"],
+    );
+
+    if (itemResults.length === 0) {
+      return res
+        .status(403)
+        .json({ error: "Accesso negato o elemento della checklist non trovato" });
+    }
+
+    if (itemResults[0].project_status === "Completato") {
+      return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
+    }
+
+    const projectId = itemResults[0].project_id;
+
+    // verifico che l'utente a cui assegnare l'item esista
+    const [userResults] = await db.execute("SELECT id, nome, email FROM user WHERE id = ?", [
+      userId,
+    ]);
+
+    if (userResults.length === 0) {
+      return res.status(404).json({ error: "Utente non trovato" });
+    }
+
+    // verifico che l'utente faccia parte del team del progetto: una task non può
+    // essere assegnata a chi non ha accesso al progetto
+    const [membership] = await db.execute(
+      "SELECT project_id FROM project_assignment WHERE project_id = ? AND user_id = ?",
+      [projectId, userId],
+    );
+
+    if (membership.length === 0) {
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: "L'utente non fa parte del team di questo progetto.",
+      });
+    }
+
     // aggiorno l'item assegnandolo all'utente
     const [result] = await db.execute(
       "UPDATE checklist_item SET assigned_to = ? WHERE id = ?",
@@ -653,9 +652,8 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
         .json({ error: "Elemento della checklist non trovato" });
     }
   } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -683,9 +681,8 @@ router.get('/task/assigned', checkUser, async (req, res) => {
     );
     return res.status(200).json(tasks);
   } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -706,6 +703,8 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
      });
    }
 
+
+   try {
 
    const [rows] = await db.execute(
     `SELECT p.id as project_id , ci.id,ci.status as currentStatus,
@@ -788,7 +787,6 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
    }
 
 
-   try {
     const [result] = await db.execute(
        `
         UPDATE checklist_item
@@ -823,7 +821,8 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
 
 
    }catch(err){
-    return res.status(500).json({error: "Errore del server", specific: err.message})
+    console.error(err);
+    return res.status(500).json({error: "Errore del server"})
    }
 
 
@@ -868,7 +867,8 @@ router.patch('/item/:itemId/unassign', checkAdmin, async (req, res) => {
 
     return res.status(200).json({ message: "Assegnazione rimossa con successo" });
   } catch (err) {
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 

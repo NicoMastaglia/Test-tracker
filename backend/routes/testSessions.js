@@ -18,6 +18,9 @@ router.post("/", checkUser, async (req, res) => {
       .json({ error: "Nessun elemento della checklist fornito" });
   }
 
+  let connection;
+
+  try {
   const [items] = await db.query(
     `
     SELECT ci.id,ci.assigned_to,ci.status,ct.project_id,p.status AS project_status
@@ -117,9 +120,6 @@ router.post("/", checkUser, async (req, res) => {
       });
   }
 
-  let connection;
-
-  try {
     connection = await db.getConnection();
 
     await connection.beginTransaction();
@@ -168,9 +168,8 @@ router.post("/", checkUser, async (req, res) => {
       await connection.rollback();
     }
 
-    return res
-      .status(500)
-      .json({ error: "Errore del server", details: error.message });
+    console.error(error);
+    return res.status(500).json({ error: "Errore del server" });
   } finally {
     if (connection) {
       // Rilascia la connessione al pool
@@ -199,9 +198,8 @@ router.get("/", checkUser, async (req, res) => {
       // lista vuota è un risultato valido, non un errore: 200 con array vuoto
       return res.status(200).json(sessions);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", details: error.message });
+      console.error(error);
+      return res.status(500).json({ error: "Errore del server" });
     }
   }
 
@@ -220,9 +218,8 @@ router.get("/", checkUser, async (req, res) => {
       // lista vuota è un risultato valido, non un errore: 200 con array vuoto
       return res.status(200).json(sessions);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", details: error.message });
+      console.error(error);
+      return res.status(500).json({ error: "Errore del server" });
     }
   }
 
@@ -235,9 +232,8 @@ router.get("/", checkUser, async (req, res) => {
       // lista vuota è un risultato valido, non un errore: 200 con array vuoto
       return res.status(200).json(sessions);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", details: error.message });
+      console.error(error);
+      return res.status(500).json({ error: "Errore del server" });
     }
   }
 
@@ -256,8 +252,8 @@ router.delete("/:id", checkAdmin, async (req, res) => {
   if (req.user.role === "admin") {
     try {
       const [session] = await db.execute(
-        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND p.created_by = ?",
-        [sessionId, req.user.id],
+        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND (p.created_by = ? OR p.manager_id = ?)",
+        [sessionId, req.user.id, req.user.id],
       );
       if (!session.length) {
         return res.status(404).json({
@@ -265,9 +261,8 @@ router.delete("/:id", checkAdmin, async (req, res) => {
         });
       }
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", details: error.message });
+      console.error(error);
+      return res.status(500).json({ error: "Errore del server" });
     }
   }
 
@@ -305,9 +300,8 @@ router.delete("/:id", checkAdmin, async (req, res) => {
     if (typeof connection !== "undefined") {
       await connection.rollback();
     }
-    return res
-      .status(500)
-      .json({ error: "Errore del server", details: error.message });
+    console.error(error);
+    return res.status(500).json({ error: "Errore del server" });
   } finally {
     if (typeof connection !== "undefined") {
       connection.release();
@@ -325,27 +319,34 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
   }
   
 
-  const [session] = await db.execute(
-  'select p.id as project_id, ts.status from test_session ts join project p on ts.project_id = p.id where ts.id = ?',
-  [sessionId]
-  ) 
+  let projectId;
 
-  if(session.length === 0){
-    return res.status(404).json({error:"Sessione di test non trovata"})
+  try {
+    const [session] = await db.execute(
+    'select p.id as project_id, ts.status from test_session ts join project p on ts.project_id = p.id where ts.id = ?',
+    [sessionId]
+    )
+
+    if(session.length === 0){
+      return res.status(404).json({error:"Sessione di test non trovata"})
+    }
+
+    if(session[0].status !== 'Completata'){
+      return res.status(400).json({error:"Sessione di test non completata, impossibile riaprirla"})
+    }
+
+    projectId = session[0].project_id;
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Errore del server" });
   }
-
-  if(session[0].status !== 'Completata'){
-    return res.status(400).json({error:"Sessione di test non completata, impossibile riaprirla"})
-  }
-
-  const projectId = session[0].project_id;
 
 
   if (req.user.role === "admin") {
     try {
       const [session] = await db.execute(
-        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND p.created_by = ?",
-        [sessionId, req.user.id],
+        "SELECT * FROM test_session JOIN project p ON test_session.project_id = p.id WHERE test_session.id = ? AND (p.created_by = ? OR p.manager_id = ?)",
+        [sessionId, req.user.id, req.user.id],
       );
       if (!session.length) {
         return res.status(404).json({
@@ -353,9 +354,8 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
         });
       }
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Errore del server", details: error.message });
+      console.error(error);
+      return res.status(500).json({ error: "Errore del server" });
     }
   }
 
@@ -378,9 +378,8 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
       .status(200)
       .json({ message: "Sessione di test riaperta con successo" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ error: "Errore del server", details: error.message });
+    console.error(error);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -503,7 +502,8 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
     return res.status(200).json({message:"Risultato della task aggiornato con successo"})
 
   }catch(error){
-    return res.status(500).json({error:"Errore del server",details:error.message})
+    console.error(error);
+    return res.status(500).json({error:"Errore del server"})
   }
 
 
@@ -520,7 +520,7 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
   const userId = req.user.id 
 
   if(!sessionId || isNaN(sessionId)){
-    return res.status(404).json({error:"ID sessione non valido"})
+    return res.status(400).json({error:"ID sessione non valido"})
   }
 
   try{
@@ -570,7 +570,7 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
     }
 
     if(session.length ===0){
-      return res.status(400).json({
+      return res.status(404).json({
         error  : ` Sessione ${sessionId} non trovata o non appartiente all'utente loggato`
       })
     }
@@ -591,7 +591,8 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
     })
 
   }catch(error){
-    return res.status(500).json({error:"Errore del server",details:error.message})
+    console.error(error);
+    return res.status(500).json({error:"Errore del server"})
   }
 })
 

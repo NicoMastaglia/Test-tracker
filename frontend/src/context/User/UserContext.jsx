@@ -69,7 +69,7 @@ export const UserProvider = ({ children }) => {
     try {
       const token = getToken()
       const data = await updateCurrentUserPassword(token, currentPassword, newPassword)
-      dispatch({ type: 'SET_LOADING' })
+      dispatch({ type: 'CLEAR_LOADING' })
       return data
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message })
@@ -196,7 +196,7 @@ export const UserProvider = ({ children }) => {
     try {
       const token = getToken()
       const data = await updateUserPasswordById(token, user_id, newPassword)
-      dispatch({ type: 'SET_LOADING' })
+      dispatch({ type: 'CLEAR_LOADING' })
       return data
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message })

@@ -81,28 +81,28 @@ const Users = () => {
     const standard = total - admins - superadmins;
     return [
       {
-        label: "Total Users",
+        label: "Utenti totali",
         value: total,
         icon: UsersIcon,
         iconColor: "text-emerald-600",
         bgIcon: "bg-emerald-100",
       },
       {
-        label: "Admins",
+        label: "Admin",
         value: admins,
         icon: ShieldCheck,
         iconColor: "text-violet-600",
         bgIcon: "bg-violet-100",
       },
       {
-        label: "Super Admins",
+        label: "Superadmin",
         value: superadmins,
         icon: ShieldAlert,
         iconColor: "text-pink-700",
         bgIcon: "bg-pink-100",
       },
       {
-        label: "Standard Users",
+        label: "Tester",
         value: standard,
         icon: User,
         iconColor: "text-green-700",
@@ -121,7 +121,7 @@ const Users = () => {
             search={search}
             setSearch={setSearch}
             placeholder="Cerca utente..."
-            buttonText="Add User"
+            buttonText="Nuovo utente"
             onButtonClick={() => setModal(true)}
             buttonVariant="emerald"
           />

@@ -103,6 +103,7 @@ const SetupAccount = () => {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? "Nascondi password" : "Mostra password"}
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >

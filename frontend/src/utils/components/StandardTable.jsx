@@ -81,6 +81,7 @@ const StandardTable = ({
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Pagina precedente"
               disabled={safePage === 1}
               onClick={() => setCurrentPage(safePage - 1)}
               className="h-8 w-8"
@@ -90,6 +91,7 @@ const StandardTable = ({
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Pagina successiva"
               disabled={safePage === totalPages}
               onClick={() => setCurrentPage(safePage + 1)}
               className="h-8 w-8"

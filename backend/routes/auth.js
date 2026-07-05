@@ -7,6 +7,7 @@ const checkUser = require("../middleware/checkUser");
 const { hashPassword, comparePassword } = require("../auth/hash");
 const logActivity = require("../utils/logActivity");
 const { generateSetupToken, hashToken } = require("../utils/setupToken");
+const { denyToken } = require("../auth/tokenDenylist");
 const { sendProjectEmail } = require("../utils/sendEmail");
 const router = express.Router();
 
@@ -58,7 +59,8 @@ router.post("/register", checkSuperadmin, async (req, res) => {
 
     return res.status(201).json({ message: "Utente creato. Email di configurazione inviata." });
   } catch (err) {
-    return res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -68,6 +70,10 @@ router.post("/setup", async (req, res) => {
 
   if (!token || !password || !password.trim()) {
     return res.status(400).json({ message: "Token e password sono obbligatori." });
+  }
+
+  if (password.trim().length < 8) {
+    return res.status(400).json({ message: "La password deve contenere almeno 8 caratteri." });
   }
 
   const tokenHash = hashToken(token);
@@ -98,7 +104,8 @@ router.post("/setup", async (req, res) => {
 
     return res.status(200).json({ message: "Password impostata con successo. Puoi ora effettuare il login." });
   } catch (err) {
-    return res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -145,7 +152,8 @@ router.post("/forgot-password", async (req, res) => {
 
     return res.status(200).json(genericResponse);
   } catch (err) {
-    return res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -172,7 +180,8 @@ router.get("/verify-setup-token", async (req, res) => {
 
     return res.status(200).json({ valid: true });
   } catch (err) {
-    return res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -186,19 +195,21 @@ router.post("/login", async (req, res) => {
   try {
     const [rows] = await db.execute("SELECT * FROM user WHERE email = ?", [email]);
 
+    // risposta identica per email inesistente, account non configurato e
+    // password errata: evita di rivelare quali email sono registrate
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Utente non trovato" });
+      return res.status(401).json({ message: "Credenziali non valide" });
     }
 
     const user = rows[0];
 
     if (!user.password_hash) {
-      return res.status(403).json({ message: "Account non ancora configurato. Controlla la tua email." });
+      return res.status(401).json({ message: "Credenziali non valide" });
     }
 
     const isMatch = await comparePassword(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ message: "Password non valida" });
+      return res.status(401).json({ message: "Credenziali non valide" });
     }
 
     const userWithoutPassword = {
@@ -220,11 +231,12 @@ router.post("/login", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Errore del server", specific: err.message });
+    res.status(500).json({ message: "Errore del server" });
   }
 });
 
 router.post("/logout", checkUser, async (req, res) => {
+  denyToken(req.token, req.user.exp);
   await logActivity(req.user.id, null, "auth.logout", { email: req.user.email });
   return res.status(200).json({ message: "Logout effettuato con successo" });
 });

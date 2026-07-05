@@ -48,7 +48,8 @@ router.get('/',checkSuperadmin,async (req,res)=>{
     })
 
     }catch(err){
-          return res.status(500).json({ error: "Errore del server", specific: err.message });
+          console.error(err);
+          return res.status(500).json({ error: "Errore del server" });
     }
 
 

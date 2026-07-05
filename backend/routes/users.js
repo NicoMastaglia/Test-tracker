@@ -16,9 +16,8 @@ router.get("/", checkAdmin, async (req, res) => {
         res.status(200).json(rows);
       })
       .catch((err) => {
-        res
-          .status(500)
-          .json({ message: "Errore del server", specific: err.message });
+        console.error(err);
+        res.status(500).json({ message: "Errore del server" });
       });
   } else if (req.user.role == "superadmin") {
     db.execute("SELECT id, nome, cognome, email, role FROM user")
@@ -26,9 +25,8 @@ router.get("/", checkAdmin, async (req, res) => {
         res.status(200).json(rows);
       })
       .catch((err) => {
-        res
-          .status(500)
-          .json({ message: "Errore del server", specific: err.message });
+        console.error(err);
+        res.status(500).json({ message: "Errore del server" });
       });
   } else {
     res.status(403).json({ message: "Accesso negato" });
@@ -47,7 +45,8 @@ router.get("/me", checkUser, async (req, res) => {
       res.status(200).json(rows[0]);
     })
     .catch((err) => {
-      res.status(500).json({ message: "Errore del server", specific: err.message });
+      console.error(err);
+      res.status(500).json({ message: "Errore del server" });
     });
 });
 
@@ -95,7 +94,8 @@ router.put("/me", checkUser, async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -108,6 +108,10 @@ router.patch("/me/password", checkUser, async (req, res) => {
 
   if (!trimmedOld || !trimmedNew) {
     return res.status(400).json({ message: "La vecchia e la nuova password non possono essere vuote." });
+  }
+
+  if (trimmedNew.length < 8) {
+    return res.status(400).json({ message: "La nuova password deve contenere almeno 8 caratteri." });
   }
 
   try {
@@ -138,7 +142,8 @@ router.patch("/me/password", checkUser, async (req, res) => {
 
     res.status(200).json({ message: "Password aggiornata con successo" });
   } catch (err) {
-    res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -154,7 +159,8 @@ router.get("/:id", checkAdmin, async (req, res) => {
       res.status(200).json(rows[0]);
     })
     .catch((err) => {
-      res.status(500).json({ message: "Errore del server", specific: err.message });
+      console.error(err);
+      res.status(500).json({ message: "Errore del server" });
     });
 });
 
@@ -193,7 +199,8 @@ router.get("/:id/relations", checkAdmin, async (req, res) => {
 
     return res.status(200).json({ user: userRows[0], projects, sessions });
   } catch (err) {
-    return res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -241,23 +248,41 @@ router.put("/:id", checkSuperadmin, async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).json({ message: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
 router.delete("/:id", checkSuperadmin, async (req, res) => {
   const userId = req.params.id;
 
-  db.execute("DELETE FROM user WHERE id = ?", [userId])
-    .then(([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+  // un superadmin non può eliminare se stesso: rischio di rimanere senza accesso
+  if (Number(userId) === req.user.id) {
+    return res.status(400).json({ message: "Non puoi eliminare il tuo stesso account." });
+  }
+
+  try {
+    const [targetRows] = await db.execute("SELECT role FROM user WHERE id = ?", [userId]);
+    if (targetRows.length === 0) {
+      return res.status(404).json({ message: "Utente non trovato" });
+    }
+
+    if (targetRows[0].role === "superadmin") {
+      const [count] = await db.execute("SELECT COUNT(*) AS total FROM user WHERE role = 'superadmin'");
+      if (Number(count[0].total) <= 1) {
+        return res.status(400).json({ message: "Non puoi eliminare l'ultimo superadmin del sistema." });
       }
-      res.status(200).json({ message: "Utente eliminato con successo" });
-    })
-    .catch((err) => {
-      res.status(500).json({ message: "Errore del server", specific: err.message });
-    });
+    }
+
+    const [result] = await db.execute("DELETE FROM user WHERE id = ?", [userId]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Utente non trovato" });
+    }
+    res.status(200).json({ message: "Utente eliminato con successo" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Errore del server" });
+  }
 });
 
 router.patch("/:id/role", checkSuperadmin, async (req, res) => {
@@ -268,16 +293,33 @@ router.patch("/:id/role", checkSuperadmin, async (req, res) => {
     return res.status(400).json({ message: "Ruolo non valido" });
   }
 
-  db.execute("UPDATE user SET role = ? WHERE id = ?", [role, userId])
-    .then(([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Utente non trovato" });
+  // un superadmin non può declassare se stesso: rischio di rimanere senza accesso
+  if (Number(userId) === req.user.id && role !== "superadmin") {
+    return res.status(400).json({ message: "Non puoi modificare il ruolo del tuo stesso account." });
+  }
+
+  try {
+    const [targetRows] = await db.execute("SELECT role FROM user WHERE id = ?", [userId]);
+    if (targetRows.length === 0) {
+      return res.status(404).json({ message: "Utente non trovato" });
+    }
+
+    if (targetRows[0].role === "superadmin" && role !== "superadmin") {
+      const [count] = await db.execute("SELECT COUNT(*) AS total FROM user WHERE role = 'superadmin'");
+      if (Number(count[0].total) <= 1) {
+        return res.status(400).json({ message: "Non puoi declassare l'ultimo superadmin del sistema." });
       }
-      res.status(200).json({ message: "Ruolo aggiornato con successo" });
-    })
-    .catch((err) => {
-      res.status(500).json({ message: "Errore del server", specific: err.message });
-    });
+    }
+
+    const [result] = await db.execute("UPDATE user SET role = ? WHERE id = ?", [role, userId]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Utente non trovato" });
+    }
+    res.status(200).json({ message: "Ruolo aggiornato con successo" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Errore del server" });
+  }
 });
 
 router.patch("/:id/password", checkSuperadmin, async (req, res) => {
@@ -289,6 +331,11 @@ router.patch("/:id/password", checkSuperadmin, async (req, res) => {
   if (!trimmedNew) {
     return res.status(400).json({ message: "La nuova password non può essere vuota." });
   }
+
+  if (trimmedNew.length < 8) {
+    return res.status(400).json({ message: "La nuova password deve contenere almeno 8 caratteri." });
+  }
+
   try {
     const [rows] = await db.execute("SELECT id FROM user WHERE id = ?", [
       userId,
@@ -309,10 +356,8 @@ router.patch("/:id/password", checkSuperadmin, async (req, res) => {
 
     res.status(200).json({ message: "Password aggiornata con successo" });
   } catch (err) {
-    res.status(500).json({
-      message: "Errore del server",
-      specific: err.message,
-    });
+    console.error(err);
+    res.status(500).json({ message: "Errore del server" });
   }
 });
 

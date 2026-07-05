@@ -14,7 +14,7 @@ import {
 import { forgotPassword } from "@/services/api";
 import { toast } from "sonner";
 
-export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
+export function LoginForm({email,password,setEmail,setPassword,handleSubmit,loading}) {
   const [showPassword, setShowPassword] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
@@ -85,6 +85,7 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
               />
               <button
                 type="button"
+                aria-label={showPassword ? "Nascondi password" : "Mostra password"}
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
@@ -103,9 +104,10 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit}) {
           {/* Pulsante Accedi */}
           <Button
             type="submit"
+            disabled={loading}
             className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]"
           >
-            Accedi al portale
+            {loading ? "Accesso in corso..." : "Accedi al portale"}
           </Button>
         </form>
       </CardContent>

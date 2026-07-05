@@ -52,6 +52,7 @@ const ProjectDetail = () => {
   const { sessions, fetchSessions } = useSessionContext();
 
   const [removeUserTarget, setRemoveUserTarget] = useState(null);
+  const [removingUser, setRemovingUser] = useState(false);
   const [selectedAssignUserId, setSelectedAssignUserId] = useState("");
   const [activeSection, setActiveSection] = useState(
     location.state?.section ?? "overview",
@@ -128,8 +129,9 @@ const ProjectDetail = () => {
  
 
   const handleRemoveAssignedUser = async () => {
-    if (!projectId || !selectedProject || !removeUserTarget) return;
+    if (!projectId || !selectedProject || !removeUserTarget || removingUser) return;
 
+    setRemovingUser(true);
     try {
       await unAssingUserAssignment(
         Number(projectId),
@@ -140,6 +142,8 @@ const ProjectDetail = () => {
     } catch (error) {
       const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante la rimozione dell'utente dal progetto";
       toast.error(message);
+    } finally {
+      setRemovingUser(false);
     }
   };
 
@@ -420,6 +424,8 @@ const ProjectDetail = () => {
         description={deleteFormDescription}
         onSubmit={handleRemoveAssignedUser}
         submitLabel="Rimuovi dal progetto"
+        loading={removingUser}
+        loadingLabel="Rimozione in corso..."
         cancelLabel="Annulla"
         dialogClassName="sm:max-w-105"
         titleIcon={Flag}

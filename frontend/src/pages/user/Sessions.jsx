@@ -99,7 +99,7 @@ const Sessions = () => {
             search={search}
             setSearch={setSearch}
             placeholder="Cerca sessione..."
-            buttonText="Add Session"
+            buttonText="Nuova sessione"
             onButtonClick={() => setAddSessionOpen(true)}
             buttonVariant="emerald"
           />

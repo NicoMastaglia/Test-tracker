@@ -1,43 +1,42 @@
 const express = require("express");
-const checkUser = require("../middleware/checkUser");
-const checkAdmin = require("../middleware/checkAdmin");
-const checkSuperadmin = require("../middleware/checkSuperadmin");
 const router = express.Router();
 
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
 router.get("/", (req, res) => {
-  res.status(302).redirect("/login");
+  res.status(302).redirect(`${frontendUrl}/login`);
 });
 
 router.get("/login", (req, res) => {
-  res.status(302).redirect("/login");
+  res.status(302).redirect(`${frontendUrl}/login`);
 });
 
-router.get("/dashboard", checkUser, (req, res) => {
-  res.status(302).redirect("/dashboard");
+router.get("/dashboard", (req, res) => {
+  res.status(302).redirect(`${frontendUrl}/dashboard`);
 });
 
-router.get("/user/projects", checkUser, (req, res) => {
-  res.status(302).redirect("/user/projects");
+router.get("/user/projects", (req, res) => {
+  res.status(302).redirect(`${frontendUrl}/user/projects`);
 });
 
-router.get("/user/checklists", checkUser, (req, res) => {
-  res.status(302).redirect("/user/checklists");
+router.get("/user/checklists", (req, res) => {
+  res.status(302).redirect(`${frontendUrl}/user/checklists`);
 });
 
-router.get("/admin/projects ", checkAdmin, (req, res) => {
-  res.status(302).redirect("/admin/projects");
+router.get("/admin/projects", (req, res) => {
+  res.status(302).redirect(`${frontendUrl}/admin/projects`);
 });
 
-router.get("/admin/projects/:id ", checkAdmin, (req, res) => {
-  res.status(302).redirect(`/admin/projects/${req.params.id}`);
+router.get("/admin/projects/:id", (req, res) => {
+  res.status(302).redirect(`${frontendUrl}/admin/projects/${req.params.id}`);
 });
 
-router.get("/admin/projects/:id/checklist ", checkAdmin, (req, res) => {
-  res.status(302).redirect(`/admin/projects/${req.params.id}/checklist`);
+router.get("/admin/projects/:id/checklist", (req, res) => {
+  res.status(302).redirect(`${frontendUrl}/admin/projects/${req.params.id}/checklist`);
 });
 
-router.get("/admin/users ", checkSuperadmin, (req, res) => {
-  res.status(302).redirect("/admin/users");
+router.get("/admin/users", (req, res) => {
+  res.status(302).redirect(`${frontendUrl}/admin/users`);
 });
 
 router.get("*", (req, res) => {

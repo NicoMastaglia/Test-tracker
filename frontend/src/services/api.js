@@ -1,7 +1,8 @@
-import axios from 'axios'; 
- 
-const API_URL = 'http://localhost:3000';
-// da aggiungere token nel header dove necessario 
+import axios from 'axios';
+import { baseUrl } from './config';
+
+const API_URL = baseUrl;
+// da aggiungere token nel header dove necessario
 // es login e register non ne hanno bisogno
 
 
@@ -79,7 +80,7 @@ export const forgotPassword = async (email) => {
 };
 
 export const getCurrentUser = () => {
-  const user = localStorage.getItem("user_test");
+  const user = localStorage.getItem("current_user");
   return user ? JSON.parse(user) : null;
 }
 

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
-  const { login } = useAuthContext();
+  const { login, loading } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -39,6 +39,7 @@ function LoginPage() {
             password={password}
             setEmail={setEmail}
             setPassword={setPassword}
+            loading={loading}
           />
         </div>
       </div>

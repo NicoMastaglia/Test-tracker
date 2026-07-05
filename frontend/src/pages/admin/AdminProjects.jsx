@@ -166,7 +166,7 @@ const AdminProjects = () => {
             search={search}
             setSearch={setSearch}
             placeholder="Cerca progetto..."
-            buttonText={user?.role === "admin" || user?.role === "superadmin" ? "Add Project" : null}
+            buttonText={user?.role === "admin" || user?.role === "superadmin" ? "Nuovo progetto" : null}
             onButtonClick={user?.role === "admin" || user?.role === "superadmin" ? () => setModalOpen(true) : undefined}
             buttonVariant="emerald"
           />

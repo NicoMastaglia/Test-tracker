@@ -70,9 +70,8 @@ router.get("/", checkUser, (req, res) => {
         return res.status(200).json(projects);
       })
       .catch((err) => {
-        return res
-          .status(500)
-          .json({ error: "Errore del server", specific: err.message });
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server" });
       });
   } else if (req.user.role === "admin") {
     return db
@@ -137,9 +136,8 @@ router.get("/", checkUser, (req, res) => {
         return res.status(200).json(projects);
       })
       .catch((err) => {
-        return res
-          .status(500)
-          .json({ error: "Errore del server", specific: err.message });
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server" });
       });
   } else if (req.user.role === "user") {
     return db
@@ -183,9 +181,8 @@ router.get("/", checkUser, (req, res) => {
         return res.status(200).json(projects);
       })
       .catch((err) => {
-        return res
-          .status(500)
-          .json({ error: "Errore del server", specific: err.message });
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server" });
       });
   }
 
@@ -207,24 +204,24 @@ router.post("/", checkAdmin, async (req, res) => {
     return res.status(400).json({ error: "Richiesta non valida", message: "La descrizione del progetto non può essere vuota o contenere solo spazi." });
   }
 
-  let finalManagerId;
-  if (req.user.role === "admin") {
-    finalManagerId = req.user.id;
-  } else if (req.user.role === "superadmin") {
-    finalManagerId = manager_id;
-    if (!finalManagerId) {
-      return res.status(400).json({ error: "Richiesta non valida", message: "Seleziona un responsabile (admin)." });
-    }
-    const [managerResult] = await db.execute(
-      "SELECT id FROM user WHERE id = ? AND role = 'admin'",
-      [finalManagerId]
-    );
-    if (!managerResult.length) {
-      return res.status(400).json({ error: "Richiesta non valida", message: "Il responsabile deve essere un admin esistente." });
-    }
-  }
-
   try {
+    let finalManagerId;
+    if (req.user.role === "admin") {
+      finalManagerId = req.user.id;
+    } else if (req.user.role === "superadmin") {
+      finalManagerId = manager_id;
+      if (!finalManagerId) {
+        return res.status(400).json({ error: "Richiesta non valida", message: "Seleziona un responsabile (admin)." });
+      }
+      const [managerResult] = await db.execute(
+        "SELECT id FROM user WHERE id = ? AND role = 'admin'",
+        [finalManagerId]
+      );
+      if (!managerResult.length) {
+        return res.status(400).json({ error: "Richiesta non valida", message: "Il responsabile deve essere un admin esistente." });
+      }
+    }
+
     const [existingProject] = await db.execute(
       "SELECT id FROM project WHERE name = ?",
       [trimmedName]
@@ -258,7 +255,8 @@ router.post("/", checkAdmin, async (req, res) => {
     });
 
   } catch (err) {
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -324,12 +322,14 @@ router.get("/:id", checkUser, (req, res) => {
         });
 
         const projects = Array.from(projectMap.values());
+        if (projects.length === 0) {
+          return res.status(404).json({ error: "Progetto non trovato" });
+        }
         return res.status(200).json(projects[0]);
       })
       .catch((err) => {
-        return res
-          .status(500)
-          .json({ error: "Errore del server", specific: err.message });
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server" });
       });
   } else if (req.user.role === "admin") {
     return db
@@ -390,12 +390,14 @@ router.get("/:id", checkUser, (req, res) => {
         });
 
         const projects = Array.from(projectMap.values());
+        if (projects.length === 0) {
+          return res.status(404).json({ error: "Progetto non trovato" });
+        }
         return res.status(200).json(projects[0]);
       })
       .catch((err) => {
-        return res
-          .status(500)
-          .json({ error: "Errore del server", specific: err.message });
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server" });
       });
   } else if (req.user.role === "user") {
     return db
@@ -442,9 +444,8 @@ router.get("/:id", checkUser, (req, res) => {
         return res.status(200).json(project);
       })
       .catch((err) => {
-        return res
-          .status(500)
-          .json({ error: "Errore del server", specific: err.message });
+        console.error(err);
+        return res.status(500).json({ error: "Errore del server" });
       });
   }
 
@@ -515,10 +516,8 @@ router.put("/:id", checkAdmin, async (req, res) => {
     return res.status(200).json({ message: "Progetto aggiornato con successo" });
 
   } catch (err) {
-    return res.status(500).json({ 
-      message: "Errore del server", 
-      specific: err.message 
-    });
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
   }
 });
 
@@ -579,7 +578,8 @@ router.patch("/:id/status", checkAdmin, async (req, res) => {
     await logActivity(req.user.id, projectId, "project.status_changed", { from: currentStatus, to: trimmedStatus });
     return res.status(200).json({ message: "Stato del progetto aggiornato con successo", status: trimmedStatus });
   } catch (err) {
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -608,14 +608,25 @@ router.post("/:id/assign", checkAdmin, async (req, res) => {
 
     const projectAssignment = proj[0].name;
 
-    // 1. Assegna il progetto nel DB
-    await db.execute("INSERT INTO project_assignment (project_id, user_id) VALUES (?, ?)", [projectId, userId]);
-
-    // 2. Prendi i dati dell'utente assegnato
-    const [user] = await db.execute("SELECT nome, cognome, email FROM user WHERE id = ?", [userId]);
+    // 1. Verifica l'utente prima di scrivere: deve esistere ed essere un tester
+    const [user] = await db.execute("SELECT nome, cognome, email, role FROM user WHERE id = ?", [userId]);
     if (!user.length) {
       return res.status(404).json({ error: "Utente non trovato" });
     }
+    if (user[0].role !== "user") {
+      return res.status(400).json({ error: "Richiesta non valida", message: "Puoi assegnare al progetto solo utenti con ruolo tester." });
+    }
+
+    const [existingAssignment] = await db.execute(
+      "SELECT project_id FROM project_assignment WHERE project_id = ? AND user_id = ?",
+      [projectId, userId],
+    );
+    if (existingAssignment.length > 0) {
+      return res.status(400).json({ error: "Richiesta non valida", message: "L'utente è già assegnato a questo progetto." });
+    }
+
+    // 2. Assegna il progetto nel DB
+    await db.execute("INSERT INTO project_assignment (project_id, user_id) VALUES (?, ?)", [projectId, userId]);
 
     await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
     await logActivity(req.user.id, projectId, "project.member_assigned", { userId: userId });
@@ -632,7 +643,8 @@ router.post("/:id/assign", checkAdmin, async (req, res) => {
 
     return res.status(200).json({ message: "Utente assegnato al progetto con successo" });
   } catch (err) {
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -677,7 +689,8 @@ where p.id = ?
 
    return res.status(200).json(assignments);
   } catch (err) {
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
   
 
@@ -718,7 +731,8 @@ router.delete("/:id/assign", checkAdmin, async (req, res) => {
     await logActivity(req.user.id, projectId, "project.member_unassigned", { userId: userId });
     return res.status(200).json({ message: "Assegnazione utente rimossa con successo" });
   } catch (err) {
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 });
 
@@ -742,11 +756,8 @@ router.delete("/:id", checkSuperadmin, async (req, res) => {
   
   
   } catch (err) {
-
-
-
-
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
   // db.execute("DELETE FROM project WHERE id = ?", [projectId])
   //   .then(async ([result]) => {
@@ -776,25 +787,23 @@ router.get('/:id/stats', checkAdmin, async (req, res) => {
   const projectId = req.params.id;
 
 
-  if(isNaN(projectId) || parseInt(projectId) <= 0  ) {
-    return res.status(400).json({ error: "ID progetto non valido" });
-  }
-
   if(!projectId) {
     return res.status(400).json({ error: "ID progetto mancante" });
   }
 
- const [existingProject] = await db.execute("SELECT id FROM project WHERE id = ?", [projectId]);
-if (existingProject.length === 0) {
-  return res.status(404).json({ error: "Progetto non trovato" });
-}
-
-   
+  if(isNaN(projectId) || parseInt(projectId) <= 0  ) {
+    return res.status(400).json({ error: "ID progetto non valido" });
+  }
 
   if (req.user.role !== "superadmin" && req.user.role !== "admin") {
     return res.status(403).json({ error: "Accesso negato" });
   }
-  
+
+  try {
+  const [existingProject] = await db.execute("SELECT id FROM project WHERE id = ?", [projectId]);
+  if (existingProject.length === 0) {
+    return res.status(404).json({ error: "Progetto non trovato" });
+  }
 
   // admin ha stats solo sui progetti creati da lui o di cui è responsabile; superadmin su tutti
   if (req.user.role === "admin") {
@@ -808,9 +817,7 @@ if (existingProject.length === 0) {
     }
 
   }
-   
 
-  try {
   const [t] = await db.execute(
   `SELECT COUNT(ci.id) AS totalTasks,
           SUM(ci.status IN ('Completata','Archiviata')) AS completedTasks
@@ -839,8 +846,9 @@ const [s] = await db.execute(
     lastActivity: s[0].lastActivity
   });
 }
-catch (err) {  return res.status(500).json({ error: "Errore del server", specific: err.message });
-
+catch (err) {
+  console.error(err);
+  return res.status(500).json({ error: "Errore del server" });
 }
 
 
@@ -952,9 +960,8 @@ router.get('/:id/activities',checkUser, async (req,res)=>{
     return res.status(200).json({activities : activities})
 
   }catch (err) {
-
-    return res.status(500).json({ error: "Errore del server", specific: err.message });
-
+    console.error(err);
+    return res.status(500).json({ error: "Errore del server" });
   }
 
   
