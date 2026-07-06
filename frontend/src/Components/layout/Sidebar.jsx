@@ -212,12 +212,12 @@ export default function AppSidebar() {
         <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
           <DialogContent className="sm:max-w-90">
             <DialogHeader>
-              <DialogTitle className="text-base font-semibold text-slate-900">
+              <DialogTitle className="text-base font-semibold text-foreground">
                 Vuoi disconnetterti?
               </DialogTitle>
             </DialogHeader>
             <DialogFooter className="flex gap-2 sm:gap-0">
-              <Button variant="ghost" onClick={() => setDeleteConfirmOpen(false)} className="hover:bg-slate-100">
+              <Button variant="ghost" onClick={() => setDeleteConfirmOpen(false)} className="hover:bg-muted">
                 Annulla
               </Button>
               <Button variant="destructive" onClick={handleLogout}>

@@ -23,12 +23,12 @@ const DeleteConfirmModal = ({
     infos={warningText}
     hasDescripion
     description={(
-      <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 text-sm text-red-800">
+      <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 text-sm text-red-800 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
         <p>
           Sei sicuro di voler eliminare {itemPhrase}{" "}
           <strong className="font-semibold">"{itemName}"</strong>?
         </p>
-        {extraInfo && <div className="mt-2 text-xs text-red-700/80">{extraInfo}</div>}
+        {extraInfo && <div className="mt-2 text-xs text-red-700/80 dark:text-red-400/80">{extraInfo}</div>}
       </div>
     )}
     formData={{}}

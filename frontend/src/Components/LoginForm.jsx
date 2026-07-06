@@ -49,11 +49,11 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit,load
         <form onSubmit={handleSubmit} className="grid gap-4">
           {/* Campo Email */}
           <div className="grid gap-2">
-            <Label htmlFor="email" className="text-sm font-medium text-slate-900 ml-1">
+            <Label htmlFor="email" className="text-sm font-medium text-foreground ml-1">
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
@@ -61,7 +61,7 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit,load
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 h-11 rounded-xl border-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
+                className="pl-10 h-11 rounded-xl border-border focus:ring-2 focus:ring-emerald-500 transition-all"
               />
             </div>
           </div>
@@ -69,25 +69,25 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit,load
           {/* Campo Password */}
           <div className="grid gap-2">
             <div className="flex items-center justify-between ml-1">
-              <Label htmlFor="password" className="text-sm font-medium text-slate-900">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
                 Password
               </Label>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 pr-10 h-11 rounded-xl border-slate-200 focus:ring-2 focus:ring-emerald-500 transition-all"
+                className="pl-10 pr-10 h-11 rounded-xl border-border focus:ring-2 focus:ring-emerald-500 transition-all"
               />
               <button
                 type="button"
                 aria-label={showPassword ? "Nascondi password" : "Mostra password"}
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -115,27 +115,27 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit,load
       <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-slate-900">
+            <DialogTitle className="flex items-center gap-2 text-foreground">
               <KeyRound className="h-4 w-4 text-emerald-600" />
               Password dimenticata
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             Inserisci la tua email: se è registrata, riceverai un link per impostare una nuova password.
           </p>
           <div className="grid gap-2">
-            <Label htmlFor="forgot-email" className="text-sm font-medium text-slate-900">
+            <Label htmlFor="forgot-email" className="text-sm font-medium text-foreground">
               Email
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="forgot-email"
                 type="email"
                 placeholder="nome@esempio.com"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
-                className="pl-10 h-11 rounded-xl border-slate-200 focus:ring-2 focus:ring-emerald-500"
+                className="pl-10 h-11 rounded-xl border-border focus:ring-2 focus:ring-emerald-500"
               />
             </div>
           </div>

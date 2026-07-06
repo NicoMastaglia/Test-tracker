@@ -44,15 +44,15 @@ const AuditLog = () => {
   return (
     <AppLayout page="audit-log" title="Audit Log">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <div className="border-b border-border p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Cerca per utente o progetto..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 h-10 border-slate-200 focus-visible:ring-emerald-500"
+                className="pl-9 h-10 border-border focus-visible:ring-emerald-500"
               />
             </div>
 
@@ -61,10 +61,10 @@ const AuditLog = () => {
                 <button
                   key={p.label}
                   onClick={() => setPresetIdx(i)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors
+                  className={`cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-colors
                     ${presetIdx === i
-                      ? "bg-slate-800 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
                     }`}
                 >
                   {p.label}

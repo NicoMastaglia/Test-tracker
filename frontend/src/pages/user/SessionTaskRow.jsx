@@ -20,9 +20,9 @@ const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId, onReope
   const deadlineStatus = getDeadlineStatus(task.deadline, isDone);
 
   return (
-    <TableRow className="text-center group transition-colors hover:bg-slate-50/50">
+    <TableRow className="text-center group transition-colors hover:bg-muted/50">
       <TableCell>
-        <span className="font-medium text-slate-900">{task.description}</span>
+        <span className="font-medium text-foreground">{task.description}</span>
       </TableCell>
 
       <TableCell>
@@ -47,7 +47,7 @@ const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId, onReope
       </TableCell>
 
       <TableCell className="max-w-xs">
-        <span className="text-sm text-slate-500 line-clamp-2">
+        <span className="text-sm text-muted-foreground line-clamp-2">
           {task.note || "Nessuna nota"}
         </span>
       </TableCell>
@@ -55,21 +55,21 @@ const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId, onReope
       {!readOnly && (
         <TableCell className="text-center">
           {cannotEdit ? (
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-muted-foreground">
               {isBlocked ? "Task bloccata" : "Non più assegnata a te"}
             </span>
           ) : hasOutcome ? (
             <TableActionButton
               onClick={() => onReopen?.(task)}
               icon={RotateCcw}
-              color="text-amber-600 hover:text-amber-600 hover:bg-amber-50/50"
+              color="text-amber-600 hover:text-amber-600 hover:bg-amber-50/50 dark:hover:bg-amber-500/10"
               action="Riapri esito"
             />
           ) : (
             <TableActionButton
               onClick={() => onEdit?.(task)}
               icon={ClipboardCheck}
-              color="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50"
+              color="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10"
               action="Aggiorna esito"
             />
           )}

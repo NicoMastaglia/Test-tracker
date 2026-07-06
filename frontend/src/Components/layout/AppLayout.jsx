@@ -16,10 +16,10 @@ const AppLayout = ({ children, page, title, hideHeader = false }) => {
     // Il Provider avvolge tutto il layout per gestire lo stato della sidebar
     <TooltipProvider delayDuration={0}>
       <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-slate-100">
+        <div className="flex min-h-screen w-full bg-background">
           <AppSidebar user={user} />
 
-          <SidebarInset className="flex flex-col flex-1 bg-slate-50">
+          <SidebarInset className="flex flex-col flex-1 bg-background">
             <header className="flex h-14 items-center gap-4 border-b border-sidebar-border bg-sidebar px-4 md:hidden">
               <SidebarTrigger className="text-sidebar-foreground hover:bg-sidebar-accent rounded-md">
                 <Menu className="h-5 w-5" />

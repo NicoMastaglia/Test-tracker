@@ -136,7 +136,7 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
       {isCompleted && <ProjectCompletedBanner />}
 
       {/* 1. SEZIONE BARRA AZIONI */}
-      <div className="overflow-hidden rounded-xl border border-slate-200/60 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
         <ActionBar
           search={search}
           setSearch={setSearch}
@@ -188,12 +188,12 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
       <Dialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-slate-900">
+            <DialogTitle className="flex items-center gap-2 text-foreground">
               <Trash2 className="h-4 w-4 text-red-500" />
               Elimina checklist
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             Sei sicuro di voler eliminare questa checklist? L'operazione è irreversibile e rimuoverà anche tutte le task associate.
           </p>
           <DialogFooter className="gap-2">

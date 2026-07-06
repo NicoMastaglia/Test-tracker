@@ -83,7 +83,7 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
     <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-foreground">
             <PlayCircle className="h-5 w-5 text-emerald-500" />
             Crea nuova sessione
           </DialogTitle>
@@ -94,7 +94,7 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-2">
           <div className="grid gap-2">
-            <Label htmlFor="session-project" className="text-slate-900">
+            <Label htmlFor="session-project" className="text-foreground">
               Progetto
             </Label>
             <Select value={selectedProjectId} onValueChange={handleProjectChange}>
@@ -113,8 +113,8 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
 
           {selectedProjectId && (
             <div className="grid gap-2">
-              <Label className="text-slate-900">Task assegnate</Label>
-              <Command className="rounded-lg border border-slate-200">
+              <Label className="text-foreground">Task assegnate</Label>
+              <Command className="rounded-lg border border-border">
                 <CommandInput placeholder="Cerca task..." />
                 <CommandList>
                   <CommandEmpty>Nessuna task lavorabile in questo progetto.</CommandEmpty>
@@ -129,14 +129,14 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
                           onSelect={() => toggleTask(task.id)}
                         >
                           <span
-                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-300"}`}
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-border"}`}
                           >
                             {isSelected && <CheckIcon className="h-3 w-3" />}
                           </span>
                           <span className="flex min-w-0 flex-1 flex-col">
-                            <span className="text-sm text-slate-900">{task.description}</span>
+                            <span className="text-sm text-foreground">{task.description}</span>
                             {task.checklist_title && (
-                              <span className="text-xs text-slate-400">{task.checklist_title}</span>
+                              <span className="text-xs text-muted-foreground">{task.checklist_title}</span>
                             )}
                           </span>
                           {deadlineStatus.hasDeadline && (
@@ -151,14 +151,14 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
                   </CommandGroup>
                 </CommandList>
               </Command>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 {selectedTaskIds.length} task selezionate
               </p>
             </div>
           )}
 
           <DialogFooter className="flex gap-2 sm:gap-0">
-            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)} disabled={creatingSession} className="hover:bg-slate-100">
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)} disabled={creatingSession} className="hover:bg-muted">
               Annulla
             </Button>
             <Button

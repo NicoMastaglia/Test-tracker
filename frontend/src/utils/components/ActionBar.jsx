@@ -26,14 +26,14 @@ const ActionBar = ({
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-6 py-4 w-full">
       
     
-      <div className="flex flex-col flex-1 gap-3 sm:flex-row sm:items-center ">
+      <div className="flex flex-col flex-1 flex-wrap gap-3 sm:flex-row sm:items-center">
         <div className="relative w-full md:w-75">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={placeholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 h-10 focus-visible:ring-emerald-500 border-slate-200"
+            className="pl-10 h-10 focus-visible:ring-emerald-500 border-border"
           />
         </div>
 
@@ -49,7 +49,7 @@ const ActionBar = ({
             variant="ghost"
             size="sm"
             onClick={onReset}
-            className="h-8 shrink-0 cursor-pointer gap-1.5 text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900"
+            className="h-8 shrink-0 cursor-pointer gap-1.5 border border-amber-200 text-amber-700 transition-colors duration-150 hover:bg-amber-50 hover:text-amber-800 dark:border-amber-500/30 dark:text-amber-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-300"
           >
             <X className="h-3.5 w-3.5" />
             Reset filtri
@@ -65,7 +65,7 @@ const ActionBar = ({
           className={`h-10 px-6 font-medium transition-all active:scale-95 shrink-0
             ${buttonVariant === "emerald"
               ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-              : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+              : "bg-muted hover:bg-muted/70 text-foreground"
             }
             ${buttonDisabled ? "opacity-50 cursor-not-allowed hover:bg-inherit active:scale-100" : ""}`}
         >

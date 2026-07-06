@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { ThemeProvider } from './context/Theme/ThemeContext.jsx';
 import { AuthProvider } from './context/Auth/AuthContext.jsx';
 import { ProjectProvider } from './context/Project/ProjectContext';
 import { UserProvider } from './context/User/UserContext';
@@ -11,6 +12,7 @@ import { TaskProvider } from './context/Task/TaskContext';
 import { AuditProvider } from './context/Audit/AuditContext';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <ThemeProvider>
     <AuthProvider>
       <ProjectProvider>
         <UserProvider>
@@ -26,5 +28,6 @@ createRoot(document.getElementById('root')).render(
         </UserProvider>
       </ProjectProvider>
     </AuthProvider>
+    </ThemeProvider>
   </StrictMode>,
 )

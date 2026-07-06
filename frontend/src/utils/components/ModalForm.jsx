@@ -30,7 +30,7 @@ const renderField = (field, value, updateField) => {
                     rows={field.rows ?? 4}
                     value={value ?? ""}
                     onChange={(event) => updateField(field.name, event.target.value)}
-                    className="min-h-24 rounded-md border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="min-h-24 rounded-md border border-border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
             );
 
@@ -41,13 +41,13 @@ const renderField = (field, value, updateField) => {
 		// es un superadmin non può cambiare ruolo
 		if (field.name ==='role' && value === 'superadmin') {
 			return(
-				<div className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 h-10 text-sm text-slate-500 cursor-not-allowed flex items-center justify-between select-none">
+				<div className="w-full rounded-md border border-border bg-muted/50 px-3 h-10 text-sm text-muted-foreground cursor-not-allowed flex items-center justify-between select-none">
                 <div className="flex items-center gap-2">
-                    {Icon && <Icon className="h-4 w-4 text-slate-400" />}
-                    <span className="font-medium text-slate-500">Super Admin</span>
+                    {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+                    <span className="font-medium text-muted-foreground">Super Admin</span>
                 </div>
 
-                <Lock className="h-3.5 w-3.5 text-slate-400" />
+                <Lock className="h-3.5 w-3.5 text-muted-foreground" />
             </div>
 			)
 
@@ -60,7 +60,7 @@ const renderField = (field, value, updateField) => {
                 <Select value={value ?? ""} onValueChange={(nextValue) => updateField(field.name, nextValue)}>
                     <SelectTrigger className={`w-full ${field.triggerClassName ?? ""}`}>
                         <div className="flex items-center gap-2">
-                            {Icon && <Icon className="h-4 w-4 text-slate-400" />}
+                            {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
                             <SelectValue placeholder={field.placeholder ?? `Seleziona ${field.label?.toLowerCase()}`} />
                         </div>
                     </SelectTrigger>
@@ -84,7 +84,7 @@ const renderField = (field, value, updateField) => {
                     onChange={(event) => updateField(field.name, event.target.value)}
                     autoComplete={field.autoComplete}
                     required={field.required}
-                    className={field.inputClassName ?? "h-10 rounded-md border border-slate-200 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"}
+                    className={field.inputClassName ?? "h-10 rounded-md border border-border px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"}
                 />
             );
 
@@ -92,7 +92,7 @@ const renderField = (field, value, updateField) => {
             if (Icon) {
                 return (
                     <div className="relative">
-                        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         {inputElement}
                     </div>
                 );
@@ -124,7 +124,7 @@ const ModalForm = ({
 	submitVariant = "default", // <--- 1. DI DEFAULT È IL BOTTONE STANDARD
     titleIcon: TitleIcon = null, // <--- 2. PROP PER L'ICONA DEL TITOLO (Rinominata con la maiuscola)
 	customFooter = null,
-	iconColor = "text-slate-500", // <--- 3. PROP PER IL COLORE DELL'ICONA
+	iconColor = "text-muted-foreground", // <--- 3. PROP PER IL COLORE DELL'ICONA
 	loading = false,
 	loadingLabel,
 }) => {
@@ -156,7 +156,7 @@ const ModalForm = ({
 			<DialogContent className={dialogClassName}>
 				<DialogHeader>
 
-					<DialogTitle className="text-xl font-bold text-slate-900 flex flex-row items-center  gap-2">
+					<DialogTitle className="text-xl font-bold text-foreground flex flex-row items-center  gap-2">
 						{TitleIcon && <TitleIcon className={`h-5 w-5 ${iconColor} `}/>}
 						{title}
 						</DialogTitle>
@@ -168,7 +168,7 @@ const ModalForm = ({
 					<div className="grid gap-4">
 						{fields.map((field) => (
 							<div key={field.name} className="grid gap-2">
-								<Label htmlFor={field.name} className="text-slate-900">
+								<Label htmlFor={field.name} className="text-foreground">
 									{field.label}
 									{field.required && <span className="text-red-500 ml-0.5">*</span>}
 								</Label>
@@ -177,7 +177,7 @@ const ModalForm = ({
 								{errors[field.name] ? (
 									<p className="text-xs text-red-600">{errors[field.name]}</p>
 								) : field.helperText ? (
-									<p className="text-xs text-slate-500">{field.helperText}</p>
+									<p className="text-xs text-muted-foreground">{field.helperText}</p>
 								) : null}
 							</div>
 						))}
@@ -192,7 +192,7 @@ const ModalForm = ({
 					{customFooter ? (customFooter) : (
 
 					<DialogFooter className="flex gap-2 sm:gap-0">
-						<Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={loading} className="hover:bg-slate-100">
+						<Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={loading} className="hover:bg-muted">
 							{cancelLabel}
 						</Button>
 						<Button type="submit" variant={submitVariant} className={submitClassName} disabled={loading}>

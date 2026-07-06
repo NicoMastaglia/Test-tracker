@@ -86,7 +86,7 @@ const AdminSessions = () => {
   return (
     <AppLayout page="admin-sessions" title="Sessioni">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           <ActionBar search={search} setSearch={setSearch} placeholder="Cerca per progetto..." onReset={resetFilters} hasActiveFilters={hasActiveFilters}>
             <StatusFilterPills
               filters={sessionFilters}
@@ -98,13 +98,13 @@ const AdminSessions = () => {
               placeholder="Cerca per tester..."
               value={filterTester}
               onChange={(e) => setFilterTester(e.target.value)}
-              className="h-10 w-full sm:w-48 border-slate-200 focus-visible:ring-emerald-500"
+              className="h-10 w-full sm:w-48 border-border focus-visible:ring-emerald-500"
             />
             <Input
               type="date"
               value={filterDateFrom}
               onChange={(e) => setFilterDateFrom(e.target.value)}
-              className="h-10 w-full sm:w-40 border-slate-200 focus-visible:ring-emerald-500"
+              className="h-10 w-full sm:w-40 border-border focus-visible:ring-emerald-500"
               title="Data inizio (da)"
             />
 

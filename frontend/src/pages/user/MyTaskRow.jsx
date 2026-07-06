@@ -7,19 +7,19 @@ const MyTaskRow = ({ task }) => {
   const deadlineStatus = getDeadlineStatus(task.deadline, isDone);
 
   return (
-    <TableRow className="text-center transition-colors hover:bg-slate-50/50">
+    <TableRow className="text-center transition-colors hover:bg-muted/50">
       <TableCell>
-        <span className="capitalize font-medium text-slate-900">
+        <span className="capitalize font-medium text-foreground">
           {task.project_name || "Progetto non disponibile"}
         </span>
       </TableCell>
 
-      <TableCell className="text-slate-600">
+      <TableCell className="text-muted-foreground">
         {uppercaseFirstLetter(task.checklist_title) || "—"}
       </TableCell>
 
       <TableCell className="max-w-xs">
-        <span className="text-slate-900 text-sm">
+        <span className="text-foreground text-sm">
           {uppercaseFirstLetter(task.description) || "Nessuna descrizione"}
         </span>
       </TableCell>

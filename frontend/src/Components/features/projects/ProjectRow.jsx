@@ -28,13 +28,13 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   return (
    <TableRow
   key={project.id}
-  className={`group transition-colors hover:bg-slate-50/60 ${canOpenProjectDetail ? "cursor-pointer" : ""}`}
+  className={`group transition-colors hover:bg-muted/60 ${canOpenProjectDetail ? "cursor-pointer" : ""}`}
   onClick={() => handleProjectRowClick(project.id)}
   {...(canOpenProjectDetail ? getClickableRowProps(() => handleProjectRowClick(project.id)) : {})}
 >
   {/* 1. CELLA: INFO PROGETTO (Centrata) */}
   <TableCell className="text-center px-4 py-3">
-    <p className="font-semibold text-slate-900 text-sm leading-tight">
+    <p className="font-semibold text-foreground text-sm leading-tight">
       {uppercaseFirstLetter(project.name)}
     </p>
   </TableCell>
@@ -78,7 +78,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
           </TooltipContent>
         </Tooltip>
       ) : (
-        <span className="text-xs text-slate-400 font-medium">—</span>
+        <span className="text-xs text-muted-foreground font-medium">—</span>
       )}
     </div>
   </TableCell>
@@ -100,14 +100,14 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
           </Tooltip>
         ))
       ) : (
-        <span className="text-xs text-slate-400 font-medium">Nessun tester</span>
+        <span className="text-xs text-muted-foreground font-medium">Nessun tester</span>
       )}
 
       {/* Contatore Extra (+X) */}
       {extraAssignees > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-500 border border-slate-200/40 shadow-sm cursor-help">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-[11px] font-bold text-muted-foreground border border-border/40 shadow-sm cursor-help">
               +{extraAssignees}
             </div>
           </TooltipTrigger>
@@ -126,12 +126,12 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   </TableCell>
 
   {/* 5. CELLA: DEADLINE (Testo Grigio Scuro Elegante, Centrato) */}
-  <TableCell className="text-center px-4 py-3 font-medium text-sm text-slate-600">
+  <TableCell className="text-center px-4 py-3 font-medium text-sm text-muted-foreground">
     {project.deadline ? formatTableDate(project.deadline) : "—"}
   </TableCell>
 
   {/* 6. CELLA: ULTIMO AGGIORNAMENTO (Grigio Chiaro, Centrato) */}
-  <TableCell className="text-center px-4 py-3 text-sm text-slate-600 font-medium">
+  <TableCell className="text-center px-4 py-3 text-sm text-muted-foreground font-medium">
     {project.updated_at ?  getRelativeTime(project.updated_at) : "nessun aggiornamento"}
   </TableCell>
 
@@ -143,25 +143,25 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
           <TableActionButton
             onClick={() => openEditDialog(project)}
             icon={Pencil}
-            color="text-emerald-600 hover:text-emerald-600 hover:bg-emerald-50/50"
+            color="text-emerald-600 hover:text-emerald-600 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10"
             action="Modifica progetto"
           />
           <TableActionButton
             onClick={() => openStatusDialog(project)}
             icon={Flag}
-            color="text-amber-600 hover:text-amber-600 hover:bg-amber-50/50"
+            color="text-amber-600 hover:text-amber-600 hover:bg-amber-50/50 dark:hover:bg-amber-500/10"
             action="Aggiorna stato"
           />
         </>
       ) : (isAdmin || isSuperadmin) ? null : (
-        <span className="text-xs text-slate-400 font-medium">—</span>
+        <span className="text-xs text-muted-foreground font-medium">—</span>
       )}
 
       {isSuperadmin && (
         <TableActionButton
           onClick={() => setDeleteProjectTarget(project)}
           icon={Trash2}
-          color="text-red-600 hover:text-red-600 hover:bg-red-50/50"
+          color="text-red-600 hover:text-red-600 hover:bg-red-50/50 dark:hover:bg-red-500/10"
           action="Elimina progetto"
         />
       )}

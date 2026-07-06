@@ -63,7 +63,7 @@ const MyTasks = () => {
   return (
     <AppLayout page="my-tasks" title="Le mie task">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           <ActionBar
             search={search}
             setSearch={setSearch}

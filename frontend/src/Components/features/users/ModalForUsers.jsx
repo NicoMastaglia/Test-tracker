@@ -117,7 +117,7 @@ const ModalForUsers = () => {
         )
 
       : (
-        <div className="text-xs text-slate-500 font-medium flex items-center gap-1 select-none bg-slate-50 px-2.5 py-1.5 rounded-md border border-slate-200">
+        <div className="text-xs text-muted-foreground font-medium flex items-center gap-1 select-none bg-muted/50 px-2.5 py-1.5 rounded-md border border-border">
                 <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
                 Account di sistema protetto
             </div>

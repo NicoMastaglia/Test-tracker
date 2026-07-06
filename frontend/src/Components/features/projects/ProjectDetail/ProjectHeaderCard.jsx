@@ -55,7 +55,7 @@ const ProjectHeaderCard = ({
       description={
         activeSection === "overview" ? (
           <div className="flex flex-col gap-1.5 text-left">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               {selectedProject.description
                 ? uppercaseFirstLetter(selectedProject.description)
                 : "Nessuna descrizione"}
@@ -64,16 +64,16 @@ const ProjectHeaderCard = ({
             <div className="flex flex-wrap items-center gap-3">
               <span>
                 Creato da{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-foreground/80">
                   {selectedProject.created_by ? getFullName(selectedProject.created_by) : NOT_AVAILABLE}
                 </span>
               </span>
 
-              <span className="text-slate-200 font-normal">|</span>
+              <span className="text-border font-normal">|</span>
 
               <span>
                 Responsabile{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-foreground/80">
                   {selectedProject.manager ? getFullName(selectedProject.manager) : NOT_AVAILABLE}
                 </span>
               </span>
@@ -96,7 +96,7 @@ const ProjectHeaderCard = ({
               onClick={onEditProject}
               disabled={isCompleted}
               title={isCompleted ? "Progetto completato: non modificabile" : undefined}
-              className="h-9 gap-2 rounded-lg border-slate-200 text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:shadow disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-9 gap-2 rounded-lg border-border text-foreground/80 shadow-sm transition-all hover:bg-muted hover:shadow disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Pencil className="h-4 w-4" />
               Modifica
@@ -108,7 +108,7 @@ const ProjectHeaderCard = ({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 cursor-pointer rounded-lg border-slate-200 text-slate-500 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700 hover:shadow"
+                    className="h-9 w-9 cursor-pointer rounded-lg border-border text-muted-foreground shadow-sm transition-all hover:border-muted-foreground/40 hover:bg-muted hover:text-foreground/80 hover:shadow"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </Button>

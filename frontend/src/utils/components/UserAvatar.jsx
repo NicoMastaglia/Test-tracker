@@ -11,7 +11,7 @@ const SIZE_CLASSES = {
 // così lo stesso utente ha sempre lo stesso aspetto ovunque compaia).
 const UserAvatar = ({ user, size = "sm", className = "", ...props }) => (
   <div
-    className={`flex shrink-0 items-center justify-center rounded-full font-semibold shadow-sm bg-slate-100 text-slate-600 ${SIZE_CLASSES[size]} ${className}`}
+    className={`flex shrink-0 items-center justify-center rounded-full font-semibold shadow-sm bg-slate-200 text-slate-600 dark:bg-slate-600 dark:text-slate-100 ${SIZE_CLASSES[size]} ${className}`}
     {...props}
   >
     {getInitials(user)}

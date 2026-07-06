@@ -59,15 +59,15 @@ export const getRoleInfo = (role) => {
     user: {
       // label: "Utente",
       label: "USER",
-      className: "bg-green-100 text-green-900",
+      className: "bg-green-100 text-green-900 dark:bg-green-500/15 dark:text-green-400",
     },
     admin: {
       label: "ADMIN",
-      className: "bg-blue-100 text-blue-800",
+      className: "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-400",
     },
     superadmin: {
       label: "SUPER ADMIN",
-      className: "bg-pink-100 text-pink-800",
+      className: "bg-pink-100 text-pink-800 dark:bg-pink-500/15 dark:text-pink-400",
     },
   };
 
@@ -80,18 +80,18 @@ export const getStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
   if (normalizedStatus === "attivo" || normalizedStatus === "active") {
-    return "font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none";
+    return "font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none dark:bg-emerald-500/15 dark:text-emerald-400 dark:hover:bg-emerald-500/15";
   }
 
   if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-    return "font-bold bg-blue-100 text-blue-800 hover:bg-blue-100 border-none";
+    return "font-bold bg-blue-100 text-blue-800 hover:bg-blue-100 border-none dark:bg-blue-500/15 dark:text-blue-400 dark:hover:bg-blue-500/15";
   }
 
   if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold") {
-    return "font-bold bg-amber-100 text-amber-800 hover:bg-amber-100 border-none";
+    return "font-bold bg-amber-100 text-amber-800 hover:bg-amber-100 border-none dark:bg-amber-500/15 dark:text-amber-400 dark:hover:bg-amber-500/15";
   }
 
-  return "font-bold bg-slate-100 text-slate-700 hover:bg-slate-100 border-none";
+  return "font-bold bg-slate-100 text-slate-700 hover:bg-slate-100 border-none dark:bg-slate-500/15 dark:text-slate-300 dark:hover:bg-slate-500/15";
 };
 
 
@@ -101,32 +101,32 @@ export const getTaskStatusBadgeClass = (status) => {
 
 
   if (normalizedStatus === "todo") {
-    return "font-bold bg-amber-100 text-amber-800 hover:bg-amber-100 border-none";
+    return "font-bold bg-amber-100 text-amber-800 hover:bg-amber-100 border-none dark:bg-amber-500/15 dark:text-amber-400 dark:hover:bg-amber-500/15";
 
 
   }
   if (normalizedStatus === "in corso") {
-    return "font-bold bg-blue-100 text-blue-800 hover:bg-blue-100 border-none";
+    return "font-bold bg-blue-100 text-blue-800 hover:bg-blue-100 border-none dark:bg-blue-500/15 dark:text-blue-400 dark:hover:bg-blue-500/15";
 
 
 
   }
   if (normalizedStatus === "completata") {
-    return "font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none";
+    return "font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none dark:bg-emerald-500/15 dark:text-emerald-400 dark:hover:bg-emerald-500/15";
 
 
   }
 
   if (normalizedStatus === "archiviata") {
-    return "font-bold bg-slate-100 text-blue-700 hover:bg-slate-100 border-none";
+    return "font-bold bg-slate-100 text-blue-700 hover:bg-slate-100 border-none dark:bg-slate-500/15 dark:text-blue-400 dark:hover:bg-slate-500/15";
   }
 
   if (normalizedStatus === "bloccata") {
-    return "font-bold bg-red-100 text-red-800 hover:bg-red-100 border-none";
+    return "font-bold bg-red-100 text-red-800 hover:bg-red-100 border-none dark:bg-red-500/15 dark:text-red-400 dark:hover:bg-red-500/15";
 
   }
 
-  return "font-bold bg-slate-100 text-slate-700 hover:bg-slate-100 border-none";
+  return "font-bold bg-slate-100 text-slate-700 hover:bg-slate-100 border-none dark:bg-slate-500/15 dark:text-slate-300 dark:hover:bg-slate-500/15";
 
 
 
@@ -138,22 +138,22 @@ export const getChecklistStatusBadgeClass = (status) => {
 
   // STATO: Non iniziata (Neutro / Grigio)
   if (normalizedStatus === "non iniziata" || normalizedStatus === "todo") {
-    return "font-semibold bg-slate-100 text-slate-800 hover:bg-slate-100/80 border-none";
+    return "font-semibold bg-slate-100 text-slate-800 hover:bg-slate-100/80 border-none dark:bg-slate-500/15 dark:text-slate-300 dark:hover:bg-slate-500/15";
   }
 
   // STATO: In corso (Indigo)
   if (normalizedStatus === "in corso") {
-    return "font-semibold bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80 border-none";
+    return "font-semibold bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80 border-none dark:bg-indigo-500/15 dark:text-indigo-400 dark:hover:bg-indigo-500/15";
   }
 
   // STATO: Completata (Emerald)
   if (normalizedStatus === "completata") {
-    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none";
+    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none dark:bg-emerald-500/15 dark:text-emerald-400 dark:hover:bg-emerald-500/15";
   }
 
 
   // FALLBACK
-  return "font-semibold bg-zinc-100 text-zinc-700 hover:bg-zinc-100 border-none";
+  return "font-semibold bg-zinc-100 text-zinc-700 hover:bg-zinc-100 border-none dark:bg-zinc-500/15 dark:text-zinc-300 dark:hover:bg-zinc-500/15";
 }
 
 // per ottenere le classi di stile in base allo stato della sessione (solo 2 stati: In corso/Completata)
@@ -161,31 +161,31 @@ export const getSessionStatusBadgeClass = (status) => {
   const normalizedStatus = normalizeText(status);
 
   if (normalizedStatus === "completata") {
-    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none";
+    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none dark:bg-emerald-500/15 dark:text-emerald-400 dark:hover:bg-emerald-500/15";
   }
 
   // FALLBACK: "in corso" e qualunque altro valore inatteso
-  return "font-semibold bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80 border-none";
+  return "font-semibold bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80 border-none dark:bg-indigo-500/15 dark:text-indigo-400 dark:hover:bg-indigo-500/15";
 }
 
 // badge aggiuntivo (non sostituisce lo stato sessione): segnala che almeno una
 // task della sessione è "Bloccata", indipendentemente da In corso/Completata
-export const blockedIndicatorBadgeClass = "font-semibold bg-red-100 text-red-800 hover:bg-red-100/80 border-none";
+export const blockedIndicatorBadgeClass = "font-semibold bg-red-100 text-red-800 hover:bg-red-100/80 border-none dark:bg-red-500/15 dark:text-red-400 dark:hover:bg-red-500/15";
 
 // per ottenere le classi di stile in base all'esito di una task in sessione (Positivo/Negativo/non ancora valutato)
 export const getOutcomeBadgeClass = (outcome) => {
   const normalizedOutcome = normalizeText(outcome);
 
   if (normalizedOutcome === "positivo") {
-    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none";
+    return "font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-none dark:bg-emerald-500/15 dark:text-emerald-400 dark:hover:bg-emerald-500/15";
   }
 
   if (normalizedOutcome === "negativo") {
-    return "font-semibold bg-red-100 text-red-800 hover:bg-red-100/80 border-none";
+    return "font-semibold bg-red-100 text-red-800 hover:bg-red-100/80 border-none dark:bg-red-500/15 dark:text-red-400 dark:hover:bg-red-500/15";
   }
 
   // FALLBACK: outcome non ancora impostato
-  return "font-semibold bg-slate-100 text-slate-700 hover:bg-slate-100/80 border-none";
+  return "font-semibold bg-slate-100 text-slate-700 hover:bg-slate-100/80 border-none dark:bg-slate-500/15 dark:text-slate-300 dark:hover:bg-slate-500/15";
 }
 
 // per ottenere il nome del creatore di un progetto
@@ -205,25 +205,25 @@ export const getProjectStatusBadgeClass = (status) => {
 
   // Attivo / Active = "In Progress" -> blue
   if (normalizedStatus === "attivo" || normalizedStatus === "active" || normalizedStatus === "in progress" || normalizedStatus === "in_progress") {
-    return "font-bold bg-blue-100 text-blue-800";
+    return "font-bold bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-400";
   }
 
   // Completato / Completed -> emerald
   if (normalizedStatus === "completato" || normalizedStatus === "completed") {
-    return "font-bold bg-emerald-100 text-emerald-800";
+    return "font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-400";
   }
 
   // In pausa / Non iniziato / Pending -> amber
   if (normalizedStatus === "in pausa" || normalizedStatus === "paused" || normalizedStatus === "on hold" || normalizedStatus === "on_hold" || normalizedStatus === "non iniziato" || normalizedStatus === "pending") {
-    return "font-bold bg-amber-100 text-amber-800";
+    return "font-bold bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-400";
   }
 
   // Bloccato / Blocked -> red
   if (normalizedStatus === "bloccato" || normalizedStatus === "blocked") {
-    return "font-bold bg-red-100 text-red-800";
+    return "font-bold bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400";
   }
 
-  return "font-bold bg-slate-100 text-slate-700";
+  return "font-bold bg-slate-100 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300";
 };
 
 
@@ -285,12 +285,12 @@ export const formatProjectDateTime = (value) => {
 // (positivo = giorni rimanenti, negativo = scaduta)
 export const getColorsForDeadline = (daysLeft) => {
   if (daysLeft < 0) {
-    return "text-red-600 bg-red-50/50";
+    return "text-red-600 bg-red-50/50 dark:text-red-400 dark:bg-red-500/10";
   }
   if (daysLeft <= 7) {
-    return "text-amber-600 bg-amber-50/50";
+    return "text-amber-600 bg-amber-50/50 dark:text-amber-400 dark:bg-amber-500/10";
   }
-  return "text-slate-600 bg-slate-100/50";
+  return "text-slate-600 bg-slate-100/50 dark:text-slate-300 dark:bg-slate-500/10";
 };
 
 // calcola lo stato di scadenza di un'entità qualsiasi (task, progetto...) a partire da una data
@@ -311,7 +311,7 @@ export const getDeadlineStatus = (deadlineRaw, isDone = false) => {
   }
 
   const colorClass = (!hasDeadline || isDone)
-    ? "text-slate-600 bg-slate-100/50"
+    ? "text-slate-600 bg-slate-100/50 dark:text-slate-300 dark:bg-slate-500/10"
     : getColorsForDeadline(daysLeft);
 
   return { hasDeadline, daysLeft, isOverdue, label, colorClass };

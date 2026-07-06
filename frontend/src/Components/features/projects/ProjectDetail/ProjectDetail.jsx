@@ -241,14 +241,14 @@ const ProjectDetail = () => {
 
   const editModalFooter = (
     <div className="flex items-center justify-end gap-2">
-      <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)} className="hover:bg-slate-100">
+      <Button type="button" variant="ghost" onClick={() => setEditModalOpen(false)} className="hover:bg-muted">
         Annulla
       </Button>
       <Button
         type="button"
         onClick={handleEditProject}
         disabled={!hasProjectChanges}
-        className="bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
+        className="bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
       >
         Salva modifiche
       </Button>
@@ -267,10 +267,10 @@ const ProjectDetail = () => {
   };
 
   const deleteFormDescription = (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
+    <div className="rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
       {removeUserTarget ? (
         <>
-          <p className="font-medium text-slate-900">
+          <p className="font-medium text-foreground">
             {[
               removeUserTarget.nome ?? removeUserTarget.name ?? "",
               removeUserTarget.cognome ?? removeUserTarget.surname ?? "",
@@ -280,7 +280,7 @@ const ProjectDetail = () => {
               removeUserTarget.email ||
               `User ${removeUserTarget.id ?? removeUserTarget.user_id}`}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             {removeUserTarget.email ??
               `ID ${removeUserTarget.id ?? removeUserTarget.user_id}`}
           </p>
@@ -300,11 +300,11 @@ const ProjectDetail = () => {
           <Button
   variant="outline"
   onClick={() => navigate(backRoute)}
-  className="inline-flex items-center gap-2 border-none bg-transparent hover:bg-slate-50 py-2"
+  className="inline-flex items-center gap-2 border-none bg-transparent hover:bg-muted py-2"
 >
   {/* h-4 w-4 (16px) è la dimensione standard perfetta per i font di testo */}
-  <ArrowLeft className="h-4 w-4 text-slate-600" />
-  <span className="text-sm font-medium text-slate-600">Torna ai progetti</span>
+  <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+  <span className="text-sm font-medium text-muted-foreground">Torna ai progetti</span>
 </Button>
         </div>
 
@@ -313,16 +313,16 @@ const ProjectDetail = () => {
         ) : selectedProject ? (
           <div className="flex w-full flex-col gap-6 ">
             {isAdmin && activeSection === "checklist" ? (
-              <nav className="flex items-center gap-1.5 px-1 text-sm text-slate-500">
+              <nav className="flex items-center gap-1.5 px-1 text-sm text-muted-foreground">
                 <button
                   type="button"
                   onClick={() => setActiveSection("overview")}
-                  className="transition-colors hover:text-slate-900"
+                  className="cursor-pointer transition-colors hover:text-foreground"
                 >
                   {uppercaseFirstLetter(selectedProject.name ?? "Progetto")} — Panoramica
                 </button>
                 <ChevronRight className="h-3.5 w-3.5" />
-                <span className="font-medium text-slate-900">Checklist</span>
+                <span className="font-medium text-foreground">Checklist</span>
               </nav>
             ) : (
               <ProjectHeaderCard
@@ -383,7 +383,7 @@ const ProjectDetail = () => {
             ) : null}
           </div>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground shadow-sm">
             Nessun dettaglio progetto disponibile.
           </div>
         )}

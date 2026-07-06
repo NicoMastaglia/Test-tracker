@@ -17,29 +17,29 @@ const formatDate = (date) => {
 
 const SessionRow = ({ session, onView, index }) => {
 
-  const dateColorClass = session.status === "Completata" ? "text-emerald-700" : "text-indigo-600";
+  const dateColorClass = session.status === "Completata" ? "text-emerald-700 dark:text-emerald-400" : "text-indigo-600 dark:text-indigo-400";
 
   return (
   <TableRow
-    className="text-center cursor-pointer group transition-colors hover:bg-slate-50/50"
+    className="text-center cursor-pointer group transition-colors hover:bg-muted/50"
     onClick={() => onView?.(session.id)}
     {...getClickableRowProps(() => onView?.(session.id))}
   >
-    <TableCell className="font-mono text-slate-400">
+    <TableCell className="font-mono text-muted-foreground">
       {index}
     </TableCell>
 
     <TableCell>
-      <span className="capitalize font-medium text-slate-900">
+      <span className="capitalize font-medium text-foreground">
         {session.project_name || "Progetto non disponibile"}
       </span>
     </TableCell>
 
-    <TableCell className="text-slate-600">
+    <TableCell className="text-muted-foreground">
       {formatDate(session.started_at)}
     </TableCell>
 
-    <TableCell className={session.completed_at ? dateColorClass : "text-slate-400"}>
+    <TableCell className={session.completed_at ? dateColorClass : "text-muted-foreground"}>
       {session.completed_at
         ? formatDate(session.completed_at)
         : "Sessione ancora aperta"}

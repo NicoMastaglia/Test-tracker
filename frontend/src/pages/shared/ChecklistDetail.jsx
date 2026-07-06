@@ -308,20 +308,20 @@ const handleReopen = async (task) => {
 
         {/* breadcrumb + back button */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <nav className="flex items-center gap-1.5 text-sm text-slate-500">
-            <button onClick={() => navigate(projectsPath)} className="hover:text-slate-900 transition-colors">
-              Progetti 
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <button onClick={() => navigate(projectsPath)} className="cursor-pointer hover:text-foreground transition-colors">
+              Progetti
             </button>
             <ChevronRight className="h-3.5 w-3.5" />
-            <button onClick={() => navigate(projectPath)} className="hover:text-slate-900 transition-colors">
+            <button onClick={() => navigate(projectPath)} className="cursor-pointer hover:text-foreground transition-colors">
               {projectLabel}
             </button>
             <ChevronRight className="h-3.5 w-3.5" />
-            <button onClick={goBackToChecklist} className="hover:text-slate-900 transition-colors">
+            <button onClick={goBackToChecklist} className="cursor-pointer hover:text-foreground transition-colors">
               Checklist
             </button>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="font-medium text-slate-900">
+            <span className="font-medium text-foreground">
               {checklist?.title ?? `#${checklistId}`}
             </span>
           </nav>
@@ -352,7 +352,7 @@ const handleReopen = async (task) => {
             handleUnblock={handleUnblock}
           />
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="rounded-xl border border-border bg-card shadow-sm">
             <Loader label="Caricamento checklist..." />
           </div>
         )}

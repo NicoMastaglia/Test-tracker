@@ -39,9 +39,15 @@ const ChecklistDetailView = ({
     return filterStatus === "all" ? bySearch : bySearch.filter((task) => task.status === filterStatus);
   }, [taskItems, search, filterStatus]);
 
+  const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterStatus("all");
+  };
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <ActionBar
           search={search}
           setSearch={setSearch}
@@ -49,6 +55,8 @@ const ChecklistDetailView = ({
           buttonText={canAddTask ? "Crea Task" : null}
           onButtonClick={handleAdd}
           buttonVariant="emerald"
+          onReset={resetFilters}
+          hasActiveFilters={hasActiveFilters}
         >
           <StatusFilterPills
             filters={STATUS_FILTERS.map((status) => ({

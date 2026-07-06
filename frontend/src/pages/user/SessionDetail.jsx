@@ -102,12 +102,12 @@ const SessionDetail = () => {
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
         {/* breadcrumb + back button */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <nav className="flex items-center gap-1.5 text-sm text-slate-500">
-            <button onClick={() => navigate(backPath)} className="hover:text-slate-900 transition-colors">
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <button onClick={() => navigate(backPath)} className="cursor-pointer hover:text-foreground transition-colors">
               {listLabel}
             </button>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="font-medium text-slate-900">
+            <span className="font-medium text-foreground">
               Sessione #{id}{selectedSession?.project_name ? ` — ${selectedSession.project_name}` : ""}
             </span>
           </nav>
@@ -122,7 +122,7 @@ const SessionDetail = () => {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <PlayCircle className="h-5 w-5 text-emerald-500" />
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Badge className={`border-none px-2 py-0.5 text-xs font-medium rounded-full inline-flex items-center ${getSessionStatusBadgeClass(selectedSession.status)}`}>
                   {selectedSession.status}
                 </Badge>
@@ -173,7 +173,7 @@ const SessionDetail = () => {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           {loading ? (
             <Loader label="Caricamento sessione..." />
           ) : (
@@ -209,12 +209,12 @@ const SessionDetail = () => {
         <Dialog open={confirmReopenOpen} onOpenChange={(open) => { if (!open) setConfirmReopenOpen(false); }}>
           <DialogContent className="max-w-sm">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <DialogTitle className="flex items-center gap-2 text-foreground">
                 <RotateCcw className="h-4 w-4 text-orange-600" />
                 Riapri sessione
               </DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-muted-foreground">
               Riaprire questa sessione azzererà l'esito di tutte le task non bloccate al suo interno: il tester dovrà rivalutarle. Il tester riceverà un'email di notifica.
             </p>
             <DialogFooter className="gap-2">

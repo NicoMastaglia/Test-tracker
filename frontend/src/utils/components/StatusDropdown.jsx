@@ -20,17 +20,17 @@ const StatusDropdown = ({ currentStatus, options = [], onSelect }) => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="h-9 gap-2 rounded-lg border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow"
+          className="h-9 gap-2 rounded-lg border-border bg-card text-foreground shadow-sm transition-all hover:border-muted-foreground/40 hover:bg-muted hover:shadow"
         >
-          <RefreshCcw className="h-3.5 w-3.5 text-slate-400" />
+          <RefreshCcw className="h-3.5 w-3.5 text-muted-foreground" />
           Cambia stato
           <span className={`inline-block h-2 w-2 rounded-full ${current?.dotClass ?? "bg-slate-300"}`} />
-          <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="min-w-44">
-        <p className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+        <p className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Stato: {currentStatus ?? NOT_AVAILABLE}
         </p>
 

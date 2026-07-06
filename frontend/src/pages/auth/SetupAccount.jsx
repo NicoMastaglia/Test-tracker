@@ -35,17 +35,17 @@ const SetupAccount = () => {
 
   if (tokenValid === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-        <p className="text-sm text-slate-500">Verifica del link in corso...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <p className="text-sm text-muted-foreground">Verifica del link in corso...</p>
       </div>
     );
   }
 
   if (!tokenValid) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-        <div className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm">
-          <p className="text-sm text-red-600">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md rounded-2xl border border-red-200 dark:border-red-500/30 bg-card p-6 text-center shadow-sm">
+          <p className="text-sm text-red-600 dark:text-red-400">
             Link non valido, scaduto o già utilizzato. Richiedi un nuovo link dalla pagina di login.
           </p>
         </div>
@@ -79,14 +79,14 @@ const SetupAccount = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-1">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">Test Tracker</h1>
-          <p className="mt-1 text-md text-slate-500">Imposta la tua password per accedere alla piattaforma</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Test Tracker</h1>
+          <p className="mt-1 text-md text-muted-foreground">Imposta la tua password per accedere alla piattaforma</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="password">Password</Label>
@@ -105,7 +105,7 @@ const SetupAccount = () => {
                   type="button"
                   aria-label={showPassword ? "Nascondi password" : "Mostra password"}
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>

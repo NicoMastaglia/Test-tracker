@@ -14,14 +14,14 @@ import { getAvailableProjectStatuses } from "@/utils/helpers/statusFlow";
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
 const HEADERS = [
-  { key: "project", label: "Progetto", className: "text-slate-700 font-semibold text-sm text-center px-4 py-3" },
-  { key: "status", label: "Stato", className: "text-slate-700 font-semibold text-sm px-4 py-3" },
-  { key: "creator", label: "Creatore", className: "text-slate-700 font-semibold text-sm px-4 py-3" },
-  { key: "manager", label: "Responsabile", className: "text-slate-700 font-semibold text-sm px-4 py-3" },
-  { key: "team", label: "Team", className: "text-slate-700 font-semibold text-sm px-4 py-3" },
-  { key: "deadline", label: "Deadline", className: "text-slate-700 font-semibold text-sm px-4 py-3" },
-  { key: "updated", label: "Ultimo aggiornamento", className: "text-slate-700 font-semibold text-sm px-4 py-3" },
-  { key: "actions", label: "Azioni", className: "text-slate-700 font-semibold text-sm px-4 py-3" },
+  { key: "project", label: "Progetto", className: "text-foreground font-semibold text-sm text-center px-4 py-3" },
+  { key: "status", label: "Stato", className: "text-foreground font-semibold text-sm px-4 py-3" },
+  { key: "creator", label: "Creatore", className: "text-foreground font-semibold text-sm px-4 py-3" },
+  { key: "manager", label: "Responsabile", className: "text-foreground font-semibold text-sm px-4 py-3" },
+  { key: "team", label: "Team", className: "text-foreground font-semibold text-sm px-4 py-3" },
+  { key: "deadline", label: "Deadline", className: "text-foreground font-semibold text-sm px-4 py-3" },
+  { key: "updated", label: "Ultimo aggiornamento", className: "text-foreground font-semibold text-sm px-4 py-3" },
+  { key: "actions", label: "Azioni", className: "text-foreground font-semibold text-sm px-4 py-3" },
 ];
 
 
@@ -180,7 +180,7 @@ const ProjectTable = ({ data, users = [] }) => {
   return (
     <>
       <StandardTable
-        containerClass=""
+        containerClass="border border-border/80 rounded-xl shadow-sm overflow-hidden bg-card"
         headers={HEADERS}
         data={data}
         emptyMessage="Nessun progetto trovato."

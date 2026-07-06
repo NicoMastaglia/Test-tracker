@@ -29,10 +29,10 @@ const WelcomeCard = ({ user, subtitle }) => {
   const fullName = getFullName(user) || user?.name || "utente";
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       {/* decorazioni di sfondo */}
-      <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-emerald-100/70 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-24 right-32 h-44 w-44 rounded-full bg-teal-100/60 blur-2xl" />
+      <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-emerald-100/70 dark:bg-emerald-500/10 blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-24 right-32 h-44 w-44 rounded-full bg-teal-100/60 dark:bg-teal-500/10 blur-2xl" />
 
       <div className="relative flex flex-wrap items-center justify-between gap-4 px-6 py-6">
         <div className="flex items-center gap-4">
@@ -40,20 +40,20 @@ const WelcomeCard = ({ user, subtitle }) => {
 
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="text-2xl font-bold text-slate-900">
-                {getGreeting()}, {fullName} 
+              <h2 className="text-2xl font-bold text-foreground">
+                {getGreeting()}, {fullName}
               </h2>
               <Badge className={`border-none px-3 py-1 text-xs  ${roleInfo.className}`}>
                 <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current" />
-                {roleInfo.label} 
+                {roleInfo.label}
               </Badge>
             </div>
 
-            <p className="mt-1.5 text-sm text-slate-500">{subtitle}</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">{subtitle}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-sm text-slate-600 shadow-sm backdrop-blur">
+        <div className="flex items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur">
           <CalendarDays className="h-4 w-4 text-emerald-500" />
           {getTodayLabel()}
         </div>

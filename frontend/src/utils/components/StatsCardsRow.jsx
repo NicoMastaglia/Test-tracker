@@ -1,15 +1,15 @@
 import { Progress } from "@/Components/ui/progress";
 
 // Singola card statistica: icona + valore in evidenza + etichetta
-export const StatCard = ({ icon, iconColor = "text-blue-600", bgIcon = "bg-blue-100", label, value, className = "", onClick, active = false, activeClass = "border-slate-400 ring-2 ring-slate-300 ring-offset-1" }) => {
+export const StatCard = ({ icon, iconColor = "text-blue-600", bgIcon = "bg-blue-100", label, value, className = "", onClick, active = false, activeClass = "border-slate-400 ring-2 ring-slate-300 ring-offset-1 dark:border-slate-500 dark:ring-slate-600" }) => {
   const Icon = icon;
 
   return (
     <div
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-2xl border bg-white p-4 shadow-sm transition-all
-        ${onClick ? "cursor-pointer hover:border-slate-300" : ""}
-        ${active ? activeClass : "border-slate-200"}
+      className={`flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm transition-all
+        ${onClick ? "cursor-pointer hover:border-muted-foreground/40" : ""}
+        ${active ? activeClass : "border-border"}
         ${className}`}
     >
       {Icon && (
@@ -18,8 +18,8 @@ export const StatCard = ({ icon, iconColor = "text-blue-600", bgIcon = "bg-blue-
         </div>
       )}
       <div className="min-w-0">
-        <div className="text-2xl leading-tight font-bold text-slate-900">{value}</div>
-        <p className="truncate text-xs text-slate-500">{label}</p>
+        <div className="text-2xl leading-tight font-bold text-foreground">{value}</div>
+        <p className="truncate text-xs text-muted-foreground">{label}</p>
       </div>
     </div>
   );
@@ -32,9 +32,9 @@ export const CompletionStatCard = ({ icon, iconColor = "text-emerald-600", bgIco
   return (
     <div
       onClick={onClick}
-      className={`flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm transition-all
-        ${onClick ? "cursor-pointer hover:border-slate-300" : ""}
-        ${active ? "border-slate-400 ring-2 ring-slate-300 ring-offset-1" : "border-slate-200"}
+      className={`flex flex-col gap-3 rounded-2xl border bg-card p-4 shadow-sm transition-all
+        ${onClick ? "cursor-pointer hover:border-muted-foreground/40" : ""}
+        ${active ? "border-slate-400 ring-2 ring-slate-300 ring-offset-1 dark:border-slate-500 dark:ring-slate-600" : "border-border"}
         ${className}`}
     >
       <div className="flex items-center gap-3">
@@ -45,13 +45,13 @@ export const CompletionStatCard = ({ icon, iconColor = "text-emerald-600", bgIco
           </div>
         )}
         <div className="min-w-0">
-          <div className="text-2xl leading-tight font-bold text-slate-900">{value}</div>
-          <p className="truncate text-xs text-slate-500">{label}</p>
+          <div className="text-2xl leading-tight font-bold text-foreground">{value}</div>
+          <p className="truncate text-xs text-muted-foreground">{label}</p>
         </div>
       </div>
 
       {typeof progress === "number" && (
-        <Progress value={progress} className="h-1.5 bg-slate-100 [&>div]:bg-emerald-500" />
+        <Progress value={progress} className="h-1.5 bg-muted [&>div]:bg-emerald-500" />
       )}
     </div>
   );

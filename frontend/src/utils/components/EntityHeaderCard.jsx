@@ -3,7 +3,7 @@
 // azioni opzionali in alto a destra e footer opzionale
 const EntityHeaderCard = ({
   icon: Icon,
-  iconClassName = "bg-emerald-50 border border-emerald-100/50 text-emerald-600",
+  iconClassName = "bg-emerald-50 border border-emerald-100/50 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400",
   title,
   badge,
   description,
@@ -12,7 +12,7 @@ const EntityHeaderCard = ({
   children,
 }) => {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <div className="px-5 py-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           {/* Blocco sinistro: icona + titolo/badge/descrizione */}
@@ -25,12 +25,12 @@ const EntityHeaderCard = ({
 
             <div className="space-y-1.5 min-w-0">
               <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{title}</h2>
+                <h2 className="text-2xl font-bold text-foreground tracking-tight">{title}</h2>
                 {badge}
               </div>
 
               {description && (
-                <div className="text-sm text-slate-400 font-medium">{description}</div>
+                <div className="text-sm text-muted-foreground font-medium">{description}</div>
               )}
             </div>
           </div>

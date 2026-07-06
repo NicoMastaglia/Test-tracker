@@ -21,7 +21,7 @@ const StandardTable = ({
   emptyMessage = "Nessun dato trovato.",
   emptyIcon: EmptyIcon,
   emptyAction,
-  containerClass = "mx-auto my-8 max-w-300 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+  containerClass = "mx-auto my-8 max-w-300 overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
   pageSize = 10,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,10 +38,10 @@ const StandardTable = ({
     <div className={containerClass}>
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader className="bg-slate-50">
-            <TableRow className="bg-slate-50 hover:bg-slate-50 center">
+          <TableHeader className="bg-muted/50">
+            <TableRow className="bg-muted/50 hover:bg-muted/50 center">
               {headers.map((h, idx) => (
-                <TableHead key={h.key ?? idx} className={`${h.className ?? "font-semibold text-slate-900"} text-center`}>
+                <TableHead key={h.key ?? idx} className={`${h.className ?? "font-semibold text-foreground"} text-center`}>
                   {h.label}
                 </TableHead>
               ))}
@@ -58,11 +58,11 @@ const StandardTable = ({
                 <TableCell colSpan={Math.max(headers.length, 1)} className="p-0 text-center">
                   <div className="flex min-h-64 flex-col items-center justify-center gap-3">
                     {EmptyIcon && (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-muted-foreground">
                         <EmptyIcon className="h-6 w-6" />
                       </div>
                     )}
-                    <span className="text-sm text-slate-500">{emptyMessage}</span>
+                    <span className="text-sm text-muted-foreground">{emptyMessage}</span>
                     {emptyAction}
                   </div>
                 </TableCell>
@@ -73,8 +73,8 @@ const StandardTable = ({
       </div>
 
       {data.length > pageSize && (
-        <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3">
-          <span className="text-xs text-slate-500">
+        <div className="flex items-center justify-between border-t border-border px-4 py-3">
+          <span className="text-xs text-muted-foreground">
             Pagina {safePage} di {totalPages} · {data.length} risultati
           </span>
           <div className="flex items-center gap-1">

@@ -82,10 +82,10 @@ const AdminDashboard = () => {
 
              {/* Azioni rapide */}
              <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-7 mt-6">
-                 <Card className="col-span-full border-slate-200 bg-white shadow-sm">
+                 <Card className="col-span-full border-border bg-card shadow-sm">
                    <CardHeader>
-                     <CardTitle className="flex items-center gap-2 text-slate-900">
-                       <Zap className="h-4 w-4 text-slate-400" />
+                     <CardTitle className="flex items-center gap-2 text-foreground">
+                       <Zap className="h-4 w-4 text-muted-foreground" />
                        Azioni rapide
                      </CardTitle>
                    </CardHeader>
@@ -98,7 +98,7 @@ const AdminDashboard = () => {
                            key={action.title}
                            type="button"
                            onClick={action.onClick}
-                           className="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
+                           className="group flex items-center justify-between gap-4 rounded-2xl border border-border bg-card px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
                          >
                            <div className="flex min-w-0 items-start gap-3">
                              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${action.iconClass}`}>
@@ -106,12 +106,12 @@ const AdminDashboard = () => {
                              </div>
 
                              <div className="min-w-0">
-                               <p className="text-sm text-slate-900">{action.title}</p>
-                               <p className="mt-1 text-sm text-slate-500">{action.description}</p>
+                               <p className="text-sm text-foreground">{action.title}</p>
+                               <p className="mt-1 text-sm text-muted-foreground">{action.description}</p>
                              </div>
                            </div>
 
-                           <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-900" />
+                           <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:text-foreground" />
                          </button>
                        );
                      })}

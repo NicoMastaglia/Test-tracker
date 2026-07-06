@@ -12,10 +12,10 @@ import UserAvatar from "@/utils/components/UserAvatar";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 
 const HEADERS = [
-  { key: "user", label: "Utente", className: "font-semibold text-slate-900" },
-  { key: "email", label: "Email", className: "font-semibold text-slate-900" },
-  { key: "role", label: "Ruolo", className: "font-semibold text-slate-900" },
-  { key: "actions", label: "Azioni", className: "w-24 font-semibold text-slate-900" },
+  { key: "user", label: "Utente", className: "font-semibold text-foreground" },
+  { key: "email", label: "Email", className: "font-semibold text-foreground" },
+  { key: "role", label: "Ruolo", className: "font-semibold text-foreground" },
+  { key: "actions", label: "Azioni", className: "w-24 font-semibold text-foreground" },
 ];
 
 const ManageUsers = ({ data }) => {
@@ -45,19 +45,19 @@ const ManageUsers = ({ data }) => {
         renderRow={(userItem) => (
           <TableRow
             key={userItem.id}
-            className={`group transition-colors hover:bg-slate-50 ${user.id === userItem.id ? "bg-emerald-50 hover:bg-emerald-100" : ""}`}
+            className={`group transition-colors hover:bg-muted ${user.id === userItem.id ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/15" : ""}`}
           >
-            <TableCell className="text-center text-slate-900">
+            <TableCell className="text-center text-foreground">
               <div className="flex items-center justify-center gap-3">
                 <UserAvatar user={userItem} size="sm" />
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-foreground">
                   {getFullName(userItem)}
-                  {user.id === userItem.id ? <span className="font-normal text-slate-500"> (tu)</span> : ''}
+                  {user.id === userItem.id ? <span className="font-normal text-muted-foreground"> (tu)</span> : ''}
                 </span>
               </div>
             </TableCell>
 
-            <TableCell className="text-center font-normal text-slate-500">
+            <TableCell className="text-center font-normal text-muted-foreground">
               {userItem.email}
             </TableCell>
 
@@ -71,7 +71,7 @@ const ManageUsers = ({ data }) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate(`/admin/users/${userItem.id}`)}
-                  className="h-9 cursor-pointer rounded-lg px-3 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  className="h-9 cursor-pointer rounded-lg px-3 text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   Dettagli
@@ -80,7 +80,7 @@ const ManageUsers = ({ data }) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => fetchUserById(userItem.id)}
-                  className="h-9 cursor-pointer rounded-lg px-3 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                  className="h-9 cursor-pointer rounded-lg px-3 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-500/10"
                 >
                   <UserCog className="mr-2 h-4 w-4" />
                   Modifica

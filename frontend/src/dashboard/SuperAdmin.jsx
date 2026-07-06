@@ -97,10 +97,10 @@ const SuperAdminDashboard = ({ navigate }) => {
   const previewSessions = sessionList.slice(0, 5);
 
   const sessionPreviewHeaders = [
-    { key: "project", label: "Progetto", className: "text-left font-semibold text-slate-900 px-4 py-3" },
-    { key: "tester", label: "Tester", className: "text-left font-semibold text-slate-900 px-4 py-3" },
-    { key: "started", label: "Avvio", className: "text-left font-semibold text-slate-900 px-4 py-3" },
-    { key: "status", label: "Stato", className: "text-left font-semibold text-slate-900 px-4 py-3" },
+    { key: "project", label: "Progetto", className: "text-left font-semibold text-foreground px-4 py-3" },
+    { key: "tester", label: "Tester", className: "text-left font-semibold text-foreground px-4 py-3" },
+    { key: "started", label: "Avvio", className: "text-left font-semibold text-foreground px-4 py-3" },
+    { key: "status", label: "Stato", className: "text-left font-semibold text-foreground px-4 py-3" },
   ];
 
   return (
@@ -114,9 +114,9 @@ const SuperAdminDashboard = ({ navigate }) => {
       <StatsCardsRow stats={kpiItems} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" />
 
       {/* Azioni rapide, sopra le tabelle: priorità più alta dell'audit/sessioni */}
-      <Card className="border-slate-200 bg-white shadow-sm">
+      <Card className="border-border bg-card shadow-sm">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-slate-900">Azioni rapide</CardTitle>
+          <CardTitle className="text-sm font-semibold text-foreground">Azioni rapide</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {quickActions.map((action) => {
@@ -125,7 +125,7 @@ const SuperAdminDashboard = ({ navigate }) => {
               <button
                 key={action.title}
                 type="button"
-                className="cursor-pointer group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
+                className="cursor-pointer group flex items-center justify-between gap-4 rounded-2xl border border-border bg-card px-4 py-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
                 onClick={() => navigate(action.path)}
               >
                 <div className="flex min-w-0 items-start gap-3">
@@ -133,11 +133,11 @@ const SuperAdminDashboard = ({ navigate }) => {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-900">{action.title}</p>
-                    <p className="mt-1 text-sm text-slate-500">{action.description}</p>
+                    <p className="text-sm font-medium text-foreground">{action.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{action.description}</p>
                   </div>
                 </div>
-                <ArrowRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-900" />
+                <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1 group-hover:text-foreground" />
               </button>
             );
           })}
@@ -146,13 +146,13 @@ const SuperAdminDashboard = ({ navigate }) => {
 
       {/* Audit (sinistra) + Sessioni anteprima (destra) */}
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-4 border-slate-200 bg-white shadow-sm flex flex-col">
-          <CardHeader className="border-b border-slate-200 pb-4 flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-slate-900">
-              <ShieldAlert className="h-4 w-4 text-slate-400" />
+        <Card className="col-span-4 border-border bg-card shadow-sm flex flex-col">
+          <CardHeader className="border-b border-border pb-4 flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <ShieldAlert className="h-4 w-4 text-muted-foreground" />
               Attività Recente: Audit Log
             </CardTitle>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-slate-600" onClick={() => navigate("/admin/audit-log")}>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate("/admin/audit-log")}>
               Vedi tutto
               <ArrowRight className="h-3.5 w-3.5" />
             </Button>
@@ -162,13 +162,13 @@ const SuperAdminDashboard = ({ navigate }) => {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 border-slate-200 bg-white shadow-sm flex flex-col">
-          <CardHeader className="border-b border-slate-200 pb-4 flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-slate-900">
-              <PlayCircle className="h-4 w-4 text-slate-400" />
+        <Card className="col-span-3 border-border bg-card shadow-sm flex flex-col">
+          <CardHeader className="border-b border-border pb-4 flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <PlayCircle className="h-4 w-4 text-muted-foreground" />
               Sessioni
             </CardTitle>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-slate-600" onClick={() => navigate("/admin/sessions")}>
+            <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground" onClick={() => navigate("/admin/sessions")}>
               Vedi tutto
               <ArrowRight className="h-3.5 w-3.5" />
             </Button>
@@ -185,17 +185,17 @@ const SuperAdminDashboard = ({ navigate }) => {
                 return (
                   <TableRow
                     key={session.id}
-                    className="cursor-pointer hover:bg-slate-50/60"
+                    className="cursor-pointer hover:bg-muted/60"
                     onClick={() => navigate(`/sessions/${session.id}`)}
                     {...getClickableRowProps(() => navigate(`/sessions/${session.id}`))}
                   >
-                    <TableCell className="px-4 py-2.5 font-medium text-slate-900">
+                    <TableCell className="px-4 py-2.5 font-medium text-foreground">
                       {session.project_name ?? "—"}
                     </TableCell>
-                    <TableCell className="px-4 py-2.5 text-slate-700">
+                    <TableCell className="px-4 py-2.5 text-foreground/80">
                       {testerName}
                     </TableCell>
-                    <TableCell className="px-4 py-2.5 text-slate-600 text-xs">
+                    <TableCell className="px-4 py-2.5 text-muted-foreground text-xs">
                       {getRelativeTime(session.started_at)}
                     </TableCell>
                     <TableCell className="px-4 py-2.5">

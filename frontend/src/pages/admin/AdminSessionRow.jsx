@@ -5,18 +5,18 @@ import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass, getFullName, fo
 import UserAvatar from "@/utils/components/UserAvatar";
 
 const AdminSessionRow = ({ session, index, onView }) => {
-  const dateColorClass = session.status === "Completata" ? "text-emerald-700" : "text-indigo-600";
+  const dateColorClass = session.status === "Completata" ? "text-emerald-700 dark:text-emerald-400" : "text-indigo-600 dark:text-indigo-400";
 
   return (
     <TableRow
-      className={`text-center transition-colors hover:bg-slate-50/50 ${onView ? "cursor-pointer" : ""}`}
+      className={`text-center transition-colors hover:bg-muted/50 ${onView ? "cursor-pointer" : ""}`}
       onClick={() => onView?.(session.id)}
       {...(onView ? getClickableRowProps(() => onView(session.id)) : {})}
     >
-      <TableCell className="font-mono text-slate-400">{index}</TableCell>
+      <TableCell className="font-mono text-muted-foreground">{index}</TableCell>
 
       <TableCell>
-        <span className="capitalize font-medium text-slate-900">
+        <span className="capitalize font-medium text-foreground">
           {session.project_name || "Progetto non disponibile"}
         </span>
       </TableCell>
@@ -24,15 +24,15 @@ const AdminSessionRow = ({ session, index, onView }) => {
       <TableCell>
         <div className="flex items-center justify-center gap-2">
           <UserAvatar user={{ nome: session.tester_nome, cognome: session.tester_cognome }} size="sm" />
-          <span className="capitalize font-semibold text-slate-900">
+          <span className="capitalize font-semibold text-foreground">
             {getFullName({ nome: session.tester_nome, cognome: session.tester_cognome })}
           </span>
         </div>
       </TableCell>
 
-      <TableCell className="text-slate-600">{formatProjectDateTime(session.started_at)}</TableCell>
+      <TableCell className="text-muted-foreground">{formatProjectDateTime(session.started_at)}</TableCell>
 
-      <TableCell className={session.completed_at ? dateColorClass : "text-slate-400"}>
+      <TableCell className={session.completed_at ? dateColorClass : "text-muted-foreground"}>
         {session.completed_at ? formatProjectDateTime(session.completed_at) : "Sessione ancora aperta"}
       </TableCell>
 

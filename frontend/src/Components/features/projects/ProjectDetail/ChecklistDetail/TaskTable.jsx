@@ -18,7 +18,7 @@ const getTaskActions = (task, handlers) => [
     key: "assign",
     show: !task.assigned_to && task.status !== "Archiviata" && task.status !== "Completata",
     icon: UserPlus,
-    color: "text-blue-600 hover:text-blue-600 hover:bg-blue-100",
+    color: "text-blue-600 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-500/15",
     label: "Assegna Tester",
 
     onClick: () => handlers.handleAssign(task),
@@ -27,7 +27,7 @@ const getTaskActions = (task, handlers) => [
     key: "unassign",
     show: !!task.assigned_to && task.status !== "Archiviata" && task.status !== "Completata",
     icon: UserMinus,
-    color: "text-amber-500 hover:text-amber-500 hover:bg-amber-100",
+    color: "text-amber-500 hover:text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-500/15",
     label: "Rimuovi Tester",
     onClick: () => handlers.handleUnassign(task),
   },
@@ -35,7 +35,7 @@ const getTaskActions = (task, handlers) => [
     key: "edit",
     show: task.status !== "Archiviata" && task.status !== "Completata",
     icon: Pencil,
-    color: "text-emerald-600 hover:text-emerald-600 hover:bg-emerald-100",
+    color: "text-emerald-600 hover:text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-500/15",
     label: "Modifica Task",
     onClick: () => handlers.handleEdit(task),
   },
@@ -43,7 +43,7 @@ const getTaskActions = (task, handlers) => [
     key: "delete",
     show: true, // sempre disponibile
     icon: Trash2,
-    color: "text-red-600 hover:text-red-600 hover:bg-red-100",
+    color: "text-red-600 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-500/15",
     label: "Elimina Task",
     onClick: () => handlers.handleDelete(task),
   },
@@ -51,7 +51,7 @@ const getTaskActions = (task, handlers) => [
     key: "block",
     show: task.status !== "Bloccata" && task.status !== "Archiviata" && task.status !== "Completata",
     icon: CircleSlash,
-    color: "text-orange-600 hover:text-orange-600 hover:bg-orange-100",
+    color: "text-orange-600 hover:text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-500/15",
     label: "Blocca Task",
     onClick: () => handlers.handleBlock(task),
   },
@@ -59,7 +59,7 @@ const getTaskActions = (task, handlers) => [
     key: "unblock",
     show: task.status === "Bloccata",
     icon: LockOpen,
-    color: "text-teal-600 hover:text-teal-600 hover:bg-teal-100",
+    color: "text-teal-600 hover:text-teal-600 hover:bg-teal-100 dark:hover:bg-teal-500/15",
     label: "Sblocca Task",
     onClick: () => handlers.handleUnblock(task),
   },
@@ -67,7 +67,7 @@ const getTaskActions = (task, handlers) => [
     key: "archive",
     show: task.status === "Completata",
     icon: Archive,
-    color: "text-slate-500 hover:text-slate-500 hover:bg-slate-100",
+    color: "text-slate-500 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-500/15",
     label: "Archivia Task",
     onClick: () => handlers.handleArchive(task),
   },
@@ -75,7 +75,7 @@ const getTaskActions = (task, handlers) => [
     key: "reopen",
     show: task.status === "Archiviata",
     icon: RotateCcw,
-    color: "text-teal-600 hover:text-teal-600 hover:bg-teal-100",
+    color: "text-teal-600 hover:text-teal-600 hover:bg-teal-100 dark:hover:bg-teal-500/15",
     label: "Riapri Task",
     onClick: () => handlers.handleReopen(task),
   },
@@ -91,22 +91,22 @@ const BASE_HEADERS = [
   {
     key: "description",
     label: "Descrizione",
-    className: "text-center font-semibold text-slate-900 px-5 py-3.5 w-32",
+    className: "text-center font-semibold text-foreground px-5 py-3.5 w-32",
   },
   {
     key: "tester",
     label: "Tester",
-    className: "text-center font-semibold text-slate-900 px-5 py-3.5 w-32",
+    className: "text-center font-semibold text-foreground px-5 py-3.5 w-32",
   },
   {
     key: "deadline",
     label: "Scadenza",
-    className: "text-center font-semibold text-slate-900 px-5 py-3.5 w-32",
+    className: "text-center font-semibold text-foreground px-5 py-3.5 w-32",
   },
   {
     key: "status",
     label: "Stato",
-    className: "text-center font-semibold text-slate-900 px-5 py-3.5 w-32",
+    className: "text-center font-semibold text-foreground px-5 py-3.5 w-32",
   },
 
 ];
@@ -114,7 +114,7 @@ const BASE_HEADERS = [
 const ACTIONS_HEADER = {
   key: "azioni",
   label: "Azioni",
-  className: "text-center font-semibold text-slate-900 px-5 py-3.5 w-32",
+  className: "text-center font-semibold text-foreground px-5 py-3.5 w-32",
 };
 
 const TaskTable = ({
@@ -144,7 +144,7 @@ const TaskTable = ({
       const deadlineStatus = getDeadlineStatus(task.deadline, isTaskDone);
 
       return (
-      <TableRow key={task.id} className="group transition-colors hover:bg-slate-50/50">
+      <TableRow key={task.id} className="group transition-colors hover:bg-muted/50">
         {/* 1. CELLA: # */}
         {/* <TableCell className="text-center font-mono text-slate-400 px-4 py-3.5">
           {index+1 }
@@ -152,14 +152,14 @@ const TaskTable = ({
 
         {/* 2. CELLA: DESCRIZIONE */}
         <TableCell className="text-center px-5 py-3.5">
-          <span className="font-semibold text-slate-900 text-sm">
+          <span className="font-semibold text-foreground text-sm">
             {uppercaseFirstLetter(task.description) || "Nessuna descrizione"}
           </span>
         </TableCell>
 
         {/* 3. CELLA: STato */}
         <TableCell className="text-center px-5 py-3.5">
-          <span className="font-semibold text-slate-900 text-sm">
+          <span className="font-semibold text-foreground text-sm">
             {assignedTester ? (
               <Tooltip key={`tester-${assignedTester.id}`}>
                 <TooltipContent>
@@ -193,7 +193,7 @@ const TaskTable = ({
             {task.latest_outcome === "Negativo" && (
               <Tooltip>
                 <TooltipTrigger>
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-600">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400">
                     <ThumbsDown className="h-3 w-3" />
                   </span>
                 </TooltipTrigger>

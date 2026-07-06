@@ -1,11 +1,13 @@
 const pillClass = (isActive) =>
-  `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-    isActive ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+  `inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+    isActive
+      ? "bg-foreground text-background"
+      : "bg-muted text-muted-foreground hover:bg-muted/70"
   }`;
 
 const countClass = (isActive) =>
   `rounded-full px-1.5 py-px text-[10px] font-semibold tabular-nums ${
-    isActive ? "bg-white/20 text-white" : "bg-white text-slate-500"
+    isActive ? "bg-background/20 text-background" : "bg-card text-muted-foreground"
   }`;
 
 const StatusFilterPills = ({

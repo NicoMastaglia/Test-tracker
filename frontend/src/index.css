@@ -235,43 +235,45 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* DEPRECATED: previous dark navy/emerald theme, no longer applied (no .dark class on <html>).
-   Kept for reference only.
+/* Tema scuro: stessa scala slate + emerald del tema chiaro, solo invertita in
+   luminosità, così l'identità visiva resta la stessa passando da un tema
+   all'altro (nessun nuovo hue introdotto). La sidebar era già scura anche in
+   light mode: i suoi token restano invariati e già coerenti con questo tema. */
 .dark {
 
-  --background: #07142B;
+  --background: #0F172A;
 
-  --foreground: #F5F7FA;
+  --foreground: #E2E8F0;
 
-  --card: #0B1F45;
+  --card: #1E293B;
 
-  --card-foreground: #F5F7FA;
+  --card-foreground: #E2E8F0;
 
-  --popover: #0B1F45;
+  --popover: #1E293B;
 
-  --popover-foreground: #F5F7FA;
+  --popover-foreground: #E2E8F0;
 
   --primary: #10B981;
 
-  --primary-foreground: #F5F7FA;
+  --primary-foreground: #FFFFFF;
 
-  --secondary: #0E3B52;
+  --secondary: #1E293B;
 
-  --secondary-foreground: #F5F7FA;
+  --secondary-foreground: #E2E8F0;
 
-  --muted: #0E3B52;
+  --muted: #1E293B;
 
   --muted-foreground: #94A3B8;
 
-  --accent: #0E3B52;
+  --accent: #1E293B;
 
-  --accent-foreground: #F5F7FA;
+  --accent-foreground: #E2E8F0;
 
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: #EF4444;
 
-  --border: oklch(1 0 0 / 10%);
+  --border: #334155;
 
-  --input: oklch(1 0 0 / 15%);
+  --input: #334155;
 
   --ring: #10B981;
 
@@ -285,23 +287,30 @@
 
   --chart-5: oklch(0.269 0 0);
 
-  --sidebar: #07142B;
+  --sidebar: #0F172A;
 
-  --sidebar-foreground: #F5F7FA;
+  --sidebar-foreground: #FFFFFF;
 
   --sidebar-primary: #10B981;
 
-  --sidebar-primary-foreground: #07142B;
+  --sidebar-primary-foreground: #FFFFFF;
 
-  --sidebar-accent: #0E3B52;
+  --sidebar-accent: #1E293B;
 
-  --sidebar-accent-foreground: #F5F7FA;
+  --sidebar-accent-foreground: #FFFFFF;
 
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-border: #1E293B;
 
   --sidebar-ring: #10B981;
+
+  --primary-hover: #34D399;
+
+  --success: #22C55E;
+
+  --warning: #FBBF24;
+
+  --danger: #F87171;
 }
-*/
 
 @layer base {
   * {

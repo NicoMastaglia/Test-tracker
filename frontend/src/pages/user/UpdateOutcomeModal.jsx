@@ -30,7 +30,7 @@ const UpdateOutcomeModal = ({ modalOpen, setModalOpen, task, onSubmit }) => {
     <Dialog open={modalOpen} onOpenChange={setModalOpen}>
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-foreground">
             <ClipboardCheck className="h-5 w-5 text-emerald-500" />
             Aggiorna esito
           </DialogTitle>
@@ -39,13 +39,13 @@ const UpdateOutcomeModal = ({ modalOpen, setModalOpen, task, onSubmit }) => {
 
         <form onSubmit={handleSubmit} className="grid gap-4 py-2">
           <div className="grid gap-2">
-            <Label className="text-slate-900">Esito</Label>
+            <Label className="text-foreground">Esito</Label>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setOutcome("Positivo")}
-                className={outcome === "Positivo" ? "border-emerald-500 bg-emerald-50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700" : ""}
+                className={outcome === "Positivo" ? "border-emerald-500 bg-emerald-50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/10 dark:text-emerald-400" : ""}
               >
                 <ThumbsUp className="h-4 w-4" />
                 Positivo
@@ -54,7 +54,7 @@ const UpdateOutcomeModal = ({ modalOpen, setModalOpen, task, onSubmit }) => {
                 type="button"
                 variant="outline"
                 onClick={() => setOutcome("Negativo")}
-                className={outcome === "Negativo" ? "border-red-500 bg-red-50 text-red-700 hover:bg-red-50 hover:text-red-700" : ""}
+                className={outcome === "Negativo" ? "border-red-500 bg-red-50 text-red-700 hover:bg-red-50 hover:text-red-700 dark:bg-red-500/10 dark:hover:bg-red-500/10 dark:text-red-400" : ""}
               >
                 <ThumbsDown className="h-4 w-4" />
                 Negativo
@@ -63,7 +63,7 @@ const UpdateOutcomeModal = ({ modalOpen, setModalOpen, task, onSubmit }) => {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="outcome-note" className="text-slate-900">
+            <Label htmlFor="outcome-note" className="text-foreground">
               Nota (opzionale)
             </Label>
             <Textarea
@@ -76,7 +76,7 @@ const UpdateOutcomeModal = ({ modalOpen, setModalOpen, task, onSubmit }) => {
           </div>
 
           <DialogFooter className="flex gap-2 sm:gap-0">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="hover:bg-slate-100">
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="hover:bg-muted">
               Annulla
             </Button>
             <Button

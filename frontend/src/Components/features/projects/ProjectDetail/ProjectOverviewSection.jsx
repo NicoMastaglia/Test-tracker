@@ -15,8 +15,8 @@ import {formatProjectDateTime} from "@/utils/helpers/tableHelpers";
 
 // Contenitore card standard usato in tutta la sezione overview
 const SectionCard = ({ title, className = "", children }) => (
-  <div className={`rounded-2xl border border-slate-200 bg-white p-6 shadow-sm ${className}`}>
-    <h3 className="mb-3 text-base font-semibold text-slate-900">{title}</h3>
+  <div className={`rounded-2xl border border-border bg-card p-6 shadow-sm ${className}`}>
+    <h3 className="mb-3 text-base font-semibold text-foreground">{title}</h3>
     {children}
   </div>
 );
@@ -26,12 +26,12 @@ const InfoRow = ({ label, icon, children }) => {
   const Icon = icon;
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5 last:border-b-0">
-      <span className="flex items-center gap-2 text-sm text-slate-500">
-        {Icon && <Icon className="h-4 w-4 text-slate-400" />}
+    <div className="flex items-center justify-between gap-4 border-b border-border py-2.5 last:border-b-0">
+      <span className="flex items-center gap-2 text-sm text-muted-foreground">
+        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
         {label}
       </span>
-      <span className="max-w-[60%] text-right text-sm font-medium text-slate-700">
+      <span className="max-w-[60%] text-right text-sm font-medium text-foreground">
         {children}
       </span>
     </div>
@@ -43,13 +43,13 @@ const StatBox = ({ label, value, icon, iconColor, bgIcon }) => {
   const Icon = icon;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
+    <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
       <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${bgIcon}`}>
         <Icon className={`h-5 w-5 ${iconColor}`} />
       </div>
       <div className="min-w-0">
-        <p className="text-xl leading-tight font-bold text-slate-900">{value}</p>
-        <p className="truncate text-xs text-slate-500">{label}</p>
+        <p className="text-xl leading-tight font-bold text-foreground">{value}</p>
+        <p className="truncate text-xs text-muted-foreground">{label}</p>
       </div>
     </div>
   );
@@ -87,7 +87,7 @@ const TimelineCard = ({ projectInfoItems }) => (
 
           // Se la deadline è scaduta, mostro il testo in rosso
           
-          <span className={`font-bold ${projectInfoItems.isDeadlineOverdue ? "text-red-600" : "text-slate-700"}`}>
+          <span className={`font-bold ${projectInfoItems.isDeadlineOverdue ? "text-red-600 dark:text-red-400" : "text-foreground"}`}>
             {(projectInfoItems?.deadline) } 
             <span className={`ml-2 text-xs font-medium ${projectInfoItems.colorforDeadline}`}>
             {projectInfoItems.daysToDeadline}
@@ -108,7 +108,7 @@ const TimelineCard = ({ projectInfoItems }) => (
       </InfoRow>
       <InfoRow label="Completato il" icon={CheckCircle2}>
         {projectInfoItems?.completed_at === NOT_AVAILABLE ? (
-          <span className="text-slate-400">--</span>
+          <span className="text-muted-foreground">--</span>
         ) : (
           <span className="font-bold">
             {formatProjectDateTime(projectInfoItems?.completed_at)}

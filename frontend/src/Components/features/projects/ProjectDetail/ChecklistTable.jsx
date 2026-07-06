@@ -11,27 +11,27 @@ const HEADERS = [
   {
     key: "checklist",
     label: "Checklist",
-    className: "text-center font-semibold text-slate-900 px-5 py-3.5 w-2/5",
+    className: "text-center font-semibold text-foreground px-5 py-3.5 w-2/5",
   },
   {
     key: "task",
     label: "Task",
-    className: "text-center font-semibold text-slate-900 px-4 py-3.5 w-28",
+    className: "text-center font-semibold text-foreground px-4 py-3.5 w-28",
   },
   {
     key: 'status',
     label: 'Stato',
-    className: 'text-center font-semibold text-slate-900 px-4 py-3.5 w-28',
+    className: 'text-center font-semibold text-foreground px-4 py-3.5 w-28',
   },
   {
     key: "ultimo_aggiornamento",
     label: "Ultimo aggiornamento",
-    className: "text-center font-semibold text-slate-900 px-4 py-3.5 w-44",
+    className: "text-center font-semibold text-foreground px-4 py-3.5 w-44",
   },
   {
     key: "azioni",
     label: "Azioni",
-    className: "text-center font-semibold text-slate-900 px-6 py-3.5 w-32",
+    className: "text-center font-semibold text-foreground px-6 py-3.5 w-32",
   },
 ];
 
@@ -91,7 +91,7 @@ const ChecklistTable = ({
       data={sortByDeadline(checklists)}
       emptyMessage="Nessuna checklist trovata per questo progetto."
       emptyIcon={ListTodo}
-      containerClass="border border-slate-200/80 rounded-xl shadow-sm overflow-hidden bg-white"
+      containerClass="border border-border/80 rounded-xl shadow-sm overflow-hidden bg-card"
       renderRow={(cl) => {
         const totalTasks = cl.items?.length || 0;
         const checklistStatus = getChecklistStatus(cl.items);
@@ -99,7 +99,7 @@ const ChecklistTable = ({
         return (
           <TableRow
             key={cl.checklist_id}
-            className="group transition-colors hover:bg-slate-50 cursor-pointer"
+            className="group transition-colors hover:bg-muted cursor-pointer"
             onClick={() => onOpen(cl)}
             {...getClickableRowProps(() => onOpen(cl))}
           >
@@ -107,20 +107,20 @@ const ChecklistTable = ({
             {/* 1. CELLA: INFO CHECKLIST (solo nome e descrizione, niente icona) */}
             <TableCell className="text-center px-5 py-3.5">
               <div className="flex flex-col text-left min-w-0">
-                <span className="font-semibold text-slate-900 text-sm leading-tight">
+                <span className="font-semibold text-foreground text-sm leading-tight">
                   {uppercaseFirstLetter(cl.title)}
                 </span>
-                <span className="text-xs text-slate-400 mt-0.5 truncate max-w-md">
+                <span className="text-xs text-muted-foreground mt-0.5 truncate max-w-md">
                   {uppercaseFirstLetter(cl.description) || 'Nessuna descrizione'}
                 </span>
               </div>
             </TableCell>
-            <TableCell className="text-center font-semibold text-slate-800 text-sm px-4 py-3">
+            <TableCell className="text-center font-semibold text-foreground/90 text-sm px-4 py-3">
               {totalTasks}
             </TableCell>
 
             {/* 3. CELLA: STATO */}
-            <TableCell className="text-center font-semibold text-slate-800 text-sm px-4 py-3">
+            <TableCell className="text-center font-semibold text-foreground/90 text-sm px-4 py-3">
              <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center 
               ${getChecklistStatusBadgeClass(checklistStatus)}`}>
       <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
@@ -131,7 +131,7 @@ const ChecklistTable = ({
             
 
             {/* 3. CELLA: ULTIMO AGGIORNAMENTO */}
-            <TableCell className="text-center px-4 py-3 text-xs text-slate-400 font-medium">
+            <TableCell className="text-center px-4 py-3 text-xs text-muted-foreground font-medium">
               {cl.last_updated ? formatDate(cl.last_updated) : NOT_AVAILABLE}
             </TableCell>
 
@@ -145,13 +145,13 @@ const ChecklistTable = ({
                       <TableActionButton
                         onClick={(e) => { e.stopPropagation(); handleEdit(cl); }}
                         icon={Pencil}
-                        color="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50"
+                        color="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10"
                       />
                     )}
                     <TableActionButton
                       onClick={(e) => { e.stopPropagation(); handleDelete(cl.checklist_id); }}
                       icon={Trash2}
-                      color="text-red-600 hover:text-red-700 hover:bg-red-50/50"
+                      color="text-red-600 hover:text-red-700 hover:bg-red-50/50 dark:hover:bg-red-500/10"
                     />
                   </>
                 )}

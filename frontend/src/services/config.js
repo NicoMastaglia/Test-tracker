@@ -8,9 +8,12 @@ export const  baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:30
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
+        
         const status = error.response?.status;
+        
         const url = error.config?.url || "";
         const isLoginCall = url.includes("/api/auth/login");
+        
         const hasSession = !!localStorage.getItem("auth_token");
 
         if (status === 401 && !isLoginCall && hasSession) {
