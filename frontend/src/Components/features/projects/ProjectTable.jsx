@@ -140,7 +140,7 @@ const ProjectTable = ({ data, users = [] }) => {
     } catch (error) {
       const message = error.response?.data?.error;
 
-      // da implementare lato backend un messaggio di errore specifico per stato non valido, ora gestiamo in modo generico 
+    
       if (message === "Invalid status") {
         toast.error("Stato non valido. Gli stati validi sono: Attivo, Completato, In pausa.");
         return;

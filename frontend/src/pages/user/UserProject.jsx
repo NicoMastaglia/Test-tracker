@@ -3,12 +3,13 @@ import { useProjectContext } from "@/context/Project/ProjectContext";
 import AppLayout from "@/Components/layout/AppLayout";
 import ActionBar from "@/utils/components/ActionBar";
 import UserProjectsTable from "@/Components/features/projects/UserProjectsTable";
+import Loader from "@/utils/components/Loader";
 import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import { Folder, PlayCircle, PauseCircle, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const UserProject = () => {
-  const { fetchProjects, projects } = useProjectContext();
+  const { fetchProjects, projects, loading } = useProjectContext();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -43,13 +44,17 @@ const UserProject = () => {
 
   return (
     <AppLayout page="projects" title="Progetti">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <StatsCardsRow stats={projectStats} />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar search={search} setSearch={setSearch} placeholder="Cerca tra i tuoi progetti..." />
 
-          <UserProjectsTable data={filteredProjects} handleProjectDetail={handleProjectRowClick} />
+          {loading && projects.length === 0 ? (
+            <Loader label="Caricamento progetti..." />
+          ) : (
+            <UserProjectsTable data={filteredProjects} handleProjectDetail={handleProjectRowClick} />
+          )}
         </div>
       </div>
     </AppLayout>

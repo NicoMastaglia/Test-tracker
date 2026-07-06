@@ -26,9 +26,10 @@ import {
   CommandItem,
 } from "@/Components/ui/command";
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
+import { getDeadlineStatus } from "@/utils/helpers/tableHelpers";
 
-// Modale dedicata (non ModalForm): il combobox multi-select con Command+checkbox
-// è un tipo di campo che serve solo qui, non ha senso farne un case generico.
+// Modale dedicata (non ModalForm): per multi-select con Command+checkbox
+
 // tasksByProject arriva già raggruppato dal genitore (Sessions.jsx): [{ projectId, projectName, tasks }]
 const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSubmit }) => {
   const [selectedProjectId, setSelectedProjectId] = useState("");
@@ -69,7 +70,14 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
     }
   };
 
-  const currentProjectTasks = tasksByProject.find((p) => String(p.projectId) === selectedProjectId)?.tasks ?? [];
+  const currentProjectTasks = [
+    ...(tasksByProject.find((p) => String(p.projectId) === selectedProjectId)?.tasks ?? []),
+  ].sort((a, b) => {
+    if (!a.deadline && !b.deadline) return 0;
+    if (!a.deadline) return 1;
+    if (!b.deadline) return -1;
+    return new Date(a.deadline) - new Date(b.deadline);
+  });
 
   return (
     <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
@@ -113,6 +121,7 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
                   <CommandGroup>
                     {currentProjectTasks.map((task) => {
                       const isSelected = selectedTaskIds.includes(task.id);
+                      const deadlineStatus = getDeadlineStatus(task.deadline);
                       return (
                         <CommandItem
                           key={task.id}
@@ -124,12 +133,18 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
                           >
                             {isSelected && <CheckIcon className="h-3 w-3" />}
                           </span>
-                          <span className="flex flex-col">
+                          <span className="flex min-w-0 flex-1 flex-col">
                             <span className="text-sm text-slate-900">{task.description}</span>
                             {task.checklist_title && (
                               <span className="text-xs text-slate-400">{task.checklist_title}</span>
                             )}
                           </span>
+                          {deadlineStatus.hasDeadline && (
+                            <span className={`ml-2 shrink-0 rounded-lg px-2 py-0.5 text-xs font-semibold ${deadlineStatus.colorClass}`}>
+                              {deadlineStatus.label}
+                              {deadlineStatus.isOverdue && " (scaduta)"}
+                            </span>
+                          )}
                         </CommandItem>
                       );
                     })}

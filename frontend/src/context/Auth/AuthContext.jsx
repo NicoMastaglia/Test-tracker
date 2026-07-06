@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer } from "react";
-import { loginUser, logout } from "@/services/api";
+import { loginUser, logout } from "@/services/Auth/auth";
 import { initialState, authReducer } from "./AuthReducer";
 
 const AuthContext = createContext();

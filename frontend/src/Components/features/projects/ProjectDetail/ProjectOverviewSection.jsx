@@ -86,8 +86,7 @@ const TimelineCard = ({ projectInfoItems }) => (
 
 
           // Se la deadline è scaduta, mostro il testo in rosso
-          // volendo potrei gestire una classica unica anziché una combinazione di classi per la deadline, 
-        
+          
           <span className={`font-bold ${projectInfoItems.isDeadlineOverdue ? "text-red-600" : "text-slate-700"}`}>
             {(projectInfoItems?.deadline) } 
             <span className={`ml-2 text-xs font-medium ${projectInfoItems.colorforDeadline}`}>

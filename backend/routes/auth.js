@@ -11,6 +11,61 @@ const { denyToken } = require("../auth/tokenDenylist");
 const { sendProjectEmail } = require("../utils/sendEmail");
 const router = express.Router();
 
+// pubblica, ma si autodisabilita da sola non appena esiste almeno un utente:
+// crea il primissimo account (sempre superadmin) su un deploy/DB vuoto, dove
+// /register non è ancora raggiungibile perché richiede già un token superadmin.
+// Password scelta direttamente (non il flusso email/setup-token): a questo punto
+// non esiste ancora nessun admin che possa inviarla, e SMTP potrebbe non essere configurato.
+router.post("/bootstrap", async (req, res) => {
+  const { name, surname, email, password } = req.body;
+
+  const trimmedName = name ? name.trim() : "";
+  const trimmedSurname = surname ? surname.trim() : "";
+  const trimmedEmail = email ? email.trim() : "";
+  const trimmedPassword = password ? password.trim() : "";
+
+  if (!trimmedName || !trimmedSurname || !trimmedEmail || !trimmedPassword) {
+    return res.status(400).json({ message: "Nome, cognome, email e password sono obbligatori." });
+  }
+
+  if (trimmedPassword.length < 8) {
+    return res.status(400).json({ message: "La password deve contenere almeno 8 caratteri." });
+  }
+
+  try {
+    const [countRows] = await db.execute("SELECT COUNT(*) AS count FROM user");
+    if (countRows[0].count > 0) {
+      return res.status(403).json({ message: "Bootstrap non disponibile: esiste già almeno un utente nel sistema." });
+    }
+
+    const [existing] = await db.execute("SELECT id FROM user WHERE email = ?", [trimmedEmail]);
+    if (existing.length > 0) {
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: `L'utenza con la mail ${trimmedEmail} esiste già.`,
+      });
+    }
+
+    const passwordHash = await hashPassword(trimmedPassword);
+
+    const [result] = await db.execute(
+      "INSERT INTO user (nome, cognome, email, role, password_hash, first_login) VALUES (?, ?, ?, 'superadmin', ?, 0)",
+      [trimmedName, trimmedSurname, trimmedEmail, passwordHash],
+    );
+    const userId = result.insertId;
+
+    await logActivity(userId, null, "auth.bootstrap", { email: trimmedEmail });
+
+    return res.status(201).json({
+      message: "Account superadmin creato con successo.",
+      user: { id: userId, nome: trimmedName, cognome: trimmedSurname, email: trimmedEmail, role: "superadmin" },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Errore del server" });
+  }
+});
+
 // solo il superadmin può creare nuovi utenti; la password non è richiesta —
 // l'utente la imposterà tramite il link di setup inviato via email
 router.post("/register", checkSuperadmin, async (req, res) => {

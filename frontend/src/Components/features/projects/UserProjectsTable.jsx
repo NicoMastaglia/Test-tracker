@@ -12,6 +12,7 @@ import {
   getFullName,
   getProjectStatusBadgeClass,
   uppercaseFirstLetter,
+  getClickableRowProps,
 } from "@/utils/helpers/tableHelpers";
 import UserAvatar from "@/utils/components/UserAvatar";
 
@@ -37,6 +38,7 @@ const UserProjectsTable = ({ data = [], handleProjectDetail }) => (
                 key={project.id}
                 className="group cursor-pointer transition-colors hover:bg-slate-50/60"
                 onClick={() => handleProjectDetail(project.id)}
+                {...getClickableRowProps(() => handleProjectDetail(project.id))}
               >
                 {/* 1. CELLA: INFO PROGETTO */}
                 <TableCell className="text-center px-4 py-3">

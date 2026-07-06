@@ -672,7 +672,12 @@ router.get('/task/assigned', checkUser, async (req, res) => {
     // JOIN fino a project: senza project_id il FE non può raggruppare/filtrare
     // le task assegnate per progetto (serve alla modale di creazione sessione).
     const [tasks] = await db.execute(
-      `SELECT ci.*, ct.project_id, ct.title AS checklist_title, p.name AS project_name, p.status AS project_status
+      `SELECT ci.*, ct.project_id, ct.title AS checklist_title, p.name AS project_name, p.status AS project_status,
+              EXISTS (
+                SELECT 1 FROM session_task st
+                JOIN test_session ts ON st.session_id = ts.id
+                WHERE st.checklist_item_id = ci.id AND st.outcome IS NULL AND ts.status = 'In corso'
+              ) AS in_open_session
        FROM checklist_item ci
        JOIN checklist_template ct ON ci.template_id = ct.id
        JOIN project p ON ct.project_id = p.id

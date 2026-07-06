@@ -5,7 +5,7 @@ import TaskTable from "./TaskTable";
 const STATUS_FILTERS = ["TODO", "In corso", "Completata", "Bloccata", "Archiviata"];
 
 // DETTAGLIO CHECKLIST: TABELLA DEI TASK ASSOCIATI ALLA CHECKLIST SELEZIONATA
-// (titolo/descrizione/edit/delete checklist sono già nel breadcrumb e nella lista in ChecklistSection)
+
 const ChecklistDetailView = ({
   checklist,
   handleAdd,

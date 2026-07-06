@@ -3,6 +3,7 @@
 // RESET PASSWORD
 // ASSEGNAZIONE TASK
 // ASSEGNAZIONE PROGETTO
+// sessionReopened
 
 // layout condiviso: stesso header/footer per tutte le email, solo l'accentColor
 // e il contenuto centrale cambiano in base al tipo di notifica. Stili inline e
@@ -97,6 +98,18 @@ const htmlContent = {
       <div style="margin:0;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a;font-weight:600;">
         ${options.taskDescription || "Nessuna descrizione"}
       </div>
+    `,
+    ctaLabel: "Apri Test Tracker",
+    ctaLink: link,
+  }),
+
+  sessionReopened: (user, link, options = {}) => emailLayout({
+    accentColor: "#6366f1",
+    eyebrow: "Sessione riaperta",
+    heading: "La tua sessione di test è stata riaperta",
+    bodyHtml: `
+      <p style="margin:0 0 8px;">Ciao <strong>${user.nome}</strong>,</p>
+      <p style="margin:0;">Un amministratore ha riaperto la tua sessione di test sul progetto <strong>${options.projectName}</strong>. Accedi per rivedere e correggere gli esiti delle task.</p>
     `,
     ctaLabel: "Apri Test Tracker",
     ctaLink: link,

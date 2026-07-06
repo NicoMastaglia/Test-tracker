@@ -57,7 +57,7 @@ const ManageUsers = ({ data }) => {
               </div>
             </TableCell>
 
-            <TableCell className="text-center font-medium text-slate-700">
+            <TableCell className="text-center font-normal text-slate-500">
               {userItem.email}
             </TableCell>
 

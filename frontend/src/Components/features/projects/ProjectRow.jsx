@@ -1,6 +1,5 @@
 import React from 'react';
 import { TableRow, TableCell } from "@/Components/ui/table";
-import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger} from "@/Components/ui/tooltip";
 import { Pencil, Trash2, Flag } from "lucide-react";
@@ -9,8 +8,10 @@ import {
   getCreatorName,
   getFullName,
   getProjectStatusBadgeClass,
+  getClickableRowProps,
 } from "@/utils/helpers/tableHelpers";
 import UserAvatar from "@/utils/components/UserAvatar";
+import TableActionButton from "@/utils/components/TableActionButton";
 import {  uppercaseFirstLetter  } from "@/utils/helpers/tableHelpers";
 import   {getRelativeTime}  from "@/utils/helpers/tableHelpers";
 
@@ -29,6 +30,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   key={project.id}
   className={`group transition-colors hover:bg-slate-50/60 ${canOpenProjectDetail ? "cursor-pointer" : ""}`}
   onClick={() => handleProjectRowClick(project.id)}
+  {...(canOpenProjectDetail ? getClickableRowProps(() => handleProjectRowClick(project.id)) : {})}
 >
   {/* 1. CELLA: INFO PROGETTO (Centrata) */}
   <TableCell className="text-center px-4 py-3">
@@ -138,21 +140,30 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
     <div className="flex items-center justify-center gap-1">
       {(isAdmin || isSuperadmin) && project.status !== "Completato" ? (
         <>
-          <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer text-emerald-600 hover:text-emerald-600 hover:bg-emerald-50/50" onClick={() => openEditDialog(project)}>
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer text-amber-600 hover:text-amber-600 hover:bg-amber-50/50" onClick={() => openStatusDialog(project)}>
-            <Flag className="h-4 w-4" />
-          </Button>
+          <TableActionButton
+            onClick={() => openEditDialog(project)}
+            icon={Pencil}
+            color="text-emerald-600 hover:text-emerald-600 hover:bg-emerald-50/50"
+            action="Modifica progetto"
+          />
+          <TableActionButton
+            onClick={() => openStatusDialog(project)}
+            icon={Flag}
+            color="text-amber-600 hover:text-amber-600 hover:bg-amber-50/50"
+            action="Aggiorna stato"
+          />
         </>
       ) : (isAdmin || isSuperadmin) ? null : (
         <span className="text-xs text-slate-400 font-medium">—</span>
       )}
 
       {isSuperadmin && (
-        <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer text-red-600 hover:text-red-600 hover:bg-red-50/50" onClick={() => setDeleteProjectTarget(project)}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <TableActionButton
+          onClick={() => setDeleteProjectTarget(project)}
+          icon={Trash2}
+          color="text-red-600 hover:text-red-600 hover:bg-red-50/50"
+          action="Elimina progetto"
+        />
       )}
     </div>
   </TableCell>

@@ -46,6 +46,14 @@ export const updateSessionTask = async (token,sessionId,itemId,sessionData) =>{
 }
 
 
+// self-service: il tester riapre l'esito di una singola task già inviato per errore,
+// su una sessione già "Completata" (senza dover chiedere il reopen dell'intera sessione a un admin)
+export const reopenTaskOutcome = async (token, sessionId, itemId) => {
+    const res = await axios.patch(`${baseUrl}/api/test-sessions/${sessionId}/task/${itemId}/reopen`, {}, authConfig(token));
+    return res.data;
+};
+
+
 export const getSessionDetail = async (token,sessionId) =>{
 
 

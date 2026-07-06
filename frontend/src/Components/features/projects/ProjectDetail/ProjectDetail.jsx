@@ -18,7 +18,6 @@ import ProjectActivitiesSection from "./ProjectActivitiesSection";
 import ChecklistSection from "@/Components/features/projects/ProjectDetail/ChecklistSection";
 import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
 import {useAuthContext} from "@/context/Auth/AuthContext";
-import { useAuditContext } from "@/context/Audit/AuditContext";
 import { useSessionContext } from "@/context/Session/SessionContext";
 import { toast } from "sonner";
 import {filterSearch}  from '@/utils/helpers/filterSearch'
@@ -66,9 +65,6 @@ const ProjectDetail = () => {
    const [searchUser, setSearchUser] = useState("");
    const [assigningUser, setAssigningUser] = useState(false);
 
-  const { fetchProjectAudit } = useAuditContext();
-  const [activities, setActivities] = useState([]);
-  const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [projectStats, setProjectStats] = useState(null);
 
 
@@ -103,6 +99,7 @@ const ProjectDetail = () => {
 
     if (isAdmin) {
       fetchUsers();
+
       // statistiche aggregate: rotta dedicata, solo admin/superadmin (il BE risponde 403 al tester)
       fetchProjectStats(projectId).then(setProjectStats).catch(() => setProjectStats(null));
     }
@@ -111,22 +108,6 @@ const ProjectDetail = () => {
       clearSelectedProject();
     };
   }, [projectId, isAdmin]);
-
-  useEffect(() => {
-    if (!projectId || !isAdmin || activeSection !== "activities") return;
-
-    setActivitiesLoading(true);
-    const d = new Date();
-    d.setDate(d.getDate() - 6);
-    const dateFrom7 = d.toISOString().slice(0, 10);
-    fetchProjectAudit(projectId, 100, dateFrom7)
-      .then((data) => setActivities(data?.activities ?? []))
-      .catch(() => setActivities([]))
-      .finally(() => setActivitiesLoading(false));
-  }, [projectId, isAdmin, activeSection]);
-
-
- 
 
   const handleRemoveAssignedUser = async () => {
     if (!projectId || !selectedProject || !removeUserTarget || removingUser) return;
@@ -170,7 +151,7 @@ const ProjectDetail = () => {
     setEditFormData({
       name: selectedProject?.name ?? "",
       description: selectedProject?.description ?? "",
-      // il be vuole il formato "YYYY-MM-DD" (componenti locali per evitare lo slittamento di un giorno)
+    
       deadline: toDateInputValue(selectedProject?.deadline),
     });
     setEditModalOpen(true);
@@ -210,7 +191,7 @@ const ProjectDetail = () => {
     }
   };
 
-  // esegue davvero il cambio di stato
+  
   const performStatusChange = async (status) => {
     try {
       await updateProjectStatus(Number(projectId), status);
@@ -222,8 +203,7 @@ const ProjectDetail = () => {
     }
   };
 
-  // cambio stato separato dalla modifica: parte dal dropdown "Cambia stato" nell'header.
-  // Per "Completato" chiediamo conferma (è un'azione finale: non si torna indietro e disabilita le modifiche).
+ 
   const handleChangeProjectStatus = (status) => {
     if (!projectId || !status || status === selectedProject?.status) return;
     if (status === "Completato") {
@@ -315,7 +295,7 @@ const ProjectDetail = () => {
 
   return (
     <AppLayout page="projects" hideHeader>
-      <div className="mx-auto flex w-full  flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full  flex-col gap-6 px-4 py-6 sm:px-6">
         <div className="flex items-center gap-4">
           <Button
   variant="outline"
@@ -385,7 +365,7 @@ const ProjectDetail = () => {
             ) : null}
 
             {isAdmin && activeSection === "activities" ? (
-              <ProjectActivitiesSection activities={activities} loading={activitiesLoading} currentUserId={user?.id} />
+              <ProjectActivitiesSection projectId={projectId} currentUserId={user?.id} />
             ) : null}
           </div>
         ) : (

@@ -8,6 +8,7 @@ import {
     reopenSession as reopenSessionApi,
     deleteSession as deleteSessionApi,
     updateSessionTask as updateSessionTaskApi,
+    reopenTaskOutcome as reopenTaskOutcomeApi,
     getSessionDetail as getSessionDetailApi,
 } from "@/services/Session/session";
 
@@ -53,16 +54,32 @@ export const SessionProvider = ({ children }) => {
 
     }
 
+    // self-service: riapre l'esito di una singola task su una sessione già Completata
+    const reopenTaskOutcome = async (sessionId, itemId) => {
+        dispatch({type:'SET_LOADING'})
+
+        try{
+            const token = getToken()
+
+            const result = await reopenTaskOutcomeApi(token, sessionId, itemId)
+            await fetchSessionsDetail(sessionId)
+            return result
+        }catch(error){
+            dispatch({type:'SET_ERROR',payload:error.message  })
+            throw error
+        }
+
+    }
 
 
-   
-    
+
+
+
     const fetchSessions = async (projectId) => {
         dispatch({ type: 'SET_LOADING' });
         try {
             const token = getToken();
-            // GET /api/test-sessions risponde 200 con array vuoto se non ci sono
-            // sessioni: nessun caso 404 da gestire qui, solo errori reali.
+           
             const sessions = await getSessionsApi(token, projectId);
             dispatch({ type: 'SET_SESSIONS', payload: sessions });
         } catch (error) {
@@ -134,6 +151,7 @@ export const SessionProvider = ({ children }) => {
             fetchSessions,
             createSession,
             updateSessionTask,
+            reopenTaskOutcome,
             fetchSessionsDetail,
             reopenSession,
             deleteSession,

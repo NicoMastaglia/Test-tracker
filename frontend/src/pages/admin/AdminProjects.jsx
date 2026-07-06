@@ -21,6 +21,7 @@ const AdminProjects = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   const [formData, setFormData] = useState({
     name: "",
@@ -45,26 +46,25 @@ const AdminProjects = () => {
         responsabile: "",
         deadline: "",
       });
+      setFormErrors({});
     }
   }, [modalOpen]);
 
   const handleAddProject = async () => {
     if (user?.role !== "admin" && user?.role !== "superadmin") return;
 
-    if (!formData.name || !formData.description || !formData.responsabile) {
-      toast.error("Per favore, compila tutti i campi obbligatori");
-      return;
-    }
-
+    const nextErrors = {};
+    if (!formData.name) nextErrors.name = "Il nome è obbligatorio";
+    if (!formData.description) nextErrors.description = "La descrizione è obbligatoria";
+    if (!formData.responsabile) nextErrors.responsabile = "Seleziona un responsabile";
     if (formData.deadline && isNaN(Date.parse(formData.deadline))) {
-      toast.error("La data di scadenza non è valida");
-      return;
+      nextErrors.deadline = "La data di scadenza non è valida";
+    } else if (formData.deadline && new Date(formData.deadline) < new Date()) {
+      nextErrors.deadline = "La data di scadenza non può essere nel passato";
     }
 
-    if (formData.deadline && new Date(formData.deadline) < new Date()) {
-      toast.error("La data di scadenza non può essere nel passato");
-      return;
-    }
+    setFormErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
     const newProject = {
       name: formData.name,
@@ -102,6 +102,12 @@ const AdminProjects = () => {
     
 
   const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
+
+  const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterStatus("all");
+  };
 
   // conteggi di stato dei progetti (admin: i suoi; superadmin: tutti)
   const projectStats = useMemo(() => {
@@ -157,7 +163,7 @@ const AdminProjects = () => {
 
   return (
     <AppLayout page="projects" title="Progetti">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         {/* Box riepilogo stato progetti (admin: i suoi; superadmin: tutti) */}
         <StatsCardsRow stats={projectStats} />
 
@@ -169,6 +175,8 @@ const AdminProjects = () => {
             buttonText={user?.role === "admin" || user?.role === "superadmin" ? "Nuovo progetto" : null}
             onButtonClick={user?.role === "admin" || user?.role === "superadmin" ? () => setModalOpen(true) : undefined}
             buttonVariant="emerald"
+            onReset={resetFilters}
+            hasActiveFilters={hasActiveFilters}
           />
 
           {loading && projects.length === 0 ? (
@@ -191,6 +199,7 @@ const AdminProjects = () => {
             fields={dynamicFields}
             formData={formData}
             setFormData={setFormData}
+            errors={formErrors}
             onSubmit={handleAddProject}
             submitLabel="Crea Progetto"
             loadingLabel="Creazione..."

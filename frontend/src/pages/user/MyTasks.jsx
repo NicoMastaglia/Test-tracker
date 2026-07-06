@@ -4,6 +4,7 @@ import StandardTable from "@/utils/components/StandardTable";
 import StatsCardsRow from "@/utils/components/StatsCardsRow";
 import ActionBar from "@/utils/components/ActionBar";
 import MyTaskRow from "./MyTaskRow";
+import Loader from "@/utils/components/Loader";
 import { useTaskContext } from "@/context/Task/TaskContext";
 import { ListChecks, ClipboardList, PlayCircle, CheckCircle2, CircleSlash } from "lucide-react";
 
@@ -16,7 +17,7 @@ const headers = [
 ];
 
 const MyTasks = () => {
-  const { fetchAssignedTasks, assignedTasks } = useTaskContext();
+  const { fetchAssignedTasks, assignedTasks, loading } = useTaskContext();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -25,6 +26,12 @@ const MyTasks = () => {
   }, []);
 
   const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
+
+  const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterStatus("all");
+  };
 
   const taskStats = useMemo(() => [
     { label: "Task totali", value: assignedTasks.length, icon: ListChecks, iconColor: "text-slate-600", bgIcon: "bg-slate-100", onClick: () => setFilterStatus("all"), active: filterStatus === "all" },
@@ -54,7 +61,7 @@ const MyTasks = () => {
 
   return (
     <AppLayout page="my-tasks" title="Le mie task">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <StatsCardsRow stats={taskStats} className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5" />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -62,14 +69,20 @@ const MyTasks = () => {
             search={search}
             setSearch={setSearch}
             placeholder="Cerca per progetto o descrizione..."
+            onReset={resetFilters}
+            hasActiveFilters={hasActiveFilters}
           />
-          <StandardTable
-            headers={headers}
-            data={filteredTasks}
-            emptyMessage="Nessuna task assegnata trovata."
-            emptyIcon={ListChecks}
-            renderRow={(task) => <MyTaskRow key={task.id} task={task} />}
-          />
+          {loading && assignedTasks.length === 0 ? (
+            <Loader label="Caricamento task..." />
+          ) : (
+            <StandardTable
+              headers={headers}
+              data={filteredTasks}
+              emptyMessage="Nessuna task assegnata trovata."
+              emptyIcon={ListChecks}
+              renderRow={(task) => <MyTaskRow key={task.id} task={task} />}
+            />
+          )}
         </div>
       </div>
     </AppLayout>

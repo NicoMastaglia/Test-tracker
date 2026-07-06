@@ -6,20 +6,7 @@ import AuditLogTable from "@/Components/features/audit/AuditLogTable";
 import { useAuditContext } from "@/context/Audit/AuditContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import { getFullName } from "@/utils/helpers/tableHelpers";
-
-const PRESETS = [
-  { label: "Oggi",        days: 0    },
-  { label: "Ieri + oggi", days: 1    },
-  { label: "7 giorni",   days: 6    },
-  { label: "30 giorni",  days: 29   },
-  { label: "Tutto",      days: null  },
-];
-
-const dateFromDaysAgo = (daysAgo) => {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().slice(0, 10);
-};
+import { AUDIT_DATE_PRESETS, dateFromDaysAgo } from "@/utils/helpers/auditDatePresets";
 
 const AuditLog = () => {
   const { fetchGlobalAudit } = useAuditContext();
@@ -27,19 +14,17 @@ const AuditLog = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [presetIdx, setPresetIdx] = useState(1); // default: "Ieri + oggi"
+  const [presetIdx, setPresetIdx] = useState(0); // default: "Oggi"
 
   const dateFrom = useMemo(() => {
-    const days = PRESETS[presetIdx].days;
+    const days = AUDIT_DATE_PRESETS[presetIdx].days;
     return days !== null ? dateFromDaysAgo(days) : undefined;
   }, [presetIdx]);
 
   useEffect(() => {
     setLoading(true);
     setSearch("");
-    // stesso limit per tutti i preset (era 200 solo per "Tutto": con nessun WHERE data,
-    // un limite più basso di quello dei preset filtrati faceva sembrare "Tutto" più corto
-    // di "30 giorni" quando il DB aveva più di 200 righe recenti)
+  
     fetchGlobalAudit(500, dateFrom)
       .then((data) => setActivities(data?.activities ?? []))
       .catch(() => setActivities([]))
@@ -58,7 +43,7 @@ const AuditLog = () => {
 
   return (
     <AppLayout page="audit-log" title="Audit Log">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-xs">
@@ -72,7 +57,7 @@ const AuditLog = () => {
             </div>
 
             <div className="flex items-center gap-1.5 flex-wrap">
-              {PRESETS.map((p, i) => (
+              {AUDIT_DATE_PRESETS.map((p, i) => (
                 <button
                   key={p.label}
                   onClick={() => setPresetIdx(i)}

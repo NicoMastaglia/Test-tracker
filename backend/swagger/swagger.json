@@ -334,6 +334,129 @@
         }
       }
     },
+    "/api/auth/bootstrap": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Crea il primissimo account superadmin (pubblica, si autodisabilita)",
+        "description": "Rotta pubblica (nessun token richiesto) pensata per un deploy o un database appena creato, dove nessun utente esiste ancora e /register non è raggiungibile perché richiede già un token superadmin. Crea un utente con ruolo superadmin fisso e la password scelta direttamente (a differenza di /register, qui non c'è alcun invio email/token di setup). Funziona solo se la tabella utenti è vuota: risponde 403 non appena esiste almeno un utente, anche creato manualmente via SQL diretto.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "surname": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8 }
+                },
+                "required": ["name", "surname", "email", "password"]
+              },
+              "example": {
+                "name": "Mario",
+                "surname": "Rossi",
+                "email": "mario.rossi@example.com",
+                "password": "unapasswordsicura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account superadmin creato con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer" },
+                        "nome": { "type": "string" },
+                        "cognome": { "type": "string" },
+                        "email": { "type": "string" },
+                        "role": { "type": "string", "enum": ["superadmin"] }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Account superadmin creato con successo.",
+                  "user": {
+                    "id": 1,
+                    "nome": "Mario",
+                    "cognome": "Rossi",
+                    "email": "mario.rossi@example.com",
+                    "role": "superadmin"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Campi mancanti, password troppo corta o email già esistente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingFields": {
+                    "value": {
+                      "message": "Nome, cognome, email e password sono obbligatori."
+                    }
+                  },
+                  "passwordTooShort": {
+                    "value": {
+                      "message": "La password deve contenere almeno 8 caratteri."
+                    }
+                  },
+                  "emailExists": {
+                    "value": {
+                      "error": "Richiesta non valida",
+                      "message": "L'utenza con la mail mario.rossi@example.com esiste già."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Bootstrap non disponibile: esiste già almeno un utente nel sistema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Bootstrap non disponibile: esiste già almeno un utente nel sistema."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/register": {
       "post": {
         "tags": [
@@ -2856,6 +2979,159 @@
         }
       }
     },
+    "/api/users/{id}/relations": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Progetti e sessioni collegati a un utente",
+        "description": "Restituisce i dati dell'utente insieme all'elenco dei progetti a cui è collegato (come tester assegnato o come responsabile) e alle sue sessioni di test, usato dalla pagina di dettaglio utente lato admin/superadmin. Richiede il token JWT nell'header Authorization come Bearer token. Solo admin/superadmin.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID dell'utente",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Progetti e sessioni restituiti correttamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "name": { "type": "string" },
+                          "status": { "type": "string" },
+                          "relation": {
+                            "type": "string",
+                            "enum": ["Responsabile", "Tester"],
+                            "description": "Ruolo dell'utente su questo progetto: Responsabile se manager_id coincide, Tester se assegnato tramite project_assignment"
+                          }
+                        }
+                      }
+                    },
+                    "sessions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "project_id": { "type": "integer" },
+                          "status": { "type": "string" },
+                          "started_at": { "type": "string", "format": "date-time" },
+                          "completed_at": { "type": "string", "format": "date-time", "nullable": true },
+                          "project_name": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "user": {
+                    "id": 1,
+                    "nome": "Mario",
+                    "cognome": "Rossi",
+                    "email": "mario.rossi@example.com",
+                    "role": "user"
+                  },
+                  "projects": [
+                    {
+                      "id": 3,
+                      "name": "Sito e-commerce",
+                      "status": "Attivo",
+                      "relation": "Tester"
+                    }
+                  ],
+                  "sessions": [
+                    {
+                      "id": 12,
+                      "project_id": 3,
+                      "status": "Completata",
+                      "started_at": "2026-06-20T09:00:00Z",
+                      "completed_at": "2026-06-20T10:30:00Z",
+                      "project_name": "Sito e-commerce"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accesso negato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Accesso negato"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utente non trovato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Utente non trovato"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorWithDetail"
+                },
+                "example": {
+                  "message": "Errore del server",
+                  "specific": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/{id}/role": {
       "patch": {
         "tags": [
@@ -5085,6 +5361,153 @@
                 },
                 "example": {
                   "error": "Task non trovata nella sessione, o sessione non attiva/non tua"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Errore del server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "error": "Errore del server",
+                  "details": "Internal error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-sessions/{sessionId}/task/{itemId}/reopen": {
+      "patch": {
+        "tags": [
+          "test-sessions"
+        ],
+        "summary": "Riapre l'esito di una singola task (self-service tester)",
+        "description": "Azzera l'esito già inviato per una task (senza toccare la nota) e la rende di nuovo modificabile dal flusso normale (PATCH /api/test-sessions/{sessionId}/task/{itemId}). Se la sessione era 'Completata' torna 'In corso'; se altre task della stessa sessione hanno ancora un esito null, la sessione resta 'In corso' senza modifiche. A differenza di PATCH /api/test-sessions/{id}/reopen (admin-only, riapre l'intera sessione), questa rotta è self-service per il tester proprietario e riapre solo la task indicata. Richiede il token JWT nell'header Authorization come Bearer token. Solo il tester assegnato alla task, e solo se il progetto è ancora attivo.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della sessione di test",
+            "example": 1
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID della task (checklist item)",
+            "example": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Esito riaperto con successo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessage"
+                },
+                "example": {
+                  "message": "Esito riaperto: ora puoi correggerlo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID mancanti, task senza esito da riaprire, task bloccata/non più tua, o progetto non attivo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "missingIds": {
+                    "value": {
+                      "error": "ID sessione o task non valido"
+                    }
+                  },
+                  "noOutcomeYet": {
+                    "value": {
+                      "error": "La task non ha ancora un esito da riaprire"
+                    }
+                  },
+                  "taskBlocked": {
+                    "value": {
+                      "error": "La task è stata bloccata, non puoi riaprirne l'esito"
+                    }
+                  },
+                  "taskUnassigned": {
+                    "value": {
+                      "error": "La task non è più assegnata a te, non puoi riaprirne l'esito"
+                    }
+                  },
+                  "projectCompleted": {
+                    "value": {
+                      "error": "Il progetto è stato completato: non è più possibile riaprire esiti da questa sessione"
+                    }
+                  },
+                  "projectPaused": {
+                    "value": {
+                      "error": "Il progetto è in pausa: non è possibile riaprire esiti da questa sessione"
+                    }
+                  },
+                  "projectNotStarted": {
+                    "value": {
+                      "error": "Il progetto non è ancora avviato: non è possibile riaprire esiti da questa sessione"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante o non valido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "example": {
+                  "message": "Token mancante o formato non valido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sessione o task non trovata / non tua",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "sessionNotFound": {
+                    "value": {
+                      "error": "Sessione di test non trovata o non tua"
+                    }
+                  },
+                  "taskNotFound": {
+                    "value": {
+                      "error": "Task non trovata in questa sessione"
+                    }
+                  }
                 }
               }
             }

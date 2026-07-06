@@ -2,7 +2,7 @@ import AppLayout from "@/Components/layout/AppLayout";
 import ManageUsers from "@/Components/features/users/ManageUsers";
 import ActionBar from "@/utils/components/ActionBar";
 import React, { useState, useEffect, useMemo } from "react";
-import { register } from "@/services/api";
+import { register } from "@/services/Auth/auth";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { filterSearch } from "@/utils/helpers/filterSearch";
@@ -28,27 +28,34 @@ const Users = () => {
   const [modal, setModal] = useState(false);
   const [search, setSearch] = useState("");
   const [creatingUser, setCreatingUser] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     fetchUsers();
   }, []);
-  
+
 
   // reset formData quando si chiude il modal
   useEffect(() => {
     if (!modal) {
       setNewUserData(emptyNewUserData);
+      setFormErrors({});
     }
   }, [modal]);
-  
+
 
   const addUser = async () => {
     const { name, surname, email, role } = newUserData;
 
-    if (!isEmailValid(email)) {
-      toast.error("Indirizzo email non valido");
-      return;
-    }
+    const nextErrors = {};
+    if (!name) nextErrors.name = "Il nome è obbligatorio";
+    if (!surname) nextErrors.surname = "Il cognome è obbligatorio";
+    if (!email) nextErrors.email = "L'email è obbligatoria";
+    else if (!isEmailValid(email)) nextErrors.email = "Indirizzo email non valido";
+    if (!role) nextErrors.role = "Seleziona un ruolo";
+
+    setFormErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
     setCreatingUser(true);
     try {
@@ -113,7 +120,7 @@ const Users = () => {
 
   return (
     <AppLayout page="users" title="Utenti">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <StatsCardsRow stats={userStats}  />
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -141,6 +148,7 @@ const Users = () => {
             fields={userFields}
             formData={newUserData}
             setFormData={setNewUserData}
+            errors={formErrors}
             onSubmit={addUser}
             submitLabel="Aggiungi Utente"
             loadingLabel="Creazione..."

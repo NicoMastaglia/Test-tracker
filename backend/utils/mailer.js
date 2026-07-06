@@ -1,5 +1,7 @@
 const nodemailer = require("nodemailer");
 
+
+// Configura il trasportatore SMTP per inviare email tramite il server specificato nelle variabili d'ambiente.
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
@@ -9,6 +11,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+
+// Invia un'email utilizzando il trasportatore configurato. Accetta un oggetto con destinatario, oggetto e contenuto HTML.
 async function sendEmail({ to, subject, html }) {
   return transporter.sendMail({
     from: process.env.MAIL_FROM,

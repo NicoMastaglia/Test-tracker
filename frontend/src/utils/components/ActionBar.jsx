@@ -4,7 +4,7 @@
 
 
 import React from "react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, X } from "lucide-react";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 
@@ -14,9 +14,13 @@ const ActionBar = ({
   placeholder = "cerca...",
   buttonText,
   onButtonClick,
-  buttonVariant = "primary", 
+  buttonVariant = "primary",
   buttonDisabled = false,
-  children,                  
+  children,
+  // opzionali: mostra un bottone "Reset filtri" quando c'è almeno un filtro attivo
+  // (ricerca, filtri KPI, date...) — la pagina decide cosa conta come "attivo" e cosa resettare
+  onReset,
+  hasActiveFilters = false,
 }) => {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-6 py-4 w-full">
@@ -35,9 +39,21 @@ const ActionBar = ({
 
     
         {children && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {children}
           </div>
+        )}
+
+        {onReset && hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            className="h-8 shrink-0 cursor-pointer gap-1.5 text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900"
+          >
+            <X className="h-3.5 w-3.5" />
+            Reset filtri
+          </Button>
         )}
       </div>
 

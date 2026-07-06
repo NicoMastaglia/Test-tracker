@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/Components/ui/dialog";
-import { forgotPassword } from "@/services/api";
+import { forgotPassword } from "@/services/Auth/auth";
 import { toast } from "sonner";
 
 export function LoginForm({email,password,setEmail,setPassword,handleSubmit,loading}) {

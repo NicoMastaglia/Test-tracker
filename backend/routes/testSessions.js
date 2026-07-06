@@ -5,6 +5,7 @@ const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
 const logActivity = require("../utils/logActivity");
+const { sendProjectEmail } = require("../utils/sendEmail");
 
 
 
@@ -188,7 +189,12 @@ router.get("/", checkUser, async (req, res) => {
   if (req.user.role === "superadmin") {
     try {
       const [sessions] = await db.execute(
-        `SELECT ts.*, p.name AS project_name, u.nome AS tester_nome, u.cognome AS tester_cognome
+        `SELECT ts.*, p.name AS project_name, u.nome AS tester_nome, u.cognome AS tester_cognome,
+                EXISTS (
+                  SELECT 1 FROM session_task st
+                  JOIN checklist_item ci ON ci.id = st.checklist_item_id
+                  WHERE st.session_id = ts.id AND ci.status = 'Bloccata'
+                ) AS has_blocked_task
          FROM test_session ts
          JOIN project p ON ts.project_id = p.id
          JOIN user u ON ts.user_id = u.id
@@ -208,7 +214,12 @@ router.get("/", checkUser, async (req, res) => {
       // come in GET /api/projects: un admin vede anche i progetti che gestisce
       // (manager_id), non solo quelli creati da lui
       const [sessions] = await db.execute(
-        `SELECT ts.id, ts.project_id, ts.user_id, ts.status, ts.started_at, ts.completed_at, p.name AS project_name, u.nome AS tester_nome, u.cognome AS tester_cognome
+        `SELECT ts.id, ts.project_id, ts.user_id, ts.status, ts.started_at, ts.completed_at, p.name AS project_name, u.nome AS tester_nome, u.cognome AS tester_cognome,
+                EXISTS (
+                  SELECT 1 FROM session_task st
+                  JOIN checklist_item ci ON ci.id = st.checklist_item_id
+                  WHERE st.session_id = ts.id AND ci.status = 'Bloccata'
+                ) AS has_blocked_task
          FROM test_session ts
          JOIN project p ON ts.project_id = p.id
          JOIN user u ON ts.user_id = u.id
@@ -226,7 +237,13 @@ router.get("/", checkUser, async (req, res) => {
   if (req.user.role === "user") {
     try {
       const [sessions] = await db.execute(
-        `SELECT ts.id, ts.project_id, ts.user_id, ts.status, ts.started_at, ts.completed_at, p.name AS project_name FROM test_session ts JOIN project p ON ts.project_id = p.id WHERE ts.user_id = ? ${hasProject ? "AND ts.project_id = ?" : ""}`,
+        `SELECT ts.id, ts.project_id, ts.user_id, ts.status, ts.started_at, ts.completed_at, p.name AS project_name,
+                EXISTS (
+                  SELECT 1 FROM session_task st
+                  JOIN checklist_item ci ON ci.id = st.checklist_item_id
+                  WHERE st.session_id = ts.id AND ci.status = 'Bloccata'
+                ) AS has_blocked_task
+         FROM test_session ts JOIN project p ON ts.project_id = p.id WHERE ts.user_id = ? ${hasProject ? "AND ts.project_id = ?" : ""}`,
         hasProject ? [req.user.id, projectId] : [req.user.id],
       );
       // lista vuota è un risultato valido, non un errore: 200 con array vuoto
@@ -359,21 +376,52 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
     }
   }
 
+  let connection;
   try {
-    const [result] = await db.execute(
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    const [result] = await connection.execute(
       "UPDATE test_session SET status = 'In corso', completed_at = NULL WHERE id = ?",
       [sessionId],
     );
+
     if (result.affectedRows === 0) {
+      await connection.rollback();
       return res.status(404).json({
         error: "Sessione di test non trovata",
       });
     }
 
+    // riaprire l'intera sessione riapre anche tutte le sue task: con l'esito
+    // bloccato una volta inviato, senza questo azzeramento nessuna task tornerebbe
+    // davvero modificabile (le task già bloccate da un admin non vengono toccate)
+    await connection.execute(
+      "UPDATE session_task SET outcome = NULL WHERE session_id = ?",
+      [sessionId],
+    );
+
+    await connection.execute(
+      `UPDATE checklist_item
+       SET status = 'In corso'
+       WHERE id IN (SELECT checklist_item_id FROM session_task WHERE session_id = ?)
+         AND status = 'Completata'`,
+      [sessionId],
+    );
+
+    await connection.commit();
+
     await logActivity(req.user.id, projectId, "session.reopened", {
       sessionId: sessionId,
-      
+
     });
+
+    sendProjectEmail(
+      tester,
+      "sessionReopened",
+      { projectName, subject: `Sessione di test riaperta su ${projectName}` },
+    ).catch((err) => console.error("Errore invio email riapertura sessione:", err.message));
+
     return res
       .status(200)
       .json({ message: "Sessione di test riaperta con successo" });
@@ -454,15 +502,26 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
       return res.status(400).json({error:"La task non è più assegnata a te, non puoi più aggiornarne l'esito da questa sessione"})
     }
 
+    // un esito già inviato resta bloccato finché non viene esplicitamente riaperto
+    // (PATCH .../reopen): evita che una task già risposta venga sovrascritta per errore
+    const [existingOutcome] = await db.execute(
+      'select outcome from session_task where session_id = ? and checklist_item_id = ?',
+      [sessionId, itemId]
+    )
+
+    if (existingOutcome.length > 0 && existingOutcome[0].outcome !== null) {
+      return res.status(400).json({error:"Esito già inviato: usa 'Riapri esito' per modificarlo"})
+    }
+
     const [result]  = await db.execute(
       `
 
       UPDATE session_task st
       set st.outcome = ?, st.note = ?
-      where st.session_id = ? and st.checklist_item_id = ? and st.session_id in (select ts.id from test_session ts where ts.user_id = ? and ts.status = 'In corso')
+      where st.session_id = ? and st.checklist_item_id = ? and st.outcome is null and st.session_id in (select ts.id from test_session ts where ts.user_id = ? and ts.status = 'In corso')
    `,[outcome,note,sessionId,itemId,userId]
 
-   
+
 
     )
 
@@ -505,14 +564,112 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
     console.error(error);
     return res.status(500).json({error:"Errore del server"})
   }
+});
 
+// self-service: il tester riapre un esito che ha sbagliato a inserire, su una
+// sessione già "Completata" (finché la sessione è ancora "In corso" può già
+// correggere l'esito ripetendo la PATCH sopra, senza bisogno di questa rotta).
+// Non richiede l'intervento di un admin: a differenza di PATCH /:id/reopen
+// (admin-only, riapre l'intera sessione) questa riapre solo la singola task.
+router.patch('/:sessionId/task/:itemId/reopen', checkUser, async (req, res) => {
+  const userId = req.user.id;
+  const { sessionId, itemId } = req.params;
 
+  if (!sessionId || !itemId) {
+    return res.status(400).json({ error: "ID sessione o task non valido" });
+  }
 
+  try {
+    const [session] = await db.execute(
+      'select p.id as project_id, p.status as project_status, ts.status from test_session ts join project p on ts.project_id = p.id where ts.id = ? and ts.user_id = ?',
+      [sessionId, userId]
+    );
 
+    if (session.length === 0) {
+      return res.status(404).json({ error: "Sessione di test non trovata o non tua" });
+    }
 
-})
+    if (session[0].project_status === 'Completato') {
+      return res.status(400).json({ error: "Il progetto è stato completato: non è più possibile riaprire esiti da questa sessione" });
+    }
 
+    if (session[0].project_status === 'In pausa') {
+      return res.status(400).json({ error: "Il progetto è in pausa: non è possibile riaprire esiti da questa sessione" });
+    }
 
+    if (session[0].project_status === 'Non iniziato') {
+      return res.status(400).json({ error: "Il progetto non è ancora avviato: non è possibile riaprire esiti da questa sessione" });
+    }
+
+    const projectId = session[0].project_id;
+
+    const [taskRows] = await db.execute(
+      'select ci.status, ci.assigned_to from checklist_item ci join session_task st on st.checklist_item_id = ci.id where st.session_id = ? and st.checklist_item_id = ?',
+      [sessionId, itemId]
+    );
+
+    if (taskRows.length === 0) {
+      return res.status(404).json({ error: "Task non trovata in questa sessione" });
+    }
+
+    if (taskRows[0].status === 'Bloccata') {
+      return res.status(400).json({ error: "La task è stata bloccata, non puoi riaprirne l'esito" });
+    }
+
+    if (taskRows[0].status !== 'Completata') {
+      return res.status(400).json({ error: "La task non ha ancora un esito da riaprire" });
+    }
+
+    if (taskRows[0].assigned_to !== userId) {
+      return res.status(400).json({ error: "La task non è più assegnata a te, non puoi riaprirne l'esito" });
+    }
+
+    let connection;
+    try {
+      connection = await db.getConnection();
+      await connection.beginTransaction();
+
+      // la nota non viene azzerata: può restare documentazione valida anche se
+      // l'esito scelto era sbagliato; il tester la può sovrascrivere reinviando l'esito
+      await connection.execute(
+        "UPDATE session_task SET outcome = NULL WHERE session_id = ? AND checklist_item_id = ?",
+        [sessionId, itemId]
+      );
+
+      await connection.execute(
+        "UPDATE checklist_item SET status = 'In corso' WHERE id = ? AND status = 'Completata'",
+        [itemId]
+      );
+
+      // se la sessione era già "In corso" (altre task ancora aperte) non c'è nulla
+      // da riaprire a livello sessione, solo la singola task viene sbloccata sopra
+      if (session[0].status === 'Completata') {
+        await connection.execute(
+          "UPDATE test_session SET status = 'In corso', completed_at = NULL WHERE id = ?",
+          [sessionId]
+        );
+      }
+
+      await connection.commit();
+    } catch (error) {
+      if (typeof connection !== "undefined") {
+        await connection.rollback();
+      }
+      throw error;
+    } finally {
+      if (typeof connection !== "undefined") {
+        connection.release();
+      }
+    }
+
+    await logActivity(userId, projectId, 'task.outcome_reopened', { sessionId: sessionId, itemId: itemId });
+
+    return res.status(200).json({ message: "Esito riaperto: ora puoi correggerlo" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Errore del server" });
+  }
+});
 
 
 router.get('/:sessionId',checkUser,async (req,res)=>{
@@ -578,7 +735,7 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
     const [tasks] = await db.execute(
       `
       select st.checklist_item_id,st.outcome,st.note,ci.status as task_status,
-      ci.description,ci.assigned_to
+      ci.description,ci.assigned_to,ci.deadline
       from session_task st
       join checklist_item ci on st.checklist_item_id = ci.id
       where st.session_id = ?

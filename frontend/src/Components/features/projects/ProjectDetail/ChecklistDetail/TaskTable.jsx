@@ -81,7 +81,7 @@ const getTaskActions = (task, handlers) => [
   },
 ];
 
-// Colonne limitate ai campi realmente presenti nel BE (checklist_item: description, position)
+
 const BASE_HEADERS = [
   // {
   //   key: "id",
@@ -189,8 +189,7 @@ const TaskTable = ({
             {task.status || "Nessuno stato"}
             </Badge>
 
-            {/* esito negativo dell'ultima sessione risolta: il responsabile deve poter
-                capire al volo che la task è stata testata con esito negativo e perché */}
+         
             {task.latest_outcome === "Negativo" && (
               <Tooltip>
                 <TooltipTrigger>

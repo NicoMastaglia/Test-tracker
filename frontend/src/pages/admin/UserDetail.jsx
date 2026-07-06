@@ -57,7 +57,7 @@ const UserDetail = () => {
 
   return (
     <AppLayout page="users" hideHeader>
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <Button
           variant="outline"
           onClick={() => navigate("/admin/users")}

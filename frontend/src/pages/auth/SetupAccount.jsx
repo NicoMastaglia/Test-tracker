@@ -5,7 +5,7 @@ import { KeyRound, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
-import { setupAccount, verifySetupToken } from "@/services/api";
+import { setupAccount, verifySetupToken } from "@/services/Auth/auth";
 import { PswRequirements } from "@/Components/features/settings/PasswordRequirements";
 
 const SetupAccount = () => {

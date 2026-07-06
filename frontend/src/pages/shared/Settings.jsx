@@ -27,6 +27,8 @@ const Settings = () => {
         confirmPassword: '',
     })
 
+    const [profileErrors, setProfileErrors] = useState({})
+
     useEffect(() => {
         setProfileData({
             nome: user.name || '',
@@ -70,15 +72,14 @@ const Settings = () => {
     }
 
     const handleUpdateProfile = async () =>{
-              if (profileData.nome.trim() === '' || profileData.cognome.trim() === '' || profileData.email.trim() === '') {
-            toast.error("Tutti i campi del profilo sono obbligatori")
-            return
-        }
+        const nextErrors = {}
+        if (profileData.nome.trim() === '') nextErrors.nome = "Il nome è obbligatorio"
+        if (profileData.cognome.trim() === '') nextErrors.cognome = "Il cognome è obbligatorio"
+        if (profileData.email.trim() === '') nextErrors.email = "L'email è obbligatoria"
+        else if (!isEmailValid(profileData.email)) nextErrors.email = "Indirizzo email non valido"
 
-        if (!isEmailValid(profileData.email)) {
-            toast.error("Indirizzo email non valido")
-            return
-        }
+        setProfileErrors(nextErrors)
+        if (Object.keys(nextErrors).length > 0) return
 
         try{
             await updateMyProfile(profileData)
@@ -144,7 +145,7 @@ const Settings = () => {
             <SettingsUserSummary user={user} />
 
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-            <SettingsProfile profileData={profileData} handleSave={handleUpdateProfile} handleChange={handleChange} />
+            <SettingsProfile profileData={profileData} handleSave={handleUpdateProfile} handleChange={handleChange} errors={profileErrors} />
               <SettingsSecurity
                handleUpdatePassword={
 handleUpdatePassword} handleChange={handleChange} securityData={securityData
