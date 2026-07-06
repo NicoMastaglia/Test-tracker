@@ -57,7 +57,7 @@ const renderField = (field, value, updateField) => {
 
 		}
             return (
-                <Select value={value ?? ""} onValueChange={(nextValue) => updateField(field.name, nextValue)}>
+                <Select value={value ?? ""} onValueChange={(nextValue) => updateField(field.name, nextValue)} disabled={field.disabled}>
                     <SelectTrigger className={`w-full ${field.triggerClassName ?? ""}`}>
                         <div className="flex items-center gap-2">
                             {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}

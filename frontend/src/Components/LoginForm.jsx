@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from "@/Components/ui/dialog";
 import { forgotPassword } from "@/services/Auth/auth";
+import { isEmailValid } from "@/utils/helpers/validators";
 import { toast } from "sonner";
 
 export function LoginForm({email,password,setEmail,setPassword,handleSubmit,loading}) {
@@ -26,17 +27,22 @@ export function LoginForm({email,password,setEmail,setPassword,handleSubmit,load
   };
 
   const handleForgotSubmit = async () => {
-    if (!forgotEmail.trim()) {
+    const trimmedForgotEmail = forgotEmail.trim();
+    if (!trimmedForgotEmail) {
       toast.error("Inserisci la tua email");
+      return;
+    }
+    if (!isEmailValid(trimmedForgotEmail)) {
+      toast.error("Formato email non valido");
       return;
     }
     setSendingReset(true);
     try {
-      await forgotPassword(forgotEmail.trim());
+      await forgotPassword(trimmedForgotEmail);
       toast.success("Controlla la tua email per le istruzioni di reset.");
       setForgotOpen(false);
-    } catch {
-      toast.error("Errore durante l'invio della richiesta. Riprova.");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Errore durante l'invio della richiesta. Riprova.");
     } finally {
       setSendingReset(false);
     }

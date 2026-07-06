@@ -340,7 +340,7 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
 
   try {
     const [session] = await db.execute(
-    'select p.id as project_id, ts.status from test_session ts join project p on ts.project_id = p.id where ts.id = ?',
+    'select p.id as project_id, ts.status, ts.user_id from test_session ts join project p on ts.project_id = p.id where ts.id = ?',
     [sessionId]
     )
 
@@ -353,6 +353,17 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
     }
 
     projectId = session[0].project_id;
+
+    // il tester potrebbe essere stato rimosso dal team del progetto nel frattempo:
+    // riaprire gli permetterebbe comunque di completare le sue task residue, il
+    // che contraddirebbe la sua rimozione dal progetto
+    const [teamCheck] = await db.execute(
+      "SELECT 1 FROM project_assignment WHERE project_id = ? AND user_id = ?",
+      [projectId, session[0].user_id],
+    );
+    if (teamCheck.length === 0) {
+      return res.status(400).json({ error: "Il tester non fa più parte del team di questo progetto: impossibile riaprire la sessione." });
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Errore del server" });

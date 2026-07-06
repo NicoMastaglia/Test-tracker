@@ -97,7 +97,7 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
             <Label htmlFor="session-project" className="text-foreground">
               Progetto
             </Label>
-            <Select value={selectedProjectId} onValueChange={handleProjectChange}>
+            <Select value={selectedProjectId} onValueChange={handleProjectChange} disabled={tasksByProject.length === 0}>
               <SelectTrigger id="session-project" className="w-full">
                 <SelectValue placeholder="Seleziona un progetto" />
               </SelectTrigger>
@@ -109,6 +109,11 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
                 ))}
               </SelectContent>
             </Select>
+            {tasksByProject.length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                Nessuna task lavorabile disponibile. Verifica di avere task assegnate, non bloccate né già incluse in un'altra sessione aperta, su un progetto attivo.
+              </p>
+            )}
           </div>
 
           {selectedProjectId && (

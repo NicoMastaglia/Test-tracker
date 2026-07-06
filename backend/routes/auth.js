@@ -9,6 +9,7 @@ const logActivity = require("../utils/logActivity");
 const { generateSetupToken, hashToken } = require("../utils/setupToken");
 const { denyToken } = require("../auth/tokenDenylist");
 const { sendProjectEmail } = require("../utils/sendEmail");
+const { isEmailValid } = require("../utils/validators");
 const router = express.Router();
 
 // pubblica, ma si autodisabilita da sola non appena esiste almeno un utente:
@@ -178,6 +179,10 @@ router.post("/forgot-password", async (req, res) => {
 
   if (!trimmedEmail) {
     return res.status(400).json({ message: "L'email è obbligatoria." });
+  }
+
+  if (!isEmailValid(trimmedEmail)) {
+    return res.status(400).json({ message: "Formato email non valido." });
   }
 
   try {

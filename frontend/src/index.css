@@ -36,6 +36,8 @@
     font-size: 16px;
   } */
 
+  color-scheme: light;
+
   --background: #F8FAFC;
 
   --foreground: #0F172A;
@@ -240,6 +242,8 @@
    all'altro (nessun nuovo hue introdotto). La sidebar era già scura anche in
    light mode: i suoi token restano invariati e già coerenti con questo tema. */
 .dark {
+
+  color-scheme: dark;
 
   --background: #0F172A;
 

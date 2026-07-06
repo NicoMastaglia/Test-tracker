@@ -85,6 +85,17 @@ router.post("/", checkAdmin, async (req, res) => {
       return res.status(400).json({ error: "Progetto non ancora avviato: non è possibile creare nuove checklist." });
     }
 
+    const [existingChecklist] = await db.execute(
+      "SELECT id FROM checklist_template WHERE project_id = ? AND REPLACE(LOWER(title), ' ', '') = REPLACE(LOWER(?), ' ', '')",
+      [project_id, trimmedTitle],
+    );
+    if (existingChecklist.length > 0) {
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: "Una checklist con questo titolo esiste già in questo progetto. Scegli un titolo univoco.",
+      });
+    }
+
     const [result] = await db.execute(
       "INSERT INTO checklist_template (title, project_id,created_by,description,last_updated) VALUES (?,?,?,?,NOW())",
       [trimmedTitle, project_id, createdBy, trimmedDescription],
@@ -154,6 +165,17 @@ router.put("/:id", checkAdmin, async (req, res) => {
     const [projectRows] = await db.execute("SELECT status FROM project WHERE id = ?", [project_id]);
     if (projectRows[0]?.status === "Completato") {
       return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
+    }
+
+    const [existingChecklist] = await db.execute(
+      "SELECT id FROM checklist_template WHERE project_id = ? AND id != ? AND REPLACE(LOWER(title), ' ', '') = REPLACE(LOWER(?), ' ', '')",
+      [project_id, checklistId, trimmedTitle],
+    );
+    if (existingChecklist.length > 0) {
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: "Una checklist con questo titolo esiste già in questo progetto. Scegli un titolo univoco.",
+      });
     }
 
     const [result] = await db.execute(
@@ -390,7 +412,17 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
       });
   }
 
-  
+  if (deadline) {
+    const deadlineDate = new Date(deadline);
+    if (isNaN(deadlineDate.getTime())) {
+      return res.status(400).json({ error: "Richiesta non valida", message: "La scadenza non è una data valida." });
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (deadlineDate < today) {
+      return res.status(400).json({ error: "Richiesta non valida", message: "La scadenza non può essere una data passata." });
+    }
+  }
 
   try {
     const [templateResults] = await db.execute(
@@ -412,6 +444,17 @@ router.post("/:templateId/item", checkAdmin, async (req, res) => {
   }
   if (templateResults[0].project_status === "Non iniziato") {
     return res.status(400).json({ error: "Progetto non ancora avviato: non è possibile creare nuove task." });
+  }
+
+  const [existingItem] = await db.execute(
+    "SELECT id FROM checklist_item WHERE template_id = ? AND REPLACE(LOWER(description), ' ', '') = REPLACE(LOWER(?), ' ', '')",
+    [templateId, trimmedDescription],
+  );
+  if (existingItem.length > 0) {
+    return res.status(400).json({
+      error: "Richiesta non valida",
+      message: "Una task con questa descrizione esiste già in questa checklist. Scegli una descrizione univoca.",
+    });
   }
 
     const [result] = await db.execute(
@@ -454,11 +497,23 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
     });
   }
 
+  if (deadline) {
+    const deadlineDate = new Date(deadline);
+    if (isNaN(deadlineDate.getTime())) {
+      return res.status(400).json({ error: "Richiesta non valida", message: "La scadenza non è una data valida." });
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (deadlineDate < today) {
+      return res.status(400).json({ error: "Richiesta non valida", message: "La scadenza non può essere una data passata." });
+    }
+  }
+
   try {
 
 
     const [isOwnerResults] = await db.execute(
-      "SELECT ci.id, ct.project_id, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
+      "SELECT ci.id, ci.template_id, ct.project_id, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
       [itemId, userId, userId, req.user.role === "superadmin"],
     );
 
@@ -470,6 +525,17 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
 
     if (isOwnerResults[0].project_status === "Completato") {
       return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
+    }
+
+    const [existingItem] = await db.execute(
+      "SELECT id FROM checklist_item WHERE template_id = ? AND id != ? AND REPLACE(LOWER(description), ' ', '') = REPLACE(LOWER(?), ' ', '')",
+      [isOwnerResults[0].template_id, itemId, trimmedDescription],
+    );
+    if (existingItem.length > 0) {
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: "Una task con questa descrizione esiste già in questa checklist. Scegli una descrizione univoca.",
+      });
     }
 
     const [result] = await db.execute(
@@ -869,6 +935,39 @@ router.patch('/item/:itemId/unassign', checkAdmin, async (req, res) => {
       itemId,
       unassignedFrom: previousAssignee,
     });
+
+    // la task disassegnata non potrà mai più ricevere un esito in questa sessione:
+    // se era l'ultima ancora in sospeso, la sessione va chiusa altrimenti resterebbe
+    // "In corso" per sempre senza che nessuno possa più agire su di essa
+    const [openSessions] = await db.execute(
+      `SELECT DISTINCT st.session_id FROM session_task st
+       JOIN test_session ts ON st.session_id = ts.id
+       WHERE st.checklist_item_id = ? AND ts.status = 'In corso'`,
+      [itemId],
+    );
+
+    for (const { session_id } of openSessions) {
+      const [closeResult] = await db.execute(
+        `UPDATE test_session ts
+         SET status = 'Completata', completed_at = NOW()
+         WHERE ts.id = ?
+           AND ts.status = 'In corso'
+           AND NOT EXISTS (
+             SELECT 1 FROM session_task st2
+             WHERE st2.session_id = ts.id
+               AND st2.checklist_item_id != ?
+               AND st2.outcome IS NULL
+           )`,
+        [session_id, itemId],
+      );
+
+      if (closeResult.affectedRows > 0) {
+        await logActivity(req.user.id, projectId, "session.completed", {
+          sessionId: session_id,
+          reason: "Task disassegnata dall'admin: nessuna altra task ancora da valutare",
+        });
+      }
+    }
 
     return res.status(200).json({ message: "Assegnazione rimossa con successo" });
   } catch (err) {

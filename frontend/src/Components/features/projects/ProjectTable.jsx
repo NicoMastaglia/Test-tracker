@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import {Button} from "@/Components/ui/button"
 import { toast } from "sonner";
-import {Edit, Folder} from "lucide-react"
+import {Edit, Folder, Flag} from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
@@ -39,6 +39,7 @@ const ProjectTable = ({ data, users = [] }) => {
   const [editForm, setEditForm] = useState({ name: "", description: "",deadline: "" });
   const [statusProject, setStatusProject] = useState(null);
   const [statusValue, setStatusValue] = useState("");
+  const [completeConfirmOpen, setCompleteConfirmOpen] = useState(false);
   const [deleteProjectTarget, setDeleteProjectTarget] = useState(null);
   const [deletingProject, setDeletingProject] = useState(false);
 
@@ -126,11 +127,7 @@ const ProjectTable = ({ data, users = [] }) => {
     setStatusValue("");
   };
 
-  const handleUpdateStatus = async () => {
-    if (!isAdmin) {
-      toast.error("Solo admin o superadmin possono aggiornare lo stato del progetto");
-      return;
-    }
+  const performStatusUpdate = async () => {
     if (!statusProject) return;
     try {
       await updateProjectStatus(statusProject.id, statusValue);
@@ -140,13 +137,31 @@ const ProjectTable = ({ data, users = [] }) => {
     } catch (error) {
       const message = error.response?.data?.error;
 
-    
+
       if (message === "Invalid status") {
         toast.error("Stato non valido. Gli stati validi sono: Attivo, Completato, In pausa.");
         return;
       }
       toast.error("Errore durante aggiornamento stato");
     }
+  };
+
+  const handleUpdateStatus = async () => {
+    if (!isAdmin) {
+      toast.error("Solo admin o superadmin possono aggiornare lo stato del progetto");
+      return;
+    }
+    if (!statusProject) return;
+    if (statusValue === "Completato") {
+      setCompleteConfirmOpen(true);
+      return;
+    }
+    await performStatusUpdate();
+  };
+
+  const handleConfirmComplete = async () => {
+    await performStatusUpdate();
+    setCompleteConfirmOpen(false);
   };
 
   const handleProjectRowClick = (projectId) => {
@@ -246,6 +261,26 @@ const ProjectTable = ({ data, users = [] }) => {
         dialogClassName="sm:max-w-105"
         titleIcon={Edit}
         iconColor="text-emerald-600"
+      />
+
+      <ModalForm
+        modalOpen={completeConfirmOpen}
+        setModalOpen={setCompleteConfirmOpen}
+        title="Completa progetto"
+        infos="Stai per impostare il progetto su “Completato”."
+        hasDescripion={true}
+        description={(
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+            È un'azione finale: il progetto non sarà più modificabile e non si potrà tornare allo stato precedente. Confermi?
+          </div>
+        )}
+        onSubmit={handleConfirmComplete}
+        submitLabel="Completa progetto"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Flag}
+        iconColor="text-emerald-500"
+        submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
       />
 
       <DeleteConfirmModal

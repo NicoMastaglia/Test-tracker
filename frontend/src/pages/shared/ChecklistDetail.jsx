@@ -162,13 +162,21 @@ const ChecklistDetail = () => {
       toast.error("La descrizione del task non può essere vuota");
       return;
     }
+    if (addTaskFormData.deadline && isNaN(Date.parse(addTaskFormData.deadline))) {
+      toast.error("La scadenza non è una data valida");
+      return;
+    }
+    if (addTaskFormData.deadline && new Date(addTaskFormData.deadline) < new Date()) {
+      toast.error("La scadenza non può essere una data passata");
+      return;
+    }
     try {
       await addChecklistItem(checklist.checklist_id, { description: addTaskFormData.description.trim(), deadline: addTaskFormData.deadline || null });
       await fetchChecklistsByProject(id);
       toast.success("Task aggiunto con successo");
       setAddTaskModalOpen(false);
-    } catch {
-      toast.error("Errore durante l'aggiunta del task");
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante l'aggiunta del task");
     }
   };
 
@@ -179,13 +187,21 @@ const ChecklistDetail = () => {
       toast.error("La descrizione del task non può essere vuota");
       return;
     }
+    if (editTaskFormData.deadline && isNaN(Date.parse(editTaskFormData.deadline))) {
+      toast.error("La scadenza non è una data valida");
+      return;
+    }
+    if (editTaskFormData.deadline && new Date(editTaskFormData.deadline) < new Date()) {
+      toast.error("La scadenza non può essere una data passata");
+      return;
+    }
     try {
       await updateChecklistItem(editTaskTarget.item_id, { description: editTaskFormData.description.trim(), deadline: editTaskFormData.deadline || null });
       await fetchChecklistsByProject(id);
       toast.success("Task modificato con successo");
       setEditTaskTarget(null);
-    } catch {
-      toast.error("Errore durante la modifica del task");
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante la modifica del task");
     }
   };
   
@@ -418,13 +434,15 @@ const handleReopen = async (task) => {
         title="Assegna Task"
         infos="Assegna un task alla checklist selezionata."
         fields={[
-          { name: "user", 
-            label: "Seleziona un utente", 
-            type: "select", 
+          { name: "user",
+            label: "Seleziona un utente",
+            type: "select",
             key : "user",
             placeholder: "Seleziona un utente a cui assegnare il task",
             info: "Seleziona un utente dalla lista per assegnare il task.",
             required: true,
+            disabled: usersList.length === 0,
+            helperText: usersList.length === 0 ? "Nessun tester assegnato a questo progetto. Aggiungilo nella sezione Team prima di assegnare una task." : undefined,
            options: usersList.map(user => ({ value: String(user.id), label: getFullName(user) })) },
         ]}
         formData={assignTaskFormData}

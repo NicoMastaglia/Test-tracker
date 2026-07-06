@@ -87,10 +87,10 @@ const Settings = () => {
     
         }
         catch(error){
-            const message = error.response?.data?.message || error.message
+            const message = error.response?.data?.message
 
-            if (message === "Email already in use") {
-                toast.error("L'email inserita è già in uso, scegli un'email diversa")
+            if (message) {
+                toast.error(message)
                 return
             }
             console.error("Errore durante l'aggiornamento del profilo:",error)

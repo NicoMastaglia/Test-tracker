@@ -75,6 +75,8 @@ const ProjectDetail = () => {
     return users.filter(u => !assignedUserIds.includes(u.id) && u.role === "user");
   }, [users, selectedProject]);
 
+  const hasAnyTesters = useMemo(() => (users || []).some(u => u.role === "user"), [users]);
+
 
  const projectAssignedUsers = useMemo(()=>{
   const assigned = selectedProject?.user_list || [];
@@ -363,6 +365,7 @@ const ProjectDetail = () => {
               <ProjectTeamSection
                 selectedProject={selectedProject}
                 users={availableUser}
+                hasAnyTesters={hasAnyTesters}
                 projectAssignedUsers={projectAssignedUsers}
                 selectedAssignUserId={selectedAssignUserId}
                 setSelectedAssignUserId={setSelectedAssignUserId}

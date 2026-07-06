@@ -223,14 +223,14 @@ router.post("/", checkAdmin, async (req, res) => {
     }
 
     const [existingProject] = await db.execute(
-      "SELECT id FROM project WHERE name = ?",
+      "SELECT id FROM project WHERE REPLACE(LOWER(name), ' ', '') = REPLACE(LOWER(?), ' ', '')",
       [trimmedName]
     );
 
     if (existingProject.length > 0) {
-      return res.status(400).json({ 
-        error: "Richiesta non valida", 
-        message: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
+      return res.status(400).json({
+        error: "Richiesta non valida",
+        message: "Un progetto con questo nome esiste già. Scegli un nome univoco."
       });
     }
 
@@ -475,7 +475,7 @@ router.put("/:id", checkAdmin, async (req, res) => {
 
   try {
     const [existingProject] = await db.execute(
-      "SELECT id FROM project WHERE name = ? AND id != ?",
+      "SELECT id FROM project WHERE REPLACE(LOWER(name), ' ', '') = REPLACE(LOWER(?), ' ', '') AND id != ?",
       [trimmedName, projectId]
     );
 

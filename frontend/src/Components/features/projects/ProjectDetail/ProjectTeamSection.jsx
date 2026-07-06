@@ -25,6 +25,7 @@ const SummaryRow = ({ label, children }) => (
 const ProjectTeamSection = ({
   selectedProject,
   users = [],
+  hasAnyTesters = true,
   projectAssignedUsers = [],
   selectedAssignUserId,
   setSelectedAssignUserId,
@@ -38,6 +39,7 @@ const ProjectTeamSection = ({
   // `users` arriva già filtrato dal parent (availableUser): solo utenti con ruolo
   // "user" e non ancora assegnati al progetto. Niente doppio filtraggio qui.
   const availableUsers = users;
+  const noAvailableUsers = availableUsers.length === 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -70,7 +72,7 @@ const ProjectTeamSection = ({
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <Select value={selectedAssignUserId} onValueChange={setSelectedAssignUserId} disabled={isCompleted || assigningUser}>
+                <Select value={selectedAssignUserId} onValueChange={setSelectedAssignUserId} disabled={isCompleted || assigningUser || noAvailableUsers}>
                   <SelectTrigger className="w-full sm:w-64">
                     <SelectValue placeholder="Seleziona utente" />
                   </SelectTrigger>
@@ -83,7 +85,7 @@ const ProjectTeamSection = ({
                   </SelectContent>
                 </Select>
                 <Button
-                  disabled={!selectedAssignUserId || isCompleted || assigningUser}
+                  disabled={!selectedAssignUserId || isCompleted || assigningUser || noAvailableUsers}
                   onClick={onAssignUser}
                   className="shrink-0 bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-70"
                 >
@@ -98,6 +100,13 @@ const ProjectTeamSection = ({
                 </Button>
               </div>
             </div>
+            {!isCompleted && noAvailableUsers && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {hasAnyTesters
+                  ? "Tutti i tester disponibili sono già assegnati a questo progetto."
+                  : "Non esiste ancora nessun tester nel sistema. Creane uno da Gestione utenti."}
+              </p>
+            )}
           </div>
 
 

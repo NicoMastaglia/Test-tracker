@@ -61,8 +61,8 @@ const AdminProjects = () => {
     if (user?.role !== "admin" && user?.role !== "superadmin") return;
 
     const nextErrors = {};
-    if (!formData.name) nextErrors.name = "Il nome è obbligatorio";
-    if (!formData.description) nextErrors.description = "La descrizione è obbligatoria";
+    if (!formData.name.trim()) nextErrors.name = "Il nome è obbligatorio";
+    if (!formData.description.trim()) nextErrors.description = "La descrizione è obbligatoria";
     if (!formData.responsabile) nextErrors.responsabile = "Seleziona un responsabile";
     if (formData.deadline && isNaN(Date.parse(formData.deadline))) {
       nextErrors.deadline = "La data di scadenza non è valida";
@@ -74,8 +74,8 @@ const AdminProjects = () => {
     if (Object.keys(nextErrors).length > 0) return;
 
     const newProject = {
-      name: formData.name,
-      description: formData.description,
+      name: formData.name.trim(),
+      description: formData.description.trim(),
       manager_id: formData.responsabile,
       deadline: formData.deadline || null,
     };

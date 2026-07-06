@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import { Button } from "@/Components/ui/button";
 
-import { User, Mail, ShieldCheck, Trash2, ShieldAlert } from "lucide-react";
+import { User, Mail, ShieldCheck, Trash2, ShieldAlert, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { isEmailValid } from "@/utils/helpers/validators";
@@ -14,10 +14,13 @@ import { getFullName } from "@/utils/helpers/tableHelpers";
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
 const ModalForUsers = () => {
-  const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
+  const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole, changeUserPasswordById } = useUserContext();
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState(false);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [resetPasswordForm, setResetPasswordForm] = useState({ password: "" });
+  const [resettingPassword, setResettingPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: selectedUser?.nome ?? "",
     surname: selectedUser?.cognome ?? "",
@@ -86,6 +89,27 @@ const ModalForUsers = () => {
     }
   };
 
+  const handleResetPassword = async () => {
+    const newPassword = resetPasswordForm.password;
+    if (newPassword.length < 8) {
+      toast.error("La nuova password deve avere almeno 8 caratteri");
+      return;
+    }
+
+    setResettingPassword(true);
+    try {
+      await changeUserPasswordById(selectedUser.id, newPassword);
+      toast.success("Password dell'utente aggiornata con successo");
+      setResetPasswordOpen(false);
+      setResetPasswordForm({ password: "" });
+    } catch (error) {
+      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante il reset della password";
+      toast.error(message);
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
   const handleDeleteUser = async () => {
     setDeletingUser(true);
     try {
@@ -148,6 +172,14 @@ const ModalForUsers = () => {
                 Aggiorna Ruolo
             </Button>
             )}
+            <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setResetPasswordOpen(true)}
+            >
+                <KeyRound className="mr-2 h-4 w-4" />
+                Reset Password
+            </Button>
         </div>
     </div>
 );
@@ -177,6 +209,25 @@ const ModalForUsers = () => {
 
 
   
+
+      <ModalForm
+        modalOpen={resetPasswordOpen}
+        setModalOpen={setResetPasswordOpen}
+        title="Reset Password"
+        infos={`Imposta una nuova password per ${getFullName(selectedUser)}.`}
+        fields={[
+          { name: "password", label: "Nuova password", type: "password" },
+        ]}
+        formData={resetPasswordForm}
+        setFormData={setResetPasswordForm}
+        onSubmit={handleResetPassword}
+        submitLabel="Reset Password"
+        cancelLabel="Annulla"
+        submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
+        titleIcon={KeyRound}
+        iconColor="text-emerald-600"
+        loading={resettingPassword}
+      />
 
       <DeleteConfirmModal
       modalOpen={deleteConfirmOpen}
