@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import ActionBar from "@/utils/components/ActionBar";
+import StatusFilterPills from "@/utils/components/StatusFilterPills";
 import TaskTable from "./TaskTable";
 
 const STATUS_FILTERS = ["TODO", "In corso", "Completata", "Bloccata", "Archiviata"];
@@ -49,25 +50,15 @@ const ChecklistDetailView = ({
           onButtonClick={handleAdd}
           buttonVariant="emerald"
         >
-          <div className="flex flex-wrap items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setFilterStatus("all")}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${filterStatus === "all" ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-            >
-              Tutti
-            </button>
-            {STATUS_FILTERS.map((status) => (
-              <button
-                key={status}
-                type="button"
-                onClick={() => setFilterStatus((prev) => (prev === status ? "all" : status))}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${filterStatus === status ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
+          <StatusFilterPills
+            filters={STATUS_FILTERS.map((status) => ({
+              value: status,
+              count: taskItems.filter((task) => task.status === status).length,
+            }))}
+            active={filterStatus}
+            onChange={setFilterStatus}
+            totalCount={taskItems.length}
+          />
         </ActionBar>
 
         <TaskTable  teamMembers={teamMembers} tasks={filteredTasks} handleAssign={handleAssign}

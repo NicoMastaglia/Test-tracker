@@ -9,9 +9,16 @@ import { useUserContext } from "@/context/User/UserContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import {toast} from "sonner"
 import {getFullName} from "@/utils/helpers/tableHelpers"
-import {Plus, Folder, PlayCircle, PauseCircle, CheckCircle2} from "lucide-react"
-import StatsCardsRow from "@/utils/components/StatsCardsRow"
+import {Plus} from "lucide-react"
+import StatusFilterPills from "@/utils/components/StatusFilterPills"
 import Loader from "@/utils/components/Loader"
+
+const STATUS_FILTERS = [
+  { value: "Non iniziato", label: "Non iniziati" },
+  { value: "Attivo", label: "Attivi" },
+  { value: "In pausa", label: "In pausa" },
+  { value: "Completato", label: "Completati" },
+];
 import { withMinDuration } from "@/utils/helpers/withMinDuration"
 const AdminProjects = () => {
   const { projects, addProject, fetchProjects, loading } = useProjectContext();
@@ -101,8 +108,6 @@ const AdminProjects = () => {
 
     
 
-  const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
-
   const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
   const resetFilters = () => {
     setSearch("");
@@ -110,16 +115,14 @@ const AdminProjects = () => {
   };
 
   // conteggi di stato dei progetti (admin: i suoi; superadmin: tutti)
-  const projectStats = useMemo(() => {
+  const projectFilters = useMemo(() => {
     const list = projects || [];
-    const countByStatus = (status) => list.filter((p) => p.status === status).length;
-    return [
-      { label: "Progetti totali", value: list.length, icon: Folder, iconColor: "text-slate-600", bgIcon: "bg-slate-100", onClick: () => setFilterStatus("all"), active: filterStatus === "all" },
-      { label: "Attivi", value: countByStatus("Attivo"), icon: PlayCircle, iconColor: "text-blue-600", bgIcon: "bg-blue-100", onClick: () => toggle("Attivo"), active: filterStatus === "Attivo", activeClass: "border-blue-400 ring-2 ring-blue-200 ring-offset-1" },
-      { label: "In pausa", value: countByStatus("In pausa"), icon: PauseCircle, iconColor: "text-amber-600", bgIcon: "bg-amber-100", onClick: () => toggle("In pausa"), active: filterStatus === "In pausa", activeClass: "border-amber-400 ring-2 ring-amber-200 ring-offset-1" },
-      { label: "Completati", value: countByStatus("Completato"), icon: CheckCircle2, iconColor: "text-emerald-600", bgIcon: "bg-emerald-100", onClick: () => toggle("Completato"), active: filterStatus === "Completato", activeClass: "border-emerald-400 ring-2 ring-emerald-200 ring-offset-1" },
-    ];
-  }, [projects, filterStatus]);
+    return STATUS_FILTERS.map(({ value, label }) => ({
+      value,
+      label,
+      count: list.filter((p) => p.status === value).length,
+    }));
+  }, [projects]);
 
   const filteredProjects = useMemo(() => {
     const list = projects || [];
@@ -164,9 +167,6 @@ const AdminProjects = () => {
   return (
     <AppLayout page="projects" title="Progetti">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-        {/* Box riepilogo stato progetti (admin: i suoi; superadmin: tutti) */}
-        <StatsCardsRow stats={projectStats} />
-
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar
             search={search}
@@ -177,7 +177,14 @@ const AdminProjects = () => {
             buttonVariant="emerald"
             onReset={resetFilters}
             hasActiveFilters={hasActiveFilters}
-          />
+          >
+            <StatusFilterPills
+              filters={projectFilters}
+              active={filterStatus}
+              onChange={setFilterStatus}
+              totalCount={(projects || []).length}
+            />
+          </ActionBar>
 
           {loading && projects.length === 0 ? (
             <Loader label="Caricamento progetti..." />

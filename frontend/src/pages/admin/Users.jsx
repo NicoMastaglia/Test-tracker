@@ -9,10 +9,16 @@ import { filterSearch } from "@/utils/helpers/filterSearch";
 import { isEmailValid } from "@/utils/helpers/validators";
 import ModalForm from "@/utils/components/ModalForm";
 import { userFields } from "@/utils/fields/userFields";
-import StatsCardsRow from "@/utils/components/StatsCardsRow";
+import StatusFilterPills from "@/utils/components/StatusFilterPills";
 import Loader from "@/utils/components/Loader";
-import { UserPlus, Users as UsersIcon, ShieldCheck, ShieldAlert, User } from "lucide-react"
+import { UserPlus } from "lucide-react"
 import { withMinDuration } from "@/utils/helpers/withMinDuration"
+
+const ROLE_FILTERS = [
+  { value: "superadmin", label: "Superadmin" },
+  { value: "admin", label: "Admin" },
+  { value: "user", label: "Tester" },
+];
 
 const Users = () => {
   const emptyNewUserData = {
@@ -27,6 +33,7 @@ const Users = () => {
   const [newUserData, setNewUserData] = useState(emptyNewUserData);
   const [modal, setModal] = useState(false);
   const [search, setSearch] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
   const [creatingUser, setCreatingUser] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
@@ -78,51 +85,29 @@ const Users = () => {
   };
 
   const filterUsers = useMemo(() => {
-    return filterSearch(search, users, ["nome", "cognome", "email"]);
-  }, [search, users]);
+    const bySearch = filterSearch(search, users, ["nome", "cognome", "email"]);
+    return filterRole === "all" ? bySearch : bySearch.filter((u) => u.role === filterRole);
+  }, [search, users, filterRole]);
 
-  const userStats = useMemo(() => {
-    const total = users.length;
-    const admins = users.filter((u) => u.role === "admin").length;
-    const superadmins = users.filter((u) => u.role === "superadmin").length;
-    const standard = total - admins - superadmins;
-    return [
-      {
-        label: "Utenti totali",
-        value: total,
-        icon: UsersIcon,
-        iconColor: "text-emerald-600",
-        bgIcon: "bg-emerald-100",
-      },
-      {
-        label: "Admin",
-        value: admins,
-        icon: ShieldCheck,
-        iconColor: "text-violet-600",
-        bgIcon: "bg-violet-100",
-      },
-      {
-        label: "Superadmin",
-        value: superadmins,
-        icon: ShieldAlert,
-        iconColor: "text-pink-700",
-        bgIcon: "bg-pink-100",
-      },
-      {
-        label: "Tester",
-        value: standard,
-        icon: User,
-        iconColor: "text-green-700",
-        bgIcon: "bg-green-100",
-      },
-    ];
-  }, [users]);
+  const roleFilters = useMemo(
+    () =>
+      ROLE_FILTERS.map(({ value, label }) => ({
+        value,
+        label,
+        count: users.filter((u) => u.role === value).length,
+      })),
+    [users],
+  );
+
+  const hasActiveFilters = Boolean(search.trim() || filterRole !== "all");
+  const resetFilters = () => {
+    setSearch("");
+    setFilterRole("all");
+  };
 
   return (
     <AppLayout page="users" title="Utenti">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <StatsCardsRow stats={userStats}  />
-
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar
             search={search}
@@ -131,7 +116,16 @@ const Users = () => {
             buttonText="Nuovo utente"
             onButtonClick={() => setModal(true)}
             buttonVariant="emerald"
-          />
+            onReset={resetFilters}
+            hasActiveFilters={hasActiveFilters}
+          >
+            <StatusFilterPills
+              filters={roleFilters}
+              active={filterRole}
+              onChange={setFilterRole}
+              totalCount={users.length}
+            />
+          </ActionBar>
 
           {loading && users.length === 0 ? (
             <Loader label="Caricamento utenti..." />

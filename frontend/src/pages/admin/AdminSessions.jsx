@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "@/Components/layout/AppLayout";
 import { useSessionContext } from "@/context/Session/SessionContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
-import { PlayCircle, CheckCircle2, ListChecks, CircleSlash, FileSpreadsheet, FileText } from "lucide-react";
+import { PlayCircle, FileSpreadsheet, FileText } from "lucide-react";
 import StandardTable from "@/utils/components/StandardTable";
-import StatsCardsRow from "@/utils/components/StatsCardsRow";
+import StatusFilterPills from "@/utils/components/StatusFilterPills";
 import ActionBar from "@/utils/components/ActionBar";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
@@ -65,11 +65,6 @@ const AdminSessions = () => {
     return filterStatus === "all" ? result : result.filter((s) => s.status === filterStatus);
   }, [sessions, search, filterTester, filterDateFrom, filterStatus]);
 
-  // "blocked" è un filtro sintetico (deriva da has_blocked_task, non da un vero status),
-  // quindi ha un toggle dedicato invece di riusare quello generico sullo status letterale
-  const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
-  const toggleBlocked = () => setFilterStatus((prev) => (prev === "blocked" ? "all" : "blocked"));
-
   const hasActiveFilters = Boolean(search.trim() || filterTester.trim() || filterDateFrom || filterStatus !== "all");
   const resetFilters = () => {
     setSearch("");
@@ -78,23 +73,27 @@ const AdminSessions = () => {
     setFilterStatus("all");
   };
 
-  const sessionStats = useMemo(
+  // "blocked" è un filtro sintetico (deriva da has_blocked_task, non da un vero status)
+  const sessionFilters = useMemo(
     () => [
-      { label: "Sessioni totali", value: sessions.length, icon: ListChecks, iconColor: "text-slate-600", bgIcon: "bg-slate-100", onClick: () => setFilterStatus("all"), active: filterStatus === "all" },
-      { label: "In corso", value: sessions.filter((s) => s.status === "In corso").length, icon: PlayCircle, iconColor: "text-indigo-600", bgIcon: "bg-indigo-100", onClick: () => toggle("In corso"), active: filterStatus === "In corso", activeClass: "border-indigo-400 ring-2 ring-indigo-200 ring-offset-1" },
-      { label: "Completate", value: sessions.filter((s) => s.status === "Completata").length, icon: CheckCircle2, iconColor: "text-emerald-600", bgIcon: "bg-emerald-100", onClick: () => toggle("Completata"), active: filterStatus === "Completata", activeClass: "border-emerald-400 ring-2 ring-emerald-200 ring-offset-1" },
-      { label: "Bloccate", value: sessions.filter((s) => s.has_blocked_task).length, icon: CircleSlash, iconColor: "text-red-600", bgIcon: "bg-red-100", onClick: toggleBlocked, active: filterStatus === "blocked", activeClass: "border-red-400 ring-2 ring-red-200 ring-offset-1" },
+      { value: "In corso", label: "In corso", count: sessions.filter((s) => s.status === "In corso").length },
+      { value: "Completata", label: "Completate", count: sessions.filter((s) => s.status === "Completata").length },
+      { value: "blocked", label: "Bloccate", count: sessions.filter((s) => s.has_blocked_task).length },
     ],
-    [sessions, filterStatus],
+    [sessions],
   );
 
   return (
     <AppLayout page="admin-sessions" title="Sessioni">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <StatsCardsRow stats={sessionStats} className="grid grid-cols-1 gap-4 sm:grid-cols-4" />
-
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <ActionBar search={search} setSearch={setSearch} placeholder="Cerca per progetto..." onReset={resetFilters} hasActiveFilters={hasActiveFilters}>
+            <StatusFilterPills
+              filters={sessionFilters}
+              active={filterStatus}
+              onChange={setFilterStatus}
+              totalCount={sessions.length}
+            />
             <Input
               placeholder="Cerca per tester..."
               value={filterTester}

@@ -94,7 +94,6 @@ const ChecklistTable = ({
       containerClass="border border-slate-200/80 rounded-xl shadow-sm overflow-hidden bg-white"
       renderRow={(cl) => {
         const totalTasks = cl.items?.length || 0;
-        const completedTasks = cl.items?.filter((t) => t.status === "Completata" || t.status === "Archiviata").length || 0;
         const checklistStatus = getChecklistStatus(cl.items);
 
         return (
@@ -116,9 +115,8 @@ const ChecklistTable = ({
                 </span>
               </div>
             </TableCell>
-            {/* 2. CELLA: TASK — completate/totali, per capire subito l'impatto della checklist sul progetto */}
             <TableCell className="text-center font-semibold text-slate-800 text-sm px-4 py-3">
-              {completedTasks}/{totalTasks}
+              {totalTasks}
             </TableCell>
 
             {/* 3. CELLA: STATO */}

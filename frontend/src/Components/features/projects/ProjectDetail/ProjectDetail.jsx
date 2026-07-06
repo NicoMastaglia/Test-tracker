@@ -4,12 +4,12 @@ import AppLayout from "@/Components/layout/AppLayout";
 import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { Button } from "@/Components/ui/button";
-import { ArrowLeft, Flag, Pencil } from "lucide-react";
+import { ArrowLeft, ChevronRight, Flag, Pencil } from "lucide-react";
 import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { getProjectInfoItems } from "@/utils/helpers/projectInfoItems";
 import { projectEditFields } from "@/utils/fields/projectEditFields";
-import { toDateInputValue } from "@/utils/helpers/tableHelpers";
+import { toDateInputValue, uppercaseFirstLetter } from "@/utils/helpers/tableHelpers";
 import Loader from "@/utils/components/Loader";
 import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
@@ -312,17 +312,31 @@ const ProjectDetail = () => {
           <Loader label="Caricamento dettagli progetto..." />
         ) : selectedProject ? (
           <div className="flex w-full flex-col gap-6 ">
-            <ProjectHeaderCard
-              selectedProject={selectedProject}
-              activeSection={activeSection}
-              oneSectionChange={setActiveSection}
-              counts={projectSectionCounts}
-              isAdmin={isAdmin}
-              isSuperAdmin={isSuperAdmin}
-              onEditProject={handleOpenEditModal}
-              onChangeStatus={handleChangeProjectStatus}
-              onDeleteProject={() => setDeleteModalOpen(true)}
-            />
+            {isAdmin && activeSection === "checklist" ? (
+              <nav className="flex items-center gap-1.5 px-1 text-sm text-slate-500">
+                <button
+                  type="button"
+                  onClick={() => setActiveSection("overview")}
+                  className="transition-colors hover:text-slate-900"
+                >
+                  {uppercaseFirstLetter(selectedProject.name ?? "Progetto")} — Panoramica
+                </button>
+                <ChevronRight className="h-3.5 w-3.5" />
+                <span className="font-medium text-slate-900">Checklist</span>
+              </nav>
+            ) : (
+              <ProjectHeaderCard
+                selectedProject={selectedProject}
+                activeSection={activeSection}
+                oneSectionChange={setActiveSection}
+                counts={projectSectionCounts}
+                isAdmin={isAdmin}
+                isSuperAdmin={isSuperAdmin}
+                onEditProject={handleOpenEditModal}
+                onChangeStatus={handleChangeProjectStatus}
+                onDeleteProject={() => setDeleteModalOpen(true)}
+              />
+            )}
 
             {!isAdmin || activeSection === "overview" ? (
               <ProjectOverviewSection

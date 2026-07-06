@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, ListChecks, Trash2, PlayCircle, CheckCircle2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useChecklistContext } from "@/context/Checklist/ChecklistContext";
 import ActionBar from "@/utils/components/ActionBar";
 import ModalForm from "@/utils/components/ModalForm";
 import ChecklistTable, { getChecklistStatus } from "./ChecklistTable";
-import StatsCardsRow from "@/utils/components/StatsCardsRow";
+import StatusFilterPills from "@/utils/components/StatusFilterPills";
 import { checklistFields } from "@/utils/fields/checklistFields";
 import ProjectCompletedBanner from "@/utils/components/ProjectCompletedBanner";
 import { toast } from "sonner";
@@ -42,8 +42,6 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
     if (projectId) fetchChecklistsByProject(projectId);
   }, [projectId]);
 
-  const toggle = (status) => setFilterStatus((prev) => (prev === status ? "all" : status));
-
   const hasActiveFilters = Boolean(search.trim() || filterStatus !== "all");
   const resetFilters = () => {
     setSearch("");
@@ -59,9 +57,8 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
       : bySearch.filter((cl) => getChecklistStatus(cl.items) === filterStatus);
   }, [checklistItems, search, filterStatus]);
 
-  // Conteggio checklist e task totali derivati dalle righe normalizzate del progetto
+  // Conteggio checklist derivato dalle righe normalizzate del progetto
   const checklistCount = checklistItems.length;
-  const totalTasks = checklistItems.reduce((sum, cl) => sum + (cl.items?.length || 0), 0);
   const countByStatus = (status) => checklistItems.filter((cl) => getChecklistStatus(cl.items) === status).length;
 
   const handleCreate = async () => {
@@ -126,51 +123,15 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
 
 
 
-  const checklistStats = [
-    {
-      label: "Checklist totali",
-      value: checklistCount,
-      icon: ClipboardList,
-      iconColor: "text-indigo-600",
-      bgIcon: "bg-indigo-100",
-      onClick: () => setFilterStatus("all"),
-      active: filterStatus === "all",
-    },
-    {
-      label: "In corso",
-      value: countByStatus("In Corso"),
-      icon: PlayCircle,
-      iconColor: "text-amber-600",
-      bgIcon: "bg-amber-100",
-      onClick: () => toggle("In Corso"),
-      active: filterStatus === "In Corso",
-      activeClass: "border-amber-400 ring-2 ring-amber-200 ring-offset-1",
-    },
-    {
-      label: "Completate",
-      value: countByStatus("Completata"),
-      icon: CheckCircle2,
-      iconColor: "text-emerald-600",
-      bgIcon: "bg-emerald-100",
-      onClick: () => toggle("Completata"),
-      active: filterStatus === "Completata",
-      activeClass: "border-emerald-400 ring-2 ring-emerald-200 ring-offset-1",
-    },
-    {
-      label: "Task totali",
-      value: totalTasks,
-      icon: ListChecks,
-      iconColor: "text-blue-600",
-      bgIcon: "bg-blue-100",
-    },
+  const checklistFilters = [
+    { value: "Non Iniziata", label: "Non iniziate", count: countByStatus("Non Iniziata") },
+    { value: "In Corso", label: "In corso", count: countByStatus("In Corso") },
+    { value: "Completata", label: "Completate", count: countByStatus("Completata") },
   ];
 
   return (
 
     <div className="w-full max-w-5xl mx-auto space-y-2 px-4 py-2">
-
-      {/*SEZIONE STATISTICHE */}
-      <StatsCardsRow stats={checklistStats} />
 
       {isCompleted && <ProjectCompletedBanner />}
 
@@ -185,7 +146,14 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
           buttonVariant="emerald"
           onReset={resetFilters}
           hasActiveFilters={hasActiveFilters}
-        />
+        >
+          <StatusFilterPills
+            filters={checklistFilters}
+            active={filterStatus}
+            onChange={setFilterStatus}
+            totalCount={checklistCount}
+          />
+        </ActionBar>
 
 
       {/* 2. SEZIONE TABELLA: progetto Completato = sola consultazione, niente Modifica/Elimina */}
