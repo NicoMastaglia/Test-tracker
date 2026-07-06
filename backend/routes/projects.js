@@ -939,7 +939,8 @@ router.get('/:id/activities',checkUser, async (req,res)=>{
    )
    LEFT JOIN user ru ON ru.id = COALESCE(
      CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.assignedTo')) AS UNSIGNED),
-     CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.userId')) AS UNSIGNED)
+     CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.userId')) AS UNSIGNED),
+     CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.unassignedFrom')) AS UNSIGNED)
    )
    LEFT JOIN test_session rs ON rs.id = CAST(JSON_UNQUOTE(JSON_EXTRACT(a.details, '$.sessionId')) AS UNSIGNED)
    WHERE a.project_id = ?  ${filterByUser ? 'AND a.user_id = ?' : ''} ${dateWhereSQL}

@@ -177,7 +177,7 @@ const TaskTable = ({
         <TableCell className="text-center px-5 py-3.5">
           <span className={`inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold ${deadlineStatus.colorClass}`}>
             {deadlineStatus.label}
-            {deadlineStatus.isOverdue && " (scaduta)"}
+            {deadlineStatus.daysLabel && ` · ${deadlineStatus.daysLabel}`}
           </span>
         </TableCell>
 

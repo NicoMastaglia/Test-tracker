@@ -9,6 +9,7 @@ import {
   getFullName,
   getProjectStatusBadgeClass,
   getClickableRowProps,
+  getDeadlineStatus,
 } from "@/utils/helpers/tableHelpers";
 import UserAvatar from "@/utils/components/UserAvatar";
 import TableActionButton from "@/utils/components/TableActionButton";
@@ -22,6 +23,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   const assignedUsers = Array.isArray(project.user_list) ? project.user_list : [];
   const visibleAssignees = assignedUsers.slice(0, 2);
   const extraAssignees = Math.max(assignedUsers.length - visibleAssignees.length, 0);
+  const deadlineStatus = getDeadlineStatus(project.deadline, project.status === "Completato");
 
   
 
@@ -126,8 +128,19 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
   </TableCell>
 
   {/* 5. CELLA: DEADLINE (Testo Grigio Scuro Elegante, Centrato) */}
-  <TableCell className="text-center px-4 py-3 font-medium text-sm text-muted-foreground">
-    {project.deadline ? formatTableDate(project.deadline) : "—"}
+  <TableCell className="text-center px-4 py-3">
+    {project.deadline ? (
+      <div className="flex flex-col items-center gap-1">
+        <span className="font-medium text-sm text-muted-foreground">{formatTableDate(project.deadline)}</span>
+        {deadlineStatus.daysLabel && (
+          <span className={`inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold ${deadlineStatus.colorClass}`}>
+            {deadlineStatus.daysLabel}
+          </span>
+        )}
+      </div>
+    ) : (
+      <span className="font-medium text-sm text-muted-foreground">—</span>
+    )}
   </TableCell>
 
   {/* 6. CELLA: ULTIMO AGGIORNAMENTO (Grigio Chiaro, Centrato) */}

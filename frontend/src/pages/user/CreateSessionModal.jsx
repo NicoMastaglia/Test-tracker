@@ -147,7 +147,7 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
                           {deadlineStatus.hasDeadline && (
                             <span className={`ml-2 shrink-0 rounded-lg px-2 py-0.5 text-xs font-semibold ${deadlineStatus.colorClass}`}>
                               {deadlineStatus.label}
-                              {deadlineStatus.isOverdue && " (scaduta)"}
+                              {deadlineStatus.daysLabel && ` · ${deadlineStatus.daysLabel}`}
                             </span>
                           )}
                         </CommandItem>

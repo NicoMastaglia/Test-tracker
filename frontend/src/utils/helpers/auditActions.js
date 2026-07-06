@@ -153,6 +153,12 @@ export const auditActions = {
     bgColor: "bg-teal-50 dark:bg-teal-500/10",
     icon: UserCheck,
   },
+  "task.unassigned": {
+    label: "TASK : TESTER RIMOSSO",
+    color: "text-orange-700 dark:text-orange-400",
+    bgColor: "bg-orange-50 dark:bg-orange-500/10",
+    icon: UserX,
+  },
   "task.status_blocked": {
     label: "TASK BLOCCATA",
     color: "text-orange-700 dark:text-orange-400",
@@ -233,6 +239,7 @@ export const detailFieldMap = {
   description: { label: "Descrizione" },
   newDescription: { label: "Nuova descrizione" },
   assignedTo: { label: "Assegnata a" },
+  unassignedFrom: { label: "Tester rimosso" },
   sessionId: { label: "Sessione" },
   checklistItemIds: { label: "Task incluse" },
   note: { label: "Nota" },

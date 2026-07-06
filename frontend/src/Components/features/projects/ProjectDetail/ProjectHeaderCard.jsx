@@ -55,7 +55,7 @@ const ProjectHeaderCard = ({
       description={
         activeSection === "overview" ? (
           <div className="flex flex-col gap-1.5 text-left">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground wrap-break-word">
               {selectedProject.description
                 ? uppercaseFirstLetter(selectedProject.description)
                 : "Nessuna descrizione"}

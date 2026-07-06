@@ -312,7 +312,20 @@ export const getDeadlineStatus = (deadlineRaw, isDone = false) => {
     ? "text-slate-600 bg-slate-100/50 dark:text-slate-300 dark:bg-slate-500/10"
     : getColorsForDeadline(daysLeft);
 
-  return { hasDeadline, daysLeft, isOverdue, label, colorClass };
+  // testo del countdown: mai un numero negativo, un ritardo si esprime come "Ritardo di X giorni"
+  let daysLabel = "";
+  if (hasDeadline && !isDone) {
+    if (isOverdue) {
+      const daysLate = Math.abs(daysLeft);
+      daysLabel = `Ritardo di ${daysLate} ${daysLate === 1 ? "giorno" : "giorni"}`;
+    } else if (daysLeft === 0) {
+      daysLabel = "Scade oggi";
+    } else {
+      daysLabel = `Tra ${daysLeft} ${daysLeft === 1 ? "giorno" : "giorni"}`;
+    }
+  }
+
+  return { hasDeadline, daysLeft, isOverdue, label, colorClass, daysLabel };
 };
 
 
