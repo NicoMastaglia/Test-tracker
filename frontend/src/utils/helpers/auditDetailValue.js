@@ -1,4 +1,4 @@
-import { formatProjectDateTime } from "@/utils/helpers/tableHelpers";
+import { formatProjectDateTime, getFullName } from "@/utils/helpers/tableHelpers";
 
 // chiavi i cui valori grezzi (id numerici, array di id) vengono sostituite con
 // informazioni leggibili già risolte dal BE (related_user_*, session_started_at)
@@ -6,8 +6,11 @@ import { formatProjectDateTime } from "@/utils/helpers/tableHelpers";
 // sia dall'audit log generale che da quello di progetto
 export const resolveDetailValue = (key, value, item) => {
   if (key === "assignedTo" || key === "userId" || key === "unassignedFrom") {
+    // stessa normalizzazione di getFullName (iniziale maiuscola, resto minuscolo):
+    // i valori grezzi in DB possono essere tutti maiuscoli/minuscoli a seconda di
+    // come sono stati digitati alla creazione dell'utente
     return item.related_user_nome
-      ? `${item.related_user_nome} ${item.related_user_cognome ?? ""}`.trim()
+      ? getFullName({ nome: item.related_user_nome, cognome: item.related_user_cognome })
       : `Utente #${value}`;
   }
   if (key === "sessionId") {

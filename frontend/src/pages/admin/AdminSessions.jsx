@@ -30,7 +30,6 @@ const AdminSessions = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [filterTester, setFilterTester] = useState("");
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -45,12 +44,9 @@ const AdminSessions = () => {
 
     if (search.trim()) {
       const query = search.toLowerCase();
-      result = result.filter((s) => (s.project_name ?? "").toLowerCase().includes(query));
-    }
-
-    if (filterTester.trim()) {
-      const query = filterTester.toLowerCase();
       result = result.filter((s) =>
+        (s.project_name ?? "").toLowerCase().includes(query) ||
+        String(s.id).includes(search.trim()) ||
         getFullName({ nome: s.tester_nome, cognome: s.tester_cognome }).toLowerCase().includes(query)
       );
     }
@@ -63,12 +59,11 @@ const AdminSessions = () => {
       return result.filter((s) => s.has_blocked_task);
     }
     return filterStatus === "all" ? result : result.filter((s) => s.status === filterStatus);
-  }, [sessions, search, filterTester, filterDateFrom, filterStatus]);
+  }, [sessions, search, filterDateFrom, filterStatus]);
 
-  const hasActiveFilters = Boolean(search.trim() || filterTester.trim() || filterDateFrom || filterStatus !== "all");
+  const hasActiveFilters = Boolean(search.trim() || filterDateFrom || filterStatus !== "all");
   const resetFilters = () => {
     setSearch("");
-    setFilterTester("");
     setFilterDateFrom("");
     setFilterStatus("all");
   };
@@ -87,18 +82,12 @@ const AdminSessions = () => {
     <AppLayout page="admin-sessions" title="Sessioni">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-          <ActionBar search={search} setSearch={setSearch} placeholder="Cerca per progetto..." onReset={resetFilters} hasActiveFilters={hasActiveFilters}>
+          <ActionBar search={search} setSearch={setSearch} placeholder="Cerca per ID sessione,tester,o progetto" onReset={resetFilters} hasActiveFilters={hasActiveFilters}>
             <StatusFilterPills
               filters={sessionFilters}
               active={filterStatus}
               onChange={setFilterStatus}
               totalCount={sessions.length}
-            />
-            <Input
-              placeholder="Cerca per tester..."
-              value={filterTester}
-              onChange={(e) => setFilterTester(e.target.value)}
-              className="h-10 w-full sm:w-48 border-border focus-visible:ring-emerald-500"
             />
             <Input
               type="date"
@@ -140,10 +129,9 @@ const AdminSessions = () => {
               data={filteredSessions}
               emptyMessage="Nessuna sessione trovata."
               emptyIcon={PlayCircle}
-              renderRow={(s, index) => (
+              renderRow={(s) => (
                 <AdminSessionRow
                   session={s}
-                  index={index + 1}
                   onView={(id) => navigate(`/sessions/${id}`)}
                 />
               )}

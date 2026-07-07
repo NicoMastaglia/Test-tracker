@@ -2667,7 +2667,7 @@
           "Users"
         ],
         "summary": "Ottieni dati utente per ID",
-        "description": "Restituisce i dati di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
+        "description": "Restituisce i dati di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token. Solo superadmin.",
         "security": [
           {
             "bearerAuth": []
@@ -2927,6 +2927,33 @@
               }
             }
           },
+          "400": {
+            "description": "Eliminazione non consentita: account proprio, ultimo superadmin, o utente ancora creatore/responsabile di uno o più progetti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                },
+                "examples": {
+                  "ownsProjects": {
+                    "value": {
+                      "message": "Non puoi eliminare questo utente: è creatore o responsabile di uno o più progetti. Riassegna prima il responsabile di quei progetti."
+                    }
+                  },
+                  "lastSuperadmin": {
+                    "value": {
+                      "message": "Non puoi eliminare l'ultimo superadmin del sistema."
+                    }
+                  },
+                  "self": {
+                    "value": {
+                      "message": "Non puoi eliminare il tuo stesso account."
+                    }
+                  }
+                }
+              }
+            }
+          },
           "401": {
             "description": "Token mancante o non valido",
             "content": {
@@ -2985,7 +3012,7 @@
           "Users"
         ],
         "summary": "Progetti e sessioni collegati a un utente",
-        "description": "Restituisce i dati dell'utente insieme all'elenco dei progetti a cui è collegato (come tester assegnato o come responsabile) e alle sue sessioni di test, usato dalla pagina di dettaglio utente lato admin/superadmin. Richiede il token JWT nell'header Authorization come Bearer token. Solo admin/superadmin.",
+        "description": "Restituisce i dati dell'utente insieme all'elenco dei progetti a cui è collegato (come tester assegnato o come responsabile) e alle sue sessioni di test, usato dalla pagina di dettaglio utente lato superadmin. Richiede il token JWT nell'header Authorization come Bearer token. Solo superadmin.",
         "security": [
           {
             "bearerAuth": []
@@ -3206,136 +3233,6 @@
                 },
                 "example": {
                   "message": "Ruolo non valido"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token mancante o non valido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "examples": {
-                  "missingToken": {
-                    "value": {
-                      "message": "Token mancante o formato non valido"
-                    }
-                  },
-                  "invalidToken": {
-                    "value": {
-                      "message": "Token non valido"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Utente non trovato",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "example": {
-                  "message": "Utente non trovato"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Errore del server",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorWithDetail"
-                },
-                "example": {
-                  "message": "Errore del server",
-                  "specific": "Internal error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/{id}/password": {
-      "patch": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Aggiorna password utente per ID",
-        "description": "Aggiorna la password di un utente specifico tramite ID. Richiede il token JWT nell'header Authorization come Bearer token.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID dell'utente",
-            "example": 1
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "Newpassword": {
-                    "type": "string",
-                    "format": "password",
-                    "example": "PasswordNuova123!"
-                  }
-                },
-                "required": [
-                  "Newpassword"
-                ]
-              },
-              "example": {
-                "Newpassword": "PasswordNuova123!"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Password aggiornata con successo",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SuccessMessage"
-                },
-                "example": {
-                  "message": "Password aggiornata con successo"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Dati di input non validi o password attuale errata",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorMessage"
-                },
-                "examples": {
-                  "invalidPassword": {
-                    "value": {
-                      "message": "Password errata"
-                    }
-                  }
                 }
               }
             }

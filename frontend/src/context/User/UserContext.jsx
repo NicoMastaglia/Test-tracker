@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer } from "react";
+import { toast } from "sonner";
 
 import { initialState, userReducer } from "./UserReducer";
 import { getToken } from "@/services/config";
@@ -13,7 +14,6 @@ import {
   updateUserById,
   deleteUserById,
   updateUserRoleById,
-  updateUserPasswordById,
   getUserRelations,
 } from "@/services/User/user";
 import { useAuthContext } from "@/context/Auth/AuthContext";
@@ -89,6 +89,7 @@ export const UserProvider = ({ children }) => {
     } catch (error) {
       console.error("Errore durante il fetch degli utenti:", error);
       dispatch({ type: 'SET_ERROR', payload: error.message })
+      toast.error("Errore durante il caricamento degli utenti")
     }
   }
 
@@ -100,6 +101,7 @@ export const UserProvider = ({ children }) => {
       dispatch({ type: 'SET_SELECTED_USER', payload: data })
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message })
+      toast.error("Errore durante il caricamento dell'utente")
     }
   }
 
@@ -163,6 +165,7 @@ export const UserProvider = ({ children }) => {
       }
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message })
+      throw error
     }
   }
 
@@ -185,19 +188,6 @@ export const UserProvider = ({ children }) => {
       }
       await fetchUsers()
       return updatedUser
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error.message })
-      throw error
-    }
-  }
-
-  const changeUserPasswordById = async (user_id, newPassword) => {
-    dispatch({ type: 'SET_LOADING' })
-    try {
-      const token = getToken()
-      const data = await updateUserPasswordById(token, user_id, newPassword)
-      dispatch({ type: 'CLEAR_LOADING' })
-      return data
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message })
       throw error
@@ -230,7 +220,6 @@ export const UserProvider = ({ children }) => {
         updateUser: editUser,
         deleteUser: removeUser,
         changeUserRole,
-        changeUserPasswordById,
         clearSelectedUser,
       }}
     >

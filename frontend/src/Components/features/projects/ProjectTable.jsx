@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect,useMemo } from 'react';
 import {Button} from "@/Components/ui/button"
 import { toast } from "sonner";
 import {Edit, Folder, Flag} from "lucide-react"
@@ -9,7 +9,7 @@ import ProjectRow from "./ProjectRow";
 import StandardTable from "@/utils/components/StandardTable";
 import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
-import { toDateInputValue } from "@/utils/helpers/tableHelpers";
+import { toDateInputValue, getFullName } from "@/utils/helpers/tableHelpers";
 import { getAvailableProjectStatuses } from "@/utils/helpers/statusFlow";
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
@@ -36,7 +36,7 @@ const ProjectTable = ({ data, users = [] }) => {
   } = useProjectContext();
 
   const [editingProject, setEditingProject] = useState(null);
-  const [editForm, setEditForm] = useState({ name: "", description: "",deadline: "" });
+  const [editForm, setEditForm] = useState({ name: "", description: "",deadline: "", responsabile: "" });
   const [statusProject, setStatusProject] = useState(null);
   const [statusValue, setStatusValue] = useState("");
   const [completeConfirmOpen, setCompleteConfirmOpen] = useState(false);
@@ -45,18 +45,43 @@ const ProjectTable = ({ data, users = [] }) => {
 
   const isAdmin = user?.role !== "user";
   const isSuperadmin = user?.role === "superadmin";
-  
- 
+
+
   useEffect(() => {
     if (editingProject) {
       setEditForm({
         name: editingProject.name ?? "",
         description: editingProject.description ?? "",
         deadline: toDateInputValue(editingProject.deadline),
+        responsabile: editingProject.manager?.id ? String(editingProject.manager.id) : "",
       });
     }
   }, [editingProject]);
-  
+
+  // il responsabile è riassegnabile solo dal superadmin (il BE ignora manager_id per admin)
+  const editFields = useMemo(() => {
+    const base = [
+      { name: "name", label: "Nome", type: "text" },
+      { name: "description", label: "Descrizione", type: "textarea" },
+      { name: "deadline", label: "Deadline", type: "date" },
+    ];
+    if (!isSuperadmin) return base;
+    return [
+      ...base,
+      {
+        name: "responsabile",
+        label: "Responsabile",
+        type: "select",
+        placeholder: "Seleziona il responsabile del progetto",
+        helperText: "Cambiare il responsabile toglierà l'accesso di gestione al precedente, se non è anche il creatore del progetto.",
+        options: users.filter((u) => u.role === "admin").map((u) => ({
+          value: String(u.id),
+          label: getFullName(u),
+        })),
+      },
+    ];
+  }, [isSuperadmin, users]);
+
   const openEditDialog = (project) => {
     if (!isAdmin) return;
     // editForm viene popolato dalla useEffect su editingProject
@@ -89,6 +114,7 @@ const ProjectTable = ({ data, users = [] }) => {
         name: editForm.name.trim(),
         description: editForm.description.trim(),
         deadline: editForm.deadline || null,
+        ...(isSuperadmin && editForm.responsabile ? { manager_id: Number(editForm.responsabile) } : {}),
       });
       await fetchProjects();
       toast.success("Progetto aggiornato con successo");
@@ -175,7 +201,8 @@ const ProjectTable = ({ data, users = [] }) => {
   const hasProjectChanges =
     editForm.name.trim() !== (editingProject?.name ?? "").trim() ||
     editForm.description.trim() !== (editingProject?.description ?? "").trim() ||
-    editForm.deadline !== toDateInputValue(editingProject?.deadline);
+    editForm.deadline !== toDateInputValue(editingProject?.deadline) ||
+    (isSuperadmin && editForm.responsabile !== (editingProject?.manager?.id ? String(editingProject.manager.id) : ""));
 
 
   const customFooter = (
@@ -222,13 +249,7 @@ const ProjectTable = ({ data, users = [] }) => {
         setModalOpen={setEditingProject}
         title="Modifica progetto"
         infos="Aggiorna nome e descrizione del progetto"
-        fields={
-          
-          [
-          { name: "name", label: "Nome", type: "text" },
-          { name: "description", label: "Descrizione", type: "textarea" },
-          { name: "deadline", label: "Deadline", type: "date" },
-        ]}
+        fields={editFields}
         formData={editForm}
         setFormData={setEditForm}
         onSubmit={handleUpdateProject}
@@ -270,7 +291,7 @@ const ProjectTable = ({ data, users = [] }) => {
         infos="Stai per impostare il progetto su “Completato”."
         hasDescripion={true}
         description={(
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
             È un'azione finale: il progetto non sarà più modificabile e non si potrà tornare allo stato precedente. Confermi?
           </div>
         )}
@@ -288,6 +309,7 @@ const ProjectTable = ({ data, users = [] }) => {
         setModalOpen={setDeleteProjectTarget}
         itemPhrase="il progetto"
         itemName={deleteProjectTarget?.name}
+        extraInfo="Verranno eliminate anche tutte le checklist, le task, le sessioni di test e le assegnazioni del team collegate a questo progetto."
         onConfirm={handleDeleteProject}
         confirmLabel="Sì, Elimina progetto"
         loading={deletingProject}

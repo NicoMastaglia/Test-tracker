@@ -27,7 +27,7 @@ const UserProject = () => {
 
   // progetti filtrati per nome + stato (derivati, niente stato duplicato)
   const filteredProjects = useMemo(() => {
-    const bySearch = projects.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+    const bySearch = projects.filter((p) => (p.name ?? "").toLowerCase().includes(search.toLowerCase()));
     return filterStatus === "all" ? bySearch : bySearch.filter((p) => p.status === filterStatus);
   }, [projects, search, filterStatus]);
 

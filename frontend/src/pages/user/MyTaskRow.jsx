@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
 import { getTaskStatusBadgeClass, getDeadlineStatus, uppercaseFirstLetter } from "@/utils/helpers/tableHelpers";
@@ -36,6 +37,19 @@ const MyTaskRow = ({ task }) => {
           <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-current" />
           {task.status || "N/D"}
         </Badge>
+      </TableCell>
+
+      <TableCell>
+        {task.open_session_id ? (
+          <Link
+            to={`/sessions/${task.open_session_id}`}
+            className="inline-flex items-center rounded-lg bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 hover:bg-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:hover:bg-blue-500/25"
+          >
+            Sessione #{task.open_session_id}
+          </Link>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
       </TableCell>
     </TableRow>
   );

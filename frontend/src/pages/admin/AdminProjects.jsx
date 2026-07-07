@@ -146,7 +146,7 @@ const AdminProjects = () => {
         label: "Responsabile",
         placeholder: "Seleziona il responsabile del progetto",
         type: "select",
-        info: "Solo utenti con ruolo admin possono essere responsabili di un progetto",
+        helperText: "Solo utenti con ruolo admin possono essere responsabili di un progetto",
         required: true,
       
         options: user?.role === 'admin' 

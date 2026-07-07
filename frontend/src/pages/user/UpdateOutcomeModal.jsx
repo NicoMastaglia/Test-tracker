@@ -19,11 +19,17 @@ import { Textarea } from "@/Components/ui/textarea";
 const UpdateOutcomeModal = ({ modalOpen, setModalOpen, task, onSubmit }) => {
   const [outcome, setOutcome] = useState(task?.outcome ?? "");
   const [note, setNote] = useState(task?.note ?? "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!outcome) return;
-    await onSubmit?.(outcome, note);
+    if (!outcome || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onSubmit?.(outcome, note);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -76,15 +82,15 @@ const UpdateOutcomeModal = ({ modalOpen, setModalOpen, task, onSubmit }) => {
           </div>
 
           <DialogFooter className="flex gap-2 sm:gap-0">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="hover:bg-muted">
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={isSubmitting} className="hover:bg-muted">
               Annulla
             </Button>
             <Button
               type="submit"
-              disabled={!outcome}
+              disabled={!outcome || isSubmitting}
               className="bg-emerald-500 text-white hover:bg-emerald-600"
             >
-              Salva esito
+              {isSubmitting ? "Salvataggio..." : "Salva esito"}
             </Button>
           </DialogFooter>
         </form>

@@ -13,9 +13,10 @@ const STATUS_FILTERS = ["TODO", "In corso", "Completata", "Bloccata", "Archiviat
 const headers = [
   { label: "Progetto", key: "project_name" },
   { label: "Checklist", key: "checklist_title" },
-  { label: "Descrizione", key: "description" },
+  { label: "Task", key: "description" },
   { label: "Scadenza", key: "deadline" },
   { label: "Stato", key: "status" },
+  { label: "Sessione", key: "open_session_id" },
 ];
 
 const MyTasks = () => {

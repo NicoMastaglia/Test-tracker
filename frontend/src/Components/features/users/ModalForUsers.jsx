@@ -3,24 +3,23 @@ import React, { useState } from "react";
 
 import { Button } from "@/Components/ui/button";
 
-import { User, Mail, ShieldCheck, Trash2, ShieldAlert, KeyRound } from "lucide-react";
+import { User, Mail, ShieldCheck, Trash2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { isEmailValid } from "@/utils/helpers/validators";
 import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { userFields } from "@/utils/fields/userFields";
-import { getFullName } from "@/utils/helpers/tableHelpers";
+import { getFullName, getRoleInfo } from "@/utils/helpers/tableHelpers";
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
 const ModalForUsers = () => {
-  const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole, changeUserPasswordById } = useUserContext();
+  const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState(false);
-  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
-  const [resetPasswordForm, setResetPasswordForm] = useState({ password: "" });
-  const [resettingPassword, setResettingPassword] = useState(false);
+  const [roleChangeConfirmOpen, setRoleChangeConfirmOpen] = useState(false);
+  const [changingRole, setChangingRole] = useState(false);
   const [formData, setFormData] = useState({
     name: selectedUser?.nome ?? "",
     surname: selectedUser?.cognome ?? "",
@@ -28,7 +27,7 @@ const ModalForUsers = () => {
     role: selectedUser?.role ?? "",
   });
 
-  const isCurrentSuperadmin = formData?.role === "superadmin";
+  const isCurrentSuperadmin = selectedUser?.role === "superadmin";
 
   if (!selectedUser) {
     return null;
@@ -73,40 +72,26 @@ const ModalForUsers = () => {
     }
   };
 
-  const handleRoleChange = async () => {
+  const handleRoleChange = () => {
     if (!hasRoleChanges) {
       toast.info("Il ruolo è già aggiornato");
       return;
     }
+    setRoleChangeConfirmOpen(true);
+  };
 
+  const confirmRoleChange = async () => {
+    setChangingRole(true);
     try {
       await changeUserRole(selectedUser.id, formData.role);
       toast.success("Ruolo utente aggiornato con successo");
+      setRoleChangeConfirmOpen(false);
       handleCloseModal();
     } catch (error) {
       toast.error("Errore durante l'aggiornamento del ruolo");
       console.error("Errore durante l'aggiornamento del ruolo:", error.response?.data || error.message);
-    }
-  };
-
-  const handleResetPassword = async () => {
-    const newPassword = resetPasswordForm.password;
-    if (newPassword.length < 8) {
-      toast.error("La nuova password deve avere almeno 8 caratteri");
-      return;
-    }
-
-    setResettingPassword(true);
-    try {
-      await changeUserPasswordById(selectedUser.id, newPassword);
-      toast.success("Password dell'utente aggiornata con successo");
-      setResetPasswordOpen(false);
-      setResetPasswordForm({ password: "" });
-    } catch (error) {
-      const message = error.response?.data?.specific || error.response?.data?.message || "Errore durante il reset della password";
-      toast.error(message);
     } finally {
-      setResettingPassword(false);
+      setChangingRole(false);
     }
   };
 
@@ -132,7 +117,7 @@ const ModalForUsers = () => {
         <Button
             type="button"
             variant="ghost"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-400 dark:hover:bg-red-500/10"
             onClick={() => setDeleteConfirmOpen(true)}
         >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -172,14 +157,6 @@ const ModalForUsers = () => {
                 Aggiorna Ruolo
             </Button>
             )}
-            <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setResetPasswordOpen(true)}
-            >
-                <KeyRound className="mr-2 h-4 w-4" />
-                Reset Password
-            </Button>
         </div>
     </div>
 );
@@ -211,22 +188,28 @@ const ModalForUsers = () => {
   
 
       <ModalForm
-        modalOpen={resetPasswordOpen}
-        setModalOpen={setResetPasswordOpen}
-        title="Reset Password"
-        infos={`Imposta una nuova password per ${getFullName(selectedUser)}.`}
-        fields={[
-          { name: "password", label: "Nuova password", type: "password" },
-        ]}
-        formData={resetPasswordForm}
-        setFormData={setResetPasswordForm}
-        onSubmit={handleResetPassword}
-        submitLabel="Reset Password"
+        modalOpen={roleChangeConfirmOpen}
+        setModalOpen={(open) => { if (!open && !changingRole) setRoleChangeConfirmOpen(false); }}
+        title="Cambia ruolo utente"
+        infos="Il nuovo ruolo cambia subito i permessi dell'utente nell'app."
+        hasDescripion={true}
+        description={(
+          <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 text-sm text-center dark:border-amber-500/20 dark:bg-amber-500/10">
+            <p className="text-amber-800 dark:text-amber-400">
+              Cambiare il ruolo di <span className="font-semibold text-amber-950 dark:text-amber-300">{getFullName(selectedUser)}</span> da{" "}
+              <span className="font-semibold text-amber-950 dark:text-amber-300">{getRoleInfo(selectedUser.role).label}</span> a{" "}
+              <span className="font-semibold text-amber-950 dark:text-amber-300">{getRoleInfo(formData.role).label}</span>?
+            </p>
+          </div>
+        )}
+        onSubmit={confirmRoleChange}
+        submitLabel="Aggiorna Ruolo"
         cancelLabel="Annulla"
-        submitClassName="bg-emerald-500 text-white hover:bg-emerald-600"
-        titleIcon={KeyRound}
-        iconColor="text-emerald-600"
-        loading={resettingPassword}
+        dialogClassName="sm:max-w-105"
+        titleIcon={ShieldCheck}
+        iconColor="text-amber-500"
+        submitVariant="destructive"
+        loading={changingRole}
       />
 
       <DeleteConfirmModal

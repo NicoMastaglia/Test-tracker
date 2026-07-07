@@ -10,7 +10,7 @@ import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import ProjectCompletedBanner from "@/utils/components/ProjectCompletedBanner";
 import Loader from "@/utils/components/Loader";
-import { ArrowLeft, ChevronRight, Pencil, User2,UserMinus} from "lucide-react";
+import { ArrowLeft, ChevronRight, Pencil, User2,UserMinus, CircleSlash} from "lucide-react";
 import { toast } from "sonner";
 import { getFullName, toDateInputValue } from "@/utils/helpers/tableHelpers";
 import {useTaskContext} from "@/context/Task/TaskContext"
@@ -39,7 +39,8 @@ const ChecklistDetail = () => {
   const projectLabel = selectedProject?.name ?? `Progetto #${id}`;
   // progetto Completato: sola consultazione, niente azioni di modifica sulle task
   const isProjectCompleted = selectedProject?.status === "Completato";
-  // progetto In pausa: si bloccano solo le nuove task, il resto (assegna, blocca, ecc.) resta
+  // progetto In pausa: nessuna modifica a task/checklist esistenti finché non torna Attivo
+  // (stesso trattamento di isProjectCompleted, solo reversibile)
   const isProjectPaused = selectedProject?.status === "In pausa";
 
     const [usersList, setUsersList] = useState([]);
@@ -57,6 +58,7 @@ const ChecklistDetail = () => {
   const [editTaskTarget, setEditTaskTarget] = useState(null);
   const [deleteTaskTarget, setDeleteTaskTarget] = useState(null);
   const [deletingTask, setDeletingTask] = useState(false);
+  const [blockTaskTarget, setBlockTaskTarget] = useState(null);
   const [currentTask,setCurrentTask] = useState(null)
 
 
@@ -275,14 +277,18 @@ const ChecklistDetail = () => {
 
   
 
-  const handleBlock = async (task) => {
-  try {
-    await updateTask(task.id, "Bloccata");
-    await fetchChecklistsByProject(id);
-    toast.success("Task bloccata");
-  } catch (error) {
-    toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante il blocco della task");
-  }
+  const handleBlock = (task) => setBlockTaskTarget(task);
+
+  const confirmBlockTask = async () => {
+    if (!blockTaskTarget) return;
+    try {
+      await updateTask(blockTaskTarget.id, "Bloccata");
+      await fetchChecklistsByProject(id);
+      toast.success("Task bloccata");
+      setBlockTaskTarget(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante il blocco della task");
+    }
   };
 
   const handleUnblock = async (task) => {
@@ -349,12 +355,17 @@ const handleReopen = async (task) => {
         </div>
 
         {isProjectCompleted && <ProjectCompletedBanner />}
+        {isProjectPaused && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
+            Progetto in pausa: nessuna modifica a checklist o task finché non torna Attivo.
+          </div>
+        )}
 
         {/* content */}
         {checklist && selectedProject ? (
           <ChecklistDetailView
             checklist={checklist}
-            isAdmin={isAdmin && !isProjectCompleted}
+            isAdmin={isAdmin && !isProjectCompleted && !isProjectPaused}
             canAddTask={isAdmin && !isProjectCompleted && !isProjectPaused}
             handleAdd={handleOpenAddTaskModal}
             handleEdit={handleOpenEditTaskModal}
@@ -469,9 +480,9 @@ const handleReopen = async (task) => {
         }
         hasDescripion={true} 
         description={(
-    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 text-sm text-center">
-  <p className="text-amber-800">
-    Rimuovere il tester <span className="font-semibold text-amber-950">{usersList.find((u) => u.id === unassignTaskFormData.user) ? getFullName(usersList.find((u) => u.id === unassignTaskFormData.user)) : "Utente non specificato"}</span> dalla task <span className="font-semibold text-amber-950">"{currentTask?.description || "Task senza descrizione"}"</span>?
+    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 text-sm text-center dark:border-amber-500/20 dark:bg-amber-500/10">
+  <p className="text-amber-800 dark:text-amber-400">
+    Rimuovere il tester <span className="font-semibold text-amber-950 dark:text-amber-300">{usersList.find((u) => u.id === unassignTaskFormData.user) ? getFullName(usersList.find((u) => u.id === unassignTaskFormData.user)) : "Utente non specificato"}</span> dalla task <span className="font-semibold text-amber-950 dark:text-amber-300">"{currentTask?.description || "Task senza descrizione"}"</span>?
   </p>
 </div>
         )}
@@ -482,6 +493,28 @@ const handleReopen = async (task) => {
         cancelLabel="Annulla"
         dialogClassName="sm:max-w-105"
         titleIcon={UserMinus}
+        iconColor="text-amber-500"
+        submitVariant="destructive"
+      />
+
+      <ModalForm
+        modalOpen={!!blockTaskTarget}
+        setModalOpen={(open) => { if (!open) setBlockTaskTarget(null); }}
+        title="Blocca task"
+        infos="La task non sarà più modificabile dal tester finché non viene sbloccata."
+        hasDescripion={true}
+        description={(
+          <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 text-sm text-center dark:border-amber-500/20 dark:bg-amber-500/10">
+            <p className="text-amber-800 dark:text-amber-400">
+              Bloccare la task <span className="font-semibold text-amber-950 dark:text-amber-300">"{blockTaskTarget?.description || "Task senza descrizione"}"</span>?
+            </p>
+          </div>
+        )}
+        onSubmit={confirmBlockTask}
+        submitLabel="Blocca Task"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={CircleSlash}
         iconColor="text-amber-500"
         submitVariant="destructive"
       />

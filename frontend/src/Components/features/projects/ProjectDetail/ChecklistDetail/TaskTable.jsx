@@ -90,7 +90,7 @@ const BASE_HEADERS = [
   // },
   {
     key: "description",
-    label: "Descrizione",
+    label: "Task",
     className: "text-center font-semibold text-foreground px-5 py-3.5 w-32",
   },
   {

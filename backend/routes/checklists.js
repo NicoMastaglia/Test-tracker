@@ -235,6 +235,9 @@ router.delete("/:id", checkAdmin, async (req, res) => {
     if (projectRows[0]?.status === "Completato") {
       return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
     }
+    if (projectRows[0]?.status === "In pausa") {
+      return res.status(400).json({ error: "Progetto in pausa: non è possibile eliminare checklist." });
+    }
 
     const [result] = await db.execute(
       "DELETE FROM checklist_template WHERE id = ?",
@@ -526,6 +529,9 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
     if (isOwnerResults[0].project_status === "Completato") {
       return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
     }
+    if (isOwnerResults[0].project_status === "In pausa") {
+      return res.status(400).json({ error: "Progetto in pausa: non è possibile modificare task." });
+    }
 
     const [existingItem] = await db.execute(
       "SELECT id FROM checklist_item WHERE template_id = ? AND id != ? AND REPLACE(LOWER(description), ' ', '') = REPLACE(LOWER(?), ' ', '')",
@@ -602,6 +608,9 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
   if (itemResults[0].project_status === "Completato") {
     return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
   }
+  if (itemResults[0].project_status === "In pausa") {
+    return res.status(400).json({ error: "Progetto in pausa: non è possibile eliminare task." });
+  }
 
   const projectId = itemResults[0].project_id;
 
@@ -658,6 +667,9 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
 
     if (itemResults[0].project_status === "Completato") {
       return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
+    }
+    if (itemResults[0].project_status === "In pausa") {
+      return res.status(400).json({ error: "Progetto in pausa: non è possibile assegnare task." });
     }
 
     const projectId = itemResults[0].project_id;
@@ -739,11 +751,12 @@ router.get('/task/assigned', checkUser, async (req, res) => {
     // le task assegnate per progetto (serve alla modale di creazione sessione).
     const [tasks] = await db.execute(
       `SELECT ci.*, ct.project_id, ct.title AS checklist_title, p.name AS project_name, p.status AS project_status,
-              EXISTS (
-                SELECT 1 FROM session_task st
+              (
+                SELECT ts.id FROM session_task st
                 JOIN test_session ts ON st.session_id = ts.id
                 WHERE st.checklist_item_id = ci.id AND st.outcome IS NULL AND ts.status = 'In corso'
-              ) AS in_open_session
+                LIMIT 1
+              ) AS open_session_id
        FROM checklist_item ci
        JOIN checklist_template ct ON ci.template_id = ct.id
        JOIN project p ON ct.project_id = p.id
@@ -836,6 +849,13 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
     return res.status(403).json({ error: "Accesso negato" })
    }
 
+   if(nextStatus === "Bloccata" && !["TODO", "In corso"].includes(task.currentStatus)) {
+    return res.status(400).json({
+      error: 'Transizione di stato non consentita',
+      message : `Non puoi bloccare una task in stato "${task.currentStatus}".`
+    })
+   }
+
    if(nextStatus === "Archiviata" && task.currentStatus !== "Completata") {
     return res.status(400).json({
       error: 'Transizione di stato non consentita',
@@ -918,6 +938,9 @@ router.patch('/item/:itemId/unassign', checkAdmin, async (req, res) => {
 
     if (itemResults[0].project_status === "Completato") {
       return res.status(400).json({ error: "Progetto completato: non è possibile modificare task o checklist." });
+    }
+    if (itemResults[0].project_status === "In pausa") {
+      return res.status(400).json({ error: "Progetto in pausa: non è possibile rimuovere assegnazioni task." });
     }
 
     const { assigned_to: previousAssignee, project_id: projectId } = itemResults[0];

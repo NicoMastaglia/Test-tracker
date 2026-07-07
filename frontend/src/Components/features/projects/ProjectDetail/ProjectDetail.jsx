@@ -9,7 +9,7 @@ import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { getProjectInfoItems } from "@/utils/helpers/projectInfoItems";
 import { projectEditFields } from "@/utils/fields/projectEditFields";
-import { toDateInputValue, uppercaseFirstLetter } from "@/utils/helpers/tableHelpers";
+import { toDateInputValue, uppercaseFirstLetter, getFullName } from "@/utils/helpers/tableHelpers";
 import Loader from "@/utils/components/Loader";
 import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
@@ -57,7 +57,7 @@ const ProjectDetail = () => {
     location.state?.section ?? "overview",
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState({ name: "", description: "", deadline: "" });
+  const [editFormData, setEditFormData] = useState({ name: "", description: "", deadline: "", responsabile: "" });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingProject, setDeletingProject] = useState(false);
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
@@ -153,11 +153,30 @@ const ProjectDetail = () => {
     setEditFormData({
       name: selectedProject?.name ?? "",
       description: selectedProject?.description ?? "",
-    
       deadline: toDateInputValue(selectedProject?.deadline),
+      responsabile: selectedProject?.manager?.id ? String(selectedProject.manager.id) : "",
     });
     setEditModalOpen(true);
   };
+
+  // il responsabile è riassegnabile solo dal superadmin (il BE ignora manager_id per admin)
+  const editFields = useMemo(() => {
+    if (!isSuperAdmin) return projectEditFields;
+    return [
+      ...projectEditFields,
+      {
+        name: "responsabile",
+        label: "Responsabile",
+        type: "select",
+        placeholder: "Seleziona il responsabile del progetto",
+        helperText: "Cambiare il responsabile toglierà l'accesso di gestione al precedente, se non è anche il creatore del progetto.",
+        options: users.filter((u) => u.role === "admin").map((u) => ({
+          value: String(u.id),
+          label: getFullName(u),
+        })),
+      },
+    ];
+  }, [isSuperAdmin, users]);
 
   const handleEditProject = async () => {
     if (!projectId || !selectedProject) return;
@@ -182,6 +201,7 @@ const ProjectDetail = () => {
         name: editFormData.name,
         description: editFormData.description,
         deadline: editFormData.deadline || null,
+        ...(isSuperAdmin && editFormData.responsabile ? { manager_id: Number(editFormData.responsabile) } : {}),
       });
 
       await fetchProjectDetails(Number(projectId));
@@ -239,7 +259,8 @@ const ProjectDetail = () => {
   const hasProjectChanges =
     editFormData.name.trim() !== (selectedProject?.name ?? "").trim() ||
     editFormData.description.trim() !== (selectedProject?.description ?? "").trim() ||
-    editFormData.deadline !== toDateInputValue(selectedProject?.deadline);
+    editFormData.deadline !== toDateInputValue(selectedProject?.deadline) ||
+    (isSuperAdmin && editFormData.responsabile !== (selectedProject?.manager?.id ? String(selectedProject.manager.id) : ""));
 
   const editModalFooter = (
     <div className="flex items-center justify-end gap-2">
@@ -399,7 +420,7 @@ const ProjectDetail = () => {
         infos="Stai per impostare il progetto su “Completato”."
         hasDescripion={true}
         description={(
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
             È un'azione finale: il progetto non sarà più modificabile e non si potrà tornare allo stato precedente. Confermi?
           </div>
         )}
@@ -437,7 +458,7 @@ const ProjectDetail = () => {
         infos="Aggiorna il nome e la descrizione del progetto o la scadenza. 
         "
         
-        fields={projectEditFields}
+        fields={editFields}
         formData={editFormData}
         setFormData={setEditFormData}
         onSubmit={handleEditProject}

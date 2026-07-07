@@ -651,12 +651,6 @@ router.post("/:id/assign", checkAdmin, async (req, res) => {
 router.get("/:id/assign", checkAdmin, async (req, res) => {
   const projectId = req.params.id;
   const userId = req.user.id;
-  const userRole = req.user.role;
-
-  if(userRole !== "superadmin" && userRole !== "admin") {
-    return res.status(403).json({ error: "Accesso negato" });
-  }
-  
 
   try {
   const [result] = await db.execute(
@@ -729,6 +723,20 @@ router.delete("/:id/assign", checkAdmin, async (req, res) => {
     }
     await db.execute("UPDATE project SET updated_at = NOW() WHERE id = ?", [projectId]);
     await logActivity(req.user.id, projectId, "project.member_unassigned", { userId: userId });
+
+    // le task del tester rimosso restano assegnate a lui (non può più essere
+    // riassegnato finché non torna nel team), ma le sue sessioni ancora aperte su
+    // questo progetto non potranno mai più essere completate: le chiudiamo qui
+    const [closedSessions] = await db.execute(
+      "UPDATE test_session SET status = 'Completata', completed_at = NOW() WHERE project_id = ? AND user_id = ? AND status = 'In corso'",
+      [projectId, userId],
+    );
+    if (closedSessions.affectedRows > 0) {
+      await logActivity(req.user.id, projectId, "session.completed", {
+        reason: "Tester rimosso dal team del progetto",
+      });
+    }
+
     return res.status(200).json({ message: "Assegnazione utente rimossa con successo" });
   } catch (err) {
     console.error(err);
@@ -739,40 +747,49 @@ router.delete("/:id/assign", checkAdmin, async (req, res) => {
 router.delete("/:id", checkSuperadmin, async (req, res) => {
   const projectId = req.params.id;
 
+  let connection;
+
   try {
-    const [result]  = await db.execute("SELECT id,name FROM project WHERE id = ?", [projectId]);
-      
+    const [result] = await db.execute("SELECT id,name FROM project WHERE id = ?", [projectId]);
+
     if (result.length === 0) {
       return res.status(404).json({ error: "Progetto non trovato" });
     }
 
-     await db.execute("DELETE FROM project WHERE id = ?", [projectId])
+    // cancellazione esplicita a cascata: non ci affidiamo al comportamento delle FK
+    // a DB (non verificabile qui, nessuno schema versionato nel repo), così l'esito
+    // è prevedibile indipendentemente da come sono state definite le foreign key
+    connection = await db.getConnection();
+    await connection.beginTransaction();
 
-     await logActivity(req.user.id,null,"project.deleted",{deletedProject: result[0].name})
-     return res.status(200).json({ message: "Progetto eliminato con successo" });
+    await connection.execute(
+      "DELETE st FROM session_task st JOIN test_session ts ON st.session_id = ts.id WHERE ts.project_id = ?",
+      [projectId],
+    );
+    await connection.execute("DELETE FROM test_session WHERE project_id = ?", [projectId]);
+    await connection.execute(
+      "DELETE ci FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id WHERE ct.project_id = ?",
+      [projectId],
+    );
+    await connection.execute("DELETE FROM checklist_template WHERE project_id = ?", [projectId]);
+    await connection.execute("DELETE FROM project_assignment WHERE project_id = ?", [projectId]);
+    await connection.execute("DELETE FROM project WHERE id = ?", [projectId]);
 
+    await connection.commit();
 
-  
-  
-  
+    await logActivity(req.user.id, null, "project.deleted", { deletedProject: result[0].name });
+    return res.status(200).json({ message: "Progetto eliminato con successo" });
   } catch (err) {
+    if (connection) {
+      await connection.rollback();
+    }
     console.error(err);
     return res.status(500).json({ error: "Errore del server" });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
-  // db.execute("DELETE FROM project WHERE id = ?", [projectId])
-  //   .then(async ([result]) => {
-  //     if (result.affectedRows === 0) {
-  //       return res.status(404).json({ error: "Progetto non trovato" });
-  //     }
-
-  //     await logActivity(req.user.id,null, "project.deleted",{deletedProjectId: projectId});
-  //     return res.status(200).json({ message: "Progetto eliminato con successo" });
-  //   })
-  //   .catch((err) => {
-  //     return res
-  //       .status(500)
-  //       .json({ error: "Errore del server", specific: err.message });
-  //   });
 });
 
 

@@ -1,4 +1,5 @@
 import {createContext, useReducer,useContext} from "react";
+import { toast } from "sonner";
 import {getToken} from "@/services/config";
 import {initialState, taskReducer} from "./TaskReducer";
 import{
@@ -28,11 +29,12 @@ export const TaskProvider = ({children}) => {
         }
         catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})
+            toast.error("Errore durante il caricamento delle task assegnate")
         }
 
 
 
-    }  
+    }
 
     const assignTaskToUser = async (taskId, userId) => {
         dispatch({type:'SET_LOADING'})

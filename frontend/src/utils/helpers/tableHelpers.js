@@ -297,9 +297,17 @@ export const getColorsForDeadline = (daysLeft) => {
 export const getDeadlineStatus = (deadlineRaw, isDone = false) => {
   const hasDeadline = !!deadlineRaw && !Number.isNaN(new Date(deadlineRaw).getTime());
 
-  const daysLeft = hasDeadline
-    ? Math.floor((new Date(deadlineRaw) - new Date()) / (1000 * 60 * 60 * 24))
-    : null;
+  // confronto per giorno di calendario, non per timestamp esatto: senza questo,
+  // una deadline "oggi" risulta già in ritardo per qualunque ora del giorno dopo
+  // la mezzanotte (differenza di ore negativa troncata a -1 giorno da Math.floor)
+  let daysLeft = null;
+  if (hasDeadline) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadlineDay = new Date(deadlineRaw);
+    deadlineDay.setHours(0, 0, 0, 0);
+    daysLeft = Math.round((deadlineDay - today) / (1000 * 60 * 60 * 24));
+  }
 
   const isOverdue = hasDeadline && !isDone && daysLeft < 0;
 
@@ -346,11 +354,11 @@ export const getRelativeTime = (date) => {
   }
   if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
-    return `${hours} ore fa`;
+    return `${hours} ${hours === 1 ? "ora" : "ore"} fa`;
   }
   const days = Math.floor(diffInSeconds / 86400);
-  return `${days} giorni fa`;
-  
+  return `${days} ${days === 1 ? "giorno" : "giorni"} fa`;
+
 
 
 }

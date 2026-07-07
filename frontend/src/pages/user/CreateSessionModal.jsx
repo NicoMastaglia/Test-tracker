@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PlayCircle, CheckIcon, Loader2 } from "lucide-react";
+import { PlayCircle, CheckIcon, Loader2, ListChecks } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -141,7 +141,10 @@ const CreateSessionModal = ({ modalOpen, setModalOpen, tasksByProject = [], onSu
                           <span className="flex min-w-0 flex-1 flex-col">
                             <span className="text-sm text-foreground">{task.description}</span>
                             {task.checklist_title && (
-                              <span className="text-xs text-muted-foreground">{task.checklist_title}</span>
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <ListChecks className="h-3 w-3 shrink-0" />
+                                Checklist: {task.checklist_title}
+                              </span>
                             )}
                           </span>
                           {deadlineStatus.hasDeadline && (

@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer } from "react";
+import { toast } from "sonner";
 import { initialState, sessionReducer } from "./SessionReducer";
 import { getToken } from "@/services/config";
 import {
@@ -29,11 +30,8 @@ export const SessionProvider = ({ children }) => {
             const sessionDetail = await getSessionDetailApi(token,sessionId)
             dispatch({type:'SET_SELECTED_SESSION',payload : sessionDetail})
         }catch(error){
-            
-
-
             dispatch({type:'SET_ERROR',payload:error.message  })
-
+            toast.error("Errore durante il caricamento della sessione")
         }
 
     }
@@ -84,6 +82,7 @@ export const SessionProvider = ({ children }) => {
             dispatch({ type: 'SET_SESSIONS', payload: sessions });
         } catch (error) {
             dispatch({ type: 'SET_ERROR', payload: error.message });
+            toast.error("Errore durante il caricamento delle sessioni")
         }
     };
 

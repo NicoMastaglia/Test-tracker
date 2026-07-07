@@ -14,6 +14,7 @@ import {
   getProjectStatusBadgeClass,
   getSessionStatusBadgeClass,
   formatProjectDateTime,
+  getClickableRowProps,
 } from "@/utils/helpers/tableHelpers";
 import { ArrowLeft, Folder, PlayCircle, ShieldQuestion } from "lucide-react";
 
@@ -37,20 +38,29 @@ const UserDetail = () => {
   const navigate = useNavigate();
   const { fetchUserRelations } = useUserContext();
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
     fetchUserRelations(id).then((res) => {
-      if (!cancelled) setData(res);
-    }).catch(() => {
-      if (!cancelled) setData(null);
+      if (!cancelled) {
+        setData(res);
+        setLoading(false);
+      }
+    }).catch((error) => {
+      if (!cancelled) {
+        setFetchError(error.response?.status === 404 ? "not-found" : "error");
+        setLoading(false);
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [id]);
-
-  const loading = data === null;
+  }, [id, retryKey]);
 
   const user = data?.user;
   const roleInfo = user ? getRoleInfo(user.role) : null;
@@ -69,9 +79,16 @@ const UserDetail = () => {
 
         {loading ? (
           <Loader label="Caricamento utente..." />
-        ) : !user ? (
+        ) : fetchError === "not-found" ? (
           <div className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground shadow-sm">
             Utente non trovato.
+          </div>
+        ) : fetchError === "error" ? (
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground shadow-sm">
+            <span>Errore durante il caricamento dell'utente. Riprova.</span>
+            <Button variant="outline" onClick={() => setRetryKey((k) => k + 1)}>
+              Riprova
+            </Button>
           </div>
         ) : (
           <>
@@ -102,7 +119,12 @@ const UserDetail = () => {
                 emptyIcon={Folder}
                 containerClass=""
                 renderRow={(p) => (
-                  <TableRow key={p.id} className="hover:bg-muted/60">
+                  <TableRow
+                    key={p.id}
+                    className="cursor-pointer hover:bg-muted/60"
+                    onClick={() => navigate(`/admin/projects/${p.id}`)}
+                    {...getClickableRowProps(() => navigate(`/admin/projects/${p.id}`))}
+                  >
                     <TableCell className="font-medium text-foreground">{p.name}</TableCell>
                     <TableCell className="text-muted-foreground">{p.relation}</TableCell>
                     <TableCell>
@@ -131,7 +153,12 @@ const UserDetail = () => {
                   emptyIcon={ShieldQuestion}
                   containerClass=""
                   renderRow={(s) => (
-                    <TableRow key={s.id} className="hover:bg-muted/60">
+                    <TableRow
+                      key={s.id}
+                      className="cursor-pointer hover:bg-muted/60"
+                      onClick={() => navigate(`/sessions/${s.id}`)}
+                      {...getClickableRowProps(() => navigate(`/sessions/${s.id}`))}
+                    >
                       <TableCell className="font-medium text-foreground">{s.project_name}</TableCell>
                       <TableCell className="text-muted-foreground">{formatProjectDateTime(s.started_at)}</TableCell>
                       <TableCell className={s.completed_at ? (s.status === "Completata" ? "text-emerald-700 dark:text-emerald-400" : "text-indigo-600 dark:text-indigo-400") : "text-muted-foreground"}>

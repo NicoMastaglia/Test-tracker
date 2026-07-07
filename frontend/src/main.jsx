@@ -10,8 +10,10 @@ import { ChecklistProvider } from './context/Checklist/ChecklistContext';
 import { SessionProvider } from './context/Session/SessionContext';
 import { TaskProvider } from './context/Task/TaskContext';
 import { AuditProvider } from './context/Audit/AuditContext';
+import ErrorBoundary from './utils/components/ErrorBoundary.jsx';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <ErrorBoundary>
     <ThemeProvider>
     <AuthProvider>
       <ProjectProvider>
@@ -29,5 +31,6 @@ createRoot(document.getElementById('root')).render(
       </ProjectProvider>
     </AuthProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )

@@ -36,7 +36,10 @@ const Sessions = () => {
 
   const filteredSessions = useMemo(() => {
     const bySearch = search
-      ? sessions.filter((s) => (s.project_name ?? "").toLowerCase().includes(search.toLowerCase()))
+      ? sessions.filter((s) =>
+          (s.project_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          String(s.id).includes(search.trim())
+        )
       : sessions;
     if (filterStatus === "blocked") {
       return bySearch.filter((s) => s.has_blocked_task);
@@ -61,7 +64,7 @@ const Sessions = () => {
   // progetto che la lista task della modale di creazione sessione 
   // Completata/Archiviata/Bloccata non sono "lavorabili" (stessa regola del BE,
   
-  // Un progetto "Completato" o "In pausa" non può essere il punto di partenza di una nuova sessione.
+  // Un progetto "Completato", "In pausa" o "Non iniziato" non può essere il punto di partenza di una nuova sessione.
   const tasksByProject = useMemo(() => {
     const workable = assignedTasks.filter(
       (task) =>
@@ -70,7 +73,8 @@ const Sessions = () => {
         task.status !== "Bloccata" &&
         task.project_status !== "Completato" &&
         task.project_status !== "In pausa" &&
-        !task.in_open_session
+        task.project_status !== "Non iniziato" &&
+        !task.open_session_id
     );
 
     const grouped = new Map();
@@ -105,7 +109,7 @@ const Sessions = () => {
           <ActionBar
             search={search}
             setSearch={setSearch}
-            placeholder="Cerca sessione..."
+            placeholder="Cerca per ID sessione o progetto..."
             buttonText="Nuova sessione"
             onButtonClick={() => setAddSessionOpen(true)}
             buttonVariant="emerald"
@@ -127,10 +131,9 @@ const Sessions = () => {
               data={filteredSessions}
               emptyMessage="Nessuna sessione trovata..."
               emptyIcon={PlayCircle}
-              renderRow={(s, index) => (
+              renderRow={(s) => (
                 <SessionRow
                   session={s}
-                  index={index + 1}
                   onView={(sessionId) => navigate(`/sessions/${sessionId}`)}
                 />
               )}

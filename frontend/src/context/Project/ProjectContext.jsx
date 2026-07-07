@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer } from "react";
+import { toast } from "sonner";
 import { initialState, projectReducer } from "./ProjectReducer";
 
 import { getToken } from "@/services/config";
@@ -28,6 +29,7 @@ export const ProjectProvider = ({ children }) => {
             dispatch({type:'SET_PROJECTS', payload: projects})
         } catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})
+            toast.error("Errore durante il caricamento dei progetti")
         }
     }
 
@@ -55,6 +57,7 @@ export const ProjectProvider = ({ children }) => {
             dispatch({type:'SET_SELECTED_PROJECT', payload:  projectDetails})
         } catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})
+            toast.error("Errore durante il caricamento del progetto")
         }
     }
 

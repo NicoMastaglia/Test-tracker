@@ -15,7 +15,7 @@ const formatDate = (date) => {
   });
 };
 
-const SessionRow = ({ session, onView, index }) => {
+const SessionRow = ({ session, onView }) => {
 
   const dateColorClass = session.status === "Completata" ? "text-emerald-700 dark:text-emerald-400" : "text-indigo-600 dark:text-indigo-400";
 
@@ -26,7 +26,7 @@ const SessionRow = ({ session, onView, index }) => {
     {...getClickableRowProps(() => onView?.(session.id))}
   >
     <TableCell className="font-mono text-muted-foreground">
-      {index}
+      {session.id}
     </TableCell>
 
     <TableCell>

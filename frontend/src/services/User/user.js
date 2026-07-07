@@ -61,15 +61,6 @@ export const updateUserRoleById = async (token,userId,newRole) =>{
 
 }
 
-export const updateUserPasswordById = async (token,userId,Newpassword) =>{
-
-
-    const response = await axios.patch(`${baseUrl}/api/users/${userId}/password`,{Newpassword},authConfig(token))
-
-
-    return response.data
-}
-
 export const getUserRelations = async (token,userId) =>{
 
     const response = await axios.get(`${baseUrl}/api/users/${userId}/relations`,authConfig(token))

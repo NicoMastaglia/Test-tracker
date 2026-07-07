@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 function generateAccessToken(user) {
   // 1. Dati che il token trasporterà
   const payload = {
-    username: user.username,
+    email: user.email,
     role: user.role,
     id: user.id,
   };

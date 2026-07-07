@@ -49,46 +49,42 @@ const SuperAdminDashboard = ({ navigate }) => {
       label: "Progetti Attivi",
       value: activeProjects.toString(),
       icon: Folder,
-      iconColor: "text-green-600",
-      bgIcon: "bg-green-100",
+      color: "green",
     },
     {
       label: "Sessioni in Corso",
       value: sessionsInProgress.toString(),
       icon: PlayCircle,
-      iconColor: "text-blue-600",
-      bgIcon: "bg-blue-100",
+      color: "blue",
     },
     {
       label: "Sessioni finite",
       value: sessionsDone.toString(),
       icon: CheckCircle,
-      iconColor: "text-blue-600",
-      bgIcon: "bg-blue-100",
+      color: "blue",
     },
     {
       label: "Utenti Totali",
       value: users.length.toString(),
       icon: Users,
       // viola: distinto da "Progetti Attivi" (verde) e non l'arancione già usato per le task
-      iconColor: "text-violet-600",
-      bgIcon: "bg-violet-100",
+      color: "violet",
     },
   ];
 
   const quickActions = [
     {
       title: "Gestisci progetti",
-      description: "Esplora e gestisci tutti i progetti attivi",
+      description: "Crea, modifica e assegna progetti",
       icon: Folder,
-      iconClass: "bg-green-100 text-green-600",
+      iconClass: "bg-green-100 text-green-600 dark:bg-green-500/15 dark:text-green-400",
       path: "/admin/projects",
     },
     {
       title: "Gestisci utenti",
-      description: "Assegna ruoli e permessi agli amministratori",
+      description: "Crea, modifica e rimuovi utenti",
       icon: Users,
-      iconClass: "bg-violet-100 text-violet-600",
+      iconClass: "bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400",
       path: "/admin/users",
     },
   ];

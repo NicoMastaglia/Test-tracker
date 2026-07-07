@@ -122,12 +122,12 @@ const ProjectTeamSection = ({
             {/*Cerca utente da assegnare*/}
               <div className="mt-2 max-w-sm">
                 <Label htmlFor="searchUser" className="sr-only">
-                  Cerca utente
+                  Cerca tra i tester assegnati
                 </Label>
                 <input
                   id="searchUser"
                   type="text"
-                  placeholder="Cerca utente..."
+                  placeholder="Cerca tra i tester assegnati..."
                   value={searchUser}
                   onChange={(e) => setSearchUser(e.target.value)}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
@@ -171,7 +171,7 @@ const ProjectTeamSection = ({
               })
             ) : (
               <div className="rounded-xl border border-dashed border-border bg-muted/50 p-4 text-sm text-muted-foreground">
-                Nessun utente assegnato al progetto.
+                {searchUser.trim() ? "Nessun tester assegnato corrisponde alla ricerca." : "Nessun utente assegnato al progetto."}
               </div>
             )}
           </div>
@@ -183,7 +183,7 @@ const ProjectTeamSection = ({
           <div>
             <SummaryRow label="Tester assegnati">{projectAssignedUsers.length}</SummaryRow>
             <SummaryRow label="Responsabile">
-              {selectedProject?.created_by ? getFullName(selectedProject.created_by) : <NotAvailable />}
+              {selectedProject?.manager ? getFullName(selectedProject.manager) : <NotAvailable />}
             </SummaryRow>
           </div>
         </div>

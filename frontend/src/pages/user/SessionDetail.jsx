@@ -39,6 +39,8 @@ const SessionDetail = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [confirmReopenOpen, setConfirmReopenOpen] = useState(false);
   const [reopeningSession, setReopeningSession] = useState(false);
+  const [reopenOutcomeTarget, setReopenOutcomeTarget] = useState(null);
+  const [reopeningOutcome, setReopeningOutcome] = useState(false);
 
   const isAdmin = user?.role !== "user";
   // back route e breadcrumb dipendono dal ruolo: l'admin arriva da /admin/sessions
@@ -72,13 +74,18 @@ const SessionDetail = () => {
     }
   };
 
-  const handleReopenOutcome = async (task) => {
+  const handleConfirmReopenOutcome = async () => {
+    if (!reopenOutcomeTarget) return;
+    setReopeningOutcome(true);
     try {
-      await reopenTaskOutcome(id, task.checklist_item_id);
+      await reopenTaskOutcome(id, reopenOutcomeTarget.checklist_item_id);
       toast.success("Esito riaperto, ora puoi correggerlo");
+      setReopenOutcomeTarget(null);
     } catch (error) {
       const message = error.response?.data?.error || "Errore durante la riapertura dell'esito";
       toast.error(message);
+    } finally {
+      setReopeningOutcome(false);
     }
   };
 
@@ -189,7 +196,7 @@ const SessionDetail = () => {
                   readOnly={readOnly}
                   currentUserId={user?.id}
                   onEdit={setEditingTask}
-                  onReopen={handleReopenOutcome}
+                  onReopen={setReopenOutcomeTarget}
                 />
               )}
             />
@@ -227,6 +234,32 @@ const SessionDetail = () => {
                 className="bg-orange-500 text-white hover:bg-orange-600"
               >
                 {reopeningSession ? "Riapertura..." : "Sì, riapri sessione"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!reopenOutcomeTarget} onOpenChange={(open) => { if (!open) setReopenOutcomeTarget(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-foreground">
+                <RotateCcw className="h-4 w-4 text-amber-600" />
+                Riapri esito
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              L'esito già inviato per "{reopenOutcomeTarget?.description}" tornerà modificabile. Confermi?
+            </p>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setReopenOutcomeTarget(null)} disabled={reopeningOutcome}>
+                Annulla
+              </Button>
+              <Button
+                onClick={handleConfirmReopenOutcome}
+                disabled={reopeningOutcome}
+                className="bg-amber-500 text-white hover:bg-amber-600"
+              >
+                {reopeningOutcome ? "Riapertura..." : "Sì, riapri esito"}
               </Button>
             </DialogFooter>
           </DialogContent>

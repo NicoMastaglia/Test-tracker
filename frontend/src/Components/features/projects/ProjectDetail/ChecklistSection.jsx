@@ -25,6 +25,7 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
   const [modalForEdit, setModalForEdit] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [deletingChecklist, setDeletingChecklist] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
 
   const navigate = useNavigate();
@@ -109,15 +110,17 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
   };
 
   const handleDelete = async () => {
-    if (!pendingDeleteId) return;
+    if (!pendingDeleteId || deletingChecklist) return;
+    setDeletingChecklist(true);
     try {
       await removeChecklist(pendingDeleteId);
       await fetchChecklistsByProject(projectId);
       toast.success("Checklist eliminata con successo");
+      setPendingDeleteId(null);
     } catch (error) {
       toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante l'eliminazione della checklist");
     } finally {
-      setPendingDeleteId(null);
+      setDeletingChecklist(false);
     }
   };
 
@@ -185,7 +188,7 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
       />
 
       {/* DIALOG CONFERMA ELIMINAZIONE */}
-      <Dialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}>
+      <Dialog open={!!pendingDeleteId} onOpenChange={(open) => { if (!open && !deletingChecklist) setPendingDeleteId(null); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-foreground">
@@ -197,14 +200,15 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
             Sei sicuro di voler eliminare questa checklist? L'operazione è irreversibile e rimuoverà anche tutte le task associate.
           </p>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setPendingDeleteId(null)}>
+            <Button variant="outline" onClick={() => setPendingDeleteId(null)} disabled={deletingChecklist}>
               Annulla
             </Button>
             <Button
               onClick={handleDelete}
+              disabled={deletingChecklist}
               className="bg-red-500 text-white hover:bg-red-600"
             >
-              Elimina
+              {deletingChecklist ? "Eliminazione..." : "Elimina"}
             </Button>
           </DialogFooter>
         </DialogContent>

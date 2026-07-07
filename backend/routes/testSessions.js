@@ -427,18 +427,37 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
 
     });
 
-    sendProjectEmail(
-      tester,
-      "sessionReopened",
-      { projectName, subject: `Sessione di test riaperta su ${projectName}` },
-    ).catch((err) => console.error("Errore invio email riapertura sessione:", err.message));
+    const [emailRows] = await db.execute(
+      `SELECT u.nome, u.email, p.name AS project_name
+       FROM test_session ts
+       JOIN user u ON ts.user_id = u.id
+       JOIN project p ON ts.project_id = p.id
+       WHERE ts.id = ?`,
+      [sessionId],
+    );
+
+    if (emailRows.length > 0) {
+      const { nome, email, project_name: projectName } = emailRows[0];
+      sendProjectEmail(
+        { nome, email },
+        "sessionReopened",
+        { projectName, subject: `Sessione di test riaperta su ${projectName}` },
+      ).catch((err) => console.error("Errore invio email riapertura sessione:", err.message));
+    }
 
     return res
       .status(200)
       .json({ message: "Sessione di test riaperta con successo" });
   } catch (error) {
+    if (connection) {
+      await connection.rollback();
+    }
     console.error(error);
     return res.status(500).json({ error: "Errore del server" });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
 

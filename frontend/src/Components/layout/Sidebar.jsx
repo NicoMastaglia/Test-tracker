@@ -12,9 +12,12 @@ import {
   Briefcase,
   Settings, // Icona per l'ambiente Admin standard
   Activity,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/Auth/AuthContext";
+import { useThemeContext } from "@/context/Theme/ThemeContext";
 import { toast } from "sonner";
 import { Button } from "@/Components/ui/button";
 import {
@@ -71,6 +74,7 @@ const menuItemsByRole = {
 
 export default function AppSidebar() {
   const { logoutUser, user } = useAuthContext();
+  const { theme, toggleTheme } = useThemeContext();
   const location = useLocation();
   const navigate = useNavigate();
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -194,6 +198,24 @@ export default function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
+                onClick={toggleTheme}
+                tooltip={theme === "dark" ? "Passa al tema chiaro" : "Passa al tema scuro"}
+                className="w-full text-slate-300 hover:bg-slate-800 hover:text-white py-2 h-9 rounded-xl transition-colors"
+              >
+                <div className="flex items-center w-full gap-3">
+                  {theme === "dark" ? (
+                    <Sun className="w-4 h-4 text-slate-400 shrink-0" />
+                  ) : (
+                    <Moon className="w-4 h-4 text-slate-400 shrink-0" />
+                  )}
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    {theme === "dark" ? "Tema chiaro" : "Tema scuro"}
+                  </span>
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
                 onClick={() => setDeleteConfirmOpen(true)}
                 tooltip="Disconnetti"
                 className="w-full text-slate-300 hover:bg-red-500/10 hover:text-red-400 py-2 h-9 rounded-xl transition-colors"
@@ -212,10 +234,14 @@ export default function AppSidebar() {
         <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
           <DialogContent className="sm:max-w-90">
             <DialogHeader>
-              <DialogTitle className="text-base font-semibold text-foreground">
+              <DialogTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
+                <LogOut className="h-4 w-4 text-red-500" />
                 Vuoi disconnetterti?
               </DialogTitle>
             </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              Dovrai effettuare nuovamente l'accesso con email e password per continuare a usare l'app.
+            </p>
             <DialogFooter className="flex gap-2 sm:gap-0">
               <Button variant="ghost" onClick={() => setDeleteConfirmOpen(false)} className="hover:bg-muted">
                 Annulla

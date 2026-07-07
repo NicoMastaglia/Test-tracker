@@ -4,7 +4,7 @@ import { Badge } from "@/Components/ui/badge";
 import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass, getFullName, formatProjectDateTime, getClickableRowProps } from "@/utils/helpers/tableHelpers";
 import UserAvatar from "@/utils/components/UserAvatar";
 
-const AdminSessionRow = ({ session, index, onView }) => {
+const AdminSessionRow = ({ session, onView }) => {
   const dateColorClass = session.status === "Completata" ? "text-emerald-700 dark:text-emerald-400" : "text-indigo-600 dark:text-indigo-400";
 
   return (
@@ -13,7 +13,7 @@ const AdminSessionRow = ({ session, index, onView }) => {
       onClick={() => onView?.(session.id)}
       {...(onView ? getClickableRowProps(() => onView(session.id)) : {})}
     >
-      <TableCell className="font-mono text-muted-foreground">{index}</TableCell>
+      <TableCell className="font-mono text-muted-foreground">{session.id}</TableCell>
 
       <TableCell>
         <span className="capitalize font-medium text-foreground">

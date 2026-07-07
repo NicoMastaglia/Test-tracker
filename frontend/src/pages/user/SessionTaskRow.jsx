@@ -28,7 +28,7 @@ const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId, onReope
       <TableCell>
         <span className={`inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold ${deadlineStatus.colorClass}`}>
           {deadlineStatus.label}
-          {deadlineStatus.isOverdue && " (scaduta)"}
+          {deadlineStatus.daysLabel && ` · ${deadlineStatus.daysLabel}`}
         </span>
       </TableCell>
 

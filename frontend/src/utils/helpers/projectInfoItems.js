@@ -1,4 +1,4 @@
-import { getFullName, formatProjectDate, getColorsForDeadline } from "./tableHelpers";
+import { getFullName, formatProjectDate, getColorsForDeadline, getDeadlineStatus } from "./tableHelpers";
 import { NOT_AVAILABLE } from "@/utils/components/Placeholder";
 
 // re-esportata per non rompere eventuali import esistenti da questo file
@@ -13,29 +13,14 @@ export const getProjectInfoItems = (selectedProject) => {
 
   const deadlineRaw = selectedProject?.deadline;
   const isCompleted = selectedProject?.status === "Completato";
-  const hasDeadline = !!deadlineRaw && !Number.isNaN(new Date(deadlineRaw).getTime());
 
-  // giorni alla deadline (positivo se mancano, negativo se è passata); null se non c'è deadline
-  const dayToLeft = hasDeadline
-    ? Math.floor((new Date(deadlineRaw) - new Date()) / (1000 * 60 * 60 * 24))
-    : null;
-
-  // una deadline è "scaduta" solo se c'è, è passata e il progetto NON è completato
-  const isDeadlineOverdue = hasDeadline && !isCompleted && dayToLeft < 0;
-
-  // testo dei giorni: nessun conteggio se il progetto è completato o senza deadline
-  // (altrimenti per un progetto finito mostrerebbe giorni negativi)
-  let daysToDeadline = "";
-  if (hasDeadline && !isCompleted) {
-    daysToDeadline = isDeadlineOverdue
-      ? `(Scaduta da ${Math.abs(dayToLeft)} giorni)`
-      : `(${dayToLeft} giorni)`;
-  }
-
-  // colore neutro (grigio) se completato o senza deadline
-  const colorforDeadline = (isCompleted || !hasDeadline)
-    ? "text-slate-600 bg-slate-100/50"
-    : getColorsForDeadline(dayToLeft);
+  // stesso calcolo/helper usato per le scadenze di task e progetti in tutte le
+  // tabelle (ProjectRow, TaskTable, MyTaskRow, CreateSessionModal): un'unica
+  // implementazione evita che lo stesso bug di calcolo si ripresenti altrove
+  const deadlineStatus = getDeadlineStatus(deadlineRaw, isCompleted);
+  const isDeadlineOverdue = deadlineStatus.isOverdue;
+  const daysToDeadline = deadlineStatus.daysLabel;
+  const colorforDeadline = deadlineStatus.colorClass;
 
   return {
     created_at: selectedProject?.created_at ?? "Non disponibile",

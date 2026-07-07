@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { NOT_AVAILABLE, NotAvailable } from "@/utils/components/Placeholder";
 import {formatProjectDateTime} from "@/utils/helpers/tableHelpers";
+import { getStatColorClasses } from "@/utils/components/StatsCardsRow";
 
 // COMPONENTE PER LA SEZIONE OVERVIEW DEL PROGETTO, MOSTRA INFORMAZIONI PRINCIPALI SUL PROGETTO
 
@@ -39,13 +40,16 @@ const InfoRow = ({ label, icon, children }) => {
 };
 
 // Box statistica usata nella card "Riepilogo progetto"
-const StatBox = ({ label, value, icon, iconColor, bgIcon }) => {
+// `color` risolto tramite la stessa mappa di StatsCardsRow: un solo posto da
+// aggiornare per le classi light+dark di ogni colore semantico.
+const StatBox = ({ label, value, icon, color }) => {
   const Icon = icon;
+  const { bg, icon: iconColorClass } = getStatColorClasses(color);
 
   return (
     <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-3">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${bgIcon}`}>
-        <Icon className={`h-5 w-5 ${iconColor}`} />
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${bg}`}>
+        <Icon className={`h-5 w-5 ${iconColorClass}`} />
       </div>
       <div className="min-w-0">
         <p className="text-xl leading-tight font-bold text-foreground">{value}</p>
@@ -128,29 +132,25 @@ const SummaryCard = ({ checklistCount, stats, testers }) => (
         label="Checklist"
         value={checklistCount}
         icon={ClipboardList}
-        iconColor="text-indigo-600"
-        bgIcon="bg-indigo-100"
+        color="indigo"
       />
       <StatBox
         label="Task totali"
         value={stats?.totalTasks ?? 0}
         icon={ListChecks}
-        iconColor="text-blue-600"
-        bgIcon="bg-blue-100"
+        color="blue"
       />
       <StatBox
         label="Task completate"
         value={stats?.completedTasks ?? 0}
         icon={CheckCircle2}
-        iconColor="text-emerald-600"
-        bgIcon="bg-emerald-100"
+        color="emerald"
       />
       <StatBox
         label="Sessioni totali"
         value={stats?.totalSessions ?? 0}
         icon={PlayCircle}
-        iconColor="text-blue-600"
-        bgIcon="bg-blue-100"
+        color="blue"
       />
       {/* "Tester assegnati" solo se il BE fornisce la lista (admin/superadmin); il tester non la riceve */}
       {Array.isArray(testers) && (
@@ -158,8 +158,7 @@ const SummaryCard = ({ checklistCount, stats, testers }) => (
           label="Tester assegnati"
           value={testers.length}
           icon={Users}
-          iconColor="text-violet-600"
-          bgIcon="bg-violet-100"
+          color="violet"
         />
       )}
     </div>
@@ -179,29 +178,25 @@ const MySummaryCard = ({ myTasks, mySessions }) => {
           label="Le mie task"
           value={myTasks.length}
           icon={ListChecks}
-          iconColor="text-amber-600"
-          bgIcon="bg-amber-100"
+          color="amber"
         />
         <StatBox
           label="Task completate"
           value={completedTasks}
           icon={CheckCircle2}
-          iconColor="text-emerald-600"
-          bgIcon="bg-emerald-100"
+          color="emerald"
         />
         <StatBox
           label="Le mie sessioni"
           value={mySessions.length}
           icon={PlayCircle}
-          iconColor="text-blue-600"
-          bgIcon="bg-blue-100"
+          color="blue"
         />
         <StatBox
           label="Sessioni in corso"
           value={sessionsInProgress}
           icon={PlayCircle}
-          iconColor="text-indigo-600"
-          bgIcon="bg-indigo-100"
+          color="indigo"
         />
       </div>
     </SectionCard>

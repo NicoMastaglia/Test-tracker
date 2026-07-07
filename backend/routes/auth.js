@@ -12,6 +12,12 @@ const { sendProjectEmail } = require("../utils/sendEmail");
 const { isEmailValid } = require("../utils/validators");
 const router = express.Router();
 
+// lock in-memory: senza, due richieste bootstrap concorrenti su DB vuoto
+// passerebbero entrambe il check "count === 0" prima che la prima INSERT
+// completi, creando due superadmin. Sufficiente per un'istanza singola
+// (stesso presupposto della denylist token, vedi auth/tokenDenylist.js).
+let bootstrapInProgress = false;
+
 // pubblica, ma si autodisabilita da sola non appena esiste almeno un utente:
 // crea il primissimo account (sempre superadmin) su un deploy/DB vuoto, dove
 // /register non è ancora raggiungibile perché richiede già un token superadmin.
@@ -32,6 +38,11 @@ router.post("/bootstrap", async (req, res) => {
   if (trimmedPassword.length < 8) {
     return res.status(400).json({ message: "La password deve contenere almeno 8 caratteri." });
   }
+
+  if (bootstrapInProgress) {
+    return res.status(403).json({ message: "Bootstrap non disponibile: un'altra richiesta è già in corso." });
+  }
+  bootstrapInProgress = true;
 
   try {
     const [countRows] = await db.execute("SELECT COUNT(*) AS count FROM user");
@@ -64,6 +75,8 @@ router.post("/bootstrap", async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Errore del server" });
+  } finally {
+    bootstrapInProgress = false;
   }
 });
 

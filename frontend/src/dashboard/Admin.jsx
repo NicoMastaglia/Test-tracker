@@ -55,14 +55,14 @@ const AdminDashboard = () => {
     const quickActions = [
       {
         title: "Gestisci Progetti",
-        description: "Visualizza e gestisci i tuoi progetti e i relativi tester",
+        description: "Visualizza e gestisci i tuoi progetti",
         icon: Folder,
         iconClass: "bg-green-100 text-green-600",
         onClick: () => navigate("/admin/projects"),
       },
       {
         title: "Sessioni",
-        description: "Consulta le sessioni di test dei tuoi progetti",
+        description: "Consulta le sessioni dei tester",
         icon: PlayCircle,
         iconClass: "bg-blue-100 text-blue-600",
         onClick: () => navigate("/admin/sessions"),
