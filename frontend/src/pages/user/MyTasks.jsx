@@ -11,9 +11,10 @@ import { ListChecks } from "lucide-react";
 const STATUS_FILTERS = ["TODO", "In corso", "Completata", "Bloccata", "Archiviata"];
 
 const headers = [
+  { label: "Task", key: "description" },
   { label: "Progetto", key: "project_name" },
   { label: "Checklist", key: "checklist_title" },
-  { label: "Task", key: "description" },
+  
   { label: "Scadenza", key: "deadline" },
   { label: "Stato", key: "status" },
   { label: "Sessione", key: "open_session_id" },
@@ -47,7 +48,8 @@ const MyTasks = () => {
     const bySearch = search.trim()
       ? assignedTasks.filter((t) =>
           (t.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
-          (t.project_name ?? "").toLowerCase().includes(search.toLowerCase())
+          (t.project_name ?? "").toLowerCase().includes(search.toLowerCase()) || 
+          (t.checklist_title ?? "").toLowerCase().includes(search.toLowerCase()),
         )
       : assignedTasks;
     const byStatus = filterStatus === "all" ? bySearch : bySearch.filter((t) => t.status === filterStatus);
@@ -68,7 +70,7 @@ const MyTasks = () => {
           <ActionBar
             search={search}
             setSearch={setSearch}
-            placeholder="Cerca per progetto o descrizione..."
+            placeholder="Cerca per task,progetto,o checklist..." 
             onReset={resetFilters}
             hasActiveFilters={hasActiveFilters}
           >
