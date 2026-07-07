@@ -33,22 +33,19 @@ const AdminDashboard = () => {
         label: "Progetti Attivi",
         value: String(activeProjects),
         icon: Folder,
-        iconColor: "text-green-600",
-        bgIcon: "bg-green-100",
+        color: "green",
       },
       {
         label: "Sessioni in Corso",
         value: String(sessionsInProgress),
         icon: PlayCircle,
-        iconColor: "text-blue-600",
-        bgIcon: "bg-blue-100",
+        color: "blue",
       },
       {
         label: "Sessioni Totali",
         value: String(sessionList.length),
         icon: CheckCircle,
-        iconColor: "text-blue-600",
-        bgIcon: "bg-blue-100",
+        color: "blue",
       },
     ];
 
@@ -57,14 +54,14 @@ const AdminDashboard = () => {
         title: "Gestisci Progetti",
         description: "Visualizza e gestisci i tuoi progetti",
         icon: Folder,
-        iconClass: "bg-green-100 text-green-600",
+        iconClass: "bg-green-100 text-green-600 dark:bg-green-500/15 dark:text-green-400",
         onClick: () => navigate("/admin/projects"),
       },
       {
         title: "Sessioni",
         description: "Consulta le sessioni dei tester",
         icon: PlayCircle,
-        iconClass: "bg-blue-100 text-blue-600",
+        iconClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
         onClick: () => navigate("/admin/sessions"),
       },
     ];

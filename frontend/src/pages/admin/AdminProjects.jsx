@@ -128,8 +128,8 @@ const AdminProjects = () => {
     const list = projects || [];
     const bySearch = search
       ? list.filter((p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          p.description.toLowerCase().includes(search.toLowerCase()) ||
+          (p.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+          (p.description ?? "").toLowerCase().includes(search.toLowerCase()) ||
           (p.status ?? "").toLowerCase().includes(search.toLowerCase())
         )
       : list;

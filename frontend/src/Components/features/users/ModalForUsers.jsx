@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import { Button } from "@/Components/ui/button";
 
-import { User, Mail, ShieldCheck, Trash2, ShieldAlert } from "lucide-react";
+import { User, ShieldCheck, Trash2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { isEmailValid } from "@/utils/helpers/validators";

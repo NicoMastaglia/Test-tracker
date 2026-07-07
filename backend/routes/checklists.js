@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const checkSuperadmin = require("../middleware/checkSuperadmin");
 const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
@@ -655,7 +654,7 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
   try {
     // verifico che l'item esista e che l'utente abbia i permessi per modificarlo (superadmin o admin del progetto)
     const [itemResults] = await db.execute(
-      "SELECT ci.id, ci.description, p.id as project_id, p.name AS project_name, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
+      "SELECT ci.id, ci.description, ci.status, p.id as project_id, p.name AS project_name, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
       [itemId, req.user.id, req.user.id, req.user.role === "superadmin"],
     );
 
@@ -670,6 +669,9 @@ router.patch("/item/:itemId/assign", checkAdmin, async (req, res) => {
     }
     if (itemResults[0].project_status === "In pausa") {
       return res.status(400).json({ error: "Progetto in pausa: non è possibile assegnare task." });
+    }
+    if (["Bloccata", "Archiviata", "Completata"].includes(itemResults[0].status)) {
+      return res.status(400).json({ error: `La task è ${itemResults[0].status.toLowerCase()}: sbloccala/riaprila prima di riassegnarla.` });
     }
 
     const projectId = itemResults[0].project_id;

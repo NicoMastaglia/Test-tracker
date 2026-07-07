@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const checkSuperadmin = require("../middleware/checkSuperadmin");
 const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const db = require("../database/db");
@@ -286,6 +285,22 @@ router.delete("/:id", checkAdmin, async (req, res) => {
   let connection;
 
   try {
+    // un progetto concluso o in pausa non può più vedere le sue sessioni cancellate,
+    // stessa regola già applicata alla creazione/modifica di checklist/task/sessioni
+    const [projectRows] = await db.execute(
+      "SELECT p.status FROM test_session ts JOIN project p ON ts.project_id = p.id WHERE ts.id = ?",
+      [sessionId],
+    );
+    if (projectRows.length === 0) {
+      return res.status(404).json({ error: "Sessione di test non trovata" });
+    }
+    if (projectRows[0].status === "Completato") {
+      return res.status(400).json({ error: "Progetto completato: non è possibile eliminare sessioni di test." });
+    }
+    if (projectRows[0].status === "In pausa") {
+      return res.status(400).json({ error: "Progetto in pausa: non è possibile eliminare sessioni di test." });
+    }
+
     connection = await db.getConnection();
 
     await connection.beginTransaction();
@@ -340,7 +355,7 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
 
   try {
     const [session] = await db.execute(
-    'select p.id as project_id, ts.status, ts.user_id from test_session ts join project p on ts.project_id = p.id where ts.id = ?',
+    'select p.id as project_id, p.status as project_status, ts.status, ts.user_id from test_session ts join project p on ts.project_id = p.id where ts.id = ?',
     [sessionId]
     )
 
@@ -350,6 +365,13 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
 
     if(session[0].status !== 'Completata'){
       return res.status(400).json({error:"Sessione di test non completata, impossibile riaprirla"})
+    }
+
+    if (session[0].project_status === 'Completato') {
+      return res.status(400).json({ error: "Progetto completato: non è possibile riaprire sessioni di test." });
+    }
+    if (session[0].project_status === 'In pausa') {
+      return res.status(400).json({ error: "Progetto in pausa: non è possibile riaprire sessioni di test." });
     }
 
     projectId = session[0].project_id;
@@ -765,9 +787,10 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
     const [tasks] = await db.execute(
       `
       select st.checklist_item_id,st.outcome,st.note,ci.status as task_status,
-      ci.description,ci.assigned_to,ci.deadline
+      ci.description,ci.assigned_to,ci.deadline,ct.title as checklist_title
       from session_task st
       join checklist_item ci on st.checklist_item_id = ci.id
+      join checklist_template ct on ci.template_id = ct.id
       where st.session_id = ?
       `,[sessionId]
     )

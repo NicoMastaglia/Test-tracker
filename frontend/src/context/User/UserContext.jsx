@@ -5,7 +5,6 @@ import { initialState, userReducer } from "./UserReducer";
 import { getToken } from "@/services/config";
 import {
   // user normale
-  getCurrentUser,
   updateCurrentUser,
   updateCurrentUserPassword,
   // admin / superadmin
@@ -26,18 +25,7 @@ export const UserProvider = ({ children }) => {
   const { user: currentAuthUser, syncCurrentUser } = useAuthContext();
 
 
-  // ── UTENTE NORMALE (/me) 
-
-  const fetchCurrentUser = async () => {
-    dispatch({ type: 'SET_LOADING' })
-    try {
-      const token = getToken()
-      const data = await getCurrentUser(token)
-      dispatch({ type: 'SET_SELECTED_USER', payload: data })
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error.message })
-    }
-  }
+  // ── UTENTE NORMALE (/me)
 
   const updateMyProfile = async (userData) => {
     dispatch({ type: 'SET_LOADING' })
@@ -209,7 +197,6 @@ export const UserProvider = ({ children }) => {
         error: state.error,
         dispatch,
         // utente normale
-        fetchCurrentUser,
         updateMyProfile,
         changeMyPassword,
         // admin / superadmin

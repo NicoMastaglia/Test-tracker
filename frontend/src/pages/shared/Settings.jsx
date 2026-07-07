@@ -35,10 +35,6 @@ const Settings = () => {
             cognome: user.surname || '',
             email: user.email || '',
         })
-        // fetchCurrentUser()
-        
-    
-    
     },[user])
 
    

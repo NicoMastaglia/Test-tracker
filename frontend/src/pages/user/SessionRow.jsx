@@ -1,19 +1,7 @@
 import { CircleSlash } from "lucide-react";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
-import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass, getClickableRowProps } from "@/utils/helpers/tableHelpers";
-
-const formatDate = (date) => {
-  if (!date) return "Non disponibile";
-
-  return new Date(date).toLocaleString("it-IT", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass, getClickableRowProps, formatProjectDateTime } from "@/utils/helpers/tableHelpers";
 
 const SessionRow = ({ session, onView }) => {
 
@@ -36,12 +24,12 @@ const SessionRow = ({ session, onView }) => {
     </TableCell>
 
     <TableCell className="text-muted-foreground">
-      {formatDate(session.started_at)}
+      {formatProjectDateTime(session.started_at)}
     </TableCell>
 
     <TableCell className={session.completed_at ? dateColorClass : "text-muted-foreground"}>
       {session.completed_at
-        ? formatDate(session.completed_at)
+        ? formatProjectDateTime(session.completed_at)
         : "Sessione ancora aperta"}
     </TableCell>
 

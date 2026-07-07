@@ -6,7 +6,6 @@ import {
   UserMinus,
   FolderPlus,
   FolderPen,
-  FolderX,
   UserCheck,
   UserX,
   ClipboardPlus,

@@ -54,3 +54,5 @@ Per aggiungere un nuovo tipo: aggiungere una entry in `htmlContent` (`emailTempl
 ## Tabelle
 
 - **Righe per pagina**: 10 di default in `frontend/src/utils/components/StandardTable.jsx` (prop `pageSize`). Nessuna pagina dell'app lo sovrascrive, quindi tutte le tabelle usano questo valore.
+
+

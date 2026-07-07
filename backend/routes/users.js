@@ -6,6 +6,7 @@ const checkUser = require("../middleware/checkUser");
 const { hashPassword, comparePassword } = require("../auth/hash");
 const db = require("../database/db");
 const logActivity = require("../utils/logActivity");
+const { isEmailValid } = require("../utils/validators");
 
 router.get("/", checkAdmin, async (req, res) => {
   if (req.user.role == "admin") {
@@ -61,6 +62,10 @@ router.put("/me", checkUser, async (req, res) => {
 
   if (!trimmedNome || !trimmedCognome || !trimmedEmail) {
     return res.status(400).json({ message: "Nome, cognome ed email non possono essere vuoti o contenere solo spazi." });
+  }
+
+  if (!isEmailValid(trimmedEmail)) {
+    return res.status(400).json({ message: "Formato email non valido." });
   }
 
   try {
@@ -215,6 +220,10 @@ router.put("/:id", checkSuperadmin, async (req, res) => {
 
   if (!trimmedName || !trimmedSurname || !trimmedEmail) {
     return res.status(400).json({ message: "I campi modificati non possono essere vuoti." });
+  }
+
+  if (!isEmailValid(trimmedEmail)) {
+    return res.status(400).json({ message: "Formato email non valido." });
   }
 
   try {

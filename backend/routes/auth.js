@@ -35,6 +35,10 @@ router.post("/bootstrap", async (req, res) => {
     return res.status(400).json({ message: "Nome, cognome, email e password sono obbligatori." });
   }
 
+  if (!isEmailValid(trimmedEmail)) {
+    return res.status(400).json({ message: "Formato email non valido." });
+  }
+
   if (trimmedPassword.length < 8) {
     return res.status(400).json({ message: "La password deve contenere almeno 8 caratteri." });
   }
@@ -94,6 +98,10 @@ router.post("/register", checkSuperadmin, async (req, res) => {
     return res.status(400).json({ message: "Nome, cognome, email e ruolo sono obbligatori." });
   }
 
+  if (!isEmailValid(trimmedEmail)) {
+    return res.status(400).json({ message: "Formato email non valido." });
+  }
+
   if (!["user", "admin", "superadmin"].includes(trimmedRole)) {
     return res.status(400).json({ message: "Ruolo non valido" });
   }
@@ -119,11 +127,13 @@ router.post("/register", checkSuperadmin, async (req, res) => {
       [userId, tokenHash, expiresAt],
     );
 
-    await sendProjectEmail(
+    // fire-and-forget: l'utente è già stato creato, un SMTP giù non deve far
+    // rispondere 500 al client (stesso pattern di checklists.js/testSessions.js)
+    sendProjectEmail(
       { nome: trimmedName, email: trimmedEmail, role: trimmedRole },
       "setupPassword",
       { token },
-    );
+    ).catch((err) => console.error("Errore invio email di setup:", err.message));
     await logActivity(userId, null, "user.registered", { email: trimmedEmail, role: trimmedRole });
 
     return res.status(201).json({ message: "Utente creato. Email di configurazione inviata." });

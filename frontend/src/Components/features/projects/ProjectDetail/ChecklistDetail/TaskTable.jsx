@@ -83,11 +83,6 @@ const getTaskActions = (task, handlers) => [
 
 
 const BASE_HEADERS = [
-  // {
-  //   key: "id",
-  //   label: "#",
-  //   className: "text-center font-semibold text-slate-900 px-4 py-3.5 w-16",
-  // },
   {
     key: "description",
     label: "Task",

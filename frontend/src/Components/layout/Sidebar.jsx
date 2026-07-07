@@ -240,7 +240,7 @@ export default function AppSidebar() {
               </DialogTitle>
             </DialogHeader>
             <p className="text-sm text-muted-foreground">
-              Dovrai effettuare nuovamente l'accesso con email e password per continuare a usare l'app.
+             Sei sicuro di voler uscire?
             </p>
             <DialogFooter className="flex gap-2 sm:gap-0">
               <Button variant="ghost" onClick={() => setDeleteConfirmOpen(false)} className="hover:bg-muted">

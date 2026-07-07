@@ -99,18 +99,6 @@ export const SessionProvider = ({ children }) => {
         }
     };
 
-    // const completeSession = async (sessionId) => {
-    //     dispatch({ type: 'SET_LOADING' });
-    //     try {
-    //         const token = getToken();
-    //         await completeSessionApi(token, sessionId);
-    //         dispatch({ type: 'UPDATE_SESSION_STATUS', payload: { id: sessionId, status: 'Completata' } });
-    //     } catch (error) {
-    //         dispatch({ type: 'SET_ERROR', payload: error.message });
-    //         throw error;
-    //     }
-    // };
-
     const reopenSession = async (sessionId) => {
         dispatch({ type: 'SET_LOADING' });
         try {

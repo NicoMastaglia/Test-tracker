@@ -1,6 +1,6 @@
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
-import { ClipboardCheck, RotateCcw } from "lucide-react";
+import { ClipboardCheck, RotateCcw, ListChecks } from "lucide-react";
 import TableActionButton from "@/utils/components/TableActionButton";
 import { getTaskStatusBadgeClass, getOutcomeBadgeClass, getDeadlineStatus } from "@/utils/helpers/tableHelpers";
 
@@ -22,7 +22,15 @@ const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId, onReope
   return (
     <TableRow className="text-center group transition-colors hover:bg-muted/50">
       <TableCell>
-        <span className="font-medium text-foreground">{task.description}</span>
+        <span className="flex flex-col">
+          <span className="font-medium text-foreground">{task.description}</span>
+          {task.checklist_title && (
+            <span className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+              <ListChecks className="h-3 w-3 shrink-0" />
+              Checklist: {task.checklist_title}
+            </span>
+          )}
+        </span>
       </TableCell>
 
       <TableCell>

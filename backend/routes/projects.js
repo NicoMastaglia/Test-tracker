@@ -632,14 +632,16 @@ router.post("/:id/assign", checkAdmin, async (req, res) => {
     await logActivity(req.user.id, projectId, "project.member_assigned", { userId: userId });
 
     // 3. INVIA L'EMAIL SPECIFICA USANDO LE OPTIONS (Senza bisogno del token!)
-    await sendProjectEmail(
-      { nome: user[0].nome, email: user[0].email }, 
-      'projectAssignment', 
-      { 
+    // fire-and-forget: l'assegnazione è già stata scritta, un SMTP giù non deve far
+    // rispondere 500 al client (stesso pattern di checklists.js/testSessions.js)
+    sendProjectEmail(
+      { nome: user[0].nome, email: user[0].email },
+      'projectAssignment',
+      {
         projectName: projectAssignment,
         subject: `Sei stato assegnato al progetto ${projectAssignment}`
       }
-    );
+    ).catch((err) => console.error("Errore invio email assegnazione progetto:", err.message));
 
     return res.status(200).json({ message: "Utente assegnato al progetto con successo" });
   } catch (err) {
@@ -881,7 +883,7 @@ router.get('/:id/activities',checkUser, async (req,res)=>{
   const  {id : user_id,role}  = req.user
   
 
-  if(isNaN(project_id) || parseInt(project_id) <0){
+  if(isNaN(project_id) || parseInt(project_id) <=0){
     return res.status(400).json({
       error : 'ID progetto non valido o non trovato'
     })
