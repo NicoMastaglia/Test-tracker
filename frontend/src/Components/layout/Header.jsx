@@ -94,7 +94,8 @@ const Header = ({ user, page }) => {
           size="icon"
           onClick={toggleTheme}
           aria-label={theme === "dark" ? "Passa al tema chiaro" : "Passa al tema scuro"}
-          className="h-9 w-9 rounded-full border-border text-muted-foreground shadow-sm"
+          className="h-9 w-9 rounded-full border-border text-muted-foreground shadow-sm
+          cursor-pointer"
         >
           {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>

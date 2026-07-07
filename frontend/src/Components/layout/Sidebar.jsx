@@ -200,7 +200,7 @@ export default function AppSidebar() {
               <SidebarMenuButton
                 onClick={toggleTheme}
                 tooltip={theme === "dark" ? "Passa al tema chiaro" : "Passa al tema scuro"}
-                className="w-full text-slate-300 hover:bg-slate-800 hover:text-white py-2 h-9 rounded-xl transition-colors"
+                className="w-full text-slate-300 hover:bg-slate-800 hover:text-white py-2 h-9 rounded-xl transition-colors cursor-pointer"
               >
                 <div className="flex items-center w-full gap-3">
                   {theme === "dark" ? (

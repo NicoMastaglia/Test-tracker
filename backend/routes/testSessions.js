@@ -490,6 +490,8 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
   const {sessionId,itemId} = req.params;
   const {outcome,note} = req.body;
 
+  const normalizedNote = note && note.trim() ? note.trim() : null;
+
   if(!sessionId || !itemId){
     return res.status(400).json({error:"ID sessione o task non valido"});
   }
@@ -600,7 +602,7 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
     
     )
 
-     await logActivity(userId,projectId,'task.status_changed',{sessionId:sessionId,itemId:itemId,outcome:outcome,note:note})
+     await logActivity(userId,projectId,'task.status_changed',{sessionId:sessionId,itemId:itemId,outcome:outcome,note:normalizedNote})
 
     if(sessionCloseResult.affectedRows > 0){
       await logActivity(userId,projectId,'session.completed',{sessionId:sessionId})
