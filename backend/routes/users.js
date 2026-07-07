@@ -131,6 +131,11 @@ router.patch("/me/password", checkUser, async (req, res) => {
     }
 
     const user = rows[0];
+    if (!user.password_hash) {
+
+       return res.status(400).json({ message: "La password attuale non è corretta" });
+   
+      }
     const isMatch = await comparePassword(trimmedOld, user.password_hash);
 
     if (!isMatch) {
