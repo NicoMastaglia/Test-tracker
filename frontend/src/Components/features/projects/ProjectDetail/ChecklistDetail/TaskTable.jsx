@@ -164,7 +164,7 @@ const TaskTable = ({
                   <UserAvatar user={assignedTester} size="md" />
                 </TooltipTrigger>
               </Tooltip>
-            ): "Nessuno tester assegnato"}
+            ): <span className="text-slate-400">Non assegnato</span>}
           </span>
         </TableCell>
 
