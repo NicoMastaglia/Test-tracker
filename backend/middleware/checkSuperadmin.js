@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
 const { isTokenDenied } = require("../auth/tokenDenylist");
+const { isTokenStale } = require("../auth/passwordVersion");
 require("dotenv").config();
 
-const checkSuperadmin = (req, res, next) => {
+const checkSuperadmin = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -20,6 +21,9 @@ const checkSuperadmin = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.role === "superadmin") {
+      if (await isTokenStale(decoded.id, decoded.iat)) {
+        return res.status(401).json({ message: "Sessione scaduta: la password è stata cambiata, effettua di nuovo il login" });
+      }
       req.user = { ...decoded, id: decoded.id, role: decoded.role };
       req.token = token;
       next();

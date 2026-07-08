@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/Components/ui/button";
 
-import { User, ShieldCheck, Trash2, ShieldAlert } from "lucide-react";
+import { User, ShieldCheck, Trash2, ShieldAlert, FolderKanban } from "lucide-react";
 import { toast } from "sonner";
 import { useUserContext } from "@/context/User/UserContext";
 import { isEmailValid } from "@/utils/helpers/validators";
@@ -15,11 +15,16 @@ import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
 const ModalForUsers = () => {
   const { selectedUser, clearSelectedUser, updateUser, deleteUser, changeUserRole } = useUserContext();
+  const navigate = useNavigate();
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState(false);
   const [roleChangeConfirmOpen, setRoleChangeConfirmOpen] = useState(false);
   const [changingRole, setChangingRole] = useState(false);
+  // quando il declassamento è bloccato perché l'utente è ancora responsabile di
+  // progetti: elenco progetti da mostrare, con un link diretto per riassegnarli
+  // invece di un semplice toast (che non lascia capire quali progetti coinvolti)
+  const [blockedByProjects, setBlockedByProjects] = useState(null);
   const [formData, setFormData] = useState({
     name: selectedUser?.nome ?? "",
     surname: selectedUser?.cognome ?? "",
@@ -77,6 +82,7 @@ const ModalForUsers = () => {
       toast.info("Il ruolo è già aggiornato");
       return;
     }
+    setBlockedByProjects(null);
     setRoleChangeConfirmOpen(true);
   };
 
@@ -88,11 +94,25 @@ const ModalForUsers = () => {
       setRoleChangeConfirmOpen(false);
       handleCloseModal();
     } catch (error) {
-      toast.error("Errore durante l'aggiornamento del ruolo");
+      const projects = error.response?.data?.projects;
+      if (Array.isArray(projects) && projects.length > 0) {
+        // niente toast generico qui: mostriamo direttamente nella modale quali
+        // progetti bloccano il declassamento, con un link per andare a riassegnarli
+        setBlockedByProjects(projects);
+      } else {
+        const message = error.response?.data?.message || "Errore durante l'aggiornamento del ruolo";
+        toast.error(message);
+      }
       console.error("Errore durante l'aggiornamento del ruolo:", error.response?.data || error.message);
     } finally {
       setChangingRole(false);
     }
+  };
+
+  const goToProjects = () => {
+    setRoleChangeConfirmOpen(false);
+    handleCloseModal();
+    navigate("/admin/projects");
   };
 
   const handleDeleteUser = async () => {
@@ -189,11 +209,28 @@ const ModalForUsers = () => {
 
       <ModalForm
         modalOpen={roleChangeConfirmOpen}
-        setModalOpen={(open) => { if (!open && !changingRole) setRoleChangeConfirmOpen(false); }}
+        setModalOpen={(open) => { if (!open && !changingRole) { setRoleChangeConfirmOpen(false); setBlockedByProjects(null); } }}
         title="Cambia ruolo utente"
         infos="Il nuovo ruolo cambia subito i permessi dell'utente nell'app."
         hasDescripion={true}
-        description={(
+        description={blockedByProjects ? (
+          <div className="rounded-lg border border-red-200 bg-red-50/50 p-4 text-sm dark:border-red-500/20 dark:bg-red-500/10">
+            <p className="text-red-800 dark:text-red-400">
+              Non puoi declassare <span className="font-semibold text-red-950 dark:text-red-300">{getFullName(selectedUser)}</span> a tester: è ancora responsabile di questi progetti.
+            </p>
+            <ul className="mt-2 space-y-1">
+              {blockedByProjects.map((project) => (
+                <li key={project.id} className="flex items-center gap-1.5 text-red-700 dark:text-red-400">
+                  <FolderKanban className="h-3.5 w-3.5 shrink-0" />
+                  {project.name}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-red-700/80 dark:text-red-400/80">
+              Riassegna prima il responsabile di quei progetti.
+            </p>
+          </div>
+        ) : (
           <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 text-sm text-center dark:border-amber-500/20 dark:bg-amber-500/10">
             <p className="text-amber-800 dark:text-amber-400">
               Cambiare il ruolo di <span className="font-semibold text-amber-950 dark:text-amber-300">{getFullName(selectedUser)}</span> da{" "}
@@ -210,6 +247,17 @@ const ModalForUsers = () => {
         iconColor="text-amber-500"
         submitVariant="destructive"
         loading={changingRole}
+        customFooter={blockedByProjects ? (
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => { setRoleChangeConfirmOpen(false); setBlockedByProjects(null); }}>
+              Chiudi
+            </Button>
+            <Button type="button" className="gap-2 bg-emerald-500 text-white hover:bg-emerald-600" onClick={goToProjects}>
+              <FolderKanban className="h-4 w-4" />
+              Vai ai progetti
+            </Button>
+          </div>
+        ) : null}
       />
 
       <DeleteConfirmModal

@@ -60,6 +60,12 @@ export const authReducer = (state, action) => {
             error: null
          };
 
+      case 'UPDATE_TOKEN':
+         return {
+            ...state,
+            token: action.payload,
+         };
+
          case 'LOGOUT_FAILURE':
             return {
                ...state,

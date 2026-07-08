@@ -22,7 +22,7 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
 
   const [state, dispatch] = useReducer(userReducer, initialState)
-  const { user: currentAuthUser, syncCurrentUser } = useAuthContext();
+  const { user: currentAuthUser, syncCurrentUser, updateToken } = useAuthContext();
 
 
   // ── UTENTE NORMALE (/me)
@@ -57,6 +57,9 @@ export const UserProvider = ({ children }) => {
     try {
       const token = getToken()
       const data = await updateCurrentUserPassword(token, currentPassword, newPassword)
+      if (data.token) {
+        updateToken(data.token)
+      }
       dispatch({ type: 'CLEAR_LOADING' })
       return data
     } catch (error) {

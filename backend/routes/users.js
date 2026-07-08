@@ -4,6 +4,7 @@ const checkSuperadmin = require("../middleware/checkSuperadmin");
 const checkAdmin = require("../middleware/checkAdmin");
 const checkUser = require("../middleware/checkUser");
 const { hashPassword, comparePassword } = require("../auth/hash");
+const { generateAccessToken } = require("../auth/generateToken");
 const db = require("../database/db");
 const logActivity = require("../utils/logActivity");
 const { isEmailValid } = require("../utils/validators");
@@ -143,7 +144,7 @@ router.patch("/me/password", checkUser, async (req, res) => {
     }
 
     const [result] = await db.execute(
-      "UPDATE user SET password_hash = ? WHERE id = ?",
+      "UPDATE user SET password_hash = ?, password_changed_at = NOW() WHERE id = ?",
       [await hashPassword(trimmedNew), userId],
     );
 
@@ -151,7 +152,13 @@ router.patch("/me/password", checkUser, async (req, res) => {
       return res.status(404).json({ message: "Utente non trovato" });
     }
 
-    res.status(200).json({ message: "Password aggiornata con successo" });
+    // il vecchio token (emesso prima di questo cambio password) diventerebbe
+    // "stale" alla prossima richiesta come tutti gli altri: ne emettiamo uno
+    // nuovo per chi ha appena cambiato la password, così la sua sessione
+    // corrente continua senza interruzioni — solo le altre restano invalidate
+    const newToken = generateAccessToken({ id: userId, email: req.user.email, role: req.user.role });
+
+    res.status(200).json({ message: "Password aggiornata con successo", token: newToken });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Errore del server" });
@@ -378,6 +385,24 @@ router.patch("/:id/role", checkSuperadmin, async (req, res) => {
       const [count] = await db.execute("SELECT COUNT(*) AS total FROM user WHERE role = 'superadmin'");
       if (Number(count[0].total) <= 1) {
         return res.status(400).json({ message: "Non puoi declassare l'ultimo superadmin del sistema." });
+      }
+    }
+
+    // solo manager_id blocca il declassamento: è riassegnabile dal form "Modifica
+    // progetto" (superadmin). created_by invece non è mai riassegnabile per design
+    // (CONVENZIONI.md) — resta solo un riferimento storico, senza alcun privilegio
+    // reale una volta che l'utente non è più admin/superadmin (le route di gestione
+    // progetto richiedono comunque checkAdmin)
+    if (role === "user") {
+      const [managedProjects] = await db.execute(
+        "SELECT id, name FROM project WHERE manager_id = ?",
+        [userId],
+      );
+      if (managedProjects.length > 0) {
+        return res.status(400).json({
+          message: "Non puoi declassare questo utente a tester: è responsabile di uno o più progetti. Riassegna prima il responsabile di quei progetti.",
+          projects: managedProjects,
+        });
       }
     }
 

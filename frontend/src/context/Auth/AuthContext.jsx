@@ -91,6 +91,14 @@ export const AuthProvider = ({ children }) => {
       dispatch({type:'SYNC_CURRENT_USER', payload: updatedUser});
     }
 
+    // sostituisce il token corrente (es. dopo un cambio password: il vecchio
+    // token diventerebbe "stale" al prossimo giro, questo evita di disconnettere
+    // la sessione che ha appena fatto il cambio)
+    const updateToken = (newToken) => {
+      localStorage.setItem("auth_token", newToken);
+      dispatch({type:'UPDATE_TOKEN', payload: newToken});
+    }
+
     
 
  
@@ -104,7 +112,8 @@ export const AuthProvider = ({ children }) => {
             error: state.error,
             login,
             logoutUser,
-            syncCurrentUser
+            syncCurrentUser,
+            updateToken
         }}>
             {children}
         </AuthContext.Provider>

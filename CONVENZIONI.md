@@ -16,6 +16,7 @@ Questo documento elenca le scelte fatte durante lo sviluppo che sono **arbitrari
   Se si aggiunge un dominio, va aggiornato in entrambi i file, altrimenti un utente potrebbe aggirare il controllo frontend e registrarsi con un dominio non validato lato server (o viceversa, essere bloccato lato client per un dominio che il server accetterebbe).
 - **Denylist token JWT**: solo in memoria (`backend/auth/tokenDenylist.js`), non persistita su DB. Un riavvio del backend riabilita i vecchi token già "sloggati" fino alla loro scadenza naturale (max 6h).
 
+
 ## Audit log
 
 - **Limite risultati**: 500 eventi massimo per richiesta.
@@ -45,11 +46,8 @@ Questo documento elenca le scelte fatte durante lo sviluppo che sono **arbitrari
 
 Per aggiungere un nuovo tipo: aggiungere una entry in `htmlContent` (`emailTemplates.js`) e richiamare `sendProjectEmail` con la nuova chiave nel punto del backend dove serve.
 
-## Progetti
 
-- **Responsabile (`manager_id`)**: riassegnabile da un superadmin (solo verso un utente con ruolo `admin`) sia via `PUT /api/projects/:id` (`backend/routes/projects.js`, endpoint documentato in Swagger) sia dalla UI: il campo "Responsabile" compare nel form "Modifica progetto" — sia in `ProjectTable.jsx` (tabella progetti) sia in `ProjectDetail.jsx` (dettaglio progetto) — **solo per il superadmin** (un admin non vede quel campo, coerente col fatto che il backend ignora `manager_id` se la richiesta non arriva da un superadmin).
-  - Conseguenza di una riassegnazione: il vecchio responsabile perde il controllo sul progetto — le route di gestione progetto autorizzano un admin solo se è `created_by` **o** `manager_id` di quel progetto, quindi se non ne era anche il creatore smette di vederlo/gestirlo. Il form mostra un avviso esplicito su questo prima di salvare.
-- **Creatore (`created_by`)**: non è mai riassegnabile, né da UI né via API. Impostato una sola volta alla creazione del progetto, nessuna route lo modifica. Conseguenza già gestita nel codice: un admin creatore o responsabile di almeno un progetto **non può essere eliminato** (`DELETE /api/users/:id`) finché quel progetto non viene riassegnato a un altro responsabile.
+
 
 ## Tabelle
 

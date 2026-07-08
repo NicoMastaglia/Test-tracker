@@ -172,7 +172,7 @@ router.post("/setup", async (req, res) => {
     const passwordHash = await hashPassword(password.trim());
 
     await db.execute(
-      "UPDATE user SET password_hash = ?, first_login = 0 WHERE id = ?",
+      "UPDATE user SET password_hash = ?, first_login = 0, password_changed_at = NOW() WHERE id = ?",
       [passwordHash, setupToken.user_id],
     );
 
