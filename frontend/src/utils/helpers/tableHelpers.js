@@ -291,6 +291,17 @@ export const getColorsForDeadline = (daysLeft) => {
   return "text-slate-600 bg-slate-100/50 dark:text-slate-300 dark:bg-slate-500/10";
 };
 
+// confronto per giorno di calendario, non per timestamp esatto: senza questo, una
+// data impostata su "oggi" risulta sempre già passata per qualunque ora del giorno
+// dopo la mezzanotte. Usato nei form di creazione/modifica per validare le scadenze.
+export const isDateInPast = (dateStr) => {
+  const date = new Date(dateStr);
+  date.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
+};
+
 // calcola lo stato di scadenza di un'entità qualsiasi (task, progetto...) a partire da una data
 // opzionale: isDone=true (es. task Completata/Archiviata, progetto Completato) neutralizza il
 // colore e il conteggio giorni, così un elemento concluso non appare "scaduto" in rosso.

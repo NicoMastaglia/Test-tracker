@@ -22,6 +22,7 @@ import {
   Trash2,
   KeyRound,
   ShieldPlus,
+  UserCog,
 } from "lucide-react";
 
 export const auditActions = {
@@ -67,6 +68,12 @@ export const auditActions = {
     label: "USER ELIMINATO",
     color: "text-red-700 dark:text-red-400",
     icon: UserMinus,
+  },
+  "user.role_changed": {
+    label: "RUOLO AGGIORNATO",
+    color: "text-purple-700 dark:text-purple-400",
+    bgColor: "bg-purple-50 dark:bg-purple-500/10",
+    icon: UserCog,
   },
 
   // ---------------- PROJECTS ----------------
@@ -229,6 +236,8 @@ export const detailFieldMap = {
   email: { label: "Email" },
   role: { label: "Ruolo" },
   name: { label: "Nome" },
+  nome: { label: "Nome" },
+  cognome: { label: "Cognome" },
   deletedProject: { label: "Progetto eliminato" },
   from: { label: "Da" },
   to: { label: "A" },
@@ -244,6 +253,9 @@ export const detailFieldMap = {
   note: { label: "Nota" },
   outcome: { label: "Esito" },
   reason: { label: "Motivo" },
+  projectName: { label: "Progetto" },
+  testerNome: { label: "Nome tester" },
+  testerCognome: { label: "Cognome tester" },
 };
 
 // fallback per chiavi non ancora mappate (un campo nuovo nel BE non rompe la UI)

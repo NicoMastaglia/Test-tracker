@@ -9,7 +9,7 @@ import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import { getProjectInfoItems } from "@/utils/helpers/projectInfoItems";
 import { projectEditFields } from "@/utils/fields/projectEditFields";
-import { toDateInputValue, uppercaseFirstLetter, getFullName } from "@/utils/helpers/tableHelpers";
+import { toDateInputValue, uppercaseFirstLetter, getFullName, isDateInPast } from "@/utils/helpers/tableHelpers";
 import Loader from "@/utils/components/Loader";
 import ProjectHeaderCard from "./ProjectHeaderCard";
 import ProjectOverviewSection from "./ProjectOverviewSection";
@@ -191,7 +191,7 @@ const ProjectDetail = () => {
       return;
     }
 
-    if(editFormData.deadline && new Date(editFormData.deadline) < new Date()) {
+    if(editFormData.deadline && isDateInPast(editFormData.deadline)) {
       toast.error("La deadline non può essere una data passata");
       return;
     }

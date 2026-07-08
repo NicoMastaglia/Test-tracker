@@ -286,9 +286,16 @@ router.delete("/:id", checkAdmin, async (req, res) => {
 
   try {
     // un progetto concluso o in pausa non può più vedere le sue sessioni cancellate,
-    // stessa regola già applicata alla creazione/modifica di checklist/task/sessioni
+    // stessa regola già applicata alla creazione/modifica di checklist/task/sessioni.
+    // catturiamo qui anche i dati per l'audit log (progetto/tester): dopo la DELETE
+    // la sessione non esiste più, quindi il JOIN che l'audit log fa in lettura non
+    // potrebbe più risolverli — vanno salvati come valori letterali nei details
     const [projectRows] = await db.execute(
-      "SELECT p.status FROM test_session ts JOIN project p ON ts.project_id = p.id WHERE ts.id = ?",
+      `SELECT p.status, ts.project_id, p.name AS project_name, u.nome AS tester_nome, u.cognome AS tester_cognome
+       FROM test_session ts
+       JOIN project p ON ts.project_id = p.id
+       JOIN user u ON ts.user_id = u.id
+       WHERE ts.id = ?`,
       [sessionId],
     );
     if (projectRows.length === 0) {
@@ -336,8 +343,11 @@ router.delete("/:id", checkAdmin, async (req, res) => {
       });
     }
 
-    await logActivity(req.user.id, null, "session.deleted", {
+    await logActivity(req.user.id, projectRows[0].project_id, "session.deleted", {
       sessionId: sessionId,
+      projectName: projectRows[0].project_name,
+      testerNome: projectRows[0].tester_nome,
+      testerCognome: projectRows[0].tester_cognome,
     });
     return res
       .status(200)

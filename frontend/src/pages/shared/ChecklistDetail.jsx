@@ -12,7 +12,7 @@ import ProjectCompletedBanner from "@/utils/components/ProjectCompletedBanner";
 import Loader from "@/utils/components/Loader";
 import { ArrowLeft, ChevronRight, Pencil, User2,UserMinus, CircleSlash} from "lucide-react";
 import { toast } from "sonner";
-import { getFullName, toDateInputValue } from "@/utils/helpers/tableHelpers";
+import { getFullName, toDateInputValue, isDateInPast } from "@/utils/helpers/tableHelpers";
 import {useTaskContext} from "@/context/Task/TaskContext"
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
@@ -168,7 +168,7 @@ const ChecklistDetail = () => {
       toast.error("La scadenza non è una data valida");
       return;
     }
-    if (addTaskFormData.deadline && new Date(addTaskFormData.deadline) < new Date()) {
+    if (addTaskFormData.deadline && isDateInPast(addTaskFormData.deadline)) {
       toast.error("La scadenza non può essere una data passata");
       return;
     }
@@ -193,7 +193,7 @@ const ChecklistDetail = () => {
       toast.error("La scadenza non è una data valida");
       return;
     }
-    if (editTaskFormData.deadline && new Date(editTaskFormData.deadline) < new Date()) {
+    if (editTaskFormData.deadline && isDateInPast(editTaskFormData.deadline)) {
       toast.error("La scadenza non può essere una data passata");
       return;
     }

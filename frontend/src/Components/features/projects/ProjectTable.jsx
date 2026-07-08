@@ -9,7 +9,7 @@ import ProjectRow from "./ProjectRow";
 import StandardTable from "@/utils/components/StandardTable";
 import ModalForm from "@/utils/components/ModalForm";
 import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
-import { toDateInputValue, getFullName } from "@/utils/helpers/tableHelpers";
+import { toDateInputValue, getFullName, isDateInPast } from "@/utils/helpers/tableHelpers";
 import { getAvailableProjectStatuses } from "@/utils/helpers/statusFlow";
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
@@ -105,7 +105,7 @@ const ProjectTable = ({ data, users = [] }) => {
       return;
     }
 
-    if(editForm.deadline && new Date(editForm.deadline) < new Date()) {
+    if(editForm.deadline && isDateInPast(editForm.deadline)) {
       toast.error("La deadline non può essere una data passata");
       return;
     }

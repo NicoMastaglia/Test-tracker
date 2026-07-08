@@ -36,10 +36,13 @@ const renderField = (field, value, updateField) => {
 
         case "select":
         
-		// Se il campo è di tipo select e il valore è 'superadmin', 
-		//  div non interattivo con un'icona di lucchetto
-		// es un superadmin non può cambiare ruolo
-		if (field.name ==='role' && value === 'superadmin') {
+		// div non interattivo con un'icona di lucchetto quando l'account che si sta
+		// modificando è GIÀ superadmin (field.locked, deciso dal chiamante in base al
+		// ruolo persistito) — non quando è solo il valore selezionato nel dropdown a
+		// essere temporaneamente 'superadmin' (altrimenti, scegliendo "Super Admin"
+		// per promuovere qualcuno, il select si bloccherebbe subito senza aver salvato,
+		// impedendo di tornare indietro sulla scelta)
+		if (field.name === 'role' && field.locked) {
 			return(
 				<div className="w-full rounded-md border border-border bg-muted/50 px-3 h-10 text-sm text-muted-foreground cursor-not-allowed flex items-center justify-between select-none">
                 <div className="flex items-center gap-2">

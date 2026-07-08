@@ -8,7 +8,7 @@ import { useProjectContext } from "@/context/Project/ProjectContext";
 import { useUserContext } from "@/context/User/UserContext";
 import { useAuthContext } from "@/context/Auth/AuthContext";
 import {toast} from "sonner"
-import {getFullName} from "@/utils/helpers/tableHelpers"
+import {getFullName, isDateInPast} from "@/utils/helpers/tableHelpers"
 import {Plus} from "lucide-react"
 import StatusFilterPills from "@/utils/components/StatusFilterPills"
 import Loader from "@/utils/components/Loader"
@@ -66,7 +66,7 @@ const AdminProjects = () => {
     if (!formData.responsabile) nextErrors.responsabile = "Seleziona un responsabile";
     if (formData.deadline && isNaN(Date.parse(formData.deadline))) {
       nextErrors.deadline = "La data di scadenza non è valida";
-    } else if (formData.deadline && new Date(formData.deadline) < new Date()) {
+    } else if (formData.deadline && isDateInPast(formData.deadline)) {
       nextErrors.deadline = "La data di scadenza non può essere nel passato";
     }
 

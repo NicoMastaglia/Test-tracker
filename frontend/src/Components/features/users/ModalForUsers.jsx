@@ -38,6 +38,14 @@ const ModalForUsers = () => {
     return null;
   }
 
+  // il campo ruolo va bloccato solo se l'account è GIÀ superadmin (ruolo persistito),
+  // non se è solo il valore selezionato nel dropdown a essere temporaneamente
+  // 'superadmin' — altrimenti selezionandolo per promuovere qualcuno il select si
+  // bloccherebbe subito, prima ancora di salvare, impedendo di tornare indietro
+  const fieldsWithRoleLock = userFields.map((field) =>
+    field.name === "role" ? { ...field, locked: isCurrentSuperadmin } : field,
+  );
+
   const hasProfileChanges =
     formData.name.trim() !== (selectedUser.nome ?? "").trim() ||
     formData.surname.trim() !== (selectedUser.cognome ?? "").trim() ||
@@ -191,7 +199,7 @@ const ModalForUsers = () => {
     setModalOpen={handleCloseModal}
     title="Modifica Utente"
     infos="Aggiorna il profilo o il ruolo. Le due azioni sono separate."
-    fields={userFields}
+    fields={fieldsWithRoleLock}
     formData={formData}
     setFormData={setFormData}
     onSubmit={handleSaveProfile}

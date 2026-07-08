@@ -376,7 +376,7 @@ router.patch("/:id/role", checkSuperadmin, async (req, res) => {
   }
 
   try {
-    const [targetRows] = await db.execute("SELECT role FROM user WHERE id = ?", [userId]);
+    const [targetRows] = await db.execute("SELECT role, nome, cognome FROM user WHERE id = ?", [userId]);
     if (targetRows.length === 0) {
       return res.status(404).json({ message: "Utente non trovato" });
     }
@@ -410,6 +410,12 @@ router.patch("/:id/role", checkSuperadmin, async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Utente non trovato" });
     }
+
+    await logActivity(req.user.id, null, "user.role_changed", {
+      userId, nome: targetRows[0].nome, cognome: targetRows[0].cognome,
+      from: targetRows[0].role, to: role,
+    });
+
     res.status(200).json({ message: "Ruolo aggiornato con successo" });
   } catch (err) {
     console.error(err);
