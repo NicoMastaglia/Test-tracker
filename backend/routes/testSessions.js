@@ -303,7 +303,21 @@ router.delete("/:id", checkAdmin, async (req, res) => {
 
     connection = await db.getConnection();
 
+
+    // cancellazione a cascata
+    // session_task -> test_session
     await connection.beginTransaction();
+    
+
+    // la sessione cancellata porta con sé anche session_task (l'eventuale esito già
+    // dato): senza più nessun record a supporto, anche le task già "Completata" per
+    // questa sessione tornano TODO, non solo quelle ancora "In corso"
+    await connection.execute(
+  `UPDATE checklist_item SET status = 'TODO'
+   WHERE id IN (SELECT checklist_item_id FROM session_task WHERE session_id = ?)
+   AND status IN ('In corso', 'Completata')`,
+  [sessionId],
+);
 
     await connection.execute("DELETE FROM session_task WHERE session_id = ?", [
       sessionId,
@@ -573,7 +587,7 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
       UPDATE session_task st
       set st.outcome = ?, st.note = ?
       where st.session_id = ? and st.checklist_item_id = ? and st.outcome is null and st.session_id in (select ts.id from test_session ts where ts.user_id = ? and ts.status = 'In corso')
-   `,[outcome,note,sessionId,itemId,userId]
+   `,[outcome,normalizedNote,sessionId,itemId,userId]
 
 
 

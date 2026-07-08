@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, PlayCircle, ChevronRight, ListChecks, FileSpreadsheet, FileText, RotateCcw } from "lucide-react";
+import { ArrowLeft, PlayCircle, ChevronRight, ListChecks, FileSpreadsheet, FileText, RotateCcw, Trash2, SearchX } from "lucide-react";
 import AppLayout from "@/Components/layout/AppLayout";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
@@ -13,6 +13,7 @@ import {
 } from "@/Components/ui/dialog";
 import StandardTable from "@/utils/components/StandardTable";
 import Loader from "@/utils/components/Loader";
+import DeleteConfirmModal from "@/utils/components/DeleteConfirmModal";
 import SessionTaskRow from "./SessionTaskRow";
 import UpdateOutcomeModal from "./UpdateOutcomeModal";
 import { useSessionContext } from "@/context/Session/SessionContext";
@@ -34,13 +35,15 @@ const SessionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthContext();
-  const { selectedSession, sessionTask, loading, fetchSessionsDetail, updateSessionTask, reopenTaskOutcome, reopenSession, clearSelectedSession } = useSessionContext();
+  const { selectedSession, sessionTask, loading, fetchSessionsDetail, updateSessionTask, reopenTaskOutcome, reopenSession, deleteSession, clearSelectedSession } = useSessionContext();
 
   const [editingTask, setEditingTask] = useState(null);
   const [confirmReopenOpen, setConfirmReopenOpen] = useState(false);
   const [reopeningSession, setReopeningSession] = useState(false);
   const [reopenOutcomeTarget, setReopenOutcomeTarget] = useState(null);
   const [reopeningOutcome, setReopeningOutcome] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deletingSession, setDeletingSession] = useState(false);
 
   const isAdmin = user?.role !== "user";
   // back route e breadcrumb dipendono dal ruolo: l'admin arriva da /admin/sessions
@@ -48,10 +51,18 @@ const SessionDetail = () => {
   const backLabel = isAdmin ? "Torna alle sessioni" : "Torna alle sessioni";
   const listLabel = isAdmin ? "Sessioni" : "Sessioni";
 
+  // distingue "non ancora caricata" da "caricata ma non trovata" (es. sessione
+  // cancellata nel frattempo da un admin): senza questo flag il primo render,
+  // prima che l'effect parta, mostrerebbe per un istante lo stato "non trovata"
+  const [initialFetchDone, setInitialFetchDone] = useState(false);
+
   useEffect(() => {
-    fetchSessionsDetail(id);
+    setInitialFetchDone(false);
+    fetchSessionsDetail(id).finally(() => setInitialFetchDone(true));
     return () => clearSelectedSession();
   }, [id]);
+
+  const sessionNotFound = initialFetchDone && !loading && !selectedSession;
 
   // admin/superadmin possono solo visualizzare la sessione di un tester (sola lettura);
   // a progetto in pausa/completato anche il tester non può modificare (il BE lo rifiuta comunque).
@@ -101,6 +112,20 @@ const SessionDetail = () => {
       toast.error(message);
     } finally {
       setReopeningSession(false);
+    }
+  };
+
+  const handleDeleteSession = async () => {
+    setDeletingSession(true);
+    try {
+      await deleteSession(id);
+      toast.success("Sessione eliminata con successo");
+      navigate(backPath);
+    } catch (error) {
+      const message = error.response?.data?.error || "Errore durante l'eliminazione della sessione";
+      toast.error(message);
+    } finally {
+      setDeletingSession(false);
     }
   };
 
@@ -175,14 +200,32 @@ const SessionDetail = () => {
                     </Button>
                   </>
                 )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10"
+                  onClick={() => setConfirmDeleteOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Elimina sessione
+                </Button>
               </div>
             )}
           </div>
         )}
 
         <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-          {loading ? (
+          {loading || !initialFetchDone ? (
             <Loader label="Caricamento sessione..." />
+          ) : sessionNotFound ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+              <SearchX className="h-10 w-10 text-muted-foreground" />
+              <p className="text-sm font-medium text-foreground">Questa sessione non esiste più o è stata rimossa.</p>
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate(backPath)}>
+                <ArrowLeft className="h-4 w-4" />
+                {backLabel}
+              </Button>
+            </div>
           ) : (
             <StandardTable
               headers={!readOnly ? [...BASE_HEADERS, ACTIONS_HEADER] : BASE_HEADERS}
@@ -264,6 +307,16 @@ const SessionDetail = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <DeleteConfirmModal
+          modalOpen={confirmDeleteOpen}
+          setModalOpen={setConfirmDeleteOpen}
+          itemPhrase="la sessione"
+          itemName={`#${id}`}
+          extraInfo="Le task collegate a questa sessione torneranno allo stato TODO."
+          onConfirm={handleDeleteSession}
+          loading={deletingSession}
+        />
       </div>
     </AppLayout>
   );
