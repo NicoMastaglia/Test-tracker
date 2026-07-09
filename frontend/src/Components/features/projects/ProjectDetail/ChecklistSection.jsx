@@ -97,6 +97,16 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
 
   const handleEdit = async () => {
     if (!editingId) return;
+
+    const editingChecklist = checklistItems.find((cl) => cl.checklist_id === editingId);
+    const hasChanges =
+      formData.title.trim() !== (editingChecklist?.title ?? "").trim() ||
+      formData.description.trim() !== (editingChecklist?.description ?? "").trim();
+    if (!hasChanges) {
+      toast.info("Nessuna modifica da salvare");
+      return;
+    }
+
     try {
       await updateChecklist(editingId, { title: formData.title, description: formData.description });
       await fetchChecklistsByProject(projectId); 

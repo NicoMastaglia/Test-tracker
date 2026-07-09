@@ -47,8 +47,8 @@ const ManageUsers = ({ data }) => {
             key={userItem.id}
             className={`group transition-colors hover:bg-muted ${user.id === userItem.id ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/15" : ""}`}
           >
-            <TableCell className="text-center text-foreground">
-              <div className="flex items-center justify-center gap-3">
+            <TableCell className="text-left text-foreground">
+              <div className="flex items-center justify-start gap-3">
                 <UserAvatar user={userItem} size="sm" />
                 <span className="font-semibold text-foreground">
                   {getFullName(userItem)}

@@ -23,7 +23,7 @@ router.post("/", checkUser, async (req, res) => {
   try {
   const [items] = await db.query(
     `
-    SELECT ci.id,ci.assigned_to,ci.status,ct.project_id,p.status AS project_status
+    SELECT ci.id,ci.assigned_to,ci.status,ci.description,ct.project_id,ct.title AS checklist_title,p.status AS project_status
     FROM checklist_item ci
     JOIN checklist_template ct ON ci.template_id = ct.id
     JOIN project p ON ct.project_id = p.id
@@ -157,6 +157,8 @@ router.post("/", checkUser, async (req, res) => {
     await logActivity(testerId, projectIds[0], "session.created", {
       sessionId: sessionId,
       checklistItemIds: checklistItemIds,
+      taskDescriptions: items.map((i) => i.description).join(", "),
+      checklistTitles: [...new Set(items.map((i) => i.checklist_title))].join(", "),
     });
     return res
       .status(201)
@@ -193,7 +195,10 @@ router.get("/", checkUser, async (req, res) => {
                   SELECT 1 FROM session_task st
                   JOIN checklist_item ci ON ci.id = st.checklist_item_id
                   WHERE st.session_id = ts.id AND ci.status = 'Bloccata'
-                ) AS has_blocked_task
+                ) AS has_blocked_task,
+                NOT EXISTS (
+                  SELECT 1 FROM session_task st WHERE st.session_id = ts.id
+                ) AS tasks_deleted
          FROM test_session ts
          JOIN project p ON ts.project_id = p.id
          JOIN user u ON ts.user_id = u.id
@@ -218,7 +223,10 @@ router.get("/", checkUser, async (req, res) => {
                   SELECT 1 FROM session_task st
                   JOIN checklist_item ci ON ci.id = st.checklist_item_id
                   WHERE st.session_id = ts.id AND ci.status = 'Bloccata'
-                ) AS has_blocked_task
+                ) AS has_blocked_task,
+                NOT EXISTS (
+                  SELECT 1 FROM session_task st WHERE st.session_id = ts.id
+                ) AS tasks_deleted
          FROM test_session ts
          JOIN project p ON ts.project_id = p.id
          JOIN user u ON ts.user_id = u.id
@@ -241,7 +249,10 @@ router.get("/", checkUser, async (req, res) => {
                   SELECT 1 FROM session_task st
                   JOIN checklist_item ci ON ci.id = st.checklist_item_id
                   WHERE st.session_id = ts.id AND ci.status = 'Bloccata'
-                ) AS has_blocked_task
+                ) AS has_blocked_task,
+                NOT EXISTS (
+                  SELECT 1 FROM session_task st WHERE st.session_id = ts.id
+                ) AS tasks_deleted
          FROM test_session ts JOIN project p ON ts.project_id = p.id WHERE ts.user_id = ? ${hasProject ? "AND ts.project_id = ?" : ""}`,
         hasProject ? [req.user.id, projectId] : [req.user.id],
       );
@@ -291,10 +302,9 @@ router.delete("/:id", checkAdmin, async (req, res) => {
     // la sessione non esiste più, quindi il JOIN che l'audit log fa in lettura non
     // potrebbe più risolverli — vanno salvati come valori letterali nei details
     const [projectRows] = await db.execute(
-      `SELECT p.status, ts.project_id, p.name AS project_name, u.nome AS tester_nome, u.cognome AS tester_cognome
+      `SELECT p.status, ts.project_id, ts.user_id
        FROM test_session ts
        JOIN project p ON ts.project_id = p.id
-       JOIN user u ON ts.user_id = u.id
        WHERE ts.id = ?`,
       [sessionId],
     );
@@ -308,13 +318,24 @@ router.delete("/:id", checkAdmin, async (req, res) => {
       return res.status(400).json({ error: "Progetto in pausa: non è possibile eliminare sessioni di test." });
     }
 
+    //  dopo la cancellazione session_task
+    // sparisce,le task coinvolte vanno lette ora per poterle citare nell'audit log
+    const [sessionTasks] = await db.execute(
+      `SELECT ci.description, ct.title AS checklist_title
+       FROM session_task st
+       JOIN checklist_item ci ON st.checklist_item_id = ci.id
+       JOIN checklist_template ct ON ci.template_id = ct.id
+       WHERE st.session_id = ?`,
+      [sessionId],
+    );
+
     connection = await db.getConnection();
 
 
     // cancellazione a cascata
     // session_task -> test_session
     await connection.beginTransaction();
-    
+
 
     // la sessione cancellata porta con sé anche session_task (l'eventuale esito già
     // dato): senza più nessun record a supporto, anche le task già "Completata" per
@@ -345,9 +366,9 @@ router.delete("/:id", checkAdmin, async (req, res) => {
 
     await logActivity(req.user.id, projectRows[0].project_id, "session.deleted", {
       sessionId: sessionId,
-      projectName: projectRows[0].project_name,
-      testerNome: projectRows[0].tester_nome,
-      testerCognome: projectRows[0].tester_cognome,
+      userId: projectRows[0].user_id,
+      taskDescriptions: sessionTasks.map((t) => t.description).join(", "),
+      checklistTitles: [...new Set(sessionTasks.map((t) => t.checklist_title))].join(", "),
     });
     return res
       .status(200)
@@ -409,6 +430,18 @@ router.patch("/:id/reopen", checkAdmin, async (req, res) => {
     );
     if (teamCheck.length === 0) {
       return res.status(400).json({ error: "Il tester non fa più parte del team di questo progetto: impossibile riaprire la sessione." });
+    }
+
+    // le task della sessione potrebbero essere state eliminate nel frattempo (FK
+    // ON DELETE CASCADE su session_task): riaprire una sessione ormai vuota
+    // lascerebbe il tester su una sessione "In corso" senza nulla da fare, uscibile
+    // solo con una cancellazione admin — va bloccato qui, non dopo
+    const [taskCount] = await db.execute(
+      "SELECT COUNT(*) AS total FROM session_task WHERE session_id = ?",
+      [sessionId],
+    );
+    if (Number(taskCount[0].total) === 0) {
+      return res.status(400).json({ error: "Questa sessione non ha più task associate (probabilmente eliminate): impossibile riaprirla." });
     }
   } catch (error) {
     console.error(error);
@@ -707,10 +740,11 @@ router.patch('/:sessionId/task/:itemId/reopen', checkUser, async (req, res) => {
       connection = await db.getConnection();
       await connection.beginTransaction();
 
-      // la nota non viene azzerata: può restare documentazione valida anche se
-      // l'esito scelto era sbagliato; il tester la può sovrascrivere reinviando l'esito
+      // riaprire azzera anche la nota, non solo l'esito: il tester riparte da un form
+      // pulito invece di trovarsi la nota precedente già scritta, che dava l'impressione
+      // che la riapertura non avesse davvero resettato nulla
       await connection.execute(
-        "UPDATE session_task SET outcome = NULL WHERE session_id = ? AND checklist_item_id = ?",
+        "UPDATE session_task SET outcome = NULL, note = NULL WHERE session_id = ? AND checklist_item_id = ?",
         [sessionId, itemId]
       );
 
@@ -766,7 +800,8 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
       const [rows] = await db.execute(
 
       `
-      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at,p.name as project_name,p.status as project_status
+      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at,p.name as project_name,p.status as project_status,
+      not exists (select 1 from session_task st where st.session_id = ts.id) as tasks_deleted
       from test_session ts
       join project p on ts.project_id = p.id
       where ts.id = ?
@@ -779,7 +814,8 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
       const [rows] = await db.execute(
 
        `
-      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at,p.name as project_name,p.status as project_status
+      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at,p.name as project_name,p.status as project_status,
+      not exists (select 1 from session_task st where st.session_id = ts.id) as tasks_deleted
       from test_session ts
       join project p on ts.project_id = p.id
       where ts.id = ? AND  (p.created_by = ? OR p.manager_id = ?)`
@@ -794,7 +830,8 @@ router.get('/:sessionId',checkUser,async (req,res)=>{
     const [rows] = await db.execute(
 
       `
-      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at,p.name as project_name,p.status as project_status
+      select ts.id,ts.project_id,ts.status,ts.started_at,ts.completed_at,p.name as project_name,p.status as project_status,
+      not exists (select 1 from session_task st where st.session_id = ts.id) as tasks_deleted
       from test_session ts
       join project p on ts.project_id = p.id
       where ts.id = ? and ts.user_id = ?

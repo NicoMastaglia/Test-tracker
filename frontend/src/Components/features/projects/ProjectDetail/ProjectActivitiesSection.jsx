@@ -6,6 +6,7 @@ import { getFullName } from "@/utils/helpers/tableHelpers";
 import { AUDIT_DATE_PRESETS, dateFromDaysAgo } from "@/utils/helpers/auditDatePresets";
 import { useAuditContext } from "@/context/Audit/AuditContext";
 import AuditLogTable from "@/Components/features/audit/AuditLogTable";
+import { auditActions } from "@/utils/helpers/auditActions";
 
 // SEZIONE ATTIVITÀ DEL PROGETTO: audit log filtrato per project_id, con ricerca per utente
 const ProjectActivitiesSection = ({ projectId, currentUserId }) => {
@@ -31,8 +32,11 @@ const ProjectActivitiesSection = ({ projectId, currentUserId }) => {
 
   const filteredActivities = useMemo(() => {
     if (!search.trim()) return activities;
-    return activities.filter((item) =>
-      getFullName(item).toLowerCase().includes(search.toLowerCase())
+    const query = search.toLowerCase();
+    return activities.filter(
+      (item) =>
+        getFullName(item).toLowerCase().includes(query) ||
+        (auditActions[item.action]?.label ?? item.action ?? "").toLowerCase().includes(query),
     );
   }, [activities, search]);
 
@@ -49,7 +53,7 @@ const ProjectActivitiesSection = ({ projectId, currentUserId }) => {
           <div className="relative w-full max-w-xs">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Cerca per utente..."
+              placeholder="Cerca per utente o azione..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 h-9 border-border focus-visible:ring-emerald-500"
@@ -83,6 +87,7 @@ const ProjectActivitiesSection = ({ projectId, currentUserId }) => {
             currentUserId={currentUserId}
             emptyMessage="Nessuna attività nel periodo selezionato."
             containerClass="overflow-hidden rounded-xl border border-border"
+            hideProjectContext
           />
         </div>
       </CardContent>

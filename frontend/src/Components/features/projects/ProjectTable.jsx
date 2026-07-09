@@ -100,6 +100,16 @@ const ProjectTable = ({ data, users = [] }) => {
       return;
     }
 
+    const hasChanges =
+      editForm.name.trim() !== (editingProject.name ?? "").trim() ||
+      editForm.description.trim() !== (editingProject.description ?? "").trim() ||
+      editForm.deadline !== toDateInputValue(editingProject.deadline) ||
+      (isSuperadmin && editForm.responsabile !== (editingProject.manager?.id ? String(editingProject.manager.id) : ""));
+    if (!hasChanges) {
+      toast.info("Nessuna modifica da salvare");
+      return;
+    }
+
     if(editForm.deadline && isNaN(Date.parse(editForm.deadline))) {
       toast.error("Deadline non è una data valida");
       return;

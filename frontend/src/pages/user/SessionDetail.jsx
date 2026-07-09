@@ -230,7 +230,7 @@ const SessionDetail = () => {
             <StandardTable
               headers={!readOnly ? [...BASE_HEADERS, ACTIONS_HEADER] : BASE_HEADERS}
               data={sessionTask}
-              emptyMessage="Nessuna task in questa sessione."
+              emptyMessage={selectedSession?.tasks_deleted ? "Le task di questa sessione sono state eliminate." : "Nessuna task in questa sessione."}
               emptyIcon={ListChecks}
               renderRow={(task) => (
                 <SessionTaskRow
@@ -313,7 +313,7 @@ const SessionDetail = () => {
           setModalOpen={setConfirmDeleteOpen}
           itemPhrase="la sessione"
           itemName={`#${id}`}
-          extraInfo="Le task collegate a questa sessione torneranno allo stato TODO."
+          extraInfo={selectedSession?.tasks_deleted ? undefined : "Le task collegate a questa sessione torneranno allo stato TODO."}
           onConfirm={handleDeleteSession}
           loading={deletingSession}
         />

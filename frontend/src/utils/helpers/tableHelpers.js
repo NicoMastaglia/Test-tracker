@@ -42,10 +42,11 @@ export const getFullName = (item = {}) => {
   return `${normalizedFirstName} ${normalizedLastName}`.trim() || "Utente senza nome";
 };
 
-// rende maiuscola solo la prima lettera della stringa, utile per i nomi dei progetti o dei campi personalizzati
+// normalizza per la visualizzazione (prima lettera maiuscola, resto minuscolo), stesso
+// pattern già usato per i nomi utente in getFullName
 export const uppercaseFirstLetter = (text) => {
   if (!text) return "";
-  return text.charAt(0).toUpperCase().concat(text.slice(1));
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
 
 

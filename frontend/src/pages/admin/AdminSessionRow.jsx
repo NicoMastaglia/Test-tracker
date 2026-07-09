@@ -1,4 +1,4 @@
-import { CircleSlash } from "lucide-react";
+import { CircleSlash, Trash2 } from "lucide-react";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
 import { getSessionStatusBadgeClass, blockedIndicatorBadgeClass, getFullName, formatProjectDateTime, getClickableRowProps } from "@/utils/helpers/tableHelpers";
@@ -46,6 +46,12 @@ const AdminSessionRow = ({ session, onView }) => {
             <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center ${blockedIndicatorBadgeClass}`}>
               <CircleSlash className="mr-1 h-3 w-3" />
               Task bloccata
+            </Badge>
+          ) : null}
+          {session.tasks_deleted ? (
+            <Badge className={`border-none px-2.5 py-0.5 text-xs font-medium rounded-full inline-flex items-center ${blockedIndicatorBadgeClass}`}>
+              <Trash2 className="mr-1 h-3 w-3" />
+              Task eliminate
             </Badge>
           ) : null}
         </div>

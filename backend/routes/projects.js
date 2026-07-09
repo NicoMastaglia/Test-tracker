@@ -535,9 +535,8 @@ router.put("/:id", checkAdmin, async (req, res) => {
     if (trimmedDescription !== current.description) changes.description = trimmedDescription;
     if (normalizeDate(finalDeadline) !== normalizeDate(current.deadline)) changes.deadline = finalDeadline;
     if (newManagerId && newManagerId !== current.manager_id) {
-      const [newManager] = await db.execute("SELECT nome, cognome FROM user WHERE id = ?", [newManagerId]);
-      changes.newManagerNome = newManager[0]?.nome;
-      changes.newManagerCognome = newManager[0]?.cognome;
+      
+      changes.userId = newManagerId;
     }
     if (Object.keys(changes).length > 0) {
       await logActivity(req.user.id, projectId, "project.updated", changes);

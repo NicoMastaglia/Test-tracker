@@ -186,6 +186,16 @@ const ProjectDetail = () => {
       return;
     }
 
+    const hasChanges =
+      editFormData.name.trim() !== (selectedProject?.name ?? "").trim() ||
+      editFormData.description.trim() !== (selectedProject?.description ?? "").trim() ||
+      editFormData.deadline !== toDateInputValue(selectedProject?.deadline) ||
+      (isSuperAdmin && editFormData.responsabile !== (selectedProject?.manager?.id ? String(selectedProject.manager.id) : ""));
+    if (!hasChanges) {
+      toast.info("Nessuna modifica da salvare");
+      return;
+    }
+
     if(editFormData.deadline && isNaN(Date.parse(editFormData.deadline))) {
       toast.error("La data di scadenza non è valida");
       return;

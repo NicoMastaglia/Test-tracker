@@ -208,7 +208,7 @@ router.delete("/:id", checkAdmin, async (req, res) => {
 
 
     const [results] = await db.execute(
-      "SELECT ct.id, ct.project_id FROM checklist_template ct WHERE ct.id = ?",
+      "SELECT ct.id, ct.project_id, ct.title FROM checklist_template ct WHERE ct.id = ?",
       [checklistId],
     );
 
@@ -248,6 +248,7 @@ router.delete("/:id", checkAdmin, async (req, res) => {
     if (result.affectedRows > 0) {
       await logActivity(req.user.id, project_id, "checklist.deleted", {
         checklistId: checklistId,
+        title: results[0].title,
       });
       await closeEmptyOpenSessions(project_id, req.user.id);
       return res
@@ -608,7 +609,7 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
   try { 
     
     const [itemResults] = await db.execute(
-  "SELECT ci.id, ct.id AS template_id,p.id as project_id, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
+  "SELECT ci.id, ci.description, ct.id AS template_id,p.id as project_id, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
   [itemId, req.user.id,req.user.id, req.user.role === "superadmin"],
 );
 
@@ -638,6 +639,7 @@ router.delete("/item/:id", checkAdmin, async (req, res) => {
   await logActivity(req.user.id, projectId, "task.deleted", {
     itemId: itemId,
     templateId: itemResults[0].template_id,
+    description: itemResults[0].description,
   });
   await closeEmptyOpenSessions(projectId, req.user.id);
       return res

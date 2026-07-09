@@ -217,6 +217,13 @@ const ChecklistDetail = () => {
       toast.error("La descrizione del task non può essere vuota");
       return;
     }
+    const hasChanges =
+      editTaskFormData.description.trim() !== (editTaskTarget?.description ?? "").trim() ||
+      editTaskFormData.deadline !== toDateInputValue(editTaskTarget?.deadline);
+    if (!hasChanges) {
+      toast.info("Nessuna modifica da salvare");
+      return;
+    }
     if (editTaskFormData.deadline && isNaN(Date.parse(editTaskFormData.deadline))) {
       toast.error("La scadenza non è una data valida");
       return;

@@ -16,8 +16,8 @@ const HEADERS = [
 
 // contesto gerarchico Progetto/Checklist/Task: array di blocchi label+valore
 
-const buildContextParts = (item) => [
-  item.project_name ? { label: "Progetto", value: uppercaseFirstLetter(item.project_name), icon: FolderKanban } : null,
+const buildContextParts = (item, hideProjectContext) => [
+  item.project_name && !hideProjectContext ? { label: "Progetto", value: uppercaseFirstLetter(item.project_name), icon: FolderKanban } : null,
   item.checklist_name ? { label: "Checklist", value: uppercaseFirstLetter(item.checklist_name), icon: ListChecks } : null,
   item.task_description ? { label: "Task", value: uppercaseFirstLetter(item.task_description), icon: ClipboardList } : null,
 ].filter(Boolean);
@@ -78,7 +78,7 @@ const DetailField = ({ label, value, icon: Icon, badgeClassOverride }) => {
 
 // Tabella audit log riutilizzabile: usata sia dall'anteprima nella dashboard
 // superadmin sia dalla pagina dedicata /admin/audit-log.
-const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna attività da visualizzare.", containerClass = "" }) => (
+const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna attività da visualizzare.", containerClass = "", hideProjectContext = false }) => (
   <StandardTable
     containerClass={containerClass}
     headers={HEADERS}
@@ -91,7 +91,7 @@ const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna
       const { outcome, ...restDetails } = Object.fromEntries(
         Object.entries(rawDetails).filter(([key]) => key !== "checklistId" && key !== "templateId" && key !== "itemId" && key !== "sessionId"),
       );
-      const contextParts = buildContextParts(item);
+      const contextParts = buildContextParts(item, hideProjectContext);
       const action = auditActions[item.action];
       const Icon = action?.icon || Activity;
       const isCurrentUser = currentUserId != null && currentUserId === item.user_id;

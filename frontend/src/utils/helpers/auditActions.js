@@ -254,12 +254,10 @@ export const detailFieldMap = {
   outcome: { label: "Esito" },
   reason: { label: "Motivo" },
   projectName: { label: "Progetto" },
-  testerNome: { label: "Nome tester" },
-  testerCognome: { label: "Cognome tester" },
   deadline: { label: "Scadenza" },
   newDeadline: { label: "Nuova scadenza" },
-  newManagerNome: { label: "Nuovo responsabile" },
-  newManagerCognome: { label: "Cognome nuovo responsabile" },
+  taskDescriptions: { label: "Task" },
+  checklistTitles: { label: "Checklist" },
 };
 
 // fallback per chiavi non ancora mappate (un campo nuovo nel BE non rompe la UI)
