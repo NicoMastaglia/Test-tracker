@@ -133,8 +133,8 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
 
   const editingChecklist = checklistItems.find((cl) => cl.checklist_id === editingId);
   const hasChecklistChanges =
-    formData.title.trim() !== (editingChecklist?.title ?? "").trim() ||
-    formData.description.trim() !== (editingChecklist?.description ?? "").trim();
+    (formData.title ?? "").trim() !== (editingChecklist?.title ?? "").trim() ||
+    (formData.description ?? "").trim() !== (editingChecklist?.description ?? "").trim();
 
   const checklistFilters = [
     { value: "Non Iniziata", label: "Non iniziate", count: countByStatus("Non Iniziata") },
@@ -184,7 +184,7 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
         modalOpen={modalForEdit}
         setModalOpen={setModalForEdit}
         onClose={() => {
-          setFormData({ title: "" });
+          setFormData({ title: "", description: "" });
           setEditingId(null);
         }}
         title="Modifica Checklist"
@@ -229,7 +229,7 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
       <ModalForm
         modalOpen={modal}
         setModalOpen={setModal}
-        onClose={() => setFormData({ title: "" })}
+        onClose={() => setFormData({ title: "", description: "" })}
         title="Nuova Checklist"
         infos="Crea un template checklist associato al progetto corrente."
         fields={checklistFields}

@@ -21,5 +21,7 @@ export const resolveDetailValue = (key, value, item) => {
   if (key === "checklistItemIds" && Array.isArray(value)) {
     return `${value.length} task`;
   }
-  return String(value);
+  
+  // (es. una nota facoltativa lasciata vuota)
+  return value == null ? "—" : String(value);
 };

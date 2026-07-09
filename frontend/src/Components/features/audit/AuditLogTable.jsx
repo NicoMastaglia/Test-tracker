@@ -52,11 +52,18 @@ const getValueBadgeClass = (value) => {
 
 const DATE_DETAIL_KEYS = new Set(["deadline", "newDeadline"]);
 
+
+const FREE_TEXT_KEYS = new Set([
+  "title", "description", "newDescription", "reason", "note",
+  "taskDescriptions", "checklistTitles", "projectName", "deletedProject",
+]);
+
 // singolo campo della griglia: etichetta piccola maiuscola + valore in grassetto,
 // o badge colorato al posto del valore quando riconosciuto come stato/ruolo.
 // badgeClassOverride copre i casi con una palette dedicata già esistente (es. Esito).
-const DetailField = ({ label, value, icon: Icon, badgeClassOverride }) => {
+const DetailField = ({ label, value, icon: Icon, badgeClassOverride, freeText = false }) => {
   const badgeClass = badgeClassOverride ?? getValueBadgeClass(value);
+  const displayValue = freeText || badgeClass ? uppercaseFirstLetter(String(value ?? "")) || value : value;
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
       <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -65,11 +72,11 @@ const DetailField = ({ label, value, icon: Icon, badgeClassOverride }) => {
       </span>
       {badgeClass ? (
         <span className={`inline-flex w-fit items-center rounded-md px-1.5 py-0.5 text-xs font-bold ${badgeClass}`}>
-          {value}
+          {displayValue}
         </span>
       ) : (
-        <span className="truncate text-sm font-bold text-foreground" title={String(value ?? "")}>
-          {value}
+        <span className="truncate text-sm font-bold text-foreground" title={String(displayValue ?? "")}>
+          {displayValue}
         </span>
       )}
     </div>
@@ -108,6 +115,7 @@ const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna
             label: field.label,
             value: isDate ? formatProjectDate(value) : resolveDetailValue(key, value, item),
             icon: isDate ? CalendarClock : undefined,
+            freeText: FREE_TEXT_KEYS.has(key),
           };
         }),
       ];
@@ -128,8 +136,8 @@ const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna
             </div>
           </TableCell>
 
-          <TableCell className="px-4 py-3 text-center">
-            <div className="flex items-center justify-center gap-2.5">
+          <TableCell className="px-4 py-3 text-left">
+            <div className="flex items-center justify-start gap-2.5">
               <UserAvatar user={item} size="sm" />
               <span className="text-sm font-semibold text-foreground">
                 {getFullName(item)}
@@ -151,7 +159,7 @@ const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna
             {fields.length > 0 ? (
               <div className="mx-auto grid w-full max-w-sm grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-border bg-card p-4 text-left shadow-sm sm:grid-cols-3">
                 {fields.map((f, idx) => (
-                  <DetailField key={`${f.label}-${idx}`} label={f.label} value={f.value} icon={f.icon} badgeClassOverride={f.badgeClassOverride} />
+                  <DetailField key={`${f.label}-${idx}`} label={f.label} value={f.value} icon={f.icon} badgeClassOverride={f.badgeClassOverride} freeText={f.freeText} />
                 ))}
               </div>
             ) : (

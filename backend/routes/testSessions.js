@@ -364,12 +364,15 @@ router.delete("/:id", checkAdmin, async (req, res) => {
       });
     }
 
-    await logActivity(req.user.id, projectRows[0].project_id, "session.deleted", {
+    const sessionDeletedDetails = {
       sessionId: sessionId,
       userId: projectRows[0].user_id,
-      taskDescriptions: sessionTasks.map((t) => t.description).join(", "),
-      checklistTitles: [...new Set(sessionTasks.map((t) => t.checklist_title))].join(", "),
-    });
+    };
+    if (sessionTasks.length > 0) {
+      sessionDeletedDetails.taskDescriptions = sessionTasks.map((t) => t.description).join(", ");
+      sessionDeletedDetails.checklistTitles = [...new Set(sessionTasks.map((t) => t.checklist_title))].join(", ");
+    }
+    await logActivity(req.user.id, projectRows[0].project_id, "session.deleted", sessionDeletedDetails);
     return res
       .status(200)
       .json({ message: "Sessione di test eliminata con successo" });
@@ -662,9 +665,19 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
      await logActivity(userId,projectId,'task.status_changed',{sessionId:sessionId,itemId:itemId,outcome:outcome,note:normalizedNote})
 
     if(sessionCloseResult.affectedRows > 0){
-      await logActivity(userId,projectId,'session.completed',{sessionId:sessionId})
-
-
+      const [sessionTasks] = await db.execute(
+        `SELECT ci.description, ct.title AS checklist_title
+         FROM session_task st
+         JOIN checklist_item ci ON st.checklist_item_id = ci.id
+         JOIN checklist_template ct ON ci.template_id = ct.id
+         WHERE st.session_id = ?`,
+        [sessionId],
+      );
+      await logActivity(userId, projectId, 'session.completed', {
+        sessionId: sessionId,
+        taskDescriptions: sessionTasks.map((t) => t.description).join(", "),
+        checklistTitles: [...new Set(sessionTasks.map((t) => t.checklist_title))].join(", "),
+      });
     }
     
     

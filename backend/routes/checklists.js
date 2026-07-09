@@ -100,10 +100,9 @@ router.post("/", checkAdmin, async (req, res) => {
       [trimmedTitle, project_id, createdBy, trimmedDescription],
     );
     
-    await logActivity(req.user.id, project_id, "checklist.created", {
-      checklistId: result.insertId,
-      title: trimmedTitle,
-    });
+    const checklistCreatedDetails = { checklistId: result.insertId };
+    if (trimmedDescription) checklistCreatedDetails.description = trimmedDescription;
+    await logActivity(req.user.id, project_id, "checklist.created", checklistCreatedDetails);
     res.status(201).json({
       id: result.insertId,
       title: trimmedTitle,

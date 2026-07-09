@@ -60,12 +60,12 @@ export const auditActions = {
     icon: UserPlus,
   },
   "user.updated": {
-    label: "USER AGGIORNATO",
+    label: "UTENTE AGGIORNATO",
     color: "text-sky-700 dark:text-sky-400",
     icon: UserPen,
   },
   "user.deleted": {
-    label: "USER ELIMINATO",
+    label: "UTENTE ELIMINATO",
     color: "text-red-700 dark:text-red-400",
     icon: UserMinus,
   },
@@ -154,13 +154,13 @@ export const auditActions = {
     icon: SquareX,
   },
   "task.assigned": {
-    label: "TASK : TESTER ASSEGNATO",
+    label: "TASK: TESTER ASSEGNATO",
     color: "text-teal-700 dark:text-teal-400",
     bgColor: "bg-teal-50 dark:bg-teal-500/10",
     icon: UserCheck,
   },
   "task.unassigned": {
-    label: "TASK : TESTER RIMOSSO",
+    label: "TASK: TESTER RIMOSSO",
     color: "text-orange-700 dark:text-orange-400",
     bgColor: "bg-orange-50 dark:bg-orange-500/10",
     icon: UserX,
@@ -178,7 +178,7 @@ export const auditActions = {
     icon: Archive,
   },
   "task.unarchived": {
-    label: "TASK RIPRISTINATA",
+    label: "TASK RIAPERTA",
     color: "text-lime-700 dark:text-lime-400",
     bgColor: "bg-lime-50 dark:bg-lime-500/10",
     icon: RotateCcw,
