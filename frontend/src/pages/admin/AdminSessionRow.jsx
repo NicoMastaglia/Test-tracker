@@ -16,7 +16,7 @@ const AdminSessionRow = ({ session, onView }) => {
       <TableCell className="font-mono text-muted-foreground">{session.id}</TableCell>
 
       <TableCell>
-        <span className="capitalize font-medium text-foreground">
+        <span className="capitalize font-bold text-foreground">
           {session.project_name || "Progetto non disponibile"}
         </span>
       </TableCell>

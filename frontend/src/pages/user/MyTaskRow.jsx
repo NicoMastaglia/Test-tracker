@@ -10,18 +10,18 @@ const MyTaskRow = ({ task }) => {
   return (
     <TableRow className="text-center transition-colors hover:bg-muted/50">
       <TableCell className="max-w-xs">
-        <span className="text-foreground text-sm">
+        <span className="text-foreground text-sm font-bold">
           {uppercaseFirstLetter(task.description) || "Nessuna descrizione"}
         </span>
       </TableCell>
 
       <TableCell>
-        <span className="capitalize font-medium text-foreground">
+        <span className="capitalize text-foreground">
           {task.project_name || "Progetto non disponibile"}
         </span>
       </TableCell>
 
-      <TableCell className="text-muted-foreground">
+      <TableCell className="capitalize text-foreground">
         {uppercaseFirstLetter(task.checklist_title) || "—"}
       </TableCell>
 

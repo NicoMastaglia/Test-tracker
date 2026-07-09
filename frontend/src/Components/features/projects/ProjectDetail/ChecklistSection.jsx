@@ -97,12 +97,7 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
 
   const handleEdit = async () => {
     if (!editingId) return;
-
-    const editingChecklist = checklistItems.find((cl) => cl.checklist_id === editingId);
-    const hasChanges =
-      formData.title.trim() !== (editingChecklist?.title ?? "").trim() ||
-      formData.description.trim() !== (editingChecklist?.description ?? "").trim();
-    if (!hasChanges) {
+    if (!hasChecklistChanges) {
       toast.info("Nessuna modifica da salvare");
       return;
     }
@@ -135,6 +130,11 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
   };
 
 
+
+  const editingChecklist = checklistItems.find((cl) => cl.checklist_id === editingId);
+  const hasChecklistChanges =
+    formData.title.trim() !== (editingChecklist?.title ?? "").trim() ||
+    formData.description.trim() !== (editingChecklist?.description ?? "").trim();
 
   const checklistFilters = [
     { value: "Non Iniziata", label: "Non iniziate", count: countByStatus("Non Iniziata") },
@@ -192,9 +192,10 @@ const ChecklistSection = ({ projectId, isAdmin, isCompleted = false, isPaused = 
         fields={checklistFields}
         formData={formData}
         setFormData={setFormData}
-        onSubmit={handleEdit} 
+        onSubmit={handleEdit}
         submitLabel="Salva modifiche"
         cancelLabel="Annulla"
+        submitDisabled={!hasChecklistChanges}
       />
 
       {/* DIALOG CONFERMA ELIMINAZIONE */}

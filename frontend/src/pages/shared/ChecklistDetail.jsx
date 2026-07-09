@@ -217,10 +217,7 @@ const ChecklistDetail = () => {
       toast.error("La descrizione del task non può essere vuota");
       return;
     }
-    const hasChanges =
-      editTaskFormData.description.trim() !== (editTaskTarget?.description ?? "").trim() ||
-      editTaskFormData.deadline !== toDateInputValue(editTaskTarget?.deadline);
-    if (!hasChanges) {
+    if (!hasEditTaskChanges) {
       toast.info("Nessuna modifica da salvare");
       return;
     }
@@ -364,7 +361,9 @@ const handleReopen = async (task) => {
 }
 
 
-
+  const hasEditTaskChanges =
+    editTaskFormData.description.trim() !== (editTaskTarget?.description ?? "").trim() ||
+    editTaskFormData.deadline !== toDateInputValue(editTaskTarget?.deadline);
 
   return (
     <AppLayout page="checklists">
@@ -465,6 +464,7 @@ const handleReopen = async (task) => {
         cancelLabel="Annulla"
         titleIcon={Pencil}
         iconColor="text-emerald-500"
+        submitDisabled={!hasEditTaskChanges}
       />
       {/* MODALE PER ELIMINARE UN TASK ESISTENTE  */}
       <DeleteConfirmModal

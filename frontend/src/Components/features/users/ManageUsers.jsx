@@ -50,7 +50,7 @@ const ManageUsers = ({ data }) => {
             <TableCell className="text-left text-foreground">
               <div className="flex items-center justify-start gap-3">
                 <UserAvatar user={userItem} size="sm" />
-                <span className="font-semibold text-foreground">
+                <span className="font-bold text-foreground">
                   {getFullName(userItem)}
                   {user.id === userItem.id ? <span className="font-normal text-muted-foreground"> (tu)</span> : ''}
                 </span>

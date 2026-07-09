@@ -130,6 +130,7 @@ const ModalForm = ({
 	iconColor = "text-muted-foreground", // <--- 3. PROP PER IL COLORE DELL'ICONA
 	loading = false,
 	loadingLabel,
+	submitDisabled = false,
 }) => {
 
     
@@ -198,7 +199,7 @@ const ModalForm = ({
 						<Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={loading} className="hover:bg-muted">
 							{cancelLabel}
 						</Button>
-						<Button type="submit" variant={submitVariant} className={submitClassName} disabled={loading}>
+						<Button type="submit" variant={submitVariant} className={submitClassName} disabled={loading || submitDisabled}>
 							{loading ? (
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />

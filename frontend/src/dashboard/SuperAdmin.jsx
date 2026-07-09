@@ -25,9 +25,9 @@ const SuperAdminDashboard = ({ navigate }) => {
   const { fetchGlobalAudit } = useAuditContext();
 
   useEffect(() => {
-    // anteprima in dashboard: solo le ultime 5, l'elenco completo sta in /admin/audit-log
+    // anteprima in dashboard: solo le ultime 3, l'elenco completo sta in /admin/audit-log
     // si può modificare 
-    fetchGlobalAudit(5).then((auditData) => {
+    fetchGlobalAudit(3).then((auditData) => {
       setAudit(auditData?.activities ?? []);
     }).catch(() => setAudit([]));
 
@@ -89,8 +89,8 @@ const SuperAdminDashboard = ({ navigate }) => {
     },
   ];
 
-  // prime 5 sessioni per l'anteprima in dashboard (tutte le sessioni visibili al superadmin)
-  const previewSessions = sessionList.slice(0, 5);
+  // prime 10 sessioni per l'anteprima in dashboard (tutte le sessioni visibili al superadmin)
+  const previewSessions = sessionList.slice(0, 10);
 
   const sessionPreviewHeaders = [
     { key: "project", label: "Progetto", className: "text-left font-semibold text-foreground px-4 py-3" },
@@ -185,7 +185,7 @@ const SuperAdminDashboard = ({ navigate }) => {
                     onClick={() => navigate(`/sessions/${session.id}`)}
                     {...getClickableRowProps(() => navigate(`/sessions/${session.id}`))}
                   >
-                    <TableCell className="px-4 py-2.5 font-medium text-foreground">
+                    <TableCell className="px-4 py-2.5 font-medium text-foreground capitalize">
                       {session.project_name ?? "—"}
                     </TableCell>
                     <TableCell className="px-4 py-2.5 text-foreground/80">

@@ -186,12 +186,7 @@ const ProjectDetail = () => {
       return;
     }
 
-    const hasChanges =
-      editFormData.name.trim() !== (selectedProject?.name ?? "").trim() ||
-      editFormData.description.trim() !== (selectedProject?.description ?? "").trim() ||
-      editFormData.deadline !== toDateInputValue(selectedProject?.deadline) ||
-      (isSuperAdmin && editFormData.responsabile !== (selectedProject?.manager?.id ? String(selectedProject.manager.id) : ""));
-    if (!hasChanges) {
+    if (!hasProjectChanges) {
       toast.info("Nessuna modifica da salvare");
       return;
     }

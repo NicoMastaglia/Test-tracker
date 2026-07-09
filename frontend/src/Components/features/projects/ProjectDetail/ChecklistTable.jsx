@@ -107,7 +107,7 @@ const ChecklistTable = ({
             {/* 1. CELLA: INFO CHECKLIST (solo nome e descrizione, niente icona) */}
             <TableCell className="text-center px-5 py-3.5">
               <div className="flex flex-col text-left min-w-0">
-                <span className="font-semibold text-foreground text-sm leading-tight">
+                <span className="font-bold text-foreground text-sm leading-tight capitalize">
                   {uppercaseFirstLetter(cl.title)}
                 </span>
                 <span className="text-xs text-muted-foreground mt-0.5 truncate max-w-md">

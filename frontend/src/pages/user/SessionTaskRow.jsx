@@ -23,7 +23,7 @@ const SessionTaskRow = ({ task, onEdit, readOnly = false, currentUserId, onReope
     <TableRow className="text-center group transition-colors hover:bg-muted/50">
       <TableCell>
         <span className="flex flex-col">
-          <span className="font-medium text-foreground">{task.description}</span>
+          <span className=" text-foreground capitalize font-bold">{task.description}</span>
           {task.checklist_title && (
             <span className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
               <ListChecks className="h-3 w-3 shrink-0" />

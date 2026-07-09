@@ -36,7 +36,7 @@ const ProjectRow = ({ project, isAdmin, isSuperadmin, users, handleProjectRowCli
 >
   {/* 1. CELLA: INFO PROGETTO (Centrata) */}
   <TableCell className="text-center px-4 py-3">
-    <p className="font-semibold text-foreground text-sm leading-tight">
+    <p className="capitalize font-bold text-foreground text-sm leading-tight">
       {uppercaseFirstLetter(project.name)}
     </p>
   </TableCell>

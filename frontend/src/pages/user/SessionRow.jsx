@@ -18,7 +18,7 @@ const SessionRow = ({ session, onView }) => {
     </TableCell>
 
     <TableCell>
-      <span className="capitalize font-medium text-foreground">
+      <span className="capitalize  text-foreground font-bold">
         {session.project_name || "Progetto non disponibile"}
       </span>
     </TableCell>
