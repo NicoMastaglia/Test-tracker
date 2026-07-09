@@ -302,6 +302,17 @@ export const isDateInPast = (dateStr) => {
   return date < today;
 };
 
+// differenza in giorni di calendario tra due date (toDateStr - fromDateStr), stessa
+// normalizzazione a mezzanotte di isDateInPast. Usato per confrontare la scadenza di
+// una task con quella del progetto a cui appartiene.
+export const getDaysDifference = (fromDateStr, toDateStr) => {
+  const from = new Date(fromDateStr);
+  from.setHours(0, 0, 0, 0);
+  const to = new Date(toDateStr);
+  to.setHours(0, 0, 0, 0);
+  return Math.round((to - from) / (1000 * 60 * 60 * 24));
+};
+
 // calcola lo stato di scadenza di un'entità qualsiasi (task, progetto...) a partire da una data
 // opzionale: isDone=true (es. task Completata/Archiviata, progetto Completato) neutralizza il
 // colore e il conteggio giorni, così un elemento concluso non appare "scaduto" in rosso.

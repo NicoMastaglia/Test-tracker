@@ -17,7 +17,8 @@ export const projectFields = [
 		label: "Descrizione",
 		type: "textarea",
 		rows: 4,
-		placeholder: "Inserisci una descrizione del progetto (opzionale)",
+		placeholder: "Inserisci una descrizione del progetto",
+		required: true,
 	},
 	{
 		name: "deadline",

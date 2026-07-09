@@ -61,8 +61,8 @@ const ProjectTable = ({ data, users = [] }) => {
   // il responsabile è riassegnabile solo dal superadmin (il BE ignora manager_id per admin)
   const editFields = useMemo(() => {
     const base = [
-      { name: "name", label: "Nome", type: "text" },
-      { name: "description", label: "Descrizione", type: "textarea" },
+      { name: "name", label: "Nome", type: "text", required: true },
+      { name: "description", label: "Descrizione", type: "textarea", required: true },
       { name: "deadline", label: "Deadline", type: "date" },
     ];
     if (!isSuperadmin) return base;

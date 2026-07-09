@@ -12,7 +12,7 @@ import ProjectCompletedBanner from "@/utils/components/ProjectCompletedBanner";
 import Loader from "@/utils/components/Loader";
 import { ArrowLeft, ChevronRight, Pencil, User2,UserMinus, CircleSlash} from "lucide-react";
 import { toast } from "sonner";
-import { getFullName, toDateInputValue, isDateInPast } from "@/utils/helpers/tableHelpers";
+import { getFullName, toDateInputValue, isDateInPast, getDaysDifference, formatProjectDate } from "@/utils/helpers/tableHelpers";
 import {useTaskContext} from "@/context/Task/TaskContext"
 import { withMinDuration } from "@/utils/helpers/withMinDuration";
 
@@ -60,6 +60,10 @@ const ChecklistDetail = () => {
   const [deletingTask, setDeletingTask] = useState(false);
   const [blockTaskTarget, setBlockTaskTarget] = useState(null);
   const [currentTask,setCurrentTask] = useState(null)
+  
+  // scadenza task oltre quella del progetto: non è un'azione irreversibile, quindi
+  // non blocchiamo, ma chiediamo conferma esplicita mostrando le due date e lo scarto
+  const [deadlineWarning, setDeadlineWarning] = useState(null);
 
 
   // FORM DATA
@@ -157,6 +161,18 @@ const ChecklistDetail = () => {
 
    {/* CHIAMATE API */}
 
+  {/* CHIAMATA API EFFETTIVA DI AGGIUNTA TASK, richiamata direttamente o dopo conferma dal dialog scadenza */}
+  const submitAddTask = async () => {
+    try {
+      await addChecklistItem(checklist.checklist_id, { description: addTaskFormData.description.trim(), deadline: addTaskFormData.deadline || null });
+      await fetchChecklistsByProject(id);
+      toast.success("Task aggiunto con successo");
+      setAddTaskModalOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante l'aggiunta del task");
+    }
+  };
+
   {/* HANDLE PER AGGIUNGERE UNA TASK*/}
   const handleAddTask = async () => {
     if (!checklist?.checklist_id) return;
@@ -172,13 +188,25 @@ const ChecklistDetail = () => {
       toast.error("La scadenza non può essere una data passata");
       return;
     }
+    if (addTaskFormData.deadline && selectedProject?.deadline) {
+      const diffDays = getDaysDifference(selectedProject.deadline, addTaskFormData.deadline);
+      if (diffDays > 0) {
+        setDeadlineWarning({ type: "add", diffDays });
+        return;
+      }
+    }
+    await submitAddTask();
+  };
+
+  {/* CHIAMATA API EFFETTIVA DI MODIFICA TASK, richiamata direttamente o dopo conferma dal dialog scadenza */}
+  const submitEditTask = async () => {
     try {
-      await addChecklistItem(checklist.checklist_id, { description: addTaskFormData.description.trim(), deadline: addTaskFormData.deadline || null });
+      await updateChecklistItem(editTaskTarget.item_id, { description: editTaskFormData.description.trim(), deadline: editTaskFormData.deadline || null });
       await fetchChecklistsByProject(id);
-      toast.success("Task aggiunto con successo");
-      setAddTaskModalOpen(false);
+      toast.success("Task modificato con successo");
+      setEditTaskTarget(null);
     } catch (error) {
-      toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante l'aggiunta del task");
+      toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante la modifica del task");
     }
   };
 
@@ -197,14 +225,21 @@ const ChecklistDetail = () => {
       toast.error("La scadenza non può essere una data passata");
       return;
     }
-    try {
-      await updateChecklistItem(editTaskTarget.item_id, { description: editTaskFormData.description.trim(), deadline: editTaskFormData.deadline || null });
-      await fetchChecklistsByProject(id);
-      toast.success("Task modificato con successo");
-      setEditTaskTarget(null);
-    } catch (error) {
-      toast.error(error.response?.data?.message || error.response?.data?.error || "Errore durante la modifica del task");
+    if (editTaskFormData.deadline && selectedProject?.deadline) {
+      const diffDays = getDaysDifference(selectedProject.deadline, editTaskFormData.deadline);
+      if (diffDays > 0) {
+        setDeadlineWarning({ type: "edit", diffDays });
+        return;
+      }
     }
+    await submitEditTask();
+  };
+
+  {/* HANDLE PER CONFERMARE IL SALVATAGGIO NONOSTANTE LA SCADENZA OLTRE IL PROGETTO */}
+  const confirmDeadlineWarning = async () => {
+    if (deadlineWarning?.type === "add") await submitAddTask();
+    else if (deadlineWarning?.type === "edit") await submitEditTask();
+    setDeadlineWarning(null);
   };
   
   {/* HANDLE PER ELIMINARE UNA TASK*/}
@@ -519,6 +554,30 @@ const handleReopen = async (task) => {
         submitVariant="destructive"
       />
 
+      {/* MODALE DI CONFERMA: SCADENZA TASK OLTRE LA SCADENZA DEL PROGETTO */}
+      <ModalForm
+        modalOpen={!!deadlineWarning}
+        setModalOpen={(open) => { if (!open) setDeadlineWarning(null); }}
+        title="Scadenza oltre il progetto"
+        hasDescripion={true}
+        description={(
+          <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 text-sm dark:border-amber-500/20 dark:bg-amber-500/10">
+            <p className="text-amber-800 dark:text-amber-400">
+              Scadenza progetto: <strong>{formatProjectDate(selectedProject?.deadline)}</strong>
+              <br />
+              Scadenza inserita: <strong>{formatProjectDate(deadlineWarning?.type === "add" ? addTaskFormData.deadline : editTaskFormData.deadline)}</strong>
+              <br />
+              Supera la scadenza del progetto di <strong>{deadlineWarning?.diffDays} {deadlineWarning?.diffDays === 1 ? "giorno" : "giorni"}</strong>.
+            </p>
+          </div>
+        )}
+        onSubmit={confirmDeadlineWarning}
+        submitLabel="Continua comunque"
+        cancelLabel="Annulla"
+        dialogClassName="sm:max-w-105"
+        titleIcon={Pencil}
+        iconColor="text-amber-500"
+      />
 
     </AppLayout>
   );
