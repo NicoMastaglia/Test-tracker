@@ -894,6 +894,22 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
     })
    }
 
+   // il blocco può avvenire sia da TODO sia da In corso
+   //  se la task appartiene ancora a una sessione aperta con esito non
+   // ancora dato, lo sblocco la  riporta  a In corso, non a TODO — altrimenti il
+   // tester può comunque inviare l'esito ma la task resta bloccata su TODO per sempre
+   
+   let restoredStatus = nextStatus;
+   if (nextStatus === "TODO") {
+     const [openSessionTask] = await db.execute(
+       `SELECT 1 FROM session_task st
+        JOIN test_session ts ON st.session_id = ts.id
+        WHERE st.checklist_item_id = ? AND ts.status = 'In corso' AND st.outcome IS NULL
+        LIMIT 1`,
+       [itemID],
+     );
+     if (openSessionTask.length > 0) restoredStatus = "In corso";
+   }
 
     const [result] = await db.execute(
        `
@@ -901,7 +917,7 @@ router.patch('/item/:itemId/status',checkUser,async(req,res)=>{
         SET status = ?
         WHERE id = ?
        `,
-       [nextStatus, itemID]
+       [restoredStatus, itemID]
     )
 
     if(result.affectedRows === 0){

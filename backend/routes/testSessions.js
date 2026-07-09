@@ -646,11 +646,14 @@ router.patch('/:sessionId/task/:itemId',checkUser,async (req,res)=>{
 
     
  
+       // se la task è stata completata,
+       //  aggiorna lo status della task a "Completata" 
+       // solo se lo status attuale è "In corso" o "TODO"
       await db.execute(
         `
         UPDATE checklist_item ci
         set ci.status = 'Completata'
-        where ci.id = ? and ci.status = 'In corso'
+        where ci.id = ? and ci.status IN ('In corso', 'TODO')
         `,[itemId]
       )
     const [sessionCloseResult] = await db.execute(
