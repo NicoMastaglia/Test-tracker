@@ -134,7 +134,7 @@ router.post("/register", checkSuperadmin, async (req, res) => {
       "setupPassword",
       { token },
     ).catch((err) => console.error("Errore invio email di setup:", err.message));
-    await logActivity(userId, null, "user.registered", { email: trimmedEmail, role: trimmedRole });
+    await logActivity(req.user.id, null, "user.registered", { userId, email: trimmedEmail, role: trimmedRole });
 
     return res.status(201).json({ message: "Utente creato. Email di configurazione inviata." });
   } catch (err) {

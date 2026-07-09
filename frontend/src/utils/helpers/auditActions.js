@@ -54,7 +54,7 @@ export const auditActions = {
 
   // ---------------- USERS ----------------
   "user.registered": {
-    label: "USER REGISTRATO",
+    label: "UTENTE CREATO",
     color: " text-emerald-700 dark:text-emerald-400",
     bgColor: "bg-emerald-50 dark:bg-emerald-500/10",
     icon: UserPlus,
