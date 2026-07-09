@@ -480,14 +480,20 @@ router.put("/:id", checkAdmin, async (req, res) => {
     );
 
     if (existingProject.length > 0) {
-      return res.status(400).json({ 
-        message: "Errore nella richiesta", 
-        specific: "Un progetto con questo nome esiste già. Scegli un nome univoco." 
+      return res.status(400).json({
+        message: "Errore nella richiesta",
+        specific: "Un progetto con questo nome esiste già. Scegli un nome univoco."
       });
     }
+
+    // valori attuali, per loggare nell'audit log solo i campi che cambiano davvero
+    const [currentRows] = await db.execute("SELECT name, description, deadline, manager_id FROM project WHERE id = ?", [projectId]);
+    const current = currentRows[0];
+
     let updateQuery = "UPDATE project SET name = ?, description = ?, deadline = ?, updated_at = NOW()";
     let queryParams = [trimmedName, trimmedDescription, finalDeadline];
 
+    let newManagerId = null;
     if (req.user.role === "superadmin") {
       if (manager_id) {
         const [m] = await db.execute("SELECT id FROM user WHERE id = ? AND role = 'admin'", [manager_id]);
@@ -496,6 +502,7 @@ router.put("/:id", checkAdmin, async (req, res) => {
         }
         updateQuery += ", manager_id = ?";
         queryParams.push(manager_id);
+        newManagerId = Number(manager_id);
       }
       updateQuery += " WHERE id = ?";
       queryParams.push(projectId);
@@ -506,13 +513,36 @@ router.put("/:id", checkAdmin, async (req, res) => {
     const [result] = await db.execute(updateQuery, queryParams);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ 
-        message: "Errore nella richiesta", 
-        specific: "Progetto non trovato o permessi insufficienti." 
+      return res.status(404).json({
+        message: "Errore nella richiesta",
+        specific: "Progetto non trovato o permessi insufficienti."
       });
     }
-    
-    await logActivity(req.user.id,projectId,"project.updated",{name : trimmedName })
+
+    // niente toISOString: convertirebbe in UTC e farebbe slittare indietro di un
+    // giorno le date lette dal DB nei fusi avanti su UTC (es. Italia) — si estraggono
+    // invece i componenti data così come sono, locali per un Date, già pronti se stringa
+    const normalizeDate = (d) => {
+      if (!d) return null;
+      if (typeof d === "string") return d.slice(0, 10);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    };
+    const changes = {};
+    if (trimmedName !== current.name) changes.name = trimmedName;
+    if (trimmedDescription !== current.description) changes.description = trimmedDescription;
+    if (normalizeDate(finalDeadline) !== normalizeDate(current.deadline)) changes.deadline = finalDeadline;
+    if (newManagerId && newManagerId !== current.manager_id) {
+      const [newManager] = await db.execute("SELECT nome, cognome FROM user WHERE id = ?", [newManagerId]);
+      changes.newManagerNome = newManager[0]?.nome;
+      changes.newManagerCognome = newManager[0]?.cognome;
+    }
+    if (Object.keys(changes).length > 0) {
+      await logActivity(req.user.id, projectId, "project.updated", changes);
+    }
+
     return res.status(200).json({ message: "Progetto aggiornato con successo" });
 
   } catch (err) {

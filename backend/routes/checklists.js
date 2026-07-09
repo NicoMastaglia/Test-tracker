@@ -135,7 +135,7 @@ router.put("/:id", checkAdmin, async (req, res) => {
   try {
 
      const [results] = await db.execute(
-      "SELECT ct.id, ct.project_id FROM checklist_template ct WHERE ct.id = ?",
+      "SELECT ct.id, ct.project_id, ct.title, ct.description FROM checklist_template ct WHERE ct.id = ?",
       [checklistId],
     );
 
@@ -183,10 +183,12 @@ router.put("/:id", checkAdmin, async (req, res) => {
     );
 
     if (result.affectedRows === 1) {
-      await logActivity(req.user.id, project_id, "checklist.updated", {
-        checklistId: checklistId,
-        title: trimmedTitle,
-      });
+      const changes = {};
+      if (trimmedTitle !== results[0].title) changes.title = trimmedTitle;
+      if (trimmedDescription !== results[0].description) changes.description = trimmedDescription;
+      if (Object.keys(changes).length > 0) {
+        await logActivity(req.user.id, project_id, "checklist.updated", { checklistId, ...changes });
+      }
       return res
         .status(200)
         .json({ message: "Checklist aggiornata con successo" });
@@ -515,7 +517,7 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
 
 
     const [isOwnerResults] = await db.execute(
-      "SELECT ci.id, ci.template_id, ct.project_id, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
+      "SELECT ci.id, ci.template_id, ci.description, ci.deadline, ct.project_id, p.status AS project_status FROM checklist_item ci JOIN checklist_template ct ON ci.template_id = ct.id JOIN project p ON ct.project_id = p.id WHERE ci.id = ? AND (p.created_by = ? OR p.manager_id = ? OR ?)",
       [itemId, userId, userId, req.user.role === "superadmin"],
     );
 
@@ -564,11 +566,23 @@ router.put("/item/:id", checkAdmin, async (req, res) => {
         [templateId],
       );
 
-      await logActivity(req.user.id, projectId, "task.updated", {
-        itemId: itemId,
-        templateId: templateId,
-        newDescription: trimmedDescription,
-      });
+      // niente toISOString: farebbe slittare indietro di un giorno le date lette dal
+      // DB nei fusi avanti su UTC (es. Italia) — componenti data locali, già pronti se stringa
+      const normalizeDate = (d) => {
+        if (!d) return null;
+        if (typeof d === "string") return d.slice(0, 10);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      };
+      const newDeadlineValue = deadline || null;
+      const changes = {};
+      if (trimmedDescription !== isOwnerResults[0].description) changes.newDescription = trimmedDescription;
+      if (normalizeDate(newDeadlineValue) !== normalizeDate(isOwnerResults[0].deadline)) changes.newDeadline = newDeadlineValue;
+      if (Object.keys(changes).length > 0) {
+        await logActivity(req.user.id, projectId, "task.updated", { itemId, templateId, ...changes });
+      }
       return res.status(200).json({
         message: "Elemento della checklist aggiornato con successo",
         description: trimmedDescription,
