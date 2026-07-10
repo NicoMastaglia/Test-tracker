@@ -94,6 +94,7 @@ const Sessions = () => {
   const handleCreateSession = async (taskIds) => {
     try {
       await createSession(taskIds);
+      await fetchAssignedTasks();
       toast.success("Sessione creata");
       setAddSessionOpen(false);
     } catch (error) {

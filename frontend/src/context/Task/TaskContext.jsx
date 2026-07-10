@@ -42,9 +42,6 @@ export const TaskProvider = ({children}) => {
         try {
             const token = getToken();
             const assignedTask = await assignTaskToUserApi(token, taskId, userId);
-           
-            
-            // await fetchAssignedTasks();
             return assignedTask;
          
         }catch (error) {
@@ -61,14 +58,6 @@ export const TaskProvider = ({children}) => {
        try {
         const token = getToken()
         const updatedTask = await updateTaskStatusApi(token, taskId, status);
-
-
-        //  await fetchAssignedTasks();
-
-       
-
-
-  
         return updatedTask;
      
        }
@@ -85,7 +74,6 @@ export const TaskProvider = ({children}) => {
         try {
             const token = getToken();
             const result = await unassignTaskApi(token, taskId);
-            // await fetchAssignedTasks();
             return result;
         } catch (error) {
             dispatch({type:'SET_ERROR', payload: error.message})

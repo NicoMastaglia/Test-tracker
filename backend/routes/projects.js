@@ -560,6 +560,8 @@ router.patch("/:id/status", checkAdmin, async (req, res) => {
     return res.status(400).json({ error: "Richiesta non valida", message: "Lo stato non può essere vuoto." });
   }
 
+  // "In pausa" può tornare solo ad "Attivo", mai direttamente a "Completato": un
+  // progetto deve riprendere prima di poter essere chiuso, scelta intenzionale
   const ALLOWED = {
     "Non iniziato": ["Attivo"],
     "Attivo": ["Completato", "In pausa"],
@@ -959,7 +961,7 @@ router.get('/:id/activities',checkUser, async (req,res)=>{
 
   
 
-    const limit = Math.min(Number(req.query.limit) || 50, 500);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 500);
     const { dateFrom, dateTo } = req.query;
 
     const filterByUser = role === "user";

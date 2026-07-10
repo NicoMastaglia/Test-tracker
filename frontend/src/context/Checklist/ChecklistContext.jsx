@@ -9,18 +9,6 @@ import { useProjectContext } from "../Project/ProjectContext";
 
 const ChecklistContext = createContext();
 
-
-// Normalizza una checklist (il BE la restituisce GIÀ raggruppata, con items annidati)
-// const normalizeChecklistRow = (checklist) => ({
-//     id: checklist.id ?? checklist.checklist_id ?? null,
-//     checklist_id: checklist.checklist_id ?? checklist.template_id ?? checklist.id ?? null,
-//     title: checklist.title ?? checklist.name ?? "",
-//     project_id: checklist.project_id ?? checklist.projectId ?? null,
-//     last_updated: checklist.last_updated ?? null,
-//     items: Array.isArray(checklist.items) ? checklist.items : [],
-// });
-
-
  export const ChecklistProvider = ({children}) =>{
 
     const [state,dispatch] = useReducer(checklistReducer,initialState)
@@ -38,11 +26,12 @@ const ChecklistContext = createContext();
     try {
         const token = getToken()
         const data = await getChecklistsByProject(token,projectId)
-        // const normalized = Array.isArray(data) ? data.map(normalizeChecklistRow) : []
 
-        // if (latestProjectRequestRef.current !== requestId) {
-        //     return normalized;
-        // }
+        // risposta arrivata in ritardo rispetto a un fetch più recente (es. cambio
+        // progetto rapido): va ignorata, altrimenti sovrascriverebbe dati più aggiornati
+        if (latestProjectRequestRef.current !== requestId) {
+            return data;
+        }
 
         dispatch({type:'SET_CHECKLIST_ITEMS',payload:data})
         return  data

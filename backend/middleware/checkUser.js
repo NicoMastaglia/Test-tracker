@@ -25,13 +25,11 @@ const checkUser = async (req, res, next) => {
       decoded.role === "admin" ||
       decoded.role === "superadmin"
     ) {
+      if (await isTokenStale(decoded.id, decoded.iat)) {
+        return res.status(401).json({ message: "Sessione scaduta: la password è stata cambiata, effettua di nuovo il login" });
+      }
       req.user = { ...decoded, id: decoded.id, role: decoded.role };
       req.token = token;
-
-      if (await isTokenStale( decoded.id, decoded.iat)) {
-          
-        return res.status(401).json({ message: "Sessione scaduta: la password è stata cambiata, effettua di nuovo il login" });
-       }
       next();
     } else {
       return res.status(403).json({ message: "Accesso negato" });

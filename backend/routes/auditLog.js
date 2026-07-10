@@ -9,7 +9,7 @@ const db = require("../database/db");
 
 router.get('/',checkSuperadmin,async (req,res)=>{
 
-    const limit = Math.min(Number(req.query.limit) || 50, 500);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 500);
     const { dateFrom, dateTo } = req.query;
 
     try{
