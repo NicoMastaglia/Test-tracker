@@ -1,4 +1,5 @@
-import { Info, Activity, FolderKanban, ListChecks, ClipboardList, CircleDot, CalendarClock } from "lucide-react";
+import { useState } from "react";
+import { Info, Activity, FolderKanban, ListChecks, ClipboardList, CircleDot, CalendarClock, ChevronRight } from "lucide-react";
 import { TableCell, TableRow } from "@/Components/ui/table";
 import StandardTable from "@/utils/components/StandardTable";
 import UserAvatar from "@/utils/components/UserAvatar";
@@ -85,7 +86,20 @@ const DetailField = ({ label, value, icon: Icon, badgeClassOverride, freeText = 
 
 // Tabella audit log riutilizzabile: usata sia dall'anteprima nella dashboard
 // superadmin sia dalla pagina dedicata /admin/audit-log.
-const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna attività da visualizzare.", containerClass = "", hideProjectContext = false }) => (
+const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna attività da visualizzare.", containerClass = "", hideProjectContext = false, compact = false }) => {
+  // righe con la colonna Dettagli espansa: chiusa di default per tenere le righe
+  // compatte, un riepilogo minimo resta comunque visibile senza dover espandere
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
+  const toggleExpanded = (id) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  return (
   <StandardTable
     containerClass={containerClass}
     headers={HEADERS}
@@ -102,6 +116,7 @@ const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna
       const action = auditActions[item.action];
       const Icon = action?.icon || Activity;
       const isCurrentUser = currentUserId != null && currentUserId === item.user_id;
+      const isExpanded = expandedIds.has(item.id);
 
       // un unico elenco di campi da mostrare in griglia: contesto (dove) prima, poi
       // l'esito se presente, poi il resto dei dettagli così come arrivano
@@ -155,24 +170,63 @@ const AuditLogTable = ({ activities = [], currentUserId, emptyMessage = "Nessuna
             </div>
           </TableCell>
 
-          <TableCell className="px-4 py-3">
-            {fields.length > 0 ? (
-              <div className="mx-auto grid w-full max-w-sm grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-border bg-card p-4 text-left shadow-sm sm:grid-cols-3">
-                {fields.map((f, idx) => (
-                  <DetailField key={`${f.label}-${idx}`} label={f.label} value={f.value} icon={f.icon} badgeClassOverride={f.badgeClassOverride} freeText={f.freeText} />
-                ))}
-              </div>
-            ) : (
+          <TableCell className={`px-4 py-3 whitespace-normal ${compact ? "" : "min-w-95"}`}>
+            {fields.length === 0 ? (
               <div className="mx-auto flex w-fit items-center gap-2 rounded-xl border border-dashed border-border px-4 py-3 text-xs text-muted-foreground">
                 <Info className="h-3.5 w-3.5" />
                 Nessun dettaglio
               </div>
+            ) : compact ? (
+              // widget dashboard: anteprima su una riga sola, niente espandi/comprimi
+              // (il dettaglio completo si trova dietro "Vedi tutto")
+              (() => {
+                const CompactIcon = fields[0].icon;
+                return (
+                  <div className="flex w-full items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+                    {CompactIcon && <CompactIcon className="h-3.5 w-3.5 shrink-0" />}
+                    <span className="shrink-0 font-medium text-foreground">{fields[0].label}:</span>
+                    <span className="truncate">{fields[0].value}</span>
+                  </div>
+                );
+              })()
+            ) : fields.length === 1 ? (
+              // un solo campo: niente da comprimere, nessun bottone/chevron
+              <div className="flex w-full items-center rounded-xl border border-border bg-card px-4 py-2.5 shadow-sm">
+                <DetailField label={fields[0].label} value={fields[0].value} icon={fields[0].icon} badgeClassOverride={fields[0].badgeClassOverride} freeText={fields[0].freeText} />
+              </div>
+            ) : isExpanded ? (
+              <button
+                type="button"
+                onClick={() => toggleExpanded(item.id)}
+                className="grid w-full grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-x-4 gap-y-3 rounded-xl border border-border bg-card p-4 text-left shadow-sm cursor-pointer"
+              >
+                {fields.map((f, idx) => (
+                  <DetailField key={`${f.label}-${idx}`} label={f.label} value={f.value} icon={f.icon} badgeClassOverride={f.badgeClassOverride} freeText={f.freeText} />
+                ))}
+                <span className="col-span-full flex items-center justify-center gap-1 pt-1 text-[10px] font-medium text-muted-foreground">
+                  <ChevronRight className="h-3 w-3 rotate-90" />
+                  Comprimi
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => toggleExpanded(item.id)}
+                className="flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-left shadow-sm cursor-pointer hover:bg-muted/40"
+              >
+                <DetailField label={fields[0].label} value={fields[0].value} icon={fields[0].icon} badgeClassOverride={fields[0].badgeClassOverride} freeText={fields[0].freeText} />
+                <span className="flex shrink-0 items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                  {`+${fields.length - 1}`}
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </span>
+              </button>
             )}
           </TableCell>
         </TableRow>
       );
     }}
   />
-);
+  );
+};
 
 export default AuditLogTable;

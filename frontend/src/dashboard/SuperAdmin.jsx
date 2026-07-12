@@ -154,7 +154,7 @@ const SuperAdminDashboard = ({ navigate }) => {
             </Button>
           </CardHeader>
           <CardContent className="flex-1 py-1">
-            <AuditLogTable activities={audit_logs} currentUserId={user?.id} />
+            <AuditLogTable activities={audit_logs} currentUserId={user?.id} compact />
           </CardContent>
         </Card>
 
