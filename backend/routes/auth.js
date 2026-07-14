@@ -230,8 +230,8 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     const emailType = user.password_hash ? "resetPassword" : "setupPassword";
-     sendProjectEmail({ nome: user.nome, email: user.email }, emailType, { token }).catch((err)
-    => console.error("Errore invio email di setup/reset:", err.message));
+     sendProjectEmail({ nome: user.nome, email: user.email }, emailType, { token })
+     .catch((err) => console.error("Errore invio email di setup/reset:", err.message))
 
     
     
