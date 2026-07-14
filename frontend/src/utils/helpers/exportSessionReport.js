@@ -2,6 +2,10 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+// FILE PER IL DOWNLOAD DEL REPORT DI UNA SESSIONE DI TEST (EXCEL O PDF)
+
+
+// helper per costruire le righe della tabella del report
 const buildRows = (tasks) =>
   tasks.map((task) => ({
     Task: task.description ?? "",
@@ -10,11 +14,14 @@ const buildRows = (tasks) =>
     Nota: task.note ?? "",
   }));
 
+// helper per nome file del report, basato sul nome del progetto e id della sessione
 const buildFileName = (session, extension) => {
   const project = (session?.project_name ?? "sessione").replace(/[^a-z0-9]+/gi, "_");
   return `report_${project}_sessione_${session?.id ?? ""}.${extension}`;
 };
 
+
+// helper per esportare in Excel
 export const exportSessionToExcel = (session, tasks) => {
   const rows = buildRows(tasks);
   const worksheet = XLSX.utils.json_to_sheet(rows);
@@ -26,6 +33,7 @@ export const exportSessionToExcel = (session, tasks) => {
   XLSX.writeFile(workbook, buildFileName(session, "xlsx"));
 };
 
+// helper per esportare in PDF
 export const exportSessionToPdf = (session, tasks) => {
   const doc = new jsPDF();
 

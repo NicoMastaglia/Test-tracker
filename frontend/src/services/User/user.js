@@ -1,12 +1,15 @@
 import axios from 'axios'; 
 import { baseUrl,authConfig } from '../config';
 
+
+// GET LISTA UTENTI 
 export const getUsers = async (token) => {
   const response = await axios.get(`${baseUrl}/api/users`, authConfig(token));
   return response.data;
 };
 
 
+// GET DETTAGLI UTENTE LOGGATO 
 export const  getCurrentUser =async (token) =>{
 
     const response  = await axios.get(`${baseUrl}/api/users/me`,authConfig(token))
@@ -14,11 +17,14 @@ export const  getCurrentUser =async (token) =>{
 
 }
 
+// PUT MODIFICA UTENTE LOGGATO
 export  const updateCurrentUser = async(token,userData) =>{
     const response = await axios.put(`${baseUrl}/api/users/me`,userData,authConfig(token))
     return response.data
 }
 
+
+// PATCH MODIFICA PASSWORD UTENTE LOGGATO
 export  const updateCurrentUserPassword = async(token,Oldpassword,Newpassword) =>{
 
 
@@ -28,15 +34,15 @@ export  const updateCurrentUserPassword = async(token,Oldpassword,Newpassword) =
 
     
 
-/* PER ADMIN E SUPERADMIN*/
 
+// GET DETTAGLI UTENTI PER ID 
 export const  getUserById = async (token,userId) =>{
 
     const response = await axios.get(`${baseUrl}/api/users/${userId}`,authConfig(token))
     return response.data 
 
 }
-
+// PATCH MODIFICA UTENTE PER ID
 export const updateUserById = async (token,userId,userData) =>{
 
     const response = await axios.put(`${baseUrl}/api/users/${userId}`,userData,authConfig(token))
@@ -45,6 +51,7 @@ export const updateUserById = async (token,userId,userData) =>{
 
 }
 
+// PATCH  ELIMINA UTENTE PER ID 
 export  const deleteUserById = async (token,userId) =>{
     const response = await axios.delete(`${baseUrl}/api/users/${userId}`,authConfig(token))
 
@@ -52,6 +59,7 @@ export  const deleteUserById = async (token,userId) =>{
     return response.data
 }
 
+// PATCH MODIFICA RUOLO UTENTE PER ID
 export const updateUserRoleById = async (token,userId,newRole) =>{
 
     const response = await axios.patch(`${baseUrl}/api/users/${userId}/role`,{role:newRole},authConfig(token))
@@ -61,6 +69,7 @@ export const updateUserRoleById = async (token,userId,newRole) =>{
 
 }
 
+// GET RESTIUISCE DATI UTENTE,PROGETTI ASSEGNATI,E SESSSIONI 
 export const getUserRelations = async (token,userId) =>{
 
     const response = await axios.get(`${baseUrl}/api/users/${userId}/relations`,authConfig(token))

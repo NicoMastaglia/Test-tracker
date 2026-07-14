@@ -38,7 +38,7 @@ export default function AppRouter() {
           element={<Navigate to="/login" replace />}
         />
 
-        {/* SHARED DASHBOARD */}
+        {/* SHARED*/}
         <Route
           path="/dashboard"
           element={
@@ -53,6 +53,16 @@ export default function AppRouter() {
           element={
             <ProtectedRoute allowedRoles={["superadmin", "admin", "user"]}>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+        
+        
+         <Route
+          path="/sessions/:id"
+          element={
+            <ProtectedRoute allowedRoles={["user", "admin", "superadmin"]}>
+              <SessionDetail />
             </ProtectedRoute>
           }
         />
@@ -78,6 +88,24 @@ export default function AppRouter() {
     </ProtectedRoute>
   }
 />
+<Route
+          path="/sessions-test"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <Sessions />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user/tasks"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <MyTasks />
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* ADMIN + SUPERADMIN ROUTES */}
         <Route
@@ -144,34 +172,10 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+         
+       
 
-        <Route
-          path="/sessions/:id"
-          element={
-            <ProtectedRoute allowedRoles={["user", "admin", "superadmin"]}>
-              <SessionDetail />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/sessions-test"
-          element={
-            <ProtectedRoute allowedRoles={["user"]}>
-              <Sessions />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/user/tasks"
-          element={
-            <ProtectedRoute allowedRoles={["user"]}>
-              <MyTasks />
-            </ProtectedRoute>
-          }
-        />
-
+        
 
         {/* FALLBACK */}
         <Route path="*" element={<NotFound />} />

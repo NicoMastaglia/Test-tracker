@@ -1,6 +1,8 @@
 import axios from "axios";
 import { baseUrl, authConfig } from "../config";
 
+
+// POST NUOVA CHECKLIST 
 export const createChecklist = async (token, checklistData) => {
 	const res = await axios.post(
 		`${baseUrl}/api/checklists`,
@@ -10,6 +12,7 @@ export const createChecklist = async (token, checklistData) => {
 	return res.data;
 };
 
+// PUT MODIFICA CHECKLIST 
 export const updateChecklist = async (token, checklistId, checklistData) => {
 	const res = await axios.put(
 		`${baseUrl}/api/checklists/${checklistId}`,
@@ -20,7 +23,7 @@ export const updateChecklist = async (token, checklistId, checklistData) => {
 };
 
 
-// elimina checklist
+// DELETE CHECKLIST 
 export const deleteChecklist = async (token, checklistId) => {
 	const res = await axios.delete(
 		`${baseUrl}/api/checklists/${checklistId}`,
@@ -29,6 +32,7 @@ export const deleteChecklist = async (token, checklistId) => {
 	return res.data;
 };
 
+// GET CHECKLISTS BY PROJECT
 export const getChecklistsByProject = async (token, projectId) => {
 	const res = await axios.get(
 		`${baseUrl}/api/checklists/${projectId}`,
@@ -37,6 +41,8 @@ export const getChecklistsByProject = async (token, projectId) => {
 	return res.data;
 };
 
+
+// POST NUOVO ITEM CHECKLIST (TASK)
 export const addChecklistItem = async (token, templateId, itemData) => {
 	const res = await axios.post(
 		`${baseUrl}/api/checklists/${templateId}/item`,
@@ -46,6 +52,7 @@ export const addChecklistItem = async (token, templateId, itemData) => {
 	return res.data;
 };
 
+// PUT MODIFICA ITEM CHECKLIST (TASK)
 export const updateChecklistItem = async (token, itemId, itemData) => {
 	const res = await axios.put(
 		`${baseUrl}/api/checklists/item/${itemId}`,
@@ -55,6 +62,7 @@ export const updateChecklistItem = async (token, itemId, itemData) => {
 	return res.data;
 };
 
+// DELETE ITEM CHECKLIST (TASK)
 export const deleteChecklistItem = async (token, itemId) => {
 	const res = await axios.delete(
 		`${baseUrl}/api/checklists/item/${itemId}`,

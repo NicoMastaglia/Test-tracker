@@ -22,7 +22,10 @@ createRoot(document.getElementById('root')).render(
             <SessionProvider>
               <AuditProvider>
                 <TaskProvider>
+
                 <App/>
+
+                
                 </TaskProvider>
               </AuditProvider>
             </SessionProvider>

@@ -3,6 +3,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { getFullName, formatProjectDateTime } from "@/utils/helpers/tableHelpers";
 
+
+// STESSA LOGICA DI exportSessionReport.js, MA PER IL DOWNLOAD DEL REPORT DI PIÙ SESSIONI (EXCEL O PDF)
+
 const buildRows = (sessions) =>
   sessions.map((s) => ({
     "#": s.id,

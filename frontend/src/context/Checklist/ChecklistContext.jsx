@@ -13,12 +13,18 @@ const ChecklistContext = createContext();
 
     const [state,dispatch] = useReducer(checklistReducer,initialState)
     const { fetchProjects } = useProjectContext();
+    
+    
+    // ref per tenere traccia della richiesta più recente per fetchChecklistsByProject
      const latestProjectRequestRef = useRef(0);
 
 
 
    const fetchChecklistsByProject = async (projectId) => {
-    const requestId = latestProjectRequestRef.current + 1;
+    // id della chiamata corrente 
+    const requestId = ++latestProjectRequestRef.current;
+    
+    // id dell'ultima richiesta effettuata
     latestProjectRequestRef.current = requestId;
 
     dispatch({type:'SET_LOADING'})
@@ -27,8 +33,9 @@ const ChecklistContext = createContext();
         const token = getToken()
         const data = await getChecklistsByProject(token,projectId)
 
-        // risposta arrivata in ritardo rispetto a un fetch più recente (es. cambio
-        // progetto rapido): va ignorata, altrimenti sovrascriverebbe dati più aggiornati
+        // Controlla se l'ID della richiesta corrente corrisponde all'ID della richiesta più recente
+        // Se non corrisponde, significa che è stata effettuata una nuova richiesta 
+        // e quindi ignoriamo i dati della richiesta precedente
         if (latestProjectRequestRef.current !== requestId) {
             return data;
         }
@@ -37,6 +44,7 @@ const ChecklistContext = createContext();
         return  data
     }
     catch(error){
+        // se l'ultima richiesta non corrisponde a quella corrente, ignora l'errore
         if (latestProjectRequestRef.current !== requestId) {
             return [];
         }

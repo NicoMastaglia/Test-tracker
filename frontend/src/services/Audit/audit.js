@@ -2,7 +2,8 @@ import axios from "axios";
 import { baseUrl, authConfig } from "../config";
 
 
-
+// GET GLOBAL AUDIT LOG 
+// params opzionali : limit, dateFrom,dateTo
 export const getGlobalAudit = async (token, limit, dateFrom, dateTo) => {
     const config = {
         ...authConfig(token),
@@ -16,7 +17,8 @@ export const getGlobalAudit = async (token, limit, dateFrom, dateTo) => {
     return res.data;
 };
 
-
+// GET PROJECT AUDIT LOG
+// params opzionali : limit, dateFrom,dateTo
 export const getProjectAudit = async (token, project_id, limit, dateFrom, dateTo) => {
     const config = {
         ...authConfig(token),

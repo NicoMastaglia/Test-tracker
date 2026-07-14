@@ -9,7 +9,8 @@ export const AuthProvider = ({ children }) => {
 
     const [state,dispatch] = useReducer(authReducer,initialState)
 
-
+    
+    
     const login =async (email,password) =>{
 
         dispatch({type:'LOGIN_START'})

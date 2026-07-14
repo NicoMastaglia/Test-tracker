@@ -25,6 +25,8 @@ import {
   UserCog,
 } from "lucide-react";
 
+// SERVE A DEFINIRE LE AZIONI DI AUDIT LOG, CON LABEL, COLORI E ICONA
+
 export const auditActions = {
   // ---------------- AUTH ----------------
   "auth.login": {
